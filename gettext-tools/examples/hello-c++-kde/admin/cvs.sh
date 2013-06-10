@@ -113,7 +113,7 @@ $ACLOCAL || exit 1
 echo "*** Creating configure"
 call_and_fix_autoconf
 
-if egrep "^AM_CONFIG_HEADER" configure.in >/dev/null 2>&1; then
+if egrep "^AC_CONFIG_HEADER" configure.in >/dev/null 2>&1; then
   echo "*** Creating config.h template"
   $AUTOHEADER || exit 1
 fi
