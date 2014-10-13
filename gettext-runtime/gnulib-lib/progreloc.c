@@ -44,6 +44,12 @@
 # include <windows.h>
 #endif
 
+#ifdef __EMX__
+# define INCL_DOS
+# include <os2.h>
+#endif
+
+
 #include "relocatable.h"
 
 #ifdef NO_XMALLOC
@@ -156,6 +162,18 @@ find_executable (const char *argv0)
   if (!IS_PATH_WITH_DIR (location))
     /* Shouldn't happen.  */
     return NULL;
+  return xstrdup (location);
+#elif defined __EMX__
+  PPIB ppib;
+  char location[CCHMAXPATH];
+
+  DosGetInfoBlocks (NULL, &ppib);
+
+  if (DosQueryModuleName (ppib->pib_hmte, sizeof (location), location))
+    return NULL;
+
+  _fnslashify (location);
+
   return xstrdup (location);
 #else /* Unix */
 # ifdef __linux__
