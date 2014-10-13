@@ -16,8 +16,10 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
 /* Get declarations of the native Windows API functions.  */
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
+#ifndef __KLIBC__
+# define WIN32_LEAN_AND_MEAN
+# include <windows.h>
+#endif
 
 /* Get _open_osfhandle().  */
 #include <io.h>
