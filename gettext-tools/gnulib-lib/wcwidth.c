@@ -26,6 +26,15 @@
 #include "streq.h"
 #include "uniwidth.h"
 
+#ifdef __KLIBC__
+/* To avoid 'conflicting types' error for `__wcwidth' on OS/2 kLIBC.
+   wchar_t(unsigned short) is defined differently from wint_t(int) on
+   OS/2 kLIBC. */
+#undef wcwidth
+/* Ignore wcwidth() of OS/2 kLIBC */
+#undef HAVE_WCWIDTH
+#endif
+
 int
 wcwidth (wchar_t wc)
 #undef wcwidth
