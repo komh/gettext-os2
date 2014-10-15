@@ -105,6 +105,8 @@ case "$host_os" in
 esac
 AM_CONDITIONAL([WOE32], [test $is_woe32 = yes])
 
+AM_CONDITIONAL([OS2], [test "${host_os#os2}" != "${host_os}"])
+
 dnl On Cygwin 1.7.10-1 or later, error_* variables are defined in the
 dnl Cygwin DLL.  To avoid any conflict with gettext DLLs, always link
 dnl to gnulib's error.c.  See GETTEXTLIB_EXPORTS_FLAGS setting below.
