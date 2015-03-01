@@ -554,7 +554,7 @@ prepare_read (size_t *num_bytes_p, void *private_data)
 
   if (l->length == l->allocated)
     {
-      l->allocated = l->allocated + (l->allocated >> 1);
+      l->allocated = l->allocated + (l->allocated >> 1) + 1;
       l->result = (char *) xrealloc (l->result, l->allocated);
     }
   *num_bytes_p = l->allocated - l->length;
@@ -698,7 +698,7 @@ process_message (message_ty *mp)
 
       if (mp->msgid_plural != NULL)
         {
-          char *plural_form_string = xasprintf ("%lu", k);
+          char *plural_form_string = xasprintf ("%zu", k);
 
           xsetenv ("MSGFILTER_PLURAL_FORM", plural_form_string, 1);
           free (plural_form_string);

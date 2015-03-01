@@ -2,14 +2,14 @@
 # Copyright (C) 2012 Yoyodyne, Inc. (msgids)
 # This file is distributed under the same license as the gettext package.
 #
-# Johnny A. Solbu <johnny@solbu.net>, 2012
+# Johnny A. Solbu <johnny@solbu.net>, 2012-2014
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: gettext-examples 0.18\n"
+"Project-Id-Version: gettext-examples 0.19-rc1\n"
 "Report-Msgid-Bugs-To: bug-gnu-gettext@gnu.org\n"
-"POT-Creation-Date: 2014-07-14 16:33+0900\n"
-"PO-Revision-Date: 2012-10-14 06:46+0100\n"
+"POT-Creation-Date: 2014-12-24 16:29+0900\n"
+"PO-Revision-Date: 2014-07-22 13:18+0100\n"
 "Last-Translator: Johnny A. Solbu <johnny@solbu.net>\n"
 "Language-Team: Norwegian Bokmaal <i18n-nb@lister.ping.uio.no>\n"
 "Language: nb_NO\n"
@@ -17,6 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 1.5.4\n"
 
 #: hello-c/hello.c:30 hello-c-gnome/hello.c:46
 #: hello-c-gnome3/hello.desktop.in.in:5 hello-c-gnome3/hello.ui:22
@@ -55,7 +56,7 @@ msgstr ""
 
 #: hello-c-gnome3/hello.ui:5
 msgid "Example Application"
-msgstr ""
+msgstr "Eksempelprogram"
 
 #: hello-c-gnome3/hello.gschema.xml:7
 msgid "Set label sensitive"

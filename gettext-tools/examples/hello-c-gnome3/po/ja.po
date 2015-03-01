@@ -5,9 +5,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: GNU hello-c-gnome3 0.19-rc1\n"
+"Project-Id-Version: GNU hello-c-gnome3 0.19.4-rc1\n"
 "Report-Msgid-Bugs-To: bug-gnu-gettext@gnu.org\n"
-"PO-Revision-Date: 2014-05-11 14:01+0900\n"
+"PO-Revision-Date: 2014-12-11 08:49+0900\n"
 "Last-Translator: Masahito Yamaga <ma@yama-ga.com>\n"
 "Language-Team: Japanese <translation-team-ja@lists.sourceforge.net>\n"
 "Language: ja\n"
@@ -22,7 +22,7 @@ msgstr "このプログラムはプロセス番号 %d で動いています."
 
 #: hello.desktop.in.in:4
 msgid "Hello"
-msgstr ""
+msgstr "こんにちは"
 
 #: hello.desktop.in.in:5 hello.ui:22
 msgid "Hello, world!"
@@ -34,8 +34,8 @@ msgstr "実例応用"
 
 #: hello.gschema.xml:7
 msgid "Set label sensitive"
-msgstr ""
+msgstr "ラベルを慎重に扱うように設定"
 
 #: hello.gschema.xml:8
 msgid "Whether to set the label sensitive."
-msgstr ""
+msgstr "そのラベルを慎重に扱うように設定するか否か"
