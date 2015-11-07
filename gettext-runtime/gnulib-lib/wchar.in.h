@@ -31,7 +31,7 @@
 @PRAGMA_COLUMNS@
 
 #if (((defined __need_mbstate_t || defined __need_wint_t)               \
-      && !defined __MINGW32__)                                          \
+      && !defined __MINGW32__ && !defined __KLIBC__)                    \
      || (defined __hpux                                                 \
          && ((defined _INTTYPES_INCLUDED && !defined strtoimax)         \
              || defined _GL_JUST_INCLUDE_SYSTEM_WCHAR_H))               \
@@ -445,6 +445,10 @@ _GL_CXXALIAS_RPL (wcwidth, int, (wchar_t));
 #  if !@HAVE_DECL_WCWIDTH@
 /* wcwidth exists but is not declared.  */
 _GL_FUNCDECL_SYS (wcwidth, int, (wchar_t) _GL_ATTRIBUTE_PURE);
+#  elif defined __KLIBC__
+/* On OS/2 kLIBC, wcwidth is a macro to static inline function. Implementation
+   of wcwidth in wcwidth.c causes 'conflicting types' error. */
+#   undef wcwidth
 #  endif
 _GL_CXXALIAS_SYS (wcwidth, int, (wchar_t));
 # endif
