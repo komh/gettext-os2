@@ -1,6 +1,5 @@
 ## Makefile for the gettext-tools/man subdirectory of GNU gettext
-## Copyright (C) 2001-2003, 2006-2007, 2015 Free Software Foundation,
-## Inc.
+## Copyright (C) 2001-2003, 2006-2007, 2015-2016 Free Software Foundation, Inc.
 ##
 ## This program is free software: you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -51,7 +50,7 @@ msgexec.1.html msgfilter.1.html msggrep.1.html msginit.1.html msguniq.1.html \
 recode-sr-latin.1.html \
 gettextize.1.html autopoint.1.html
 
-EXTRA_DIST += help2man $(man_aux) $(man_MANS) $(man_HTML) ChangeLog.0
+EXTRA_DIST += help2man $(man_aux) $(man_MANS) $(man_HTML)
 MAINTAINERCLEANFILES = $(man_MANS) $(man_HTML)
 
 PERL = @PERL@

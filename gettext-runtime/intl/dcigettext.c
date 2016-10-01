@@ -1,5 +1,5 @@
 /* Implementation of the internal dcigettext function.
-   Copyright (C) 1995-2015 Free Software Foundation, Inc.
+   Copyright (C) 1995-2016 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU Lesser General Public License as published by
@@ -323,7 +323,7 @@ const char *_nl_current_default_domain attribute_hidden
 #endif
 
 /* Contains the default location of the message catalogs.  */
-#if defined __EMX__
+#if defined __EMX__ && !defined __KLIBC__
 extern const char _nl_default_dirname[];
 #else
 # ifdef _LIBC

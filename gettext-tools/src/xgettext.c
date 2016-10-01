@@ -1,6 +1,5 @@
 /* Extracts strings from C source file to Uniforum style .po file.
-   Copyright (C) 1995-1998, 2000-2015 Free Software Foundation,
-   Inc.
+   Copyright (C) 1995-1998, 2000-2016 Free Software Foundation, Inc.
    Written by Ulrich Drepper <drepper@gnu.ai.mit.edu>, April 1995.
 
    This program is free software: you can redistribute it and/or modify
@@ -29,6 +28,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <sys/stat.h>
 #include <locale.h>
 #include <limits.h>
 
@@ -71,6 +71,9 @@
 #include "propername.h"
 #include "sentence.h"
 #include "unistr.h"
+#include "its.h"
+#include "locating-rule.h"
+#include "search-path.h"
 #include "gettext.h"
 
 /* A convenience macro.  I don't like writing gettext() every time.  */
@@ -103,6 +106,10 @@
 #include "x-vala.h"
 #include "x-gsettings.h"
 #include "x-desktop.h"
+
+
+#define SIZEOF(a) (sizeof(a) / sizeof(a[0]))
+#define ENDOF(a) ((a) + SIZEOF(a))
 
 
 /* If nonzero add all comments immediately preceding one of the keywords. */
@@ -205,6 +212,17 @@ const char *xgettext_current_source_encoding;
 iconv_t xgettext_current_source_iconv;
 #endif
 
+static locating_rule_list_ty *its_locating_rules;
+
+#define ITS_ROOT_UNTRANSLATABLE \
+  "<its:rules xmlns:its=\"http://www.w3.org/2005/11/its\"" \
+  "           version=\"2.0\">" \
+  "  <its:translateRule selector=\"/*\" translate=\"no\"/>" \
+  "</its:rules>"
+
+/* If nonzero add comments used by itstool. */
+static bool add_itstool_comments = false;
+
 /* Long options.  */
 static const struct option long_options[] =
 {
@@ -228,6 +246,8 @@ static const struct option long_options[] =
   { "from-code", required_argument, NULL, CHAR_MAX + 3 },
   { "help", no_argument, NULL, 'h' },
   { "indent", no_argument, NULL, 'i' },
+  { "its", required_argument, NULL, CHAR_MAX + 20 },
+  { "itstool", no_argument, NULL, CHAR_MAX + 19 },
   { "join-existing", no_argument, NULL, 'j' },
   { "kde", no_argument, NULL, CHAR_MAX + 10 },
   { "keyword", optional_argument, NULL, 'k' },
@@ -288,6 +308,9 @@ static void usage (int status)
 static void read_exclusion_file (char *file_name);
 static void extract_from_file (const char *file_name, extractor_ty extractor,
                                msgdomain_list_ty *mdlp);
+static void extract_from_xml_file (const char *file_name,
+                                   its_rule_list_ty *rules,
+                                   msgdomain_list_ty *mdlp);
 static message_ty *construct_header (void);
 static void finalize_header (msgdomain_list_ty *mdlp);
 static extractor_ty language_to_extractor (const char *name);
@@ -306,6 +329,9 @@ main (int argc, char *argv[])
   bool some_additional_keywords = false;
   bool sort_by_msgid = false;
   bool sort_by_filepos = false;
+  char **dirs;
+  char **its_dirs;
+  char *explicit_its_filename = NULL;
   const char *file_name;
   const char *files_from = NULL;
   string_list_ty *file_list;
@@ -378,7 +404,6 @@ main (int argc, char *argv[])
         x_tcl_extract_all ();
         x_perl_extract_all ();
         x_php_extract_all ();
-        x_glade_extract_all ();
         x_lua_extract_all ();
         x_javascript_extract_all ();
         x_vala_extract_all ();
@@ -458,7 +483,6 @@ main (int argc, char *argv[])
         x_tcl_keyword (optarg);
         x_perl_keyword (optarg);
         x_php_keyword (optarg);
-        x_glade_keyword (optarg);
         x_lua_keyword (optarg);
         x_javascript_keyword (optarg);
         x_vala_keyword (optarg);
@@ -615,13 +639,15 @@ main (int argc, char *argv[])
         break;
 
       case CHAR_MAX + 17: /* --check */
-        if (strcmp (optarg, "ellipsis-unicode") == 0)
-          default_syntax_check[sc_ellipsis_unicode] = yes;
-        else if (strcmp (optarg, "space-ellipsis") == 0)
-          default_syntax_check[sc_space_ellipsis] = yes;
-        else if (strcmp (optarg, "quote-unicode") == 0)
-          default_syntax_check[sc_quote_unicode] = yes;
-        else
+        for (i = 0; i < NSYNTAXCHECKS; i++)
+          {
+            if (strcmp (optarg, syntax_check_name[i]) == 0)
+              {
+                default_syntax_check[i] = yes;
+                break;
+              }
+          }
+        if (i == NSYNTAXCHECKS)
           error (EXIT_FAILURE, 0, _("syntax check '%s' unknown"), optarg);
         break;
 
@@ -632,6 +658,14 @@ main (int argc, char *argv[])
           sentence_end_required_spaces = 2;
         else
           error (EXIT_FAILURE, 0, _("sentence end type '%s' unknown"), optarg);
+        break;
+
+      case CHAR_MAX + 20: /* --its */
+        explicit_its_filename = optarg;
+        break;
+
+      case CHAR_MAX + 19: /* --itstool */
+        add_itstool_comments = true;
         break;
 
       default:
@@ -649,7 +683,7 @@ License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>\n\
 This is free software: you are free to change and redistribute it.\n\
 There is NO WARRANTY, to the extent permitted by law.\n\
 "),
-              "1995-1998, 2000-2013");
+              "1995-1998, 2000-2016");
       printf (_("Written by %s.\n"), proper_name ("Ulrich Drepper"));
       exit (EXIT_SUCCESS);
     }
@@ -692,6 +726,20 @@ xgettext cannot work without keywords to look for"));
     {
       error (EXIT_SUCCESS, 0, _("no input file given"));
       usage (EXIT_FAILURE);
+    }
+
+  /* Explicit ITS file selection and language specification are
+     mutually exclusive.  */
+  if (explicit_its_filename != NULL && language != NULL)
+    error (EXIT_FAILURE, 0, _("%s and %s are mutually exclusive"),
+           "--its", "--language");
+
+  if (explicit_its_filename == NULL)
+    {
+      its_dirs = get_search_path ("its");
+      its_locating_rules = locating_rule_list_alloc ();
+      for (dirs = its_dirs; *dirs != NULL; dirs++)
+        locating_rule_list_add_from_directory (its_locating_rules, *dirs);
     }
 
   /* Determine extractor from language.  */
@@ -792,18 +840,27 @@ This version was built without iconv()."),
     {
       const char *filename;
       extractor_ty this_file_extractor;
+      its_rule_list_ty *its_rules = NULL;
 
       filename = file_list->item[i];
 
       if (extractor.func)
         this_file_extractor = extractor;
+      else if (explicit_its_filename != NULL)
+        {
+          its_rules = its_rule_list_alloc ();
+          if (!its_rule_list_add_from_file (its_rules,
+                                            explicit_its_filename))
+            {
+              error (EXIT_FAILURE, 0, _("\
+warning: ITS rule file '%s' does not exist"), explicit_its_filename);
+            }
+        }
       else
         {
+          const char *language_from_extension = NULL;
           const char *base;
           char *reduced;
-          const char *extension;
-          const char *language;
-          const char *p;
 
           base = strrchr (filename, '/');
           if (!base)
@@ -815,39 +872,106 @@ This version was built without iconv()."),
                  && memcmp (reduced + strlen (reduced) - 3, ".in", 3) == 0)
             reduced[strlen (reduced) - 3] = '\0';
 
-          /* Work out what the file extension is.  */
-          language = NULL;
-          p = reduced + strlen (reduced);
-          for (; p > reduced && language == NULL; p--)
+          /* If no language is specified with -L, deduce it the extension.  */
+          if (language == NULL)
             {
-              if (*p == '.')
-                {
-                  extension = p + 1;
+              const char *p;
 
-                  /* Derive the language from the extension, and the extractor
-                     function from the language.  */
-                  language = extension_to_language (extension);
+              /* Work out what the file extension is.  */
+              p = reduced + strlen (reduced);
+              for (; p > reduced && language_from_extension == NULL; p--)
+                {
+                  if (*p == '.')
+                    {
+                      const char *extension = p + 1;
+
+                      /* Derive the language from the extension, and
+                         the extractor function from the language.  */
+                      language_from_extension =
+                        extension_to_language (extension);
+                    }
                 }
             }
 
-          if (language == NULL)
+          /* If language is not determined from the file name
+             extension, check ITS locating rules.  */
+          if (language_from_extension == NULL
+              && strcmp (filename, "-") != 0)
             {
-              extension = strrchr (reduced, '.');
-              if (extension == NULL)
-                extension = "";
-              else
-                extension++;
-              error (0, 0, _("\
-warning: file '%s' extension '%s' is unknown; will try C"), filename, extension);
-              language = "C";
+              const char *its_basename;
+
+              its_basename = locating_rule_list_locate (its_locating_rules,
+                                                        filename,
+                                                        language);
+
+              if (its_basename != NULL)
+                {
+                  size_t j;
+
+                  its_rules = its_rule_list_alloc ();
+
+                  /* If the ITS file is identified by the name,
+                     set the root element untranslatable.  */
+                  if (language != NULL)
+                    its_rule_list_add_from_string (its_rules,
+                                                   ITS_ROOT_UNTRANSLATABLE);
+
+                  for (j = 0; its_dirs[j] != NULL; j++)
+                    {
+                      char *its_filename =
+                        xconcatenated_filename (its_dirs[j], its_basename,
+                                                NULL);
+                      struct stat statbuf;
+                      bool ok = false;
+
+                      if (stat (its_filename, &statbuf) == 0)
+                        ok = its_rule_list_add_from_file (its_rules,
+                                                          its_filename);
+                      free (its_filename);
+                      if (ok)
+                        break;
+                    }
+                  if (its_dirs[j] == NULL)
+                    {
+                      error (0, 0, _("\
+warning: ITS rule file '%s' does not exist; check your gettext installation"),
+                             its_basename);
+                      its_rule_list_free (its_rules);
+                      its_rules = NULL;
+                    }
+                }
             }
-          this_file_extractor = language_to_extractor (language);
+
+          if (its_rules == NULL)
+            {
+              if (language_from_extension == NULL)
+                {
+                  const char *extension = strrchr (reduced, '.');
+                  if (extension == NULL)
+                    extension = "";
+                  else
+                    extension++;
+                  error (0, 0, _("\
+warning: file '%s' extension '%s' is unknown; will try C"), filename, extension);
+                  language_from_extension = "C";
+                }
+
+              this_file_extractor =
+                language_to_extractor (language_from_extension);
+            }
 
           free (reduced);
         }
 
-      /* Extract the strings from the file.  */
-      extract_from_file (filename, this_file_extractor, mdlp);
+      if (its_rules != NULL)
+        {
+          /* Extract the strings from the file, using ITS.  */
+          extract_from_xml_file (filename, its_rules, mdlp);
+          its_rule_list_free (its_rules);
+        }
+      else
+        /* Extract the strings from the file.  */
+        extract_from_file (filename, this_file_extractor, mdlp);
     }
   string_list_free (file_list);
 
@@ -888,6 +1012,13 @@ warning: file '%s' extension '%s' is unknown; will try C"), filename, extension)
 
   /* Write the PO file.  */
   msgdomain_list_print (mdlp, file_name, output_syntax, force_po, do_debug);
+
+  if (its_locating_rules)
+    locating_rule_list_free (its_locating_rules);
+
+  for (i = 0; its_dirs[i] != NULL; i++)
+    free (its_dirs[i]);
+  free (its_dirs);
 
   exit (EXIT_SUCCESS);
 }
@@ -974,7 +1105,7 @@ Operation mode:\n"));
       printf (_("\
       --check=NAME            perform syntax check on messages\n\
                                 (ellipsis-unicode, space-ellipsis,\n\
-                                 quote-unicode)\n"));
+                                 quote-unicode, bullet-unicode)\n"));
       printf (_("\
       --sentence-end=TYPE     type describing the end of sentence\n\
                                 (single-space, which is the default, \n\
@@ -1009,6 +1140,10 @@ Language specific options:\n"));
   -T, --trigraphs             understand ANSI C trigraphs for input\n"));
       printf (_("\
                                 (only languages C, C++, ObjectiveC)\n"));
+      printf (_("\
+      --its=FILE              apply ITS rules from FILE\n"));
+      printf (_("\
+                                (only XML based languages)\n"));
       printf (_("\
       --qt                    recognize Qt format strings\n"));
       printf (_("\
@@ -1050,6 +1185,8 @@ Output details:\n"));
       --properties-output     write out a Java .properties file\n"));
       printf (_("\
       --stringtable-output    write out a NeXTstep/GNUstep .strings file\n"));
+      printf (_("\
+      --itstool               write out itstool comments\n"));
       printf (_("\
   -w, --width=NUMBER          set output page width\n"));
       printf (_("\
@@ -2105,6 +2242,65 @@ extract_from_file (const char *file_name, extractor_ty extractor,
   current_literalstring_parser = extractor.literalstring_parser;
   extractor.func (fp, real_file_name, logical_file_name, extractor.flag_table,
                   mdlp);
+
+  if (fp != stdin)
+    fclose (fp);
+  free (logical_file_name);
+  free (real_file_name);
+}
+
+static message_ty *
+xgettext_its_extract_callback (message_list_ty *mlp,
+                               const char *msgctxt,
+                               const char *msgid,
+                               lex_pos_ty *pos,
+                               const char *extracted_comment,
+                               const char *marker,
+                               enum its_whitespace_type_ty whitespace)
+{
+  message_ty *message;
+
+  message = remember_a_message (mlp,
+                                msgctxt == NULL ? NULL : xstrdup (msgctxt),
+                                xstrdup (msgid),
+                                null_context, pos,
+                                extracted_comment, NULL);
+
+  if (add_itstool_comments)
+    {
+      char *dot = xasprintf ("(itstool) path: %s", marker);
+      message_comment_dot_append (message, dot);
+      free (dot);
+
+      if (whitespace == ITS_WHITESPACE_PRESERVE)
+        message->do_wrap = no;
+    }
+
+  return message;
+}
+
+static void
+extract_from_xml_file (const char *file_name,
+                       its_rule_list_ty *rules,
+                       msgdomain_list_ty *mdlp)
+{
+  char *logical_file_name;
+  char *real_file_name;
+  FILE *fp = xgettext_open (file_name, &logical_file_name, &real_file_name);
+
+  /* The default encoding for XML is UTF-8.  It can be overridden by
+     an XML declaration in the XML file itself, not through the
+     --from-code option.  */
+  xgettext_current_source_encoding = po_charset_utf8;
+
+#if HAVE_ICONV
+  xgettext_current_source_iconv = xgettext_global_source_iconv;
+#endif
+
+  its_rule_list_extract (rules, fp, real_file_name, logical_file_name,
+                         NULL,
+                         mdlp,
+                         xgettext_its_extract_callback);
 
   if (fp != stdin)
     fclose (fp);
@@ -3661,10 +3857,6 @@ finalize_header (msgdomain_list_ty *mdlp)
       }
   }
 }
-
-
-#define SIZEOF(a) (sizeof(a) / sizeof(a[0]))
-#define ENDOF(a) ((a) + SIZEOF(a))
 
 
 static extractor_ty

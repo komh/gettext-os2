@@ -1,5 +1,5 @@
 /* xgettext AppData file backend.
-   Copyright (C) 2002-2003, 2006, 2013, 2015 Free Software Foundation,
+   Copyright (C) 2002-2003, 2006, 2013, 2015-2016 Free Software Foundation,
    Inc.
    Written by Philip Withnall <philip.withnall@collabora.co.uk>, 2015.
 
@@ -28,17 +28,13 @@ extern "C" {
 #endif
 
 
+/* The scanner is implemented as ITS rules, in its/appdata.its.  */
+
 #define EXTENSIONS_APPDATA \
-  { "appdata.xml", "appdata" }, \
+  { "appdata.xml", NULL }, \
 
 #define SCANNERS_APPDATA \
-  { "appdata", extract_appdata, NULL, NULL, NULL, NULL }, \
-
-/* Scan an AppData XML file and add its translatable strings to mdlp.  */
-extern void extract_appdata (FILE *fp, const char *real_filename,
-                             const char *logical_filename,
-                             flag_context_list_table_ty *flag_table,
-                             msgdomain_list_ty *mdlp);
+  { "appdata", NULL, NULL, NULL, NULL, NULL }, \
 
 
 #ifdef __cplusplus

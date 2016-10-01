@@ -1,5 +1,5 @@
 /* Test the Unicode character name functions.
-   Copyright (C) 2000-2003, 2005, 2007, 2009-2015 Free Software Foundation,
+   Copyright (C) 2000-2003, 2005, 2007, 2009-2016 Free Software Foundation,
    Inc.
 
    This program is free software: you can redistribute it and/or modify
@@ -62,8 +62,6 @@ fill_names (const char *unicodedata_filename)
 
   while (fgets (line, sizeof line, stream))
     {
-      int n;
-      int c;
       char *p;
       char *comment;
       unsigned int i;
@@ -117,7 +115,6 @@ fill_names (const char *unicodedata_filename)
 static void
 fill_aliases (const char *namealiases_filename)
 {
-  int i;
   FILE *stream;
   char *field0;
   char *field1;
@@ -133,8 +130,6 @@ fill_aliases (const char *namealiases_filename)
 
   while (fgets (line, sizeof line, stream))
     {
-      int n;
-      int c;
       char *p;
       char *comment;
       unsigned int uc;
@@ -354,11 +349,11 @@ test_alias_lookup ()
           {
             if (result == UNINAME_INVALID)
               fprintf (stderr, "inverse name lookup of \"%s\" failed\n",
-                       unicode_aliases[i]);
+                       unicode_aliases[i].name);
             else
               fprintf (stderr,
                        "inverse name lookup of \"%s\" returned 0x%04X\n",
-                       unicode_aliases[i], result);
+                       unicode_aliases[i].name, result);
             error = 1;
           }
       }

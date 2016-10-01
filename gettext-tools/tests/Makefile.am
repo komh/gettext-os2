@@ -1,6 +1,5 @@
 ## Makefile for the gettext-tools/tests subdirectory of GNU gettext
-## Copyright (C) 1995-1997, 2001-2010, 2015 Free Software Foundation,
-## Inc.
+## Copyright (C) 1995-1997, 2001-2010, 2015-2016 Free Software Foundation, Inc.
 ##
 ## This program is free software: you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -51,6 +50,7 @@ TESTS = gettext-1 gettext-2 gettext-3 gettext-4 gettext-5 gettext-6 gettext-7 \
 	msgfmt-properties-1 \
 	msgfmt-qt-1 msgfmt-qt-2 \
 	msgfmt-desktop-1 msgfmt-desktop-2 \
+	msgfmt-xml-1 msgfmt-xml-2 \
 	msggrep-1 msggrep-2 msggrep-3 msggrep-4 msggrep-5 msggrep-6 msggrep-7 \
 	msggrep-8 msggrep-9 msggrep-10 msggrep-11 \
 	msginit-1 msginit-2 msginit-3 msginit-4 \
@@ -113,6 +113,7 @@ TESTS = gettext-1 gettext-2 gettext-3 gettext-4 gettext-5 gettext-6 gettext-7 \
 	xgettext-vala-1 \
 	xgettext-gsettings-1 \
 	xgettext-desktop-1 \
+	xgettext-its-1 xgettext-its-2 \
 	format-awk-1 format-awk-2 \
 	format-boost-1 format-boost-2 \
 	format-c-1 format-c-2 format-c-3 format-c-4 format-c-5 \
@@ -141,7 +142,7 @@ TESTS = gettext-1 gettext-2 gettext-3 gettext-4 gettext-5 gettext-6 gettext-7 \
 	format-lua-1 format-lua-2 \
 	format-javascript-1 format-javascript-2 \
 	plural-1 plural-2 \
-	gettextpo-1 sentence \
+	gettextpo-1 sentence-1 \
 	lang-c lang-c++ lang-objc lang-sh lang-bash lang-python-1 \
 	lang-python-2 lang-clisp lang-elisp lang-librep lang-guile \
 	lang-smalltalk lang-java lang-csharp lang-gawk lang-pascal \
@@ -157,7 +158,6 @@ EXTRA_DIST += init.sh init.cfg $(TESTS) \
 	msguniq-a.in msguniq-a.inp msguniq-a.out \
 	qttest_pl.po qttest_pl.qm \
 	qttest2_de.po qttest2_de.qm qttest2_de.ts \
-	ChangeLog.0 \
 	gettext-3-1.po gettext-3-2.po gettext-4.po gettext-5.po \
 	gettext-6-1.po gettext-6-2.po gettext-7.po \
 	gettextpo-1.de.po \
@@ -170,7 +170,7 @@ XGETTEXT = ../src/xgettext
 # For debugging memory leaks and memory allocation bugs.
 # You should build with --disable-shared when using valgrind.
 CHECKER =
-#CHECKER = valgrind --tool=memcheck --suppressions=$(srcdir)/../gnulib-lib/malloca.valgrind --suppressions=$(srcdir)/../gnulib-lib/libunistring.valgrind --num-callers=20 --leak-check=yes --leak-resolution=high --show-reachable=yes
+#CHECKER = valgrind --tool=memcheck --suppressions=$(abs_srcdir)/../gnulib-lib/malloca.valgrind --suppressions=$(abs_srcdir)/../gnulib-lib/libunistring.valgrind --num-callers=20 --leak-check=yes --leak-resolution=high --show-reachable=yes
 #CHECKER = valgrind --tool=massif --format=html --depth=10 --alloc-fn=xmalloc --alloc-fn=xrealloc --stacks=no
 
 TESTS_ENVIRONMENT = top_srcdir=$(top_srcdir) \
@@ -216,7 +216,7 @@ DEFS = -DLOCALEDIR=\"$(localedir)\" @DEFS@
 LDADD = $(LDADD_@USE_INCLUDED_LIBINTL@) @INTL_MACOSX_LIBS@
 LDADD_yes = ../intl/libintl.la @LTLIBTHREAD@
 LDADD_no = ../intl/libgnuintl.la @LTLIBTHREAD@ @LTLIBINTL@
-check_PROGRAMS = tstgettext tstngettext testlocale gettext-3-prg gettext-4-prg gettext-5-prg gettext-6-prg gettext-7-prg gettext-8-prg cake fc3 fc4 fc5 gettextpo-1-prg sentence
+check_PROGRAMS = tstgettext tstngettext testlocale gettext-3-prg gettext-4-prg gettext-5-prg gettext-6-prg gettext-7-prg gettext-8-prg cake fc3 fc4 fc5 gettextpo-1-prg sentence-1-prg
 tstgettext_SOURCES = tstgettext.c setlocale.c
 tstgettext_CFLAGS = -DINSTALLDIR=\".\"
 tstgettext_LDADD = ../gnulib-lib/libgettextlib.la $(LDADD)
@@ -260,9 +260,9 @@ gettextpo_1_prg_CPPFLAGS = \
 # Don't add more libraries here. This test must check whether libgettextpo is
 # self contained.
 gettextpo_1_prg_LDADD = ../libgettextpo/libgettextpo.la $(LDADD)
-sentence_SOURCES = sentence.c
-sentence_CPPFLAGS = $(AM_CPPFLAGS) -I../src -I$(top_srcdir)/src
-sentence_LDADD = ../src/libgettextsrc.la $(LDADD)
+sentence_1_prg_SOURCES = sentence-1-prg.c
+sentence_1_prg_CPPFLAGS = $(AM_CPPFLAGS) -I../src -I$(top_srcdir)/src
+sentence_1_prg_LDADD = ../src/libgettextsrc.la $(LDADD)
 
 # Clean up after Solaris cc.
 clean-local:

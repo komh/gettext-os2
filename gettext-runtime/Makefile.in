@@ -109,6 +109,7 @@ am__aclocal_m4_deps = $(top_srcdir)/gnulib-m4/00gnulib.m4 \
 	$(top_srcdir)/gnulib-m4/gettimeofday.m4 \
 	$(top_srcdir)/gnulib-m4/gnulib-common.m4 \
 	$(top_srcdir)/gnulib-m4/gnulib-comp.m4 \
+	$(top_srcdir)/gnulib-m4/hard-locale.m4 \
 	$(top_srcdir)/gnulib-m4/iconv_h.m4 \
 	$(top_srcdir)/gnulib-m4/iconv_open.m4 \
 	$(top_srcdir)/gnulib-m4/include_next.m4 \
@@ -298,6 +299,7 @@ CSCOPE = cscope
 DIST_SUBDIRS = doc intl intl-java intl-csharp gnulib-lib libasprintf \
 	src po man m4 tests
 am__DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/config.h.in \
+	$(top_srcdir)/../build-aux/ar-lib \
 	$(top_srcdir)/../build-aux/compile \
 	$(top_srcdir)/../build-aux/config.guess \
 	$(top_srcdir)/../build-aux/config.rpath \
@@ -308,12 +310,13 @@ am__DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/config.h.in \
 	$(top_srcdir)/../build-aux/ltmain.sh \
 	$(top_srcdir)/../build-aux/missing \
 	$(top_srcdir)/../build-aux/mkinstalldirs \
-	$(top_srcdir)/intl/Makefile.in ../build-aux/compile \
-	../build-aux/config.guess ../build-aux/config.rpath \
-	../build-aux/config.sub ../build-aux/install-sh \
-	../build-aux/ltmain.sh ../build-aux/missing \
-	../build-aux/mkinstalldirs ../build-aux/texinfo.tex ABOUT-NLS \
-	AUTHORS COPYING ChangeLog INSTALL NEWS README
+	$(top_srcdir)/intl/Makefile.in ../build-aux/ar-lib \
+	../build-aux/compile ../build-aux/config.guess \
+	../build-aux/config.rpath ../build-aux/config.sub \
+	../build-aux/install-sh ../build-aux/ltmain.sh \
+	../build-aux/missing ../build-aux/mkinstalldirs \
+	../build-aux/texinfo.tex ABOUT-NLS AUTHORS COPYING ChangeLog \
+	INSTALL NEWS README
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 distdir = $(PACKAGE)-$(VERSION)
 top_distdir = $(distdir)
@@ -1783,7 +1786,8 @@ all-local: ABOUT-NLS
 
 ABOUT-NLS: $(srcdir)/doc/nls.texi $(srcdir)/doc/matrix.texi
 	rm -f $(srcdir)/ABOUT-NLS \
-	  && $(MAKEINFO) --plaintext --no-validate -I $(srcdir)/doc nls.texi \
+	  && $(MAKEINFO) --plaintext --no-validate -I $(srcdir)/doc \
+	     $(srcdir)/doc/nls.texi \
 	     | sed -e "s/\`\([^']*\)'/‘\1’/g" > $(srcdir)/ABOUT-NLS
 
 maintainer-update-po: $(top_builddir)/config.status

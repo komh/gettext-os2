@@ -1,5 +1,5 @@
 /* Sentence handling.
-   Copyright (C) 2015 Free Software Foundation, Inc.
+   Copyright (C) 2015-2016 Free Software Foundation, Inc.
    Written by Daiki Ueno <ueno@gnu.org>, 2015.
 
    This program is free software: you can redistribute it and/or modify
@@ -54,9 +54,9 @@ sentence_end (const char *string, ucs4_t *ending_charp)
   ucs4_t ending_char = 0xfffd;
   /* Possible starting position of the match, and the next starting
      position if the current match fails.  */
-  const char *match_start, *match_next;
+  const char *match_start = NULL, *match_next = NULL;
   /* Number of spaces.  */
-  int spaces;
+  int spaces = 0;
 
   while (str <= str_limit)
     {

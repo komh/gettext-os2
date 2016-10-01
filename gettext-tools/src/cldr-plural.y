@@ -1,5 +1,5 @@
 /* Unicode CLDR plural rule parser and converter
-   Copyright (C) 2015 Free Software Foundation, Inc.
+   Copyright (C) 2015-2016 Free Software Foundation, Inc.
 
    This file was written by Daiki Ueno <ueno@gnu.org>, 2015.
 
@@ -269,9 +269,13 @@ sample_ellipsis: %empty
         ;
 
 sample_range: DECIMAL
+	{ free ($1); }
         | DECIMAL '~' DECIMAL
+        { free ($1); free ($3); }
         | INTEGER
+        { free ($1); }
         | INTEGER '~' INTEGER
+	{ free ($1); free ($3); }
         ;
 
 %%
