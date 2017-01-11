@@ -1,7 +1,6 @@
 extproc sh
 
-./configure --prefix=/usr \
-            --enable-shared \
+./configure --enable-shared \
             --enable-static \
             --disable-relocatable \
             --with-included-gettext
