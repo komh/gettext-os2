@@ -3,4 +3,5 @@ extproc sh
 ./configure --enable-shared \
             --enable-static \
             --disable-relocatable \
-            --with-included-gettext
+            --with-included-gettext \
+            "$@"
