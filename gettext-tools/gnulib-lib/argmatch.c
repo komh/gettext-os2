@@ -1,6 +1,6 @@
 /* argmatch.c -- find a match for a string in an array
 
-   Copyright (C) 1990, 1998-1999, 2001-2007, 2009-2016 Free Software
+   Copyright (C) 1990, 1998-1999, 2001-2007, 2009-2019 Free Software
    Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 /* Written by David MacKenzie <djm@ai.mit.edu>
    Modified by Akim Demaille <demaille@inf.enst.fr> */
@@ -35,6 +35,7 @@
 #include "error.h"
 #include "quotearg.h"
 #include "quote.h"
+#include "getprogname.h"
 
 #if USE_UNLOCKED_IO
 # include "unlocked-io.h"
@@ -81,7 +82,7 @@ argmatch_exit_fn argmatch_die = __argmatch_die;
 
 ptrdiff_t
 argmatch (const char *arg, const char *const *arglist,
-          const char *vallist, size_t valsize)
+          const void *vallist, size_t valsize)
 {
   size_t i;                     /* Temporary index in ARGLIST.  */
   size_t arglen;                /* Length of ARG.  */
@@ -105,8 +106,8 @@ argmatch (const char *arg, const char *const *arglist,
             {
               /* Second nonexact match found.  */
               if (vallist == NULL
-                  || memcmp (vallist + valsize * matchind,
-                             vallist + valsize * i, valsize))
+                  || memcmp ((char const *) vallist + valsize * matchind,
+                             (char const *) vallist + valsize * i, valsize))
                 {
                   /* There is a real ambiguity, or we could not
                      disambiguate. */
@@ -143,7 +144,7 @@ argmatch_invalid (const char *context, const char *value, ptrdiff_t problem)
    VALSIZE is the size of the elements of VALLIST */
 void
 argmatch_valid (const char *const *arglist,
-                const char *vallist, size_t valsize)
+                const void *vallist, size_t valsize)
 {
   size_t i;
   const char *last_val = NULL;
@@ -153,10 +154,10 @@ argmatch_valid (const char *const *arglist,
   fputs (_("Valid arguments are:"), stderr);
   for (i = 0; arglist[i]; i++)
     if ((i == 0)
-        || memcmp (last_val, vallist + valsize * i, valsize))
+        || memcmp (last_val, (char const *) vallist + valsize * i, valsize))
       {
         fprintf (stderr, "\n  - %s", quote (arglist[i]));
-        last_val = vallist + valsize * i;
+        last_val = (char const *) vallist + valsize * i;
       }
     else
       {
@@ -174,7 +175,7 @@ argmatch_valid (const char *const *arglist,
 ptrdiff_t
 __xargmatch_internal (const char *context,
                       const char *arg, const char *const *arglist,
-                      const char *vallist, size_t valsize,
+                      const void *vallist, size_t valsize,
                       argmatch_exit_fn exit_fn)
 {
   ptrdiff_t res = argmatch (arg, arglist, vallist, valsize);
@@ -193,14 +194,14 @@ __xargmatch_internal (const char *context,
 /* Look for VALUE in VALLIST, an array of objects of size VALSIZE and
    return the first corresponding argument in ARGLIST */
 const char *
-argmatch_to_argument (const char *value,
+argmatch_to_argument (const void *value,
                       const char *const *arglist,
-                      const char *vallist, size_t valsize)
+                      const void *vallist, size_t valsize)
 {
   size_t i;
 
   for (i = 0; arglist[i]; i++)
-    if (!memcmp (value, vallist + valsize * i, valsize))
+    if (!memcmp (value, (char const *) vallist + valsize * i, valsize))
       return arglist[i];
   return NULL;
 }
@@ -209,7 +210,6 @@ argmatch_to_argument (const char *value,
 /*
  * Based on "getversion.c" by David MacKenzie <djm@gnu.ai.mit.edu>
  */
-char *program_name;
 
 /* When to make backup files.  */
 enum backup_type
@@ -253,11 +253,9 @@ main (int argc, const char *const *argv)
   const char *cp;
   enum backup_type backup_type = no_backups;
 
-  program_name = (char *) argv[0];
-
   if (argc > 2)
     {
-      fprintf (stderr, "Usage: %s [VERSION_CONTROL]\n", program_name);
+      fprintf (stderr, "Usage: %s [VERSION_CONTROL]\n", getprogname ());
       exit (1);
     }
 
@@ -266,7 +264,7 @@ main (int argc, const char *const *argv)
                              backup_args, backup_vals);
 
   if (argc == 2)
-    backup_type = XARGMATCH (program_name, argv[1],
+    backup_type = XARGMATCH (getprogname (), argv[1],
                              backup_args, backup_vals);
 
   printf ("The version control is '%s'\n",

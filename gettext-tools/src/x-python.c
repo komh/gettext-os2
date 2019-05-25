@@ -1,5 +1,5 @@
 /* xgettext Python backend.
-   Copyright (C) 2002-2003, 2005-2016 Free Software Foundation, Inc.
+   Copyright (C) 2002-2003, 2005-2011, 2013-2014, 2018-2019 Free Software Foundation, Inc.
 
    This file was written by Bruno Haible <haible@clisp.cons.org>, 2002.
 
@@ -14,7 +14,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
@@ -31,7 +31,15 @@
 #include <string.h>
 
 #include "message.h"
+#include "rc-str-list.h"
 #include "xgettext.h"
+#include "xg-pos.h"
+#include "xg-encoding.h"
+#include "xg-mixed-string.h"
+#include "xg-arglist-context.h"
+#include "xg-arglist-callshape.h"
+#include "xg-arglist-parser.h"
+#include "xg-message.h"
 #include "error.h"
 #include "error-progname.h"
 #include "progname.h"
@@ -149,13 +157,6 @@ init_flag_table_python ()
 
 
 /* ======================== Reading of characters.  ======================== */
-
-/* Real filename, used in error messages about the input file.  */
-static const char *real_file_name;
-
-/* Logical filename and line number, used to label the extracted messages.  */
-static char *logical_file_name;
-static int line_number;
 
 /* The input file stream.  */
 static FILE *fp;
@@ -277,7 +278,7 @@ phase2_getc ()
                                                                line_number),
                                       _("\
 Please specify the source encoding through --from-code or through a comment\n\
-as specified in http://www.python.org/peps/pep-0263.html.\n")));
+as specified in https://www.python.org/peps/pep-0263.html.\n")));
           exit (EXIT_FAILURE);
         }
       return c;
@@ -324,7 +325,7 @@ as specified in http://www.python.org/peps/pep-0263.html.\n")));
                                    xasprintf (_("\
 %s:%d: Invalid multibyte sequence.\n\
 Please specify the correct source encoding through --from-code or through a\n\
-comment as specified in http://www.python.org/peps/pep-0263.html.\n"),
+comment as specified in https://www.python.org/peps/pep-0263.html.\n"),
                                    real_file_name, line_number));
                   exit (EXIT_FAILURE);
                 }
@@ -341,7 +342,7 @@ comment as specified in http://www.python.org/peps/pep-0263.html.\n"),
                                        xasprintf (_("\
 %s:%d: Long incomplete multibyte sequence.\n\
 Please specify the correct source encoding through --from-code or through a\n\
-comment as specified in http://www.python.org/peps/pep-0263.html.\n"),
+comment as specified in https://www.python.org/peps/pep-0263.html.\n"),
                                        real_file_name, line_number));
                       exit (EXIT_FAILURE);
                     }
@@ -354,7 +355,7 @@ comment as specified in http://www.python.org/peps/pep-0263.html.\n"),
                                        xasprintf (_("\
 %s:%d: Incomplete multibyte sequence at end of file.\n\
 Please specify the correct source encoding through --from-code or through a\n\
-comment as specified in http://www.python.org/peps/pep-0263.html.\n"),
+comment as specified in https://www.python.org/peps/pep-0263.html.\n"),
                                        real_file_name, line_number));
                       exit (EXIT_FAILURE);
                     }
@@ -364,7 +365,7 @@ comment as specified in http://www.python.org/peps/pep-0263.html.\n"),
                                        xasprintf (_("\
 %s:%d: Incomplete multibyte sequence at end of line.\n\
 Please specify the correct source encoding through --from-code or through a\n\
-comment as specified in http://www.python.org/peps/pep-0263.html.\n"),
+comment as specified in https://www.python.org/peps/pep-0263.html.\n"),
                                        real_file_name, line_number - 1));
                       exit (EXIT_FAILURE);
                     }
@@ -397,7 +398,7 @@ comment as specified in http://www.python.org/peps/pep-0263.html.\n"),
                                    xasprintf (_("\
 %s:%d: Invalid multibyte sequence.\n\
 Please specify the source encoding through --from-code or through a comment\n\
-as specified in http://www.python.org/peps/pep-0263.html.\n"),
+as specified in https://www.python.org/peps/pep-0263.html.\n"),
                                    real_file_name, line_number));
                   exit (EXIT_FAILURE);
                 }
@@ -500,76 +501,7 @@ phase2_ungetc (int c)
 
 /* ========================= Accumulating strings.  ======================== */
 
-/* A string buffer type that allows appending Unicode characters.
-   Returns the entire string in UTF-8 encoding.  */
-
-struct unicode_string_buffer
-{
-  /* The part of the string that has already been converted to UTF-8.  */
-  char *utf8_buffer;
-  size_t utf8_buflen;
-  size_t utf8_allocated;
-};
-
-/* Initialize a 'struct unicode_string_buffer' to empty.  */
-static inline void
-init_unicode_string_buffer (struct unicode_string_buffer *bp)
-{
-  bp->utf8_buffer = NULL;
-  bp->utf8_buflen = 0;
-  bp->utf8_allocated = 0;
-}
-
-/* Auxiliary function: Ensure count more bytes are available in bp->utf8.  */
-static inline void
-unicode_string_buffer_append_unicode_grow (struct unicode_string_buffer *bp,
-                                           size_t count)
-{
-  if (bp->utf8_buflen + count > bp->utf8_allocated)
-    {
-      size_t new_allocated = 2 * bp->utf8_allocated + 10;
-      if (new_allocated < bp->utf8_buflen + count)
-        new_allocated = bp->utf8_buflen + count;
-      bp->utf8_allocated = new_allocated;
-      bp->utf8_buffer = xrealloc (bp->utf8_buffer, new_allocated);
-    }
-}
-
-/* Auxiliary function: Append a Unicode character to bp->utf8.
-   uc must be < 0x110000.  */
-static inline void
-unicode_string_buffer_append_unicode (struct unicode_string_buffer *bp,
-                                      unsigned int uc)
-{
-  unsigned char utf8buf[6];
-  int count = u8_uctomb (utf8buf, uc, 6);
-
-  if (count < 0)
-    /* The caller should have ensured that uc is not out-of-range.  */
-    abort ();
-
-  unicode_string_buffer_append_unicode_grow (bp, count);
-  memcpy (bp->utf8_buffer + bp->utf8_buflen, utf8buf, count);
-  bp->utf8_buflen += count;
-}
-
-/* Return the string buffer's contents.  */
-static char *
-unicode_string_buffer_result (struct unicode_string_buffer *bp)
-{
-  /* NUL-terminate it.  */
-  unicode_string_buffer_append_unicode_grow (bp, 1);
-  bp->utf8_buffer[bp->utf8_buflen] = '\0';
-  /* Return it.  */
-  return bp->utf8_buffer;
-}
-
-/* Free the memory pointed to by a 'struct unicode_string_buffer'.  */
-static inline void
-free_unicode_string_buffer (struct unicode_string_buffer *bp)
-{
-  free (bp->utf8_buffer);
-}
+/* See xg-mixed-string.h for the API.  */
 
 
 /* ======================== Accumulating comments.  ======================== */
@@ -577,31 +509,32 @@ free_unicode_string_buffer (struct unicode_string_buffer *bp)
 
 /* Accumulating a single comment line.  */
 
-static struct unicode_string_buffer comment_buffer;
+static struct mixed_string_buffer comment_buffer;
 
 static inline void
 comment_start ()
 {
-  lexical_context = lc_comment;
-  comment_buffer.utf8_buflen = 0;
+  mixed_string_buffer_init (&comment_buffer, lc_comment,
+                            logical_file_name, line_number);
 }
 
 static inline bool
 comment_at_start ()
 {
-  return (comment_buffer.utf8_buflen == 0);
+  return mixed_string_buffer_is_empty (&comment_buffer);
 }
 
 static inline void
 comment_add (int c)
 {
-  unicode_string_buffer_append_unicode (&comment_buffer, c);
+  mixed_string_buffer_append_unicode (&comment_buffer, c);
 }
 
 static inline const char *
 comment_line_end ()
 {
-  char *buffer = unicode_string_buffer_result (&comment_buffer);
+  char *buffer =
+    mixed_string_contents_free1 (mixed_string_buffer_result (&comment_buffer));
   size_t buflen = strlen (buffer);
 
   while (buflen >= 1
@@ -662,18 +595,16 @@ set_current_file_source_encoding (const char *canon_encoding)
 # endif
       cd = iconv_open (po_charset_utf8, xgettext_current_file_source_encoding);
       if (cd == (iconv_t)(-1))
-        error_at_line (EXIT_FAILURE, 0, logical_file_name, line_number - 1, _("\
-Cannot convert from \"%s\" to \"%s\". %s relies on iconv(), \
-and iconv() does not support this conversion."),
-               xgettext_current_file_source_encoding, po_charset_utf8,
-               basename (program_name));
+        error_at_line (EXIT_FAILURE, 0, logical_file_name, line_number - 1,
+                       _("Cannot convert from \"%s\" to \"%s\". %s relies on iconv(), and iconv() does not support this conversion."),
+                       xgettext_current_file_source_encoding, po_charset_utf8,
+                       basename (program_name));
       xgettext_current_file_source_iconv = cd;
 #else
-      error_at_line (EXIT_FAILURE, 0, logical_file_name, line_number - 1, _("\
-Cannot convert from \"%s\" to \"%s\". %s relies on iconv(). \
-This version was built without iconv()."),
-             xgettext_global_source_encoding, po_charset_utf8,
-             basename (program_name));
+      error_at_line (EXIT_FAILURE, 0, logical_file_name, line_number - 1,
+                     _("Cannot convert from \"%s\" to \"%s\". %s relies on iconv(). This version was built without iconv()."),
+                     xgettext_global_source_encoding, po_charset_utf8,
+                     basename (program_name));
 #endif
     }
 
@@ -719,8 +650,8 @@ try_to_extract_coding (const char *comment)
                     if (canon_encoding == NULL)
                       {
                         error_at_line (0, 0,
-                                       logical_file_name, line_number - 1, _("\
-Unknown encoding \"%s\". Proceeding with ASCII instead."),
+                                       logical_file_name, line_number - 1,
+                                       _("Unknown encoding \"%s\". Proceeding with ASCII instead."),
                                        encoding);
                         canon_encoding = po_charset_ascii;
                       }
@@ -848,7 +779,8 @@ typedef struct token_ty token_ty;
 struct token_ty
 {
   token_type_ty type;
-  char *string;         /* for token_type_string, token_type_symbol */
+  char *string;                         /* for token_type_symbol */
+  mixed_string_ty *mixed_string;        /* for token_type_string */
   refcounted_string_list_ty *comment;   /* for token_type_string */
   int line_number;
 };
@@ -857,10 +789,13 @@ struct token_ty
 static inline void
 free_token (token_ty *tp)
 {
-  if (tp->type == token_type_string || tp->type == token_type_symbol)
+  if (tp->type == token_type_symbol)
     free (tp->string);
   if (tp->type == token_type_string)
-    drop_reference (tp->comment);
+    {
+      mixed_string_free (tp->mixed_string);
+      drop_reference (tp->comment);
+    }
 }
 
 
@@ -1329,7 +1264,6 @@ phase5_get (token_ty *tp)
 
         /* Strings.  */
           {
-            struct mixed_string_buffer *bp;
             int quote_char;
             bool interpret_ansic;
             bool interpret_unicode;
@@ -1400,35 +1334,38 @@ phase5_get (token_ty *tp)
                   phase2_ungetc (c1);
               }
               backslash_counter = 0;
-              /* Start accumulating the string.  */
-              bp = mixed_string_buffer_alloc (lexical_context,
-                                              logical_file_name,
-                                              line_number);
-              for (;;)
-                {
-                  int uc = phase7_getuc (quote_char, triple, interpret_ansic,
-                                         interpret_unicode, &backslash_counter);
+              {
+                struct mixed_string_buffer msb;
 
-                  /* Keep line_number in sync.  */
-                  bp->line_number = line_number;
+                /* Start accumulating the string.  */
+                mixed_string_buffer_init (&msb, lexical_context,
+                                          logical_file_name, line_number);
+                for (;;)
+                  {
+                    int uc = phase7_getuc (quote_char, triple, interpret_ansic,
+                                           interpret_unicode, &backslash_counter);
 
-                  if (uc == P7_EOF || uc == P7_STRING_END)
-                    break;
+                    /* Keep line_number in sync.  */
+                    msb.line_number = line_number;
 
-                  if (IS_UNICODE (uc))
-                    {
-                      assert (UNICODE_VALUE (uc) >= 0
-                              && UNICODE_VALUE (uc) < 0x110000);
-                      mixed_string_buffer_append_unicode (bp,
-                                                          UNICODE_VALUE (uc));
-                    }
-                  else
-                    mixed_string_buffer_append_char (bp, uc);
-                }
-              tp->string = mixed_string_buffer_done (bp);
-              tp->comment = add_reference (savable_comment);
-              lexical_context = lc_outside;
-              tp->type = token_type_string;
+                    if (uc == P7_EOF || uc == P7_STRING_END)
+                      break;
+
+                    if (IS_UNICODE (uc))
+                      {
+                        assert (UNICODE_VALUE (uc) >= 0
+                                && UNICODE_VALUE (uc) < 0x110000);
+                        mixed_string_buffer_append_unicode (&msb,
+                                                            UNICODE_VALUE (uc));
+                      }
+                    else
+                      mixed_string_buffer_append_char (&msb, uc);
+                  }
+                tp->mixed_string = mixed_string_buffer_result (&msb);
+                tp->comment = add_reference (savable_comment);
+                lexical_context = lc_outside;
+                tp->type = token_type_string;
+              }
               return;
           }
 
@@ -1495,13 +1432,13 @@ x_python_lex (token_ty *tp)
   phase5_get (tp);
   if (tp->type == token_type_string)
     {
-      char *sum = tp->string;
-      size_t sum_len = strlen (sum);
+      mixed_string_ty *sum = tp->mixed_string;
 
       for (;;)
         {
-          token_ty token2, *tp2 = NULL;
+          token_ty token2;
           token_ty token3;
+          token_ty *tp2 = NULL;
 
           phase5_get (&token2);
           switch (token2.type)
@@ -1527,12 +1464,7 @@ x_python_lex (token_ty *tp)
 
           if (tp2)
             {
-              char *addend = tp2->string;
-              size_t addend_len = strlen (addend);
-
-              sum = (char *) xrealloc (sum, sum_len + addend_len + 1);
-              memcpy (sum + sum_len, addend, addend_len + 1);
-              sum_len += addend_len;
+              sum = mixed_string_concat_free1 (sum, tp2->mixed_string);
 
               free_token (tp2);
               continue;
@@ -1540,7 +1472,7 @@ x_python_lex (token_ty *tp)
           phase5_unget (&token2);
           break;
         }
-      tp->string = sum;
+      tp->mixed_string = sum;
     }
 }
 
@@ -1631,9 +1563,7 @@ extract_balanced (message_list_ty *mlp,
                                 arglist_parser_alloc (mlp,
                                                       state ? next_shapes : NULL)))
             {
-              xgettext_current_source_encoding = po_charset_utf8;
               arglist_parser_done (argparser, arg);
-              xgettext_current_source_encoding = xgettext_current_file_source_encoding;
               return true;
             }
           next_context_iter = null_context_list_iterator;
@@ -1643,9 +1573,7 @@ extract_balanced (message_list_ty *mlp,
         case token_type_rparen:
           if (delim == token_type_rparen || delim == token_type_eof)
             {
-              xgettext_current_source_encoding = po_charset_utf8;
               arglist_parser_done (argparser, arg);
-              xgettext_current_source_encoding = xgettext_current_file_source_encoding;
               return false;
             }
           next_context_iter = null_context_list_iterator;
@@ -1667,9 +1595,7 @@ extract_balanced (message_list_ty *mlp,
                                 null_context, null_context_list_iterator,
                                 arglist_parser_alloc (mlp, NULL)))
             {
-              xgettext_current_source_encoding = po_charset_utf8;
               arglist_parser_done (argparser, arg);
-              xgettext_current_source_encoding = xgettext_current_file_source_encoding;
               return true;
             }
           next_context_iter = null_context_list_iterator;
@@ -1679,9 +1605,7 @@ extract_balanced (message_list_ty *mlp,
         case token_type_rbracket:
           if (delim == token_type_rbracket || delim == token_type_eof)
             {
-              xgettext_current_source_encoding = po_charset_utf8;
               arglist_parser_done (argparser, arg);
-              xgettext_current_source_encoding = xgettext_current_file_source_encoding;
               return false;
             }
           next_context_iter = null_context_list_iterator;
@@ -1691,19 +1615,22 @@ extract_balanced (message_list_ty *mlp,
         case token_type_string:
           {
             lex_pos_ty pos;
+
             pos.file_name = logical_file_name;
             pos.line_number = token.line_number;
 
-            xgettext_current_source_encoding = po_charset_utf8;
             if (extract_all)
-              remember_a_message (mlp, NULL, token.string, inner_context,
-                                  &pos, NULL, token.comment);
+              {
+                char *string = mixed_string_contents (token.mixed_string);
+                mixed_string_free (token.mixed_string);
+                remember_a_message (mlp, NULL, string, true, inner_context,
+                                    &pos, NULL, token.comment, true);
+              }
             else
-              arglist_parser_remember (argparser, arg, token.string,
+              arglist_parser_remember (argparser, arg, token.mixed_string,
                                        inner_context,
                                        pos.file_name, pos.line_number,
-                                       token.comment);
-            xgettext_current_source_encoding = xgettext_current_file_source_encoding;
+                                       token.comment, true);
           }
           drop_reference (token.comment);
           next_context_iter = null_context_list_iterator;
@@ -1711,9 +1638,7 @@ extract_balanced (message_list_ty *mlp,
           continue;
 
         case token_type_eof:
-          xgettext_current_source_encoding = po_charset_utf8;
           arglist_parser_done (argparser, arg);
-          xgettext_current_source_encoding = xgettext_current_file_source_encoding;
           return true;
 
         case token_type_plus:

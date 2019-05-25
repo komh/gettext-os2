@@ -1,5 +1,5 @@
 /* GNU gettext - internationalization aids
-   Copyright (C) 1995-1996, 1998, 2000-2001, 2003, 2005-2006, 2012, 2015-2016
+   Copyright (C) 1995-1996, 1998, 2000-2001, 2003, 2005-2006, 2012-2013, 2016
    Free Software Foundation, Inc.
 
    This file was written by Peter Miller <pmiller@agso.gov.au>
@@ -15,7 +15,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 %{
 #ifdef HAVE_CONFIG_H
@@ -221,14 +221,11 @@ message
                   check_obsolete ($1, $3);
                   check_obsolete ($1, $4);
                   if (!$1.obsolete || pass_obsolete_entries)
-                    {
-                      do_callback_message ($1.ctxt, string2, &$1.pos, $3.string,
-                                           $4.rhs.msgstr, $4.rhs.msgstr_len, &$4.pos,
-                                           $1.prev_ctxt,
-                                           $1.prev_id, $1.prev_id_plural,
-                                           $1.obsolete);
-                      free ($3.string);
-                    }
+                    do_callback_message ($1.ctxt, string2, &$1.pos, $3.string,
+                                         $4.rhs.msgstr, $4.rhs.msgstr_len, &$4.pos,
+                                         $1.prev_ctxt,
+                                         $1.prev_id, $1.prev_id_plural,
+                                         $1.obsolete);
                   else
                     {
                       free_message_intro ($1);

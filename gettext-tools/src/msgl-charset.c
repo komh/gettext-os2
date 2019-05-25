@@ -1,6 +1,5 @@
 /* Message list charset and locale charset handling.
-   Copyright (C) 2001-2003, 2005-2007, 2009, 2015-2016 Free Software
-   Foundation, Inc.
+   Copyright (C) 2001-2003, 2005-2007, 2009, 2019 Free Software Foundation, Inc.
    Written by Bruno Haible <haible@clisp.cons.org>, 2001.
 
    This program is free software: you can redistribute it and/or modify
@@ -14,7 +13,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 
 #ifdef HAVE_CONFIG_H
@@ -84,8 +83,7 @@ compare_po_locale_charsets (const msgdomain_list_ty *mdlp)
                     canon_charset = po_charset_canonicalize (charset);
                     if (canon_charset == NULL)
                       error (EXIT_FAILURE, 0,
-                             _("\
-present charset \"%s\" is not a portable encoding name"),
+                             _("present charset \"%s\" is not a portable encoding name"),
                              charset);
                     freea (charset);
                     if (canon_locale_code != canon_charset)

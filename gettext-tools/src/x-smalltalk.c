@@ -1,6 +1,5 @@
 /* xgettext Smalltalk backend.
-   Copyright (C) 2002-2003, 2005-2009, 2011, 2015-2016 Free Software
-   Foundation, Inc.
+   Copyright (C) 2002-2003, 2005-2009, 2011, 2018 Free Software Foundation, Inc.
 
    This file was written by Bruno Haible <haible@clisp.cons.org>, 2002.
 
@@ -15,7 +14,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
@@ -30,6 +29,8 @@
 
 #include "message.h"
 #include "xgettext.h"
+#include "xg-pos.h"
+#include "xg-message.h"
 #include "error.h"
 #include "xalloc.h"
 #include "gettext.h"
@@ -66,14 +67,6 @@
 
 
 /* ======================== Reading of characters.  ======================== */
-
-
-/* Real filename, used in error messages about the input file.  */
-static const char *real_file_name;
-
-/* Logical filename and line number, used to label the extracted messages.  */
-static char *logical_file_name;
-static int line_number;
 
 /* The input file stream.  */
 static FILE *fp;
@@ -542,8 +535,9 @@ extract_smalltalk (FILE *f,
                 lex_pos_ty pos;
                 pos.file_name = logical_file_name;
                 pos.line_number = token.line_number;
-                remember_a_message (mlp, NULL, token.string, null_context,
-                                    &pos, NULL, savable_comment);
+                remember_a_message (mlp, NULL, token.string, false,
+                                    null_context, &pos, NULL, savable_comment,
+                                    false);
                 state = 0;
                 break;
               }
@@ -552,9 +546,9 @@ extract_smalltalk (FILE *f,
                 lex_pos_ty pos;
                 pos.file_name = logical_file_name;
                 pos.line_number = token.line_number;
-                plural_mp = remember_a_message (mlp, NULL, token.string,
+                plural_mp = remember_a_message (mlp, NULL, token.string, false,
                                                 null_context, &pos,
-                                                NULL, savable_comment);
+                                                NULL, savable_comment, false);
                 state = 4;
                 break;
               }
@@ -564,9 +558,9 @@ extract_smalltalk (FILE *f,
                 pos.file_name = logical_file_name;
                 pos.line_number = token.line_number;
                 if (plural_mp != NULL)
-                  remember_a_message_plural (plural_mp, token.string,
+                  remember_a_message_plural (plural_mp, token.string, false,
                                              null_context, &pos,
-                                             savable_comment);
+                                             savable_comment, false);
                 state = 0;
                 break;
               }

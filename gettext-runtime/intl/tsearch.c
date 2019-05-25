@@ -1,5 +1,4 @@
-/* Copyright (C) 1995-1997, 2000, 2006, 2015-2016 Free Software Foundation,
-   Inc.
+/* Copyright (C) 1995-1997, 2000, 2006 Free Software Foundation, Inc.
    Contributed by Bernd Schmidt <crux@Pool.Informatik.RWTH-Aachen.DE>, 1997.
 
    NOTE: The canonical source of this file is maintained with the GNU C
@@ -16,7 +15,7 @@
    GNU Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 /* Tree search for red/black trees.
    The algorithm for adding nodes is taken from one of the many "Algorithms"

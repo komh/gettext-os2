@@ -1,5 +1,5 @@
 ## Makefile for the gettext-tools/gnulib-lib subdirectory of GNU gettext
-## Copyright (C) 1995-1998, 2000-2006, 2009, 2015-2016 Free Software
+## Copyright (C) 1995-1998, 2000-2006, 2009, 2016, 2019 Free Software
 ## Foundation, Inc.
 ##
 ## This program is free software: you can redistribute it and/or modify
@@ -13,7 +13,7 @@
 ## GNU General Public License for more details.
 ##
 ## You should have received a copy of the GNU General Public License
-## along with this program.  If not, see <http://www.gnu.org/licenses/>.
+## along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 ## Process this file with automake to produce Makefile.in.
 
@@ -58,13 +58,19 @@ endif
 # Rules generated and collected by gnulib-tool.
 include Makefile.gnulib
 
-# Which classes to export from the shared library.
-MOOPPFLAGS += --dllexport=styled_ostream
-
 # OS/2 does not support a DLL name longer than 8 characters.
 if OS2
 libgettextlib_la_LDFLAGS += -os2dllname gtlib
 endif
+
+# Specify installation directory, for --enable-relocatable.
+if RELOCATABLE_VIA_LD
+# This is needed, because libgettextlib depends on libintl.
+libgettextlib_la_LDFLAGS += `$(RELOCATABLE_LDFLAGS) $(libdir)`
+endif
+
+# Support for relocatability.
+RELOCATABLE_LIBRARY_PATH = $(libdir)
 
 # Linking with C++ libraries is needed _only_ on mingw and Cygwin.
 if !WOE32DLL
@@ -77,5 +83,7 @@ libgettextlib_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link \
 	$(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(libgettextlib_la_LDFLAGS) $(LDFLAGS) \
 	-o $@
+# Use the same definition of CXXLD as Automake generates in other Makefiles.
+CXXLD = $(CXX)
 endif
 

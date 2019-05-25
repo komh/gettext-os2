@@ -1,5 +1,5 @@
 /* Initializes a new PO file.
-   Copyright (C) 2001-2016 Free Software Foundation, Inc.
+   Copyright (C) 2001-2019 Free Software Foundation, Inc.
    Written by Bruno Haible <haible@clisp.cons.org>, 2001.
 
    This program is free software: you can redistribute it and/or modify
@@ -13,7 +13,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 
 #ifdef HAVE_CONFIG_H
@@ -49,6 +49,11 @@
 # define HAVE_DIR 0
 #endif
 
+#include <textstyle.h>
+
+/* Get BINDIR.  */
+#include "configmake.h"
+
 #include "closeout.h"
 #include "error.h"
 #include "error-progname.h"
@@ -66,7 +71,6 @@
 #include "write-po.h"
 #include "write-properties.h"
 #include "write-stringtable.h"
-#include "color.h"
 #include "po-charset.h"
 #include "localcharset.h"
 #include "localename.h"
@@ -161,10 +165,8 @@ main (int argc, char **argv)
   set_program_name (argv[0]);
   error_print_progname = maybe_print_progname;
 
-#ifdef HAVE_SETLOCALE
   /* Set locale via LC_ALL.  */
   setlocale (LC_ALL, "");
-#endif
 
   /* Set the text message domain.  */
   bindtextdomain (PACKAGE, relocate (LOCALEDIR));
@@ -267,11 +269,11 @@ main (int argc, char **argv)
       printf ("%s (GNU %s) %s\n", basename (program_name), PACKAGE, VERSION);
       /* xgettext: no-wrap */
       printf (_("Copyright (C) %s Free Software Foundation, Inc.\n\
-License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>\n\
+License GPLv3+: GNU GPL version 3 or later <%s>\n\
 This is free software: you are free to change and redistribute it.\n\
 There is NO WARRANTY, to the extent permitted by law.\n\
 "),
-              "2001-2016");
+              "2001-2019", "https://gnu.org/licenses/gpl.html");
       printf (_("Written by %s.\n"), proper_name ("Bruno Haible"));
       exit (EXIT_SUCCESS);
     }
@@ -294,11 +296,15 @@ There is NO WARRANTY, to the extent permitted by law.\n\
       locale = gl_locale_name (LC_MESSAGES, "LC_MESSAGES");
       if (strcmp (locale, "C") == 0)
         {
+          const char *doc_url =
+            "https://www.gnu.org/software/gettext/manual/html_node/Setting-the-POSIX-Locale.html";
           multiline_error (xstrdup (""),
-                           xstrdup (_("\
+                           xasprintf (_("\
 You are in a language indifferent environment.  Please set\n\
-your LANG environment variable, as described in the ABOUT-NLS\n\
-file.  This is necessary so you can test your translations.\n")));
+your LANG environment variable, as described in\n\
+<%s>.\n\
+This is necessary so you can test your translations.\n"),
+                                      doc_url));
           exit (EXIT_FAILURE);
         }
     }
@@ -330,6 +336,48 @@ the output .po file through the --output-file option.\n"),
 
   /* Read input file.  */
   result = read_catalog_file (input_file, input_syntax);
+
+#if defined _WIN32 || defined __CYGWIN__
+  /* The function fill_header invokes, directly or indirectly, some programs
+     that are installed in ${libdir}/gettext:
+       - hostname, invoked indirectly through 'user-email'.
+       - urlget, invoked indirectly through 'team-address'.
+       - cldr-plurals, invoked directly.
+     These programs depend on libintl.  In installations with shared libraries,
+     we need to guarantee that the programs find the DLL, which is installed
+     in ${bindir}, not in ${libdir}/gettext.  The preferred way to do so is to
+     extend $PATH, so that it contains ${bindir}.  */
+  {
+    const char *orig_path;
+    size_t orig_path_len;
+    char separator;
+    const char *bindir;
+    size_t bindir_len;
+    char *augmented_path;
+
+    orig_path = getenv ("PATH");
+    if (orig_path == NULL)
+      orig_path = "";
+    orig_path_len = strlen (orig_path);
+
+    #if defined __CYGWIN__
+    separator = ':';
+    #else /* native Windows */
+    separator = ';';
+    #endif
+
+    bindir = BINDIR;
+    bindir_len = strlen (bindir);
+
+    /* Concatenate bindir, separator, orig_path.  */
+    augmented_path = XNMALLOC (bindir_len + 1 + orig_path_len + 1, char);
+    memcpy (augmented_path, bindir, bindir_len);
+    augmented_path[bindir_len] = separator;
+    memcpy (augmented_path + bindir_len + 1, orig_path, orig_path_len + 1);
+
+    xsetenv ("PATH", augmented_path, 1);
+  }
+#endif
 
   /* Fill the header entry.  */
   result = fill_header (result);
@@ -399,7 +447,7 @@ Input file syntax:\n"));
       printf (_("\
 Output details:\n"));
       printf (_("\
-  -l, --locale=LL_CC          set target locale\n"));
+  -l, --locale=LL_CC[.ENCODING]  set target locale\n"));
       printf (_("\
       --no-translator         assume the PO file is automatically generated\n"));
       printf (_("\
@@ -425,12 +473,16 @@ Informative output:\n"));
       printf (_("\
   -V, --version               output version information and exit\n"));
       printf ("\n");
-      /* TRANSLATORS: The placeholder indicates the bug-reporting address
-         for this package.  Please add _another line_ saying
+      /* TRANSLATORS: The first placeholder is the web address of the Savannah
+         project of this package.  The second placeholder is the bug-reporting
+         email address for this package.  Please add _another line_ saying
          "Report translation bugs to <...>\n" with the address for translation
          bugs (typically your translation team's web or email address).  */
-      fputs (_("Report bugs to <bug-gnu-gettext@gnu.org>.\n"),
-             stdout);
+      printf(_("\
+Report bugs in the bug tracker at <%s>\n\
+or by email to <%s>.\n"),
+             "https://savannah.gnu.org/projects/gettext",
+             "bug-gettext@gnu.org");
     }
 
   exit (status);
@@ -789,12 +841,10 @@ canonical_locale_charset ()
 
   xsetenv ("LC_ALL", locale, 1);
 
-#ifdef HAVE_SETLOCALE
   if (setlocale (LC_ALL, "") == NULL)
     /* Nonexistent locale.  Use anything.  */
     charset = "";
   else
-#endif
     /* Get the locale's charset.  */
     charset = locale_charset ();
 
@@ -805,9 +855,7 @@ canonical_locale_charset ()
   else
     unsetenv ("LC_ALL");
 
-#ifdef HAVE_SETLOCALE
   setlocale (LC_ALL, "");
-#endif
 
   /* Canonicalize it.  */
   charset = po_charset_canonicalize (charset);
@@ -837,16 +885,6 @@ static const char *
 project_id (const char *header)
 {
   const char *old_field;
-  const char *gettextlibdir;
-  char *prog;
-  char *argv[3];
-  pid_t child;
-  int fd[1];
-  FILE *fp;
-  char *line;
-  size_t linesize;
-  size_t linelen;
-  int exitstatus;
 
   /* Return the first part of the Project-Id-Version field if present, assuming
      it was already filled in by xgettext.  */
@@ -875,54 +913,72 @@ project_id (const char *header)
       return old_field;
     }
 
-  gettextlibdir = getenv ("GETTEXTLIBDIR");
-  if (gettextlibdir == NULL || gettextlibdir[0] == '\0')
-    gettextlibdir = relocate (LIBDIR "/gettext");
+  /* On native Windows, a Bourne shell is generally not available.
+     Avoid error messages such as
+     "msginit.exe: subprocess ... failed: No such file or directory"  */
+#if !(defined _WIN32 && ! defined __CYGWIN__)
+  {
+    const char *gettextlibdir;
+    char *prog;
+    char *argv[3];
+    pid_t child;
+    int fd[1];
+    FILE *fp;
+    char *line;
+    size_t linesize;
+    size_t linelen;
+    int exitstatus;
 
-  prog = xconcatenated_filename (gettextlibdir, "project-id", NULL);
+    gettextlibdir = getenv ("GETTEXTLIBDIR_SRCDIR");
+    if (gettextlibdir == NULL || gettextlibdir[0] == '\0')
+      gettextlibdir = relocate (LIBDIR "/gettext");
 
-  /* Call the project-id shell script.  */
-  argv[0] = "/bin/sh";
-  argv[1] = prog;
-  argv[2] = NULL;
-  child = create_pipe_in (prog, "/bin/sh", argv, DEV_NULL, false, true, false,
-                          fd);
-  if (child == -1)
-    goto failed;
+    prog = xconcatenated_filename (gettextlibdir, "project-id", NULL);
 
-  /* Retrieve its result.  */
-  fp = fdopen (fd[0], "r");
-  if (fp == NULL)
-    {
-      error (0, errno, _("fdopen() failed"));
+    /* Call the project-id shell script.  */
+    argv[0] = BOURNE_SHELL;
+    argv[1] = prog;
+    argv[2] = NULL;
+    child = create_pipe_in (prog, BOURNE_SHELL, argv, DEV_NULL, false, true,
+                            false, fd);
+    if (child == -1)
       goto failed;
-    }
 
-  line = NULL; linesize = 0;
-  linelen = getline (&line, &linesize, fp);
-  if (linelen == (size_t)(-1))
-    {
-      error (0, 0, _("%s subprocess I/O error"), prog);
-      fclose (fp);
-      goto failed;
-    }
-  if (linelen > 0 && line[linelen - 1] == '\n')
-    line[linelen - 1] = '\0';
+    /* Retrieve its result.  */
+    fp = fdopen (fd[0], "r");
+    if (fp == NULL)
+      {
+        error (0, errno, _("fdopen() failed"));
+        goto failed;
+      }
 
-  fclose (fp);
+    line = NULL; linesize = 0;
+    linelen = getline (&line, &linesize, fp);
+    if (linelen == (size_t)(-1))
+      {
+        error (0, 0, _("%s subprocess I/O error"), prog);
+        fclose (fp);
+        goto failed;
+      }
+    if (linelen > 0 && line[linelen - 1] == '\n')
+      line[linelen - 1] = '\0';
 
-  /* Remove zombie process from process list, and retrieve exit status.  */
-  exitstatus = wait_subprocess (child, prog, false, false, true, false, NULL);
-  if (exitstatus != 0)
-    {
-      error (0, 0, _("%s subprocess failed with exit code %d"),
-             prog, exitstatus);
-      goto failed;
-    }
+    fclose (fp);
 
-  return line;
+    /* Remove zombie process from process list, and retrieve exit status.  */
+    exitstatus = wait_subprocess (child, prog, false, false, true, false, NULL);
+    if (exitstatus != 0)
+      {
+        error (0, 0, _("%s subprocess failed with exit code %d"),
+               prog, exitstatus);
+        goto failed;
+      }
+
+    return line;
+  }
 
 failed:
+#endif
   return "PACKAGE";
 }
 
@@ -932,16 +988,6 @@ static const char *
 project_id_version (const char *header)
 {
   const char *old_field;
-  const char *gettextlibdir;
-  char *prog;
-  char *argv[4];
-  pid_t child;
-  int fd[1];
-  FILE *fp;
-  char *line;
-  size_t linesize;
-  size_t linelen;
-  int exitstatus;
 
   /* Return the old value if present, assuming it was already filled in by
      xgettext.  */
@@ -949,55 +995,73 @@ project_id_version (const char *header)
   if (old_field != NULL && strcmp (old_field, "PACKAGE VERSION") != 0)
     return old_field;
 
-  gettextlibdir = getenv ("GETTEXTLIBDIR");
-  if (gettextlibdir == NULL || gettextlibdir[0] == '\0')
-    gettextlibdir = relocate (LIBDIR "/gettext");
+  /* On native Windows, a Bourne shell is generally not available.
+     Avoid error messages such as
+     "msginit.exe: subprocess ... failed: No such file or directory"  */
+#if !(defined _WIN32 && ! defined __CYGWIN__)
+  {
+    const char *gettextlibdir;
+    char *prog;
+    char *argv[4];
+    pid_t child;
+    int fd[1];
+    FILE *fp;
+    char *line;
+    size_t linesize;
+    size_t linelen;
+    int exitstatus;
 
-  prog = xconcatenated_filename (gettextlibdir, "project-id", NULL);
+    gettextlibdir = getenv ("GETTEXTLIBDIR_SRCDIR");
+    if (gettextlibdir == NULL || gettextlibdir[0] == '\0')
+      gettextlibdir = relocate (LIBDIR "/gettext");
 
-  /* Call the project-id shell script.  */
-  argv[0] = "/bin/sh";
-  argv[1] = prog;
-  argv[2] = "yes";
-  argv[3] = NULL;
-  child = create_pipe_in (prog, "/bin/sh", argv, DEV_NULL, false, true, false,
-                          fd);
-  if (child == -1)
-    goto failed;
+    prog = xconcatenated_filename (gettextlibdir, "project-id", NULL);
 
-  /* Retrieve its result.  */
-  fp = fdopen (fd[0], "r");
-  if (fp == NULL)
-    {
-      error (0, errno, _("fdopen() failed"));
+    /* Call the project-id shell script.  */
+    argv[0] = BOURNE_SHELL;
+    argv[1] = prog;
+    argv[2] = "yes";
+    argv[3] = NULL;
+    child = create_pipe_in (prog, BOURNE_SHELL, argv, DEV_NULL, false, true,
+                            false, fd);
+    if (child == -1)
       goto failed;
-    }
 
-  line = NULL; linesize = 0;
-  linelen = getline (&line, &linesize, fp);
-  if (linelen == (size_t)(-1))
-    {
-      error (0, 0, _("%s subprocess I/O error"), prog);
-      fclose (fp);
-      goto failed;
-    }
-  if (linelen > 0 && line[linelen - 1] == '\n')
-    line[linelen - 1] = '\0';
+    /* Retrieve its result.  */
+    fp = fdopen (fd[0], "r");
+    if (fp == NULL)
+      {
+        error (0, errno, _("fdopen() failed"));
+        goto failed;
+      }
 
-  fclose (fp);
+    line = NULL; linesize = 0;
+    linelen = getline (&line, &linesize, fp);
+    if (linelen == (size_t)(-1))
+      {
+        error (0, 0, _("%s subprocess I/O error"), prog);
+        fclose (fp);
+        goto failed;
+      }
+    if (linelen > 0 && line[linelen - 1] == '\n')
+      line[linelen - 1] = '\0';
 
-  /* Remove zombie process from process list, and retrieve exit status.  */
-  exitstatus = wait_subprocess (child, prog, false, false, true, false, NULL);
-  if (exitstatus != 0)
-    {
-      error (0, 0, _("%s subprocess failed with exit code %d"),
-             prog, exitstatus);
-      goto failed;
-    }
+    fclose (fp);
 
-  return line;
+    /* Remove zombie process from process list, and retrieve exit status.  */
+    exitstatus = wait_subprocess (child, prog, false, false, true, false, NULL);
+    if (exitstatus != 0)
+      {
+        error (0, 0, _("%s subprocess failed with exit code %d"),
+               prog, exitstatus);
+        goto failed;
+      }
+
+    return line;
+  }
 
 failed:
+#endif
   return "PACKAGE VERSION";
 }
 
@@ -1021,11 +1085,12 @@ po_revision_date (const char *header)
 }
 
 
+#if HAVE_PWD_H  /* Only Unix, not native Windows.  */
+
 /* Returns the struct passwd entry for the current user.  */
 static struct passwd *
 get_user_pwd ()
 {
-#if HAVE_PWD_H  /* Only Unix, not native Woe32.  */
   const char *username;
   struct passwd *userpasswd;
 
@@ -1060,20 +1125,21 @@ get_user_pwd ()
     return userpasswd;
   if (errno != 0)
     error (EXIT_FAILURE, errno, "getpwuid(%ju)", (uintmax_t) getuid ());
-#endif
 
   return NULL;
 }
+
+#endif
 
 
 /* Return the user's full name.  */
 static const char *
 get_user_fullname ()
 {
+#if HAVE_PWD_H
   struct passwd *pwd;
 
   pwd = get_user_pwd ();
-#if HAVE_PWD_H
   if (pwd != NULL)
     {
       const char *fullname;
@@ -1102,62 +1168,69 @@ get_user_fullname ()
 static const char *
 get_user_email ()
 {
-  const char *prog = relocate (LIBDIR "/gettext/user-email");
-  char *argv[4];
-  pid_t child;
-  int fd[1];
-  FILE *fp;
-  char *line;
-  size_t linesize;
-  size_t linelen;
-  int exitstatus;
+  /* On native Windows, a Bourne shell is generally not available.
+     Avoid error messages such as
+     "msginit.exe: subprocess ... failed: No such file or directory"  */
+#if !(defined _WIN32 && ! defined __CYGWIN__)
+  {
+    const char *prog = relocate (LIBDIR "/gettext/user-email");
+    char *argv[4];
+    pid_t child;
+    int fd[1];
+    FILE *fp;
+    char *line;
+    size_t linesize;
+    size_t linelen;
+    int exitstatus;
 
-  /* Ask the user for his email address.  */
-  argv[0] = "/bin/sh";
-  argv[1] = (char *) prog;
-  argv[2] = (char *) _("\
+    /* Ask the user for his email address.  */
+    argv[0] = BOURNE_SHELL;
+    argv[1] = (char *) prog;
+    argv[2] = (char *) _("\
 The new message catalog should contain your email address, so that users can\n\
 give you feedback about the translations, and so that maintainers can contact\n\
 you in case of unexpected technical problems.\n");
-  argv[3] = NULL;
-  child = create_pipe_in (prog, "/bin/sh", argv, DEV_NULL, false, true, false,
-                          fd);
-  if (child == -1)
-    goto failed;
-
-  /* Retrieve his answer.  */
-  fp = fdopen (fd[0], "r");
-  if (fp == NULL)
-    {
-      error (0, errno, _("fdopen() failed"));
+    argv[3] = NULL;
+    child = create_pipe_in (prog, BOURNE_SHELL, argv, DEV_NULL, false, true,
+                            false, fd);
+    if (child == -1)
       goto failed;
-    }
 
-  line = NULL; linesize = 0;
-  linelen = getline (&line, &linesize, fp);
-  if (linelen == (size_t)(-1))
-    {
-      error (0, 0, _("%s subprocess I/O error"), prog);
-      fclose (fp);
-      goto failed;
-    }
-  if (linelen > 0 && line[linelen - 1] == '\n')
-    line[linelen - 1] = '\0';
+    /* Retrieve his answer.  */
+    fp = fdopen (fd[0], "r");
+    if (fp == NULL)
+      {
+        error (0, errno, _("fdopen() failed"));
+        goto failed;
+      }
 
-  fclose (fp);
+    line = NULL; linesize = 0;
+    linelen = getline (&line, &linesize, fp);
+    if (linelen == (size_t)(-1))
+      {
+        error (0, 0, _("%s subprocess I/O error"), prog);
+        fclose (fp);
+        goto failed;
+      }
+    if (linelen > 0 && line[linelen - 1] == '\n')
+      line[linelen - 1] = '\0';
 
-  /* Remove zombie process from process list, and retrieve exit status.  */
-  exitstatus = wait_subprocess (child, prog, false, false, true, false, NULL);
-  if (exitstatus != 0)
-    {
-      error (0, 0, _("%s subprocess failed with exit code %d"),
-             prog, exitstatus);
-      goto failed;
-    }
+    fclose (fp);
 
-  return line;
+    /* Remove zombie process from process list, and retrieve exit status.  */
+    exitstatus = wait_subprocess (child, prog, false, false, true, false, NULL);
+    if (exitstatus != 0)
+      {
+        error (0, 0, _("%s subprocess failed with exit code %d"),
+               prog, exitstatus);
+        goto failed;
+      }
+
+    return line;
+  }
 
 failed:
+#endif
   return "EMAIL@ADDRESS";
 }
 
@@ -1201,58 +1274,65 @@ language_team_englishname ()
 static const char *
 language_team_address ()
 {
-  const char *prog = relocate (PROJECTSDIR "/team-address");
-  char *argv[7];
-  pid_t child;
-  int fd[1];
-  FILE *fp;
-  char *line;
-  size_t linesize;
-  size_t linelen;
-  int exitstatus;
+  /* On native Windows, a Bourne shell is generally not available.
+     Avoid error messages such as
+     "msginit.exe: subprocess ... failed: No such file or directory"  */
+#if !(defined _WIN32 && ! defined __CYGWIN__)
+  {
+    const char *prog = relocate (PROJECTSDIR "/team-address");
+    char *argv[7];
+    pid_t child;
+    int fd[1];
+    FILE *fp;
+    char *line;
+    size_t linesize;
+    size_t linelen;
+    int exitstatus;
 
-  /* Call the team-address shell script.  */
-  argv[0] = "/bin/sh";
-  argv[1] = (char *) prog;
-  argv[2] = (char *) relocate (PROJECTSDIR);
-  argv[3] = (char *) relocate (LIBDIR "/gettext");
-  argv[4] = (char *) catalogname;
-  argv[5] = (char *) language;
-  argv[6] = NULL;
-  child = create_pipe_in (prog, "/bin/sh", argv, DEV_NULL, false, true, false,
-                          fd);
-  if (child == -1)
-    goto failed;
-
-  /* Retrieve its result.  */
-  fp = fdopen (fd[0], "r");
-  if (fp == NULL)
-    {
-      error (0, errno, _("fdopen() failed"));
+    /* Call the team-address shell script.  */
+    argv[0] = BOURNE_SHELL;
+    argv[1] = (char *) prog;
+    argv[2] = (char *) relocate (PROJECTSDIR);
+    argv[3] = (char *) relocate (LIBDIR "/gettext");
+    argv[4] = (char *) catalogname;
+    argv[5] = (char *) language;
+    argv[6] = NULL;
+    child = create_pipe_in (prog, BOURNE_SHELL, argv, DEV_NULL, false, true,
+                            false, fd);
+    if (child == -1)
       goto failed;
-    }
 
-  line = NULL; linesize = 0;
-  linelen = getline (&line, &linesize, fp);
-  if (linelen == (size_t)(-1))
-    line = "";
-  else if (linelen > 0 && line[linelen - 1] == '\n')
-    line[linelen - 1] = '\0';
+    /* Retrieve its result.  */
+    fp = fdopen (fd[0], "r");
+    if (fp == NULL)
+      {
+        error (0, errno, _("fdopen() failed"));
+        goto failed;
+      }
 
-  fclose (fp);
+    line = NULL; linesize = 0;
+    linelen = getline (&line, &linesize, fp);
+    if (linelen == (size_t)(-1))
+      line = "";
+    else if (linelen > 0 && line[linelen - 1] == '\n')
+      line[linelen - 1] = '\0';
 
-  /* Remove zombie process from process list, and retrieve exit status.  */
-  exitstatus = wait_subprocess (child, prog, false, false, true, false, NULL);
-  if (exitstatus != 0)
-    {
-      error (0, 0, _("%s subprocess failed with exit code %d"),
-             prog, exitstatus);
-      goto failed;
-    }
+    fclose (fp);
 
-  return line;
+    /* Remove zombie process from process list, and retrieve exit status.  */
+    exitstatus = wait_subprocess (child, prog, false, false, true, false, NULL);
+    if (exitstatus != 0)
+      {
+        error (0, 0, _("%s subprocess failed with exit code %d"),
+               prog, exitstatus);
+        goto failed;
+      }
+
+    return line;
+  }
 
 failed:
+#endif
   return "";
 }
 
@@ -1360,11 +1440,11 @@ plural_forms ()
       size_t linelen;
       int exitstatus;
 
-      gettextlibdir = getenv ("GETTEXTLIBDIR");
+      gettextlibdir = getenv ("GETTEXTLIBDIR_BUILDDIR");
       if (gettextlibdir == NULL || gettextlibdir[0] == '\0')
         gettextlibdir = relocate (LIBDIR "/gettext");
 
-      prog = xconcatenated_filename (gettextlibdir, "cldr-plurals", NULL);
+      prog = xconcatenated_filename (gettextlibdir, "cldr-plurals", EXEEXT);
 
       last_dir = xstrdup (gettextcldrdir);
       dirs[0] = "common";
@@ -1377,8 +1457,11 @@ plural_forms ()
           last_dir = dir;
         }
 
-      /* Call the cldr-plurals command.  */
-      argv[0] = "cldr-plurals";
+      /* Call the cldr-plurals command.
+         argv[0] must be prog, not just the base name "cldr-plurals",
+         because on Cygwin in a build with --enable-shared, the libtool
+         wrapper of cldr-plurals.exe apparently needs this.  */
+      argv[0] = prog;
       argv[1] = (char *) language;
       argv[2] = last_dir;
       argv[3] = NULL;
@@ -1406,7 +1489,13 @@ plural_forms ()
           goto failed;
         }
       if (linelen > 0 && line[linelen - 1] == '\n')
-        line[linelen - 1] = '\0';
+        {
+          line[linelen - 1] = '\0';
+#if defined _WIN32 && ! defined __CYGWIN__
+          if (linelen > 1 && line[linelen - 2] == '\r')
+            line[linelen - 2] = '\0';
+#endif
+        }
 
       fclose (fp);
 
@@ -1601,12 +1690,10 @@ get_title ()
   unsetenv ("LANGUAGE");
   xsetenv ("OUTPUT_CHARSET", encoding, 1);
 
-#ifdef HAVE_SETLOCALE
   if (setlocale (LC_ALL, "") == NULL)
     /* Nonexistent locale.  Use the English title.  */
     result = english;
   else
-#endif
     {
       /* Fetch the translation.  */
       /* TRANSLATORS: "English" needs to be replaced by your language.
@@ -1639,9 +1726,7 @@ get_title ()
   else
     unsetenv ("OUTPUT_CHARSET");
 
-#ifdef HAVE_SETLOCALE
   setlocale (LC_ALL, "");
-#endif
 
   return result;
 }

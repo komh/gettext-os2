@@ -1,5 +1,5 @@
 /* Writing Java ResourceBundles.
-   Copyright (C) 2001-2003, 2005-2010, 2015-2016 Free Software Foundation, Inc.
+   Copyright (C) 2001-2003, 2005-2010, 2014, 2016, 2018-2019 Free Software Foundation, Inc.
    Written by Bruno Haible <haible@clisp.cons.org>, 2001.
 
    This program is free software: you can redistribute it and/or modify
@@ -13,7 +13,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 #ifdef HAVE_CONFIG_H
 # include <config.h>
@@ -61,6 +61,7 @@
 #include "message.h"
 #include "msgfmt.h"
 #include "msgl-iconv.h"
+#include "msgl-header.h"
 #include "plural-exp.h"
 #include "po-charset.h"
 #include "xalloc.h"
@@ -150,7 +151,7 @@ msgid_hashcode (const char *msgctxt, const char *msgid)
       char *combined;
       unsigned int result;
 
-      combined = (char *) xmalloca (combined_len);
+      combined = (char *) xmalloca (combined_len + 1);
       memcpy (combined, msgctxt, msgctxt_len);
       combined[msgctxt_len] = MSGCTXT_SEPARATOR;
       memcpy (combined + msgctxt_len + 1, msgid, msgid_len + 1);
@@ -416,7 +417,7 @@ write_java_msgid (FILE *stream, message_ty *mp)
       size_t combined_len = msgctxt_len + 1 + msgid_len;
       char *combined;
 
-      combined = (char *) xmalloca (combined_len);
+      combined = (char *) xmalloca (combined_len + 1);
       memcpy (combined, msgctxt, msgctxt_len);
       combined[msgctxt_len] = MSGCTXT_SEPARATOR;
       memcpy (combined + msgctxt_len + 1, msgid, msgid_len + 1);
@@ -1066,6 +1067,10 @@ msgdomain_write_java (message_list_ty *mlp, const char *canon_encoding,
   /* Convert the messages to Unicode.  */
   iconv_message_list (mlp, canon_encoding, po_charset_utf8, NULL);
 
+  /* Support for "reproducible builds": Delete information that may vary
+     between builds in the same conditions.  */
+  message_list_delete_header_field (mlp, "POT-Creation-Date:");
+
   if (output_source)
     {
       tmpdir = NULL;
@@ -1203,15 +1208,15 @@ msgdomain_write_java (message_list_ty *mlp, const char *canon_encoding,
      Java compilers create the class files in the source file's directory -
      which is in a temporary directory in our case.  */
   java_sources[0] = java_file_name;
-  if (compile_java_class (java_sources, 1, NULL, 0, "1.3", "1.1", directory,
+  if (compile_java_class (java_sources, 1, NULL, 0, "1.5", "1.6", directory,
                           true, false, true, verbose > 0))
     {
       if (!verbose)
-        error (0, 0, _("\
-compilation of Java class failed, please try --verbose or set $JAVAC"));
+        error (0, 0,
+               _("compilation of Java class failed, please try --verbose or set $JAVAC"));
       else
-        error (0, 0, _("\
-compilation of Java class failed, please try to set $JAVAC"));
+        error (0, 0,
+               _("compilation of Java class failed, please try to set $JAVAC"));
       goto quit3;
     }
 

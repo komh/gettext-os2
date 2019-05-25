@@ -1,5 +1,5 @@
 #! /bin/sh
-. "${srcdir=.}/init.sh"; path_prepend_ . ../src ${top_srcdir=..}/../gettext-runtime/src
+. "${srcdir=.}/init.sh"; path_prepend_ . ../src ../../gettext-runtime/src
 
 # Test of gettext facilities in the sh language.
 # Assumes an fr_FR locale is installed.
@@ -7,6 +7,10 @@
 
 # Note: This test fails on BeOS because there all locales use the UTF-8
 # encoding, even the locale fr_FR, thus the output comes out in UTF-8.
+
+# This test fails if the gettext package was configured with --disable-nls,
+# because in this case the gettext-runtime/src/gettext program does not do
+# any message catalog lookups.
 
 cat <<\EOF > prog.sh
 #! /bin/sh
@@ -23,6 +27,14 @@ export TEXTDOMAINDIR
 $echo "`gettext \"'Your command, please?', asked the waiter.\"`"
 
 $echo "`eval_ngettext \"a piece of cake\" \"\\$n pieces of cake\" $n`"
+
+$echo "`gettext -c File \"Open\"`"
+
+$echo "`gettext --context File \"Close\"`"
+
+$echo "`gettext --context=File \"Save\"`"
+
+$echo "`eval_npgettext File \"\\$n file open\" \"\\$n files open\" $n`"
 EOF
 
 : ${XGETTEXT=xgettext}
@@ -36,6 +48,25 @@ msgstr ""
 #, sh-format
 msgid "a piece of cake"
 msgid_plural "$n pieces of cake"
+msgstr[0] ""
+msgstr[1] ""
+
+msgctxt "File"
+msgid "Open"
+msgstr ""
+
+msgctxt "File"
+msgid "Close"
+msgstr ""
+
+msgctxt "File"
+msgid "Save"
+msgstr ""
+
+#, sh-format
+msgctxt "File"
+msgid "$n file open"
+msgid_plural "$n files open"
 msgstr[0] ""
 msgstr[1] ""
 EOF
@@ -58,6 +89,25 @@ msgid "a piece of cake"
 msgid_plural "$n pieces of cake"
 msgstr[0] "un morceau de gateau"
 msgstr[1] "$n morceaux de gateau"
+
+msgctxt "File"
+msgid "Open"
+msgstr "Ouvrir"
+
+msgctxt "File"
+msgid "Close"
+msgstr "Fermer"
+
+msgctxt "File"
+msgid "Save"
+msgstr "Sauvegarder"
+
+#, sh-format
+msgctxt "File"
+msgid "$n file open"
+msgid_plural "$n files open"
+msgstr[0] "$n fichier ouvert"
+msgstr[1] "$n fichiers ouverts"
 EOF
 
 : ${MSGMERGE=msgmerge}
@@ -105,10 +155,18 @@ fi
 cat <<\EOF > prog.ok
 «Votre commande, s'il vous plait», dit le garçon.
 2 morceaux de gateau
+Ouvrir
+Fermer
+Sauvegarder
+2 fichiers ouverts
 EOF
 cat <<\EOF > prog.oku
 Â«Votre commande, s'il vous plaitÂ», dit le garÃ§on.
 2 morceaux de gateau
+Ouvrir
+Fermer
+Sauvegarder
+2 fichiers ouverts
 EOF
 
 : ${LOCALE_FR=fr_FR}

@@ -1,5 +1,5 @@
 /* Writing tcl/msgcat .msg files.
-   Copyright (C) 2002-2003, 2005, 2007-2009, 2015-2016 Free Software
+   Copyright (C) 2002-2003, 2005, 2007-2009, 2016 Free Software
    Foundation, Inc.
    Written by Bruno Haible <bruno@clisp.org>, 2002.
 
@@ -14,7 +14,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 #ifdef HAVE_CONFIG_H
 # include <config.h>
@@ -34,6 +34,7 @@
 #include "xerror.h"
 #include "message.h"
 #include "msgl-iconv.h"
+#include "msgl-header.h"
 #include "po-charset.h"
 #include "xalloc.h"
 #include "xmalloca.h"
@@ -183,6 +184,10 @@ but the Tcl message catalog format doesn't support plural handling\n")));
 
   /* Convert the messages to Unicode.  */
   iconv_message_list (mlp, canon_encoding, po_charset_utf8, NULL);
+
+  /* Support for "reproducible builds": Delete information that may vary
+     between builds in the same conditions.  */
+  message_list_delete_header_field (mlp, "POT-Creation-Date:");
 
   /* Now create the file.  */
   {

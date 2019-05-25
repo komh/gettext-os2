@@ -1,5 +1,5 @@
 /* GNU gettext - internationalization aids
-   Copyright (C) 1995-1998, 2000-2010, 2012, 2015-2016 Free Software
+   Copyright (C) 1995-1998, 2000-2010, 2012, 2014-2015, 2018-2019 Free Software
    Foundation, Inc.
 
    This file was written by Peter Miller <millerp@canb.auug.org.au>
@@ -15,7 +15,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 #ifdef HAVE_CONFIG_H
 # include <config.h>
@@ -35,6 +35,8 @@
 # include <iconv.h>
 #endif
 
+#include <textstyle.h>
+
 #include "c-ctype.h"
 #include "po-charset.h"
 #include "format.h"
@@ -44,10 +46,6 @@
 #include "xalloc.h"
 #include "xmalloca.h"
 #include "c-strstr.h"
-#include "ostream.h"
-#ifdef GETTEXTDATADIR
-# include "styled-ostream.h"
-#endif
 #include "xvasprintf.h"
 #include "po-xerror.h"
 #include "gettext.h"
@@ -160,34 +158,27 @@ make_c_width_description_string (enum is_wrap do_wrap)
    When compiled in libgettextpo, don't enable styling support.  */
 #ifdef GETTEXTDATADIR
 
-/* Return true if the stream is an instance of styled_ostream_t.  */
-static inline bool
-is_stylable (ostream_t stream)
-{
-  return IS_INSTANCE (stream, ostream, styled_ostream);
-}
+/* All ostream_t instances are in fact styled_ostream_t instances.  */
 
 /* Start a run of text belonging to a given CSS class.  */
-static void
+static inline void
 begin_css_class (ostream_t stream, const char *classname)
 {
-  if (is_stylable (stream))
-    styled_ostream_begin_use_class ((styled_ostream_t) stream, classname);
+  styled_ostream_begin_use_class ((styled_ostream_t) stream, classname);
 }
 
 /* End a run of text belonging to a given CSS class.  */
-static void
+static inline void
 end_css_class (ostream_t stream, const char *classname)
 {
-  if (is_stylable (stream))
-    styled_ostream_end_use_class ((styled_ostream_t) stream, classname);
+  styled_ostream_end_use_class ((styled_ostream_t) stream, classname);
 }
 
 #else
 
 #define is_stylable(stream) false
-#define begin_css_class(stream,classname) /* empty */
-#define end_css_class(stream,classname) /* empty */
+#define begin_css_class(stream,classname) (void)(classname)
+#define end_css_class(stream,classname) (void)(classname)
 
 #endif
 
@@ -240,10 +231,18 @@ enum
 
 /* Output mp->comment as a set of comment lines.  */
 
+static bool print_comment = true;
+
+void
+message_print_style_comment (bool flag)
+{
+  print_comment = flag;
+}
+
 void
 message_print_comment (const message_ty *mp, ostream_t stream)
 {
-  if (mp->comment != NULL)
+  if (print_comment && mp->comment != NULL)
     {
       size_t j;
 
@@ -882,8 +881,7 @@ wrap (const message_ty *mp, ostream_t stream,
               if (c != 'n' && c != 't')
                 {
                   char *error_message =
-                    xasprintf (_("\
-internationalized messages should not contain the '\\%c' escape sequence"),
+                    xasprintf (_("internationalized messages should not contain the '\\%c' escape sequence"),
                                c);
                   po_xerror (PO_SEVERITY_WARNING, mp, NULL, 0, 0, false,
                              error_message);
@@ -1394,7 +1392,8 @@ different from yours. Consider using a pure ASCII msgid instead.\n\
 
 static void
 message_print_obsolete (const message_ty *mp, ostream_t stream,
-                        const char *charset, size_t page_width, bool blank_line)
+                        const char *charset, size_t page_width, bool blank_line,
+                        bool debug)
 {
   int extra_indent;
 
@@ -1420,13 +1419,56 @@ message_print_obsolete (const message_ty *mp, ostream_t stream,
   /* Print the file position comments (normally empty).  */
   message_print_comment_filepos (mp, stream, uniforum, page_width);
 
-  /* Print flag information in special comment.  */
-  if (mp->is_fuzzy)
+  /* Print flag information in special comment.
+     Preserve only
+       - the fuzzy flag, because it is important for the translator when the
+         message becomes active again,
+       - the no-wrap flag, because we use mp->do_wrap below for the wrapping,
+         therefore further processing through 'msgcat' needs to use the same
+         value of do_wrap,
+       - the *-format flags, because the wrapping depends on these flags (see
+         'Don't break inside format directives' comment), therefore further
+         processing through 'msgcat' needs to use the same values of is_format.
+     This is a trimmed-down variant of message_print_comment_flags.  */
+  if (mp->is_fuzzy
+      || has_significant_format_p (mp->is_format)
+      || mp->do_wrap == no)
     {
+      bool first_flag = true;
+      size_t i;
+
       ostream_write_str (stream, "#,");
 
       if (mp->is_fuzzy)
-        ostream_write_str (stream, " fuzzy");
+        {
+          ostream_write_str (stream, " fuzzy");
+          first_flag = false;
+        }
+
+      for (i = 0; i < NFORMATS; i++)
+        if (significant_format_p (mp->is_format[i]))
+          {
+            if (!first_flag)
+              ostream_write_str (stream, ",");
+
+            ostream_write_str (stream, " ");
+            ostream_write_str (stream,
+                               make_format_description_string (mp->is_format[i],
+                                                               format_language[i],
+                                                               debug));
+            first_flag = false;
+          }
+
+      if (mp->do_wrap == no)
+        {
+          if (!first_flag)
+            ostream_write_str (stream, ",");
+
+          ostream_write_str (stream, " ");
+          ostream_write_str (stream,
+                             make_c_width_description_string (mp->do_wrap));
+          first_flag = false;
+        }
 
       ostream_write_str (stream, "\n");
     }
@@ -1596,7 +1638,7 @@ msgdomain_list_print_po (msgdomain_list_ty *mdlp, ostream_t stream,
         if (mlp->item[j]->obsolete)
           {
             message_print_obsolete (mlp->item[j], stream, charset, page_width,
-                                    blank_line);
+                                    blank_line, debug);
             blank_line = true;
           }
 

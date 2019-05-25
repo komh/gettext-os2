@@ -1,5 +1,5 @@
 /* GNU gettext - internationalization aids
-   Copyright (C) 1995-1998, 2000-2010, 2012, 2015-2016 Free Software
+   Copyright (C) 1995-1998, 2000-2010, 2012, 2016, 2018-2019 Free Software
    Foundation, Inc.
    This file was written by Peter Miller <millerp@canb.auug.org.au>
 
@@ -14,7 +14,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 #ifdef HAVE_CONFIG_H
 # include <config.h>
@@ -102,10 +102,8 @@ main (int argc, char *argv[])
   error_print_progname = maybe_print_progname;
   gram_max_allowed_errors = UINT_MAX;
 
-#ifdef HAVE_SETLOCALE
   /* Set locale via LC_ALL.  */
   setlocale (LC_ALL, "");
-#endif
 
   /* Set the text message domain.  */
   bindtextdomain (PACKAGE, relocate (LOCALEDIR));
@@ -171,11 +169,11 @@ main (int argc, char *argv[])
       printf ("%s (GNU %s) %s\n", basename (program_name), PACKAGE, VERSION);
       /* xgettext: no-wrap */
       printf (_("Copyright (C) %s Free Software Foundation, Inc.\n\
-License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>\n\
+License GPLv3+: GNU GPL version 3 or later <%s>\n\
 This is free software: you are free to change and redistribute it.\n\
 There is NO WARRANTY, to the extent permitted by law.\n\
 "),
-              "1995-1998, 2000-2016");
+              "1995-2019", "https://gnu.org/licenses/gpl.html");
       printf (_("Written by %s.\n"), proper_name ("Peter Miller"));
       exit (EXIT_SUCCESS);
     }
@@ -263,11 +261,16 @@ Informative output:\n"));
       printf (_("\
   -V, --version               output version information and exit\n"));
       printf ("\n");
-      /* TRANSLATORS: The placeholder indicates the bug-reporting address
-         for this package.  Please add _another line_ saying
+      /* TRANSLATORS: The first placeholder is the web address of the Savannah
+         project of this package.  The second placeholder is the bug-reporting
+         email address for this package.  Please add _another line_ saying
          "Report translation bugs to <...>\n" with the address for translation
          bugs (typically your translation team's web or email address).  */
-      fputs (_("Report bugs to <bug-gnu-gettext@gnu.org>.\n"), stdout);
+      printf(_("\
+Report bugs in the bug tracker at <%s>\n\
+or by email to <%s>.\n"),
+             "https://savannah.gnu.org/projects/gettext",
+             "bug-gettext@gnu.org");
     }
 
   exit (status);
@@ -322,14 +325,14 @@ match_domain (const char *fn1, const char *fn2,
           if (!include_untranslated && defmsg->msgstr[0] == '\0')
             {
               (*nerrors)++;
-              po_gram_error_at_line (&defmsg->pos, _("\
-this message is untranslated"));
+              po_gram_error_at_line (&defmsg->pos,
+                                     _("this message is untranslated"));
             }
           else if (!include_fuzzies && defmsg->is_fuzzy && !is_header (defmsg))
             {
               (*nerrors)++;
-              po_gram_error_at_line (&defmsg->pos, _("\
-this message needs to be reviewed by the translator"));
+              po_gram_error_at_line (&defmsg->pos,
+                                     _("this message needs to be reviewed by the translator"));
             }
           else
             defmsg->used = 1;
@@ -367,16 +370,17 @@ this message needs to be reviewed by the translator"));
             defmsg = NULL;
           if (defmsg)
             {
-              po_gram_error_at_line (&refmsg->pos, _("\
-this message is used but not defined..."));
+              po_gram_error_at_line (&refmsg->pos,
+                                     _("this message is used but not defined..."));
               error_message_count--;
-              po_gram_error_at_line (&defmsg->pos, _("\
-...but this definition is similar"));
+              po_gram_error_at_line (&defmsg->pos,
+                                     _("...but this definition is similar"));
               defmsg->used = 1;
             }
           else
-            po_gram_error_at_line (&refmsg->pos, _("\
-this message is used but not defined in %s"), fn1);
+            po_gram_error_at_line (&refmsg->pos,
+                                   _("this message is used but not defined in %s"),
+                                   fn1);
         }
     }
 }

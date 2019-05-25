@@ -3,28 +3,14 @@ dnl This file is in the public domain.
 dnl
 dnl Configuration file - processed by autoconf.
 
-AC_INIT
-AC_CONFIG_SRCDIR(Hello.java)
-AM_INIT_AUTOMAKE(hello-java-awt, 0)
-
-dnl Check whether we can build native executable.
-AC_ARG_ENABLE(java-exe,
-  [  --enable-java-exe       compile Java to native code, not to bytecode],
-  :, enable_java_exe=no)
-gt_GCJ
-if test "$enable_java_exe" != no && test -n "$HAVE_GCJ"; then
-  BUILDJAVAEXE=yes
-else
-  BUILDJAVAEXE=no
-fi
-AC_SUBST(BUILDJAVAEXE)
-AM_CONDITIONAL([USEJEXE], [test "$BUILDJAVAEXE" = yes])
-AC_PROG_RANLIB
+AC_INIT([hello-java-awt], [0])
+AC_CONFIG_SRCDIR([Hello.java])
+AM_INIT_AUTOMAKE([1.11])
 
 dnl Check whether we can execute Java programs.
 gt_JAVAEXEC([TestAWT], [$srcdir/m4])
 dnl Check whether we can build Java programs.
-gt_JAVACOMP([1.3])
+gt_JAVACOMP([1.5])
 AC_CHECK_PROG(JAR, jar, jar)
 if test -n "$HAVE_JAVACOMP" && test -n "$JAR"; then
   BUILDJAVA=yes

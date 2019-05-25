@@ -1,5 +1,5 @@
 /* xgettext Perl backend.
-   Copyright (C) 2002-2010, 2015-2016 Free Software Foundation, Inc.
+   Copyright (C) 2002-2010, 2013, 2016, 2018-2019 Free Software Foundation, Inc.
 
    This file was written by Guido Flohr <guido@imperia.net>, 2002-2010.
 
@@ -14,7 +14,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
@@ -30,7 +30,15 @@
 #include <string.h>
 
 #include "message.h"
+#include "rc-str-list.h"
 #include "xgettext.h"
+#include "xg-pos.h"
+#include "xg-encoding.h"
+#include "xg-mixed-string.h"
+#include "xg-arglist-context.h"
+#include "xg-arglist-callshape.h"
+#include "xg-arglist-parser.h"
+#include "xg-message.h"
 #include "error.h"
 #include "error-progname.h"
 #include "xalloc.h"
@@ -46,7 +54,7 @@
    Also, the syntax after the 'sub' keyword is specified in perlsub.pod.
    Try the command "man perlsub" or "perldoc perlsub".
    Perl 5.10 has new operators '//' and '//=', see
-   <http://perldoc.perl.org/perldelta.html#Defined-or-operator>.  */
+   <https://perldoc.perl.org/perldelta.html#Defined-or-operator>.  */
 
 #define DEBUG_PERL 0
 
@@ -109,6 +117,13 @@ init_keywords ()
       x_perl_keyword ("dngettext:2,3");
       x_perl_keyword ("dcngettext:2,3");
       x_perl_keyword ("gettext_noop");
+      x_perl_keyword ("pgettext:1c,2");
+      x_perl_keyword ("dpgettext:2c,3");
+      x_perl_keyword ("dcpgettext:2c,3");
+      x_perl_keyword ("npgettext:1c,2,3");
+      x_perl_keyword ("dnpgettext:2c,3,4");
+      x_perl_keyword ("dcnpgettext:2c,3,4");
+
 #if 0
       x_perl_keyword ("__");
       x_perl_keyword ("$__");
@@ -126,6 +141,7 @@ init_keywords ()
 void
 init_flag_table_perl ()
 {
+  /* Gettext binding for Perl.  */
   xgettext_record_flag ("gettext:1:pass-perl-format");
   xgettext_record_flag ("gettext:1:pass-perl-brace-format");
   xgettext_record_flag ("%gettext:1:pass-perl-format");
@@ -150,9 +166,30 @@ init_flag_table_perl ()
   xgettext_record_flag ("dcngettext:3:pass-perl-brace-format");
   xgettext_record_flag ("gettext_noop:1:pass-perl-format");
   xgettext_record_flag ("gettext_noop:1:pass-perl-brace-format");
+  xgettext_record_flag ("pgettext:2:pass-perl-format");
+  xgettext_record_flag ("pgettext:2:pass-perl-brace-format");
+  xgettext_record_flag ("dpgettext:3:pass-perl-format");
+  xgettext_record_flag ("dpgettext:3:pass-perl-brace-format");
+  xgettext_record_flag ("dcpgettext:3:pass-perl-format");
+  xgettext_record_flag ("dcpgettext:3:pass-perl-brace-format");
+  xgettext_record_flag ("npgettext:2:pass-perl-format");
+  xgettext_record_flag ("npgettext:3:pass-perl-format");
+  xgettext_record_flag ("npgettext:2:pass-perl-brace-format");
+  xgettext_record_flag ("npgettext:3:pass-perl-brace-format");
+  xgettext_record_flag ("dnpgettext:3:pass-perl-format");
+  xgettext_record_flag ("dnpgettext:4:pass-perl-format");
+  xgettext_record_flag ("dnpgettext:3:pass-perl-brace-format");
+  xgettext_record_flag ("dnpgettext:4:pass-perl-brace-format");
+  xgettext_record_flag ("dcnpgettext:3:pass-perl-format");
+  xgettext_record_flag ("dcnpgettext:4:pass-perl-format");
+  xgettext_record_flag ("dcnpgettext:3:pass-perl-brace-format");
+  xgettext_record_flag ("dcnpgettext:4:pass-perl-brace-format");
+
+  /* Perl builtins.  */
   xgettext_record_flag ("printf:1:perl-format"); /* argument 1 or 2 ?? */
   xgettext_record_flag ("sprintf:1:perl-format");
 #if 0
+  /* Shortcuts from libintl-perl.  */
   xgettext_record_flag ("__:1:pass-perl-format");
   xgettext_record_flag ("__:1:pass-perl-brace-format");
   xgettext_record_flag ("%__:1:pass-perl-format");
@@ -175,13 +212,6 @@ init_flag_table_perl ()
 
 
 /* ======================== Reading of characters.  ======================== */
-
-/* Real filename, used in error messages about the input file.  */
-static const char *real_file_name;
-
-/* Logical filename and line number, used to label the extracted messages.  */
-static char *logical_file_name;
-static int line_number;
 
 /* The input file stream.  */
 static FILE *fp;
@@ -305,8 +335,8 @@ get_here_document (const char *delimiter)
           else
             {
               error_with_progname = false;
-              error (EXIT_SUCCESS, 0, _("\
-%s:%d: can't find string terminator \"%s\" anywhere before EOF"),
+              error (EXIT_SUCCESS, 0,
+                     _("%s:%d: can't find string terminator \"%s\" anywhere before EOF"),
                      real_file_name, line_number, delimiter);
               error_with_progname = true;
 
@@ -1040,8 +1070,9 @@ extract_quotelike_pass3 (token_ty *tp, int error_level)
                     if (end == NULL)
                       {
                         error_with_progname = false;
-                        error (error_level, 0, _("\
-%s:%d: missing right brace on \\x{HEXNUMBER}"), real_file_name, line_number);
+                        error (error_level, 0,
+                               _("%s:%d: missing right brace on \\x{HEXNUMBER}"),
+                               real_file_name, line_number);
                         error_with_progname = true;
                         ++crs;
                         continue;
@@ -1160,8 +1191,8 @@ extract_quotelike_pass3 (token_ty *tp, int error_level)
               else if ((unsigned char) *crs >= 0x80)
                 {
                   error_with_progname = false;
-                  error (error_level, 0, _("\
-%s:%d: invalid interpolation (\"\\l\") of 8bit character \"%c\""),
+                  error (error_level, 0,
+                         _("%s:%d: invalid interpolation (\"\\l\") of 8bit character \"%c\""),
                          real_file_name, line_number, *crs);
                   error_with_progname = true;
                 }
@@ -1180,8 +1211,8 @@ extract_quotelike_pass3 (token_ty *tp, int error_level)
               else if ((unsigned char) *crs >= 0x80)
                 {
                   error_with_progname = false;
-                  error (error_level, 0, _("\
-%s:%d: invalid interpolation (\"\\u\") of 8bit character \"%c\""),
+                  error (error_level, 0,
+                         _("%s:%d: invalid interpolation (\"\\u\") of 8bit character \"%c\""),
                          real_file_name, line_number, *crs);
                   error_with_progname = true;
                 }
@@ -1214,8 +1245,8 @@ extract_quotelike_pass3 (token_ty *tp, int error_level)
       if (!backslashed && !extract_all && (*crs == '$' || *crs == '@'))
         {
           error_with_progname = false;
-          error (error_level, 0, _("\
-%s:%d: invalid variable interpolation at \"%c\""),
+          error (error_level, 0,
+                 _("%s:%d: invalid variable interpolation at \"%c\""),
                  real_file_name, line_number, *crs);
           error_with_progname = true;
           ++crs;
@@ -1227,8 +1258,8 @@ extract_quotelike_pass3 (token_ty *tp, int error_level)
           else if ((unsigned char) *crs >= 0x80)
             {
               error_with_progname = false;
-              error (error_level, 0, _("\
-%s:%d: invalid interpolation (\"\\L\") of 8bit character \"%c\""),
+              error (error_level, 0,
+                     _("%s:%d: invalid interpolation (\"\\L\") of 8bit character \"%c\""),
                      real_file_name, line_number, *crs);
               error_with_progname = true;
               buffer[bufpos++] = *crs;
@@ -1244,8 +1275,8 @@ extract_quotelike_pass3 (token_ty *tp, int error_level)
           else if ((unsigned char) *crs >= 0x80)
             {
               error_with_progname = false;
-              error (error_level, 0, _("\
-%s:%d: invalid interpolation (\"\\U\") of 8bit character \"%c\""),
+              error (error_level, 0,
+                     _("%s:%d: invalid interpolation (\"\\U\") of 8bit character \"%c\""),
                      real_file_name, line_number, *crs);
               error_with_progname = true;
               buffer[bufpos++] = *crs;
@@ -1558,10 +1589,9 @@ extract_variable (message_list_ty *mlp, token_ty *tp, int first)
                         pos.line_number = line_number;
                         pos.file_name = logical_file_name;
 
-                        xgettext_current_source_encoding = po_charset_utf8;
                         remember_a_message (mlp, NULL, xstrdup (t1->string),
-                                            context, &pos, NULL, savable_comment);
-                        xgettext_current_source_encoding = xgettext_global_source_encoding;
+                                            true, context, &pos, NULL,
+                                            savable_comment, true);
                         free_token (t2);
                         free_token (t1);
                       }
@@ -1988,10 +2018,8 @@ interpolate_keywords (message_list_ty *mlp, const char *string, int lineno)
               buffer[bufpos] = '\0';
               token.string = xstrdup (buffer);
               extract_quotelike_pass3 (&token, EXIT_FAILURE);
-              xgettext_current_source_encoding = po_charset_utf8;
-              remember_a_message (mlp, NULL, token.string, context, &pos,
-                                  NULL, savable_comment);
-              xgettext_current_source_encoding = xgettext_global_source_encoding;
+              remember_a_message (mlp, NULL, token.string, true, context, &pos,
+                                  NULL, savable_comment, true);
               /* FALLTHROUGH */
             default:
               context = null_context;
@@ -2399,12 +2427,6 @@ x_perl_prelex (message_list_ty *mlp, token_ty *tp)
           return;
 
         case '(':
-          c = phase2_getc ();
-          if (c == ')')
-            /* Ignore empty list.  */
-            continue;
-          else
-            phase2_ungetc (c);
           tp->type = token_type_lparen;
           return;
 
@@ -3046,9 +3068,7 @@ extract_balanced (message_list_ty *mlp,
 
       if (delim == tp->type)
         {
-          xgettext_current_source_encoding = po_charset_utf8;
           arglist_parser_done (argparser, arg);
-          xgettext_current_source_encoding = xgettext_global_source_encoding;
           if (next_argparser != NULL)
             free (next_argparser);
 #if DEBUG_PERL
@@ -3065,9 +3085,7 @@ extract_balanced (message_list_ty *mlp,
 
       if (comma_delim && tp->type == token_type_comma)
         {
-          xgettext_current_source_encoding = po_charset_utf8;
           arglist_parser_done (argparser, arg);
-          xgettext_current_source_encoding = xgettext_global_source_encoding;
           if (next_argparser != NULL)
             free (next_argparser);
 #if DEBUG_PERL
@@ -3117,9 +3135,7 @@ extract_balanced (message_list_ty *mlp,
                                 inner_context, next_context_iter,
                                 1, next_argparser))
             {
-              xgettext_current_source_encoding = po_charset_utf8;
               arglist_parser_done (argparser, arg);
-              xgettext_current_source_encoding = xgettext_global_source_encoding;
               return true;
             }
 
@@ -3203,9 +3219,7 @@ extract_balanced (message_list_ty *mlp,
                                     inner_context, next_context_iter,
                                     1, next_argparser))
                 {
-                  xgettext_current_source_encoding = po_charset_utf8;
                   arglist_parser_done (argparser, arg);
-                  xgettext_current_source_encoding = xgettext_global_source_encoding;
                   return true;
                 }
               next_is_argument = false;
@@ -3218,9 +3232,7 @@ extract_balanced (message_list_ty *mlp,
                                     inner_context, next_context_iter,
                                     arg, arglist_parser_clone (argparser)))
                 {
-                  xgettext_current_source_encoding = po_charset_utf8;
                   arglist_parser_done (argparser, arg);
-                  xgettext_current_source_encoding = xgettext_global_source_encoding;
                   if (next_argparser != NULL)
                     free (next_argparser);
                   free_token (tp);
@@ -3257,9 +3269,7 @@ extract_balanced (message_list_ty *mlp,
           if (arglist_parser_decidedp (argparser, arg))
             {
               /* We have missed the argument.  */
-              xgettext_current_source_encoding = po_charset_utf8;
               arglist_parser_done (argparser, arg);
-              xgettext_current_source_encoding = xgettext_global_source_encoding;
               argparser = arglist_parser_alloc (mlp, NULL);
               arg = 0;
             }
@@ -3294,10 +3304,8 @@ extract_balanced (message_list_ty *mlp,
 
               pos.file_name = logical_file_name;
               pos.line_number = tp->line_number;
-              xgettext_current_source_encoding = po_charset_utf8;
-              remember_a_message (mlp, NULL, string, inner_context, &pos,
-                                  NULL, tp->comment);
-              xgettext_current_source_encoding = xgettext_global_source_encoding;
+              remember_a_message (mlp, NULL, string, true, inner_context, &pos,
+                                  NULL, tp->comment, true);
             }
           else if (!skip_until_comma)
             {
@@ -3321,21 +3329,19 @@ extract_balanced (message_list_ty *mlp,
               if (must_collect)
                 {
                   char *string = collect_message (mlp, tp, EXIT_FAILURE);
-
-                  xgettext_current_source_encoding = po_charset_utf8;
-                  arglist_parser_remember (argparser, arg,
-                                           string, inner_context,
+                  mixed_string_ty *ms =
+                    mixed_string_alloc_utf8 (string, lc_string,
+                                             logical_file_name, tp->line_number);
+                  free (string);
+                  arglist_parser_remember (argparser, arg, ms, inner_context,
                                            logical_file_name, tp->line_number,
-                                           tp->comment);
-                  xgettext_current_source_encoding = xgettext_global_source_encoding;
+                                           tp->comment, true);
                 }
             }
 
           if (arglist_parser_decidedp (argparser, arg))
             {
-              xgettext_current_source_encoding = po_charset_utf8;
               arglist_parser_done (argparser, arg);
-              xgettext_current_source_encoding = xgettext_global_source_encoding;
               argparser = arglist_parser_alloc (mlp, NULL);
             }
 
@@ -3363,9 +3369,7 @@ extract_balanced (message_list_ty *mlp,
           fprintf (stderr, "%s:%d: type EOF (%d)\n",
                    logical_file_name, tp->line_number, nesting_level);
 #endif
-          xgettext_current_source_encoding = po_charset_utf8;
           arglist_parser_done (argparser, arg);
-          xgettext_current_source_encoding = xgettext_global_source_encoding;
           if (next_argparser != NULL)
             free (next_argparser);
           next_argparser = NULL;
@@ -3381,9 +3385,7 @@ extract_balanced (message_list_ty *mlp,
                                 null_context, null_context_list_iterator,
                                 1, arglist_parser_alloc (mlp, NULL)))
             {
-              xgettext_current_source_encoding = po_charset_utf8;
               arglist_parser_done (argparser, arg);
-              xgettext_current_source_encoding = xgettext_global_source_encoding;
               if (next_argparser != NULL)
                 free (next_argparser);
               free_token (tp);
@@ -3417,9 +3419,7 @@ extract_balanced (message_list_ty *mlp,
                                 null_context, null_context_list_iterator,
                                 1, arglist_parser_alloc (mlp, NULL)))
             {
-              xgettext_current_source_encoding = po_charset_utf8;
               arglist_parser_done (argparser, arg);
-              xgettext_current_source_encoding = xgettext_global_source_encoding;
               if (next_argparser != NULL)
                 free (next_argparser);
               free_token (tp);
@@ -3451,9 +3451,7 @@ extract_balanced (message_list_ty *mlp,
 #endif
 
           /* The ultimate sign.  */
-          xgettext_current_source_encoding = po_charset_utf8;
           arglist_parser_done (argparser, arg);
-          xgettext_current_source_encoding = xgettext_global_source_encoding;
           argparser = arglist_parser_alloc (mlp, NULL);
 
           /* FIXME: Instead of resetting outer_context here, it may be better

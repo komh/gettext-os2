@@ -1,5 +1,5 @@
 /* Reading Desktop Entry files.
-   Copyright (C) 1995-1998, 2000-2003, 2005-2006, 2008-2009, 2014-2016 Free
+   Copyright (C) 1995-1998, 2000-2003, 2005-2006, 2008-2009, 2014-2018 Free
    Software Foundation, Inc.
    This file was written by Daiki Ueno <ueno@gnu.org>.
 
@@ -14,7 +14,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 #ifdef HAVE_CONFIG_H
 # include <config.h>
@@ -46,7 +46,7 @@
 #define SIZEOF(a) (sizeof(a) / sizeof(a[0]))
 
 /* The syntax of a Desktop Entry file is defined at
-   http://standards.freedesktop.org/desktop-entry-spec/latest/index.html.  */
+   https://standards.freedesktop.org/desktop-entry-spec/latest/index.html.  */
 
 desktop_reader_ty *
 desktop_reader_alloc (desktop_reader_class_ty *method_table)
@@ -380,14 +380,14 @@ desktop_lex (token_ty *tp)
               }
             APPEND (0);
 
-            /* Skip any whitespace before '='.  */
+            /* Skip any space before '='.  */
             for (;;)
               {
                 c = phase2_getc ();
                 switch (c)
                   {
                   default:
-                    if (c_isspace (c))
+                    if (c == ' ')
                       continue;
                     phase2_ungetc (c);
                     break;
@@ -413,18 +413,18 @@ desktop_lex (token_ty *tp)
                 return;
               }
 
-            /* Skip any whitespace after '='.  */
+            /* Skip any space after '='.  */
             for (;;)
               {
                 c = phase2_getc ();
                 switch (c)
                   {
                   default:
-                    if (c_isspace (c))
+                    if (c == ' ')
                       continue;
                     phase2_ungetc (c);
                     break;
-                  case EOF: case '\n':
+                  case EOF:
                     break;
                   }
                 break;

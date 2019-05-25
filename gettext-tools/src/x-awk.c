@@ -1,5 +1,5 @@
 /* xgettext awk backend.
-   Copyright (C) 2002-2003, 2005-2009, 2015-2016 Free Software Foundation, Inc.
+   Copyright (C) 2002-2003, 2005-2009, 2018 Free Software Foundation, Inc.
 
    This file was written by Bruno Haible <haible@clisp.cons.org>, 2002.
 
@@ -14,7 +14,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
@@ -31,6 +31,12 @@
 
 #include "message.h"
 #include "xgettext.h"
+#include "xg-pos.h"
+#include "xg-mixed-string.h"
+#include "xg-arglist-context.h"
+#include "xg-arglist-callshape.h"
+#include "xg-arglist-parser.h"
+#include "xg-message.h"
 #include "error.h"
 #include "error-progname.h"
 #include "xalloc.h"
@@ -109,13 +115,6 @@ init_flag_table_awk ()
 
 
 /* ======================== Reading of characters.  ======================== */
-
-/* Real filename, used in error messages about the input file.  */
-static const char *real_file_name;
-
-/* Logical filename and line number, used to label the extracted messages.  */
-static char *logical_file_name;
-static int line_number;
 
 /* The input file stream.  */
 static FILE *fp;
@@ -790,13 +789,19 @@ extract_parenthesized (message_list_ty *mlp,
             pos.line_number = token.line_number;
 
             if (extract_all)
-              remember_a_message (mlp, NULL, token.string, inner_context, &pos,
-                                  NULL, savable_comment);
+              remember_a_message (mlp, NULL, token.string, false, inner_context,
+                                  &pos, NULL, savable_comment, false);
             else
-              arglist_parser_remember (argparser, arg, token.string,
-                                       inner_context,
-                                       pos.file_name, pos.line_number,
-                                       savable_comment);
+              {
+                mixed_string_ty *ms =
+                  mixed_string_alloc_simple (token.string, lc_string,
+                                             pos.file_name, pos.line_number);
+                free (token.string);
+                arglist_parser_remember (argparser, arg, ms,
+                                         inner_context,
+                                         pos.file_name, pos.line_number,
+                                         savable_comment, false);
+              }
           }
           next_is_argument = false;
           next_context_iter = null_context_list_iterator;
@@ -809,8 +814,8 @@ extract_parenthesized (message_list_ty *mlp,
             pos.file_name = logical_file_name;
             pos.line_number = token.line_number;
 
-            remember_a_message (mlp, NULL, token.string, inner_context, &pos,
-                                NULL, savable_comment);
+            remember_a_message (mlp, NULL, token.string, false, inner_context,
+                                &pos, NULL, savable_comment, false);
           }
           next_is_argument = false;
           next_context_iter = null_context_list_iterator;

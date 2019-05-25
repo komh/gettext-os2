@@ -1,5 +1,5 @@
 /* Parsing C format strings.
-   Copyright (C) 2001-2004, 2006-2007, 2009-2010, 2015-2016 Free Software
+   Copyright (C) 2001-2004, 2006-2007, 2009-2010, 2018 Free Software
    Foundation, Inc.
    Written by Bruno Haible <haible@clisp.cons.org>, 2001.
 
@@ -14,7 +14,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 
 /* C format strings are described in POSIX (IEEE P1003.1 2001), section
@@ -630,7 +630,7 @@ format_parse_entrails (const char *format, bool translated,
                   size = FAT_SIZE_SIZE_T;
                 else if (*format == 't')
                   size = FAT_SIZE_PTRDIFF_T;
-#if (defined _WIN32 || defined __WIN32__) && ! defined __CYGWIN__
+#if defined _WIN32 && ! defined __CYGWIN__
                 else if (SYSDEP_SEGMENTS_PROCESSED
                          && *format == 'I'
                          && format[1] == '6'

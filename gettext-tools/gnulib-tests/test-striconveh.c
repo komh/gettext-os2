@@ -1,5 +1,5 @@
 /* Test of character set conversion with error handling.
-   Copyright (C) 2007-2016 Free Software Foundation, Inc.
+   Copyright (C) 2007-2019 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 /* Written by Bruno Haible <bruno@clisp.org>, 2007.  */
 
@@ -44,6 +44,7 @@ new_offsets (size_t n)
 int
 main ()
 {
+#if HAVE_ICONV
   static enum iconv_ilseq_handler handlers[] =
     { iconveh_error, iconveh_question_mark, iconveh_escape_sequence };
   size_t indirect;
@@ -51,7 +52,6 @@ main ()
   size_t o;
   size_t i;
 
-#if HAVE_ICONV
   /* Assume that iconv() supports at least the encodings ASCII, ISO-8859-1,
      ISO-8859-2, and UTF-8.  */
   iconv_t cd_ascii_to_88591 = iconv_open ("ISO-8859-1", "ASCII");
@@ -1107,6 +1107,14 @@ main ()
     }
 
 #endif
+
+  /* -------------------------------- Done. -------------------------------- */
+
+  if (cd_ascii_to_88591 != (iconv_t)(-1))
+    iconv_close (cd_ascii_to_88591);
+  iconv_close (cd_ascii_to_utf8);
+  if (cd_utf7_to_utf8 != (iconv_t)(-1))
+    iconv_close (cd_utf7_to_utf8);
 
   return 0;
 }

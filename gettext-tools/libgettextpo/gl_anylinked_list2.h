@@ -1,5 +1,5 @@
 /* Sequential list data type implemented by a linked list.
-   Copyright (C) 2006-2016 Free Software Foundation, Inc.
+   Copyright (C) 2006-2019 Free Software Foundation, Inc.
    Written by Bruno Haible <bruno@clisp.org>, 2006.
 
    This program is free software: you can redistribute it and/or modify
@@ -13,7 +13,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 /* Common code of gl_linked_list.c and gl_linkedhash_list.c.  */
 
@@ -29,7 +29,7 @@
    and we use 'volatile' assignments to prevent the compiler from reordering
    such assignments.  */
 #ifdef SIGNAL_SAFE_LIST
-# define ASYNCSAFE(type) *(volatile type *)&
+# define ASYNCSAFE(type) *(type volatile *)&
 #else
 # define ASYNCSAFE(type)
 #endif
@@ -923,7 +923,7 @@ gl_linked_iterator (gl_list_t list)
   result.list = list;
   result.p = list->root.next;
   result.q = &list->root;
-#ifdef lint
+#if defined GCC_LINT || defined lint
   result.i = 0;
   result.j = 0;
   result.count = 0;
@@ -994,7 +994,7 @@ gl_linked_iterator_from_to (gl_list_t list,
       result.q = node;
     }
 
-#ifdef lint
+#if defined GCC_LINT || defined lint
   result.i = 0;
   result.j = 0;
   result.count = 0;

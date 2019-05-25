@@ -1,5 +1,5 @@
 /* Test of log10*() function family.
-   Copyright (C) 2012-2016 Free Software Foundation, Inc.
+   Copyright (C) 2012-2019 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 static void
 test_function (void)
@@ -47,7 +47,7 @@ test_function (void)
 #if defined __i386__ && defined __FreeBSD__
        /* On FreeBSD/x86 6.4, the 'long double' type really has only 53 bits of
           precision in the compiler but 64 bits of precision at runtime.  See
-          <http://lists.gnu.org/archive/html/bug-gnulib/2008-07/msg00063.html>.
+          <https://lists.gnu.org/r/bug-gnulib/2008-07/msg00063.html>.
           The compiler has truncated all 'long double' literals in log10l.c to
           53 bits of precision.  */
        L_(18.0)
@@ -76,7 +76,7 @@ test_function (void)
 #if defined __i386__ && defined __FreeBSD__
        /* On FreeBSD/x86 6.4, the 'long double' type really has only 53 bits of
           precision in the compiler but 64 bits of precision at runtime.  See
-          <http://lists.gnu.org/archive/html/bug-gnulib/2008-07/msg00063.html>.
+          <https://lists.gnu.org/r/bug-gnulib/2008-07/msg00063.html>.
           The compiler has truncated all 'long double' literals in log10l.c to
           53 bits of precision.  */
        L_(38.0)

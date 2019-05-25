@@ -1,5 +1,5 @@
 /* Reading binary .mo files.
-   Copyright (C) 1995-1998, 2000-2007, 2015-2016 Free Software Foundation, Inc.
+   Copyright (C) 1995-1998, 2000-2007, 2014-2015, 2017 Free Software Foundation, Inc.
    Written by Ulrich Drepper <drepper@gnu.ai.mit.edu>, April 1995.
 
    This program is free software: you can redistribute it and/or modify
@@ -13,7 +13,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 #ifdef HAVE_CONFIG_H
 # include <config.h>
@@ -169,11 +169,19 @@ get_sysdep_string (const struct binary_mo_file *bfp, size_t offset,
       s_offset += segsize;
 
       if (sysdepref == SEGMENTS_END)
-        break;
+        {
+          /* The last static segment must end in a NUL.  */
+          if (!(segsize > 0 && bfp->data[s_offset - 1] == '\0'))
+            /* Invalid.  */
+            error (EXIT_FAILURE, 0,
+                   _("file \"%s\" contains a not NUL terminated system dependent string"),
+                   bfp->filename);
+          break;
+        }
       if (sysdepref >= header->n_sysdep_segments)
         /* Invalid.  */
-          error (EXIT_FAILURE, 0, _("file \"%s\" is not in GNU .mo format"),
-                 bfp->filename);
+        error (EXIT_FAILURE, 0, _("file \"%s\" is not in GNU .mo format"),
+               bfp->filename);
       /* See 'struct sysdep_segment'.  */
       sysdep_segment_offset = header->sysdep_segments_offset + sysdepref * 8;
       ss_length = get_uint32 (bfp, sysdep_segment_offset);

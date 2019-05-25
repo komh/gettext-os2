@@ -1,3 +1,141 @@
+2019-05-12  Bruno Haible  <bruno@clisp.org>
+
+	Update translations (from the TP).
+
+	Update bug reporting instructions.
+	* README: Tell users to report bugs in the bug tracker or by email. Use the
+	mailing list address, not the alias.
+	* gettext-runtime/libasprintf/README: Likewise.
+	* gettext-tools/doc/gettext.texi (Introduction): Likewise.
+	(Plural forms): Use the mailing list address, not the alias.
+	* configure.ac (AC_INIT): Use the mailing list address, not the alias.
+	* gettext-runtime/configure.ac (AC_INIT): Likewise.
+	* gettext-tools/configure.ac (AC_INIT): Likewise.
+	* gettext-tools/examples/configure.ac (AC_INIT): Likewise.
+	* gettext-runtime/po/Makevars (MSGID_BUGS_ADDRESS): Use the mailing list
+	address, not the alias.
+	* gettext-tools/po/Makevars (MSGID_BUGS_ADDRESS): Likewise.
+	* gettext-tools/examples/po/Makefile.am (MSGID_BUGS_ADDRESS): Likewise.
+	* gettext-tools/examples/hello-*/po/Makevars (MSGID_BUGS_ADDRESS): Likewise.
+	* gettext-tools/examples/hello-*/po/Makefile.am (MSGID_BUGS_ADDRESS): Likewise.
+	* gettext-tools/examples/hello-objc-gnustep/po/GNUmakefile (MSGID_BUGS_ADDRESS):
+	Likewise.
+	* gettext-tools/examples/hello-c++-kde/hello.cc (main): Likewise.
+	* gettext-runtime/src/envsubst.c (main): Move URL out of translatable string.
+	(usage): Tell users to report bugs in the bug tracker or by email. Use the
+	mailing list address, not the alias.
+	* gettext-runtime/src/gettext.c: Likewise.
+	* gettext-runtime/src/ngettext.c: Likewise.
+	* gettext-tools/src/cldr-plurals.c: Likewise.
+	* gettext-tools/src/hostname.c: Likewise.
+	* gettext-tools/src/msgattrib.c: Likewise.
+	* gettext-tools/src/msgcat.c: Likewise.
+	* gettext-tools/src/msgcmp.c: Likewise.
+	* gettext-tools/src/msgcomm.c: Likewise.
+	* gettext-tools/src/msgconv.c: Likewise.
+	* gettext-tools/src/msgen.c: Likewise.
+	* gettext-tools/src/msgexec.c: Likewise.
+	* gettext-tools/src/msgfilter.c: Likewise.
+	* gettext-tools/src/msgfmt.c: Likewise.
+	* gettext-tools/src/msggrep.c: Likewise.
+	* gettext-tools/src/msginit.c: Likewise.
+	* gettext-tools/src/msgmerge.c: Likewise.
+	* gettext-tools/src/msgunfmt.c: Likewise.
+	* gettext-tools/src/msguniq.c: Likewise.
+	* gettext-tools/src/recode-sr-latin.c: Likewise.
+	* gettext-tools/src/urlget.c: Likewise.
+	* gettext-tools/src/xgettext.c: Likewise.
+	* gettext-tools/tests/tstgettext.c: Likewise.
+	* gettext-tools/tests/tstngettext.c: Likewise.
+	* gettext-tools/misc/autopoint.in (func_usage): Tell users to report bugs in the
+	bug tracker or by email. Use the mailing list address, not the alias.
+	* gettext-tools/misc/convert-archive.in (func_usage): Likewise.
+	* gettext-tools/misc/gettextize.in (func_usage): Likewise.
+
+2019-05-08  Bruno Haible  <bruno@clisp.org>
+
+	Update translations (from the TP).
+
+2019-04-28  Bruno Haible  <bruno@clisp.org>
+
+	In the POT files, talk about the "GNU gettext package".
+	Reported by Benno Schulenberg <coordinator@translationproject.org>.
+
+	* gettext-runtime/po/Makevars (XGETTEXT_OPTIONS): Add --package-name option.
+	* gettext-tools/po/Makevars (XGETTEXT_OPTIONS): Likewise.
+	* gettext-tools/examples/po/Makefile.am (XGETTEXT_OPTIONS): New variable.
+
+2019-04-14  Bruno Haible  <bruno@clisp.org>
+
+	Update translations (from the TP).
+	* gettext-runtime/po/*.po: Update.
+	* gettext-runtime/po/LINGUAS: Add 'ast'.
+	* gettext-tools/po/*.po: Update.
+	* gettext-tools/examples/po/*.po: Update.
+	* gettext-tools/examples/po/LINGUAS: Add 'ta'.
+	* gettext-tools/examples/hello-*/po/LINGUAS: Likewise.
+	* gettext-tools/examples/Makefile.am (EXAMPLESPOFILES): Add ta.po.
+
+2019-04-07  Bruno Haible  <bruno@clisp.org>
+
+	Add copyright notices in several files.
+	Reported by <ineiev@gnu.org> in <https://savannah.gnu.org/bugs/?54809>.
+
+	* gettext-tools/doc/FAQ.html: Fix copyright notice added on 2019-04-04.
+	* gettext-tools/doc/tutorial.html: Add GFDL copyright notice. Permission given
+	by Gora Mohanty <gora_mohanty@yahoo.co.in> through private email on 2004-11-13.
+	* gettext-tools/po/Makevars.template: Don't mention the file name, since this
+	file is meant to be copied and renamed to 'Makevars'.
+	* gettext-tools/examples/hello-*/po/Makevars: Add all-permissive copyright
+	notice.
+	* gettext-tools/examples/hello-c-gnome3/hello.ui: Add public-domain notice.
+	* gettext-tools/examples/hello-c-gnome3/hello.gresource.xml: Likewise.
+	* gettext-tools/examples/hello-c-gnome3/hello.gschema.xml: Likewise.
+	* gettext-tools/examples/hello-java-awt/m4/TestAWT.java: Likewise.
+	* gettext-tools/examples/hello-java-swing/m4/TestAWT.java: Likewise.
+	* gettext-tools/examples/hello-java-qtjambi/m4/Test15.java: Likewise.
+	* gettext-tools/examples/check-examples: Add GPLv3+ copyright notice.
+	* gettext-tools/examples/installpaths.in: Likewise.
+	* gettext-tools/examples/po/mmsmallpo.sh: Likewise.
+	* gettext-tools/examples/po/xsmallpot.sh: Likewise.
+	* gettext-tools/its/glade.loc: Likewise.
+	* gettext-tools/its/gsettings.loc: Likewise.
+	* gettext-tools/its/metainfo.its: Likewise.
+	* gettext-tools/its/metainfo.loc: Likewise.
+	* gettext-tools/src/filters.h: Add missing copyright line.
+
+2018-11-25  Bruno Haible  <bruno@clisp.org>
+
+	build: Remove generated files from version control.
+	This creates a bootstrapping issue, but it can be mitigated:
+	If a user wants to build GNU gettext on a platform which does not have the
+	GNU gettext programs installed, they first need to build and install a tarball
+	of GNU gettext; then only they can build GNU gettext from the git repository.
+
+	* gettext-runtime/po/gettext-runtime.pot: Remove file.
+	* gettext-tools/po/gettext-tools.pot: Remove file.
+	* gettext-tools/examples/po/gettext-examples.pot: Remove file.
+
+2017-10-15  Bruno Haible  <bruno@clisp.org>
+
+	Clarify copyright and license of some files.
+	Reported by Joël Krähemann at <https://savannah.gnu.org/bugs/?52227>.
+
+	* gettext-runtime/po/Makefile.in.in: Correct copyright holder.
+	* gettext-runtime/po/remove-potcdate.sin: Use the same licensing terms as Makefile.in.in.
+	* gettext-runtime/po/Rules-quot: Use an all-permissive license.
+	* gettext-tools/po/Makevars.template: Likewise.
+	* gettext-runtime/po/Makevars: Likewise.
+	* gettext-tools/po/Makevars: Likewise.
+	* gettext-runtime/po/POTFILES.in: Use GPLv3+.
+	* gettext-tools/po/POTFILES.in: Likewise.
+
+2016-12-11  Bruno Haible  <bruno@clisp.org>
+
+	Merge all .gitignore files into a single .gitignore file.
+
+	Update and organize the .gitignore files.
+
 2016-06-09  Daiki Ueno  <ueno@gnu.org>
 
 	Update translations
@@ -25,7 +163,7 @@
 
 	maint: Update copyright year
 
-2015-12-28  Daiki Ueno  <ueno@gnu.org>
+2015-12-27  Daiki Ueno  <ueno@gnu.org>
 
 	Update translations
 	* gettext-runtime/po/fr.po: Update from Stéphane Aulery <lkppo@free.fr>.

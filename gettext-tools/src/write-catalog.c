@@ -1,5 +1,5 @@
 /* GNU gettext - internationalization aids
-   Copyright (C) 1995-1998, 2000-2008, 2012, 2015-2016 Free Software
+   Copyright (C) 1995-1998, 2000-2008, 2012, 2019 Free Software
    Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
@@ -13,7 +13,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 #ifdef HAVE_CONFIG_H
 # include <config.h>
@@ -34,8 +34,8 @@
 # define STDOUT_FILENO 1
 #endif
 
-#include "ostream.h"
-#include "file-ostream.h"
+#include <textstyle.h>
+
 #include "fwriteerror.h"
 #include "error-progname.h"
 #include "xvasprintf.h"
@@ -51,14 +51,11 @@
 
 # define ENABLE_COLOR 1
 
-# include "styled-ostream.h"
-# include "term-styled-ostream.h"
-# include "html-styled-ostream.h"
-# include "fd-ostream.h"
-
-# include "color.h"
+# include "relocatable.h"
 # include "po-charset.h"
 # include "msgl-iconv.h"
+
+# define GETTEXTSTYLESDIR  GETTEXTDATADIR "/styles"
 
 #endif
 
@@ -124,11 +121,11 @@ msgdomain_list_print (msgdomain_list_ty *mdlp, const char *filename,
   if (!output_syntax->supports_multiple_domains && mdlp->nitems > 1)
     {
       if (output_syntax->alternative_is_po)
-        po_xerror (PO_SEVERITY_FATAL_ERROR, NULL, NULL, 0, 0, false, _("\
-Cannot output multiple translation domains into a single file with the specified output format. Try using PO file syntax instead."));
+        po_xerror (PO_SEVERITY_FATAL_ERROR, NULL, NULL, 0, 0, false,
+                   _("Cannot output multiple translation domains into a single file with the specified output format. Try using PO file syntax instead."));
       else
-        po_xerror (PO_SEVERITY_FATAL_ERROR, NULL, NULL, 0, 0, false, _("\
-Cannot output multiple translation domains into a single file with the specified output format."));
+        po_xerror (PO_SEVERITY_FATAL_ERROR, NULL, NULL, 0, 0, false,
+                   _("Cannot output multiple translation domains into a single file with the specified output format."));
     }
   else
     {
@@ -160,8 +157,8 @@ Cannot output multiple translation domains into a single file with the specified
               error_with_progname = false;
               po_xerror (PO_SEVERITY_FATAL_ERROR, NULL,
                          has_context->file_name, has_context->line_number,
-                         (size_t)(-1), false, _("\
-message catalog has context dependent translations, but the output format does not support them."));
+                         (size_t)(-1), false,
+                         _("message catalog has context dependent translations, but the output format does not support them."));
               error_with_progname = true;
             }
         }
@@ -195,13 +192,13 @@ message catalog has context dependent translations, but the output format does n
               if (output_syntax->alternative_is_java_class)
                 po_xerror (PO_SEVERITY_FATAL_ERROR, NULL,
                            has_plural->file_name, has_plural->line_number,
-                           (size_t)(-1), false, _("\
-message catalog has plural form translations, but the output format does not support them. Try generating a Java class using \"msgfmt --java\", instead of a properties file."));
+                           (size_t)(-1), false,
+                           _("message catalog has plural form translations, but the output format does not support them. Try generating a Java class using \"msgfmt --java\", instead of a properties file."));
               else
                 po_xerror (PO_SEVERITY_FATAL_ERROR, NULL,
                            has_plural->file_name, has_plural->line_number,
-                           (size_t)(-1), false, _("\
-message catalog has plural form translations, but the output format does not support them."));
+                           (size_t)(-1), false,
+                           _("message catalog has plural form translations, but the output format does not support them."));
               error_with_progname = true;
             }
         }
@@ -240,10 +237,11 @@ message catalog has plural form translations, but the output format does not sup
           filename = _("standard output");
         }
 
-      style_file_prepare ();
-      stream = term_styled_ostream_create (fd, filename, style_file_name);
-      if (stream == NULL)
-        stream = fd_ostream_create (fd, filename, true);
+      style_file_prepare ("PO_STYLE",
+                          "GETTEXTSTYLESDIR", relocate (GETTEXTSTYLESDIR),
+                          "po-default.css");
+      stream =
+        styled_ostream_create (fd, filename, TTYCTL_AUTO, style_file_name);
       output_syntax->print (mdlp, stream, page_width, debug);
       ostream_free (stream);
 
@@ -298,18 +296,27 @@ message catalog has plural form translations, but the output format does not sup
               mdlp = iconv_msgdomain_list (mdlp, po_charset_utf8, false, NULL);
             }
 
-          style_file_prepare ();
+          style_file_prepare ("PO_STYLE",
+                              "GETTEXTSTYLESDIR", relocate (GETTEXTSTYLESDIR),
+                              "po-default.css");
           html_stream = html_styled_ostream_create (stream, style_file_name);
           output_syntax->print (mdlp, html_stream, page_width, debug);
           ostream_free (html_stream);
         }
       else
-#endif
         {
-          output_syntax->print (mdlp, stream, page_width, debug);
-        }
+          noop_styled_ostream_t styled_stream;
 
-      ostream_free (stream);
+          styled_stream = noop_styled_ostream_create (stream, false);
+          output_syntax->print (mdlp, styled_stream, page_width, debug);
+          ostream_free (styled_stream);
+        }
+#else
+      output_syntax->print (mdlp, stream, page_width, debug);
+      /* Don't call ostream_free if file_ostream_create is a dummy.  */
+      if (stream != fp)
+#endif
+        ostream_free (stream);
 
       /* Make sure nothing went wrong.  */
       if (fwriteerror (fp))

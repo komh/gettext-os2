@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2016 Free Software Foundation, Inc.
+# Copyright (C) 2002-2019 Free Software Foundation, Inc.
 #
 # This file is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -11,7 +11,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this file.  If not, see <http://www.gnu.org/licenses/>.
+# along with this file.  If not, see <https://www.gnu.org/licenses/>.
 #
 # As a special exception to the GNU General Public License,
 # this file may be distributed as part of a program that
@@ -27,7 +27,159 @@
 
 
 # Specification in the form of a command-line invocation:
-#   gnulib-tool --import --local-dir=gnulib-local --lib=libgettextlib --source-base=gnulib-lib --m4-base=gnulib-m4 --doc-base=doc --tests-base=gnulib-tests --aux-dir=../build-aux --with-tests --avoid=hash-tests --avoid=unilbrk/u8-possible-linebreaks-tests --avoid=unilbrk/ulc-width-linebreaks-tests --avoid=unistr/u8-mbtouc-tests --avoid=unistr/u8-mbtouc-unsafe-tests --avoid=uniwidth/width-tests --makefile-name=Makefile.gnulib --no-conditional-dependencies --libtool --macro-prefix=gl alloca-opt ansi-c++-opt atexit backupfile basename binary-io bison-i18n byteswap c-ctype c-strcase c-strcasestr c-strstr clean-temp closedir closeout copy-file csharpcomp csharpcomp-script csharpexec csharpexec-script error error-progname execute extensions fd-ostream file-ostream filename findprog fnmatch fopen fstrcmp full-write fwriteerror gcd gcj getline getopt-gnu gettext gettext-h gettext-tools-misc hash html-styled-ostream iconv include_next java javacomp javacomp-script javaexec javaexec-script libunistring-optional localcharset locale localename lock malloc-posix mbrtowc mbsinit memmove memset minmax multiarch obstack open opendir openmp ostream pipe-filter-ii progname propername readdir relocatable-prog relocatable-script setlocale sh-quote sigpipe sigprocmask snippet/arg-nonnull snippet/c++defs snippet/warn-on-use spawn-pipe ssize_t stdbool stddef stdint stdio stdlib stpcpy stpncpy strcspn streq strerror strpbrk strtol strtoul styled-ostream sys_select sys_stat sys_time term-styled-ostream trim unictype/ctype-space unilbrk/ulc-width-linebreaks uniname/uniname unistd unistr/u16-mbtouc unistr/u8-mbtouc unistr/u8-mbtoucr unistr/u8-uctomb uniwidth/width unlocked-io vasprintf verify wait-process wchar wctype-h write xalloc xconcat-filename xerror xmalloca xmemdup0 xsetenv xstriconv xstriconveh xvasprintf
+# gnulib-tool --import --local-dir=gnulib-local \
+#  --lib=libgettextlib \
+#  --source-base=gnulib-lib \
+#  --m4-base=gnulib-m4 \
+#  --doc-base=doc \
+#  --tests-base=gnulib-tests \
+#  --aux-dir=../build-aux \
+#  --with-tests \
+#  --makefile-name=Makefile.gnulib \
+#  --no-conditional-dependencies \
+#  --libtool \
+#  --macro-prefix=gl \
+#  --avoid=array-list-tests \
+#  --avoid=linkedhash-list-tests \
+#  --avoid=hash-tests \
+#  --avoid=fdutimensat-tests \
+#  --avoid=futimens-tests \
+#  --avoid=utime-tests \
+#  --avoid=utimens-tests \
+#  --avoid=utimensat-tests \
+#  --avoid=unilbrk/u8-possible-linebreaks-tests \
+#  --avoid=unilbrk/ulc-width-linebreaks-tests \
+#  --avoid=unistr/u8-mbtouc-tests \
+#  --avoid=unistr/u8-mbtouc-unsafe-tests \
+#  --avoid=uniwidth/width-tests \
+#  alloca-opt \
+#  ansi-c++-opt \
+#  atexit \
+#  backupfile \
+#  basename \
+#  binary-io \
+#  bison-i18n \
+#  byteswap \
+#  c-ctype \
+#  c-strcase \
+#  c-strcasestr \
+#  c-strstr \
+#  clean-temp \
+#  closedir \
+#  closeout \
+#  configmake \
+#  copy-file \
+#  csharpcomp \
+#  csharpcomp-script \
+#  csharpexec \
+#  csharpexec-script \
+#  error \
+#  error-progname \
+#  execute \
+#  extensions \
+#  filename \
+#  findprog \
+#  fnmatch \
+#  fopen \
+#  fstrcmp \
+#  full-write \
+#  fwriteerror \
+#  gcd \
+#  getline \
+#  getopt-gnu \
+#  gettext \
+#  gettext-h \
+#  gettext-tools-misc \
+#  hash \
+#  iconv \
+#  include_next \
+#  java \
+#  javacomp \
+#  javacomp-script \
+#  javaexec \
+#  javaexec-script \
+#  libunistring-optional \
+#  libxml \
+#  localcharset \
+#  locale \
+#  localename \
+#  localtime \
+#  lock \
+#  malloc-posix \
+#  mbrtowc \
+#  mbsinit \
+#  memchr \
+#  memmove \
+#  memset \
+#  minmax \
+#  mkdir \
+#  multiarch \
+#  obstack \
+#  open \
+#  opendir \
+#  openmp-init \
+#  pipe-filter-ii \
+#  progname \
+#  propername \
+#  read-file \
+#  readdir \
+#  relocatable-prog \
+#  relocatable-script \
+#  setlocale \
+#  sh-filename \
+#  sh-quote \
+#  sigpipe \
+#  sigprocmask \
+#  snippet/arg-nonnull \
+#  snippet/c++defs \
+#  snippet/warn-on-use \
+#  spawn-pipe \
+#  ssize_t \
+#  stdbool \
+#  stddef \
+#  stdint \
+#  stdio \
+#  stdlib \
+#  stpcpy \
+#  stpncpy \
+#  strchrnul \
+#  strcspn \
+#  streq \
+#  strerror \
+#  strpbrk \
+#  strtol \
+#  strtoul \
+#  sys_select \
+#  sys_stat \
+#  sys_time \
+#  trim \
+#  unictype/ctype-space \
+#  unilbrk/ulc-width-linebreaks \
+#  uniname/uniname \
+#  unistd \
+#  unistr/u16-mbtouc \
+#  unistr/u8-check \
+#  unistr/u8-mbtouc \
+#  unistr/u8-mbtoucr \
+#  unistr/u8-uctomb \
+#  uniwidth/width \
+#  unlocked-io \
+#  unsetenv \
+#  vasprintf \
+#  verify \
+#  wait-process \
+#  wchar \
+#  wctype-h \
+#  write \
+#  xalloc \
+#  xconcat-filename \
+#  xerror \
+#  xmalloca \
+#  xmemdup0 \
+#  xsetenv \
+#  xstriconv \
+#  xstriconveh \
+#  xvasprintf
 
 # Specification in the form of a few gnulib-tool.m4 macro invocations:
 gl_LOCAL_DIR([../gnulib-local])
@@ -47,6 +199,7 @@ gl_MODULES([
   clean-temp
   closedir
   closeout
+  configmake
   copy-file
   csharpcomp
   csharpcomp-script
@@ -56,8 +209,6 @@ gl_MODULES([
   error-progname
   execute
   extensions
-  fd-ostream
-  file-ostream
   filename
   findprog
   fnmatch
@@ -66,14 +217,12 @@ gl_MODULES([
   full-write
   fwriteerror
   gcd
-  gcj
   getline
   getopt-gnu
   gettext
   gettext-h
   gettext-tools-misc
   hash
-  html-styled-ostream
   iconv
   include_next
   java
@@ -82,29 +231,34 @@ gl_MODULES([
   javaexec
   javaexec-script
   libunistring-optional
+  libxml
   localcharset
   locale
   localename
+  localtime
   lock
   malloc-posix
   mbrtowc
   mbsinit
+  memchr
   memmove
   memset
   minmax
+  mkdir
   multiarch
   obstack
   open
   opendir
-  openmp
-  ostream
+  openmp-init
   pipe-filter-ii
   progname
   propername
+  read-file
   readdir
   relocatable-prog
   relocatable-script
   setlocale
+  sh-filename
   sh-quote
   sigpipe
   sigprocmask
@@ -120,28 +274,29 @@ gl_MODULES([
   stdlib
   stpcpy
   stpncpy
+  strchrnul
   strcspn
   streq
   strerror
   strpbrk
   strtol
   strtoul
-  styled-ostream
   sys_select
   sys_stat
   sys_time
-  term-styled-ostream
   trim
   unictype/ctype-space
   unilbrk/ulc-width-linebreaks
   uniname/uniname
   unistd
   unistr/u16-mbtouc
+  unistr/u8-check
   unistr/u8-mbtouc
   unistr/u8-mbtoucr
   unistr/u8-uctomb
   uniwidth/width
   unlocked-io
+  unsetenv
   vasprintf
   verify
   wait-process
@@ -158,7 +313,7 @@ gl_MODULES([
   xstriconveh
   xvasprintf
 ])
-gl_AVOID([ hash-tests unilbrk/u8-possible-linebreaks-tests unilbrk/ulc-width-linebreaks-tests unistr/u8-mbtouc-tests unistr/u8-mbtouc-unsafe-tests uniwidth/width-tests])
+gl_AVOID([ array-list-tests linkedhash-list-tests hash-tests fdutimensat-tests futimens-tests utime-tests utimens-tests utimensat-tests unilbrk/u8-possible-linebreaks-tests unilbrk/ulc-width-linebreaks-tests unistr/u8-mbtouc-tests unistr/u8-mbtouc-unsafe-tests uniwidth/width-tests])
 gl_SOURCE_BASE([gnulib-lib])
 gl_M4_BASE([gnulib-m4])
 gl_PO_BASE([])

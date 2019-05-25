@@ -1,5 +1,5 @@
 /* Message list concatenation and duplicate handling.
-   Copyright (C) 2001-2003, 2005-2008, 2012, 2015-2016 Free Software
+   Copyright (C) 2001-2003, 2005-2008, 2012, 2015, 2019 Free Software
    Foundation, Inc.
    Written by Bruno Haible <haible@clisp.cons.org>, 2001.
 
@@ -14,7 +14,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 
 #ifdef HAVE_CONFIG_H
@@ -175,8 +175,7 @@ catenate_msgdomain_list (string_list_ty *file_list,
                                   canon_charset = po_charset_ascii;
                                 else
                                   error (EXIT_FAILURE, 0,
-                                         _("\
-present charset \"%s\" is not a portable encoding name"),
+                                         _("present charset \"%s\" is not a portable encoding name"),
                                          charset);
                               }
 
@@ -186,8 +185,7 @@ present charset \"%s\" is not a portable encoding name"),
                               canon_from_code = canon_charset;
                             else if (canon_from_code != canon_charset)
                               error (EXIT_FAILURE, 0,
-                                     _("\
-two different charsets \"%s\" and \"%s\" in input file"),
+                                     _("two different charsets \"%s\" and \"%s\" in input file"),
                                      canon_from_code, canon_charset);
                           }
                       }
@@ -201,12 +199,12 @@ two different charsets \"%s\" and \"%s\" in input file"),
                   else
                     {
                       if (k == 0)
-                        error (EXIT_FAILURE, 0, _("\
-input file '%s' doesn't contain a header entry with a charset specification"),
+                        error (EXIT_FAILURE, 0,
+                               _("input file '%s' doesn't contain a header entry with a charset specification"),
                                files[n]);
                       else
-                        error (EXIT_FAILURE, 0, _("\
-domain \"%s\" in input file '%s' doesn't contain a header entry with a charset specification"),
+                        error (EXIT_FAILURE, 0,
+                               _("domain \"%s\" in input file '%s' doesn't contain a header entry with a charset specification"),
                                mdlp->item[k]->domain, files[n]);
                     }
                 }

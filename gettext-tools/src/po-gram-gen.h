@@ -1,8 +1,8 @@
-/* A Bison parser, made by GNU Bison 3.0.4.  */
+/* A Bison parser, made by GNU Bison 3.2.2.  */
 
 /* Bison interface for Yacc-like parsers in C
 
-   Copyright (C) 1984, 1989-1990, 2000-2015 Free Software Foundation, Inc.
+   Copyright (C) 1984, 1989-1990, 2000-2015, 2018 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -29,6 +29,9 @@
 
    This special exception was added by the Free Software Foundation in
    version 2.2 of Bison.  */
+
+/* Undocumented macros, especially those whose name start with YY_,
+   are private implementation details.  Do not rely on them.  */
 
 #ifndef YY_YY_PO_GRAM_GEN_H_INCLUDED
 # define YY_YY_PO_GRAM_GEN_H_INCLUDED
@@ -82,7 +85,7 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 144 "po-gram-gen.y" /* yacc.c:1909  */
+#line 144 "./po-gram-gen.y" /* yacc.c:1906  */
 
   struct { char *string; lex_pos_ty pos; bool obsolete; } string;
   struct { string_list_ty stringlist; lex_pos_ty pos; bool obsolete; } stringlist;
@@ -92,7 +95,7 @@ union YYSTYPE
   struct { char *prev_ctxt; char *prev_id; char *prev_id_plural; char *ctxt; lex_pos_ty pos; bool obsolete; } message_intro;
   struct { struct msgstr_def rhs; lex_pos_ty pos; bool obsolete; } rhs;
 
-#line 96 "po-gram-gen.h" /* yacc.c:1909  */
+#line 99 "po-gram-gen.h" /* yacc.c:1906  */
 };
 
 typedef union YYSTYPE YYSTYPE;

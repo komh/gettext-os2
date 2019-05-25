@@ -1,5 +1,5 @@
 ## Makefile for the gettext-runtime/man subdirectory of GNU gettext
-## Copyright (C) 2001-2003, 2006, 2009, 2015-2016 Free Software Foundation,
+## Copyright (C) 2001-2003, 2006, 2009, 2013-2014, 2018-2019 Free Software Foundation,
 ## Inc.
 ##
 ## This program is free software: you can redistribute it and/or modify
@@ -13,7 +13,7 @@
 ## GNU General Public License for more details.
 ##
 ## You should have received a copy of the GNU General Public License
-## along with this program.  If not, see <http://www.gnu.org/licenses/>.
+## along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 ## Process this file with automake to produce Makefile.in.
 
@@ -63,6 +63,10 @@ HELP2MAN = $(PERL) -w -- $(srcdir)/help2man
 
 # groff 1.17 or newer.
 MAN2HTML = groff -mandoc -Thtml
+# Some versions of groff -Thtml map '\-' to '&minus;' = U+2212, which yields
+# the wrong result when copy&pasting command-line options and such.
+# Also remove 'CreationDate:' lines, for reproducible builds.
+MAN2HTML_POSTPROCESS = sed -e 's/\&minus;/-/g' -e '/CreationDate:/d'
 
 UPDATEMODE =
 
@@ -70,7 +74,7 @@ UPDATEMODE =
 gt_man2html = \
 	if test -f $${srcdir}$$m; then \
 	  $(MAN2HTML) $${srcdir}$$m > t-$@ && \
-	  sed -e '/CreationDate:/d' < t-$@ > t2-$@ && \
+	  $(MAN2HTML_POSTPROCESS) < t-$@ > t2-$@ && \
 	  mv t2-$@ $@; \
 	  rm -f t-$@ t2-$@; \
 	fi
@@ -100,7 +104,7 @@ $(man_MAN1GEN): Makefile
 	if test -f $${srcdir}$@.in; then \
 	  sed -e 's|@''localedir''@|$(localedir)|g' $${srcdir}$@.in > t-$@ && \
 	  mv t-$@ $@; \
-        fi
+	fi
 
 gettext.1: gettext.1.in
 ngettext.1: ngettext.1.in
@@ -135,7 +139,7 @@ $(man_HTML1GEN): Makefile
 	if test -f $${srcdir}$@.in; then \
 	  sed -e 's|@''localedir''@|$(localedir)|g' $${srcdir}$@.in > t-$@ && \
 	  mv t-$@ $@; \
-        fi
+	fi
 
 gettext.1.html: gettext.1.html.in
 ngettext.1.html: ngettext.1.html.in

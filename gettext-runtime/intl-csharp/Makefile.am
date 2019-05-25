@@ -1,5 +1,5 @@
 ## Makefile for the gettext-runtime/intl-csharp subdirectory of GNU gettext
-## Copyright (C) 2003, 2006, 2015-2016 Free Software Foundation, Inc.
+## Copyright (C) 2003-2004, 2006, 2013, 2015, 2018 Free Software Foundation, Inc.
 ##
 ## This program is free software: you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
 ## GNU General Public License for more details.
 ##
 ## You should have received a copy of the GNU General Public License
-## along with this program.  If not, see <http://www.gnu.org/licenses/>.
+## along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 ## Process this file with automake to produce Makefile.in.
 
@@ -64,7 +64,7 @@ uninstall-dll:
 doc:
 	test -d doc || mkdir doc
 	csdoc -flibrary-name=GNU.Gettext intl.cs | \
-	csdoc2html -o doc -fmulti-file -f<frames -fcombine-members -fno-namespace-directories -
+	csdoc2html -o doc -fmulti-file -fframes -fcombine-members -fno-namespace-directories -
 
 intl-csharp.texi: intl.cs
 	csdoc -flibrary-name=GNU.Gettext intl.cs | \

@@ -1,5 +1,5 @@
 /* Test program, used by the format-c-5 test.
-   Copyright (C) 2004, 2006, 2010, 2015-2016 Free Software Foundation, Inc.
+   Copyright (C) 2004, 2006, 2010, 2018 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
@@ -22,16 +22,21 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "xsetenv.h"
 
 /* For %Id to work, we need the real setlocale(), not the fake one. */
-#if !(__GLIBC__ >= 2 && !defined __UCLIBC__)
+#if !USE_SYSTEM_LIBINTL && !(__GLIBC__ >= 2 && !defined __UCLIBC__)
 # include "setlocale.c"
 #endif
 
+#if USE_SYSTEM_LIBINTL
+# define xsetenv setenv
+# include <libintl.h>
+#else
+# include "xsetenv.h"
 /* Make sure we use the included libintl, not the system's one. */
-#undef _LIBINTL_H
-#include "libgnuintl.h"
+# undef _LIBINTL_H
+# include "libgnuintl.h"
+#endif
 
 #define _(string) gettext (string)
 

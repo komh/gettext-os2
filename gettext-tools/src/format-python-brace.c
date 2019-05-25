@@ -1,5 +1,5 @@
 /* Python brace format strings.
-   Copyright (C) 2004, 2006-2007, 2013, 2015-2016 Free Software Foundation,
+   Copyright (C) 2004, 2006-2007, 2013-2014, 2016 Free Software Foundation,
    Inc.
    Written by Daiki Ueno <ueno@gnu.org>, 2013.
 
@@ -14,7 +14,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 #ifdef HAVE_CONFIG_H
 # include <config.h>

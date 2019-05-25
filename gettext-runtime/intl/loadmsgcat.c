@@ -1,5 +1,5 @@
 /* Load needed message catalogs.
-   Copyright (C) 1995-2016 Free Software Foundation, Inc.
+   Copyright (C) 1995-2017 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU Lesser General Public License as published by
@@ -12,7 +12,7 @@
    GNU Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 /* Tell glibc's <string.h> to provide a prototype for mempcpy().
    This must come before <config.h> because <config.h> may include
@@ -506,7 +506,15 @@ char *alloca ();
 /* We need a sign, whether a new catalog was loaded, which can be associated
    with all translations.  This is important if the translations are
    cached by one of GCC's features.  */
+#if defined __APPLE__ && defined __MACH__
+/* On macOS 10.13 with Apple clang-902.0.39.1 and cctools-895, when linking
+   statically, we need an explicit zero-initialization, in order to avoid a
+   link-time error that __nl_msg_cat_cntr is an undefined symbol.  It could
+   be a compiler bug or a ranlib bug.  */
+int _nl_msg_cat_cntr = 0;
+#else
 int _nl_msg_cat_cntr;
+#endif
 
 
 /* Expand a system dependent string segment.  Return NULL if unsupported.  */
@@ -914,7 +922,15 @@ _nl_load_domain (struct loaded_l10nfile *domain_file,
 
   domain = (struct loaded_domain *) malloc (sizeof (struct loaded_domain));
   if (domain == NULL)
-    goto out;
+    {
+#ifdef HAVE_MMAP
+      if (use_mmap)
+	munmap ((caddr_t) data, size);
+      else
+#endif
+	free (data);
+      goto out;
+    }
   domain_file->data = domain;
 
   domain->data = (char *) data;
@@ -1031,18 +1047,25 @@ _nl_load_domain (struct loaded_l10nfile *domain_file,
 				? orig_sysdep_tab[i]
 				: trans_sysdep_tab[i]));
 			size_t need = 0;
+			const char *static_segments =
+			  (char *) data
+			  + W (domain->must_swap, sysdep_string->offset);
 			const struct segment_pair *p = sysdep_string->segments;
 
 			if (W (domain->must_swap, p->sysdepref) != SEGMENTS_END)
-			  for (p = sysdep_string->segments;; p++)
+			  for (;; p++)
 			    {
+			      nls_uint32 segsize;
 			      nls_uint32 sysdepref;
 
-			      need += W (domain->must_swap, p->segsize);
+			      segsize = W (domain->must_swap, p->segsize);
+			      need += segsize;
 
 			      sysdepref = W (domain->must_swap, p->sysdepref);
 			      if (sysdepref == SEGMENTS_END)
 				break;
+
+			      static_segments += segsize;
 
 			      if (sysdepref >= n_sysdep_segments)
 				{
@@ -1055,11 +1078,24 @@ _nl_load_domain (struct loaded_l10nfile *domain_file,
 				{
 				  /* This particular string pair is invalid.  */
 				  valid = 0;
-				  break;
 				}
 
 			      need += strlen (sysdep_segment_values[sysdepref]);
 			    }
+
+			/* The last static segment must end in a NUL.  */
+			{
+			  nls_uint32 segsize =
+			    W (domain->must_swap, p->segsize);
+
+			  if (!(segsize > 0
+				&& static_segments[segsize - 1] == '\0'))
+			    {
+			      /* Invalid.  */
+			      freea (sysdep_segment_values);
+			      goto invalid;
+			    }
+			}
 
 			needs[j] = need;
 			if (!valid)
@@ -1114,7 +1150,7 @@ _nl_load_domain (struct loaded_l10nfile *domain_file,
 
 			    if (W (domain->must_swap, p->sysdepref)
 				!= SEGMENTS_END)
-			      for (p = sysdep_string->segments;; p++)
+			      for (;; p++)
 				{
 				  nls_uint32 sysdepref;
 
@@ -1175,7 +1211,7 @@ _nl_load_domain (struct loaded_l10nfile *domain_file,
 				  {
 				    inmem_tab_entry->pointer = mem;
 
-				    for (p = sysdep_string->segments;; p++)
+				    for (;; p++)
 				      {
 					nls_uint32 segsize =
 					  W (domain->must_swap, p->segsize);
@@ -1299,6 +1335,8 @@ _nl_load_domain (struct loaded_l10nfile *domain_file,
     {
 #ifdef _LIBC
       __libc_rwlock_fini (domain->conversions_lock);
+#else
+      gl_rwlock_destroy (domain->conversions_lock);
 #endif
       goto invalid;
     }

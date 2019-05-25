@@ -3,30 +3,14 @@ dnl This file is in the public domain.
 dnl
 dnl Configuration file - processed by autoconf.
 
-AC_INIT
-AC_CONFIG_SRCDIR(Hello.java)
-AM_INIT_AUTOMAKE(hello-java-qtjambi, 0)
-
-dnl Check whether we can build native executable.
-dnl This does currently not work, since QtJambi requires a Java >= 1.5.
-dnl AC_ARG_ENABLE(java-exe,
-dnl   [  --enable-java-exe       compile Java to native code, not to bytecode],
-dnl   :, enable_java_exe=no)
-dnl gt_GCJ
-dnl if test "$enable_java_exe" != no && test -n "$HAVE_GCJ"; then
-dnl   BUILDJAVAEXE=yes
-dnl else
-dnl   BUILDJAVAEXE=no
-dnl fi
-BUILDJAVAEXE=no
-AC_SUBST(BUILDJAVAEXE)
-AM_CONDITIONAL([USEJEXE], [test "$BUILDJAVAEXE" = yes])
-AC_PROG_RANLIB
+AC_INIT([hello-java-qtjambi], [0])
+AC_CONFIG_SRCDIR([Hello.java])
+AM_INIT_AUTOMAKE([1.11])
 
 dnl Check whether we can execute Java programs.
 gt_JAVAEXEC([Test15], [$srcdir/m4])
 dnl Check whether we can build Java programs.
-gt_JAVACOMP([1.5], [1.5])
+gt_JAVACOMP([1.5], [1.6])
 AC_CHECK_PROG(JAR, jar, jar)
 if test -n "$HAVE_JAVACOMP" && test -n "$JAR"; then
   BUILDJAVA=yes

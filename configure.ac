@@ -1,6 +1,5 @@
 dnl Configuration for the toplevel directory of GNU gettext
-dnl Copyright (C) 1995-2003, 2005-2006, 2009-2010, 2015-2016 Free Software
-dnl Foundation, Inc.
+dnl Copyright (C) 1995-2019 Free Software Foundation, Inc.
 dnl
 dnl This program is free software: you can redistribute it and/or modify
 dnl it under the terms of the GNU General Public License as published by
@@ -13,20 +12,20 @@ dnl MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 dnl GNU General Public License for more details.
 dnl
 dnl You should have received a copy of the GNU General Public License
-dnl along with this program.  If not, see <http://www.gnu.org/licenses/>.
+dnl along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 dnl Process this file with autoconf to produce a configure script.
 
-AC_PREREQ([2.62])
+AC_PREREQ([2.63])
 AC_INIT([gettext],
 	m4_esyscmd([build-aux/git-version-gen .tarball-version]),
-	[bug-gnu-gettext@gnu.org])
+	[bug-gettext@gnu.org])
 AC_CONFIG_SRCDIR([gettext-tools/src/msgfmt.c])
 AC_CONFIG_AUX_DIR([build-aux])
-AM_INIT_AUTOMAKE([1.13 silent-rules parallel-tests dist-xz dist-lzip])
+AM_INIT_AUTOMAKE([1.13 silent-rules parallel-tests tar-ustar])
 
 dnl Override automake's tar command used for creating distributions.
-am__tar='${AMTAR} chof - --owner=root --group=root "$$tardir"'
+am__tar='${AMTAR} chf - --format=ustar --owner=root --group=root "$$tardir"'
 
 dnl Checks for programs.
 
@@ -38,7 +37,7 @@ dnl Checks for typedefs, structures, and compiler characteristics.
 
 dnl Checks for library functions.
 
-AC_CONFIG_SUBDIRS([gettext-runtime gettext-tools])
+AC_CONFIG_SUBDIRS([gettext-runtime libtextstyle gettext-tools])
 
 AM_EXTRA_RECURSIVE_TARGETS([maintainer-update-po])
 
@@ -50,7 +49,7 @@ AC_CANONICAL_HOST
 dnl Optional Features: AC_ARG_ENABLE calls
 dnl Optional Packages: AC_ARG_WITH calls
 dnl Some influential environment variables: AC_ARG_VAR calls
-esyscmd([{ cd gettext-runtime && autoconf --trace=AC_ARG_ENABLE:'$n([$1],[$2])' --trace=AC_ARG_WITH:'$n([$1],[$2])' --trace=AC_ARG_VAR:'$n($@)' && cd ..; cd gettext-tools && autoconf --trace=AC_ARG_ENABLE:'$n([$1],[$2])' --trace=AC_ARG_WITH:'$n([$1],[$2])' --trace=AC_ARG_VAR:'$n($@)' && cd ..; } | sed -f build-aux/ac-help.sed ])
+esyscmd([{ cd gettext-runtime && autoconf --trace=AC_ARG_ENABLE:'$n([$1],[$2])' --trace=AC_ARG_WITH:'$n([$1],[$2])' --trace=AC_ARG_VAR:'$n($@)' && cd ..; cd libtextstyle && autoconf --trace=AC_ARG_ENABLE:'$n([$1],[$2])' --trace=AC_ARG_WITH:'$n([$1],[$2])' --trace=AC_ARG_VAR:'$n($@)' && cd ..; cd gettext-tools && autoconf --trace=AC_ARG_ENABLE:'$n([$1],[$2])' --trace=AC_ARG_WITH:'$n([$1],[$2])' --trace=AC_ARG_VAR:'$n($@)' && cd ..; } | sed -f build-aux/ac-help.sed ])
 
 AC_CONFIG_FILES([Makefile])
 

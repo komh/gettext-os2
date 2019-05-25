@@ -1,5 +1,5 @@
 /* Test of sh-quote module.
-   Copyright (C) 2012-2016 Free Software Foundation, Inc.
+   Copyright (C) 2012-2019 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 /* Written by Bruno Haible <bruno@clisp.org>, 2012.  */
 
@@ -91,7 +91,7 @@ main (void)
     check_one ("&", "'&'");
 
     /* "'" would be interpreted as the start of a string.  */
-    check_one ("'foo'bar", "''\\''foo'\\''bar'"); /* or "\"'foo'bar\"" */
+    check_one ("'foo'bar", "\"'foo'bar\"");
 
     /* '(' at the beginning of argv[0] would introduce a subshell command.  */
     check_one ("(", "'('");

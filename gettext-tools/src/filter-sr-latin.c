@@ -1,5 +1,5 @@
 /* Recode Serbian text from Cyrillic to Latin script.
-   Copyright (C) 2006-2007, 2009, 2015-2016 Free Software Foundation, Inc.
+   Copyright (C) 2006-2007, 2009 Free Software Foundation, Inc.
    Written by Danilo Šegan <danilo@gnome.org>, 2006,
    and Bruno Haible <bruno@clisp.org>, 2006.
 
@@ -14,7 +14,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 #ifdef HAVE_CONFIG_H
 # include <config.h>

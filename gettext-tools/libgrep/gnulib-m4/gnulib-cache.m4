@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2016 Free Software Foundation, Inc.
+# Copyright (C) 2002-2019 Free Software Foundation, Inc.
 #
 # This file is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -11,7 +11,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this file.  If not, see <http://www.gnu.org/licenses/>.
+# along with this file.  If not, see <https://www.gnu.org/licenses/>.
 #
 # As a special exception to the GNU General Public License,
 # this file may be distributed as part of a program that
@@ -27,7 +27,40 @@
 
 
 # Specification in the form of a command-line invocation:
-#   gnulib-tool --import --local-dir=gnulib-local --lib=libgrep --source-base=libgrep --m4-base=libgrep/gnulib-m4 --doc-base=doc --tests-base=tests --aux-dir=../build-aux --avoid=alloca-opt --avoid=extensions --avoid=gettext-h --avoid=include_next --avoid=locale --avoid=localcharset --avoid=malloc-posix --avoid=mbrtowc --avoid=mbsinit --avoid=multiarch --avoid=ssize_t --avoid=stdbool --avoid=stddef --avoid=stdint --avoid=stdlib --avoid=streq --avoid=unistd --avoid=verify --avoid=wchar --avoid=wctype-h --makefile-name=Makefile.gnulib --no-conditional-dependencies --no-libtool --macro-prefix=grgl --witness-c-macro=IN_GETTEXT_TOOLS_LIBGREP mbrlen regex
+# gnulib-tool --import --local-dir=gnulib-local \
+#  --lib=libgrep \
+#  --source-base=libgrep \
+#  --m4-base=libgrep/gnulib-m4 \
+#  --doc-base=doc \
+#  --tests-base=tests \
+#  --aux-dir=../build-aux \
+#  --makefile-name=Makefile.gnulib \
+#  --no-conditional-dependencies \
+#  --no-libtool \
+#  --macro-prefix=grgl \
+#  --witness-c-macro=IN_GETTEXT_TOOLS_LIBGREP \
+#  --avoid=alloca-opt \
+#  --avoid=extensions \
+#  --avoid=gettext-h \
+#  --avoid=include_next \
+#  --avoid=locale \
+#  --avoid=localcharset \
+#  --avoid=malloc-posix \
+#  --avoid=mbrtowc \
+#  --avoid=mbsinit \
+#  --avoid=multiarch \
+#  --avoid=ssize_t \
+#  --avoid=stdbool \
+#  --avoid=stddef \
+#  --avoid=stdint \
+#  --avoid=stdlib \
+#  --avoid=streq \
+#  --avoid=unistd \
+#  --avoid=verify \
+#  --avoid=wchar \
+#  --avoid=wctype-h \
+#  mbrlen \
+#  regex
 
 # Specification in the form of a few gnulib-tool.m4 macro invocations:
 gl_LOCAL_DIR([../gnulib-local])

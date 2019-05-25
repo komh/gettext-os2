@@ -1,5 +1,5 @@
 ## Makefile for the gettext-runtime/libasprintf subdirectory of GNU gettext
-## Copyright (C) 2002-2007, 2009-2010, 2015-2016 Free Software Foundation, Inc.
+## Copyright (C) 2002-2007, 2009-2011, 2013, 2016, 2018-2019 Free Software Foundation, Inc.
 ##
 ## This program is free software: you can redistribute it and/or modify
 ## it under the terms of the GNU Lesser General Public License as published by
@@ -12,7 +12,7 @@
 ## GNU Lesser General Public License for more details.
 ##
 ## You should have received a copy of the GNU Lesser General Public License
-## along with this program.  If not, see <http://www.gnu.org/licenses/>.
+## along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 ## Process this file with automake to produce Makefile.in.
 
@@ -63,6 +63,34 @@ lib-asprintf.lo: $(lib_asprintf_EXTRASOURCES)
 EXTRA_DIST += $(lib_asprintf_EXTRASOURCES)
 
 
+# Version information according to Woe32 conventions.
+EXTRA_DIST += libasprintf.rc
+if WOE32
+WOE32_LIBADD = libasprintf.res.lo
+# This rule is executed only on Woe32 systems.
+# Use $(RC) with libtool, $(WINDRES) when not using libtool.
+# The following sed expressions come from the windres-options script. They are
+# inlined here, so that they can be written in a Makefile without requiring a
+# temporary file. They must contain literal newlines rather than semicolons,
+# so that they work with the sed-3.02 that is shipped with MSYS.
+libasprintf.res.lo: $(srcdir)/libasprintf.rc
+	nlinit=`echo 'nl="'; echo '"'`; eval "$$nlinit"; \
+	sed_extract_major='/^[0-9]/{'$${nl}'s/^\([0-9]*\).*/\1/p'$${nl}q$${nl}'}'$${nl}'c\'$${nl}0$${nl}q; \
+	sed_extract_minor='/^[0-9][0-9]*[.][0-9]/{'$${nl}'s/^[0-9]*[.]\([0-9]*\).*/\1/p'$${nl}q$${nl}'}'$${nl}'c\'$${nl}0$${nl}q; \
+	sed_extract_subminor='/^[0-9][0-9]*[.][0-9][0-9]*[.][0-9]/{'$${nl}'s/^[0-9]*[.][0-9]*[.]\([0-9]*\).*/\1/p'$${nl}q$${nl}'}'$${nl}'c\'$${nl}0$${nl}q; \
+	$(LIBTOOL) --tag=RC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(RC) \
+	  "-DPACKAGE_VERSION_STRING=\\\"$(VERSION)\\\"" \
+	  "-DPACKAGE_VERSION_MAJOR="`echo '$(VERSION)' | sed -n -e "$$sed_extract_major"` \
+	  "-DPACKAGE_VERSION_MINOR="`echo '$(VERSION)' | sed -n -e "$$sed_extract_minor"` \
+	  "-DPACKAGE_VERSION_SUBMINOR="`echo '$(VERSION)' | sed -n -e "$$sed_extract_subminor"` \
+	  -i $(srcdir)/libasprintf.rc -o libasprintf.res.lo --output-format=coff
+MOSTLYCLEANFILES += libasprintf.res.lo
+else
+WOE32_LIBADD =
+endif
+libasprintf_la_LIBADD       = $(WOE32_LIBADD)
+libasprintf_la_DEPENDENCIES = $(WOE32_LIBADD)
+
 # How to build libasprintf.
 # With libtool 1.5.14, on some platforms, like BeOS, "libtool --tag=CXX" fails
 # to create a shared library, however "libtool --tag=CC" succeeds.
@@ -86,10 +114,18 @@ clean-local:
 
 # Documentation.
 
+# List of -I options referring to directories that contain texinfo sources
+# used by this directory.
+# Should contain at least one -I option, to work around a bug in texi2dvi 1.13,
+# see <https://lists.gnu.org/archive/html/bug-automake/2009-04/msg00029.html>.
+TEXINCLUDES = -I .
+
 MAKEINFO = env LANG= LC_MESSAGES= LC_ALL= LANGUAGE= @MAKEINFO@
-MAKEINFOFLAGS = --no-split
+MAKEINFOFLAGS = $(TEXINCLUDES) --no-split
 
 info_TEXINFOS = autosprintf.texi
+# List of texinfo sources @included by autosprintf.texi.
+autosprintf_TEXINFOS = lgpl.texi gpl.texi fdl.texi
 
 # We distribute only the HTML documentation.
 # The user can generate the others, via
@@ -149,7 +185,7 @@ uninstall-pdf:
 
 # Documentation in HTML format.
 
-TEXI2HTML = @PERL@ $(srcdir)/texi2html
+TEXI2HTML = @PERL@ $(top_srcdir)/../../build-aux/texi2html
 
 HTMLS = autosprintf_all.html
 
@@ -157,8 +193,8 @@ html-local: $(HTMLS)
 
 # Override of automake's definition.
 # We want to use texi2html, not makeinfo --html.
-autosprintf_all.html: autosprintf.texi
-	$(TEXI2HTML) -number -monolithic `if test -f autosprintf.texi; then echo autosprintf.texi; else echo $(srcdir)/autosprintf.texi; fi`
+autosprintf_all.html: autosprintf.texi $(autosprintf_TEXINFOS)
+	$(TEXI2HTML) $(TEXINCLUDES) -no-sec-nav -no-menu -toc-links -number -monolithic $(srcdir)/autosprintf.texi
 	mv autosprintf.html autosprintf_all.html
 
 # The install-html target is already defined by automake.
@@ -169,9 +205,9 @@ installdirs-html:
 uninstall-html:
 	$(RM) $(DESTDIR)$(htmldir)/autosprintf.html
 
-EXTRA_DIST += texi2html autosprintf_all.html
+EXTRA_DIST += autosprintf_all.html
 
 
-# Woe32 support.
+# Windows support.
 
-EXTRA_DIST += README.woe32
+EXTRA_DIST += INSTALL.windows

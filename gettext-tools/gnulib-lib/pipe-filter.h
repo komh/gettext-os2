@@ -1,5 +1,5 @@
 /* Filtering of data through a subprocess.  -*- coding: utf-8 -*-
-   Copyright (C) 2009-2016 Free Software Foundation, Inc.
+   Copyright (C) 2009-2019 Free Software Foundation, Inc.
    Written by Bruno Haible <haible@clisp.cons.org>, 2009,
    and Paolo Bonzini <bonzini@gnu.org>, 2009.
 
@@ -14,7 +14,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 #ifndef _PIPE_FILTER_H
 #define _PIPE_FILTER_H
@@ -47,7 +47,7 @@ extern "C" {
 
    The side that writes data to the subprocess can be seen as a "generator",
    that is, as a subroutine that produces and writes a piece of data here and
-   there, see <http://en.wikipedia.org/wiki/Generator_(computer_science)>.
+   there, see <https://en.wikipedia.org/wiki/Generator_(computer_science)>.
    But often, it can be written in the form of an "iterator", that is, as a
    function that, each time it is invoked, produces and writes one more piece
    of data.
@@ -70,8 +70,8 @@ extern "C" {
 
    The last one uses threads in order to implement two generators running at
    the same time.  (For the relation between generators, coroutines, and
-   threads, see <http://en.wikipedia.org/wiki/Generator_(computer_science)>
-   and <http://en.wikipedia.org/wiki/Coroutine>.)  It is therefore only
+   threads, see <https://en.wikipedia.org/wiki/Generator_(computer_science)>
+   and <https://en.wikipedia.org/wiki/Coroutine>.)  It is therefore only
    portable to platforms with kernel-based POSIX threads.  */
 
 /* These two functions together describe the side that writes data to the

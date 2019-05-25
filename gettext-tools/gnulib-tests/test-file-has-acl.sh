@@ -41,7 +41,12 @@ func_tmpdir ()
 }
 
 func_tmpdir
-builddir=`pwd`
+# builddir may already be set by the script that invokes this one.
+case "$builddir" in
+  '') builddir=`pwd` ;;
+  /* | ?:*) ;;
+  *) builddir=`pwd`/$builddir ;;
+esac
 cd "$builddir" ||
   {
     echo "$0: cannot determine build directory (unreadable parent dir?)" >&2
@@ -129,7 +134,7 @@ cd "$builddir" ||
   # matches the expected value.
   func_test_file_has_acl ()
   {
-    res=`"$builddir"/test-file-has-acl${EXEEXT} "$1"`
+    res=`${CHECKER} "$builddir"/test-file-has-acl${EXEEXT} "$1"`
     test "$res" = "$2" || {
       echo "file_has_acl(\"$1\") returned $res, expected $2" 1>&2
       exit 1

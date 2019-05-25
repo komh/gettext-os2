@@ -1,5 +1,5 @@
 /* xgettext Desktop Entry backend.
-   Copyright (C) 2014-2016 Free Software Foundation, Inc.
+   Copyright (C) 2014, 2018 Free Software Foundation, Inc.
 
    This file was written by Daiki Ueno <ueno@gnu.org>, 2014.
 
@@ -14,7 +14,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
@@ -31,6 +31,7 @@
 
 #include "message.h"
 #include "xgettext.h"
+#include "xg-message.h"
 #include "error.h"
 #include "error-progname.h"
 #include "xalloc.h"
@@ -48,13 +49,13 @@
 /* ====================== Keyword set customization.  ====================== */
 
 /* The syntax of a Desktop Entry file is defined at
-   http://standards.freedesktop.org/desktop-entry-spec/latest/index.html
+   https://standards.freedesktop.org/desktop-entry-spec/latest/index.html
 
    Basically, values with 'localestring' type can be translated.
 
    The type of a value is determined by looking at the key associated
    with it.  The list of available keys are listed on:
-   http://standards.freedesktop.org/desktop-entry-spec/latest/ar01s05.html  */
+   https://standards.freedesktop.org/desktop-entry-spec/latest/ar01s05.html  */
 
 static hash_table keywords;
 static bool default_keywords = true;
@@ -124,9 +125,9 @@ extract_desktop_handle_pair (struct desktop_reader_ty *reader,
       bool is_list = (bool) keyword_value;
 
       remember_a_message (extract_reader->mlp, NULL,
-                          desktop_unescape_string (value, is_list),
+                          desktop_unescape_string (value, is_list), false,
                           null_context, key_pos,
-                          NULL, savable_comment);
+                          NULL, savable_comment, false);
     }
   savable_comment_reset ();
 }

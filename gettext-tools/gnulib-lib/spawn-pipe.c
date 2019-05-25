@@ -1,5 +1,5 @@
 /* Creation of subprocesses, communicating via pipes.
-   Copyright (C) 2001-2004, 2006-2016 Free Software Foundation, Inc.
+   Copyright (C) 2001-2004, 2006-2019 Free Software Foundation, Inc.
    Written by Bruno Haible <haible@clisp.cons.org>, 2001.
 
    This program is free software: you can redistribute it and/or modify
@@ -13,8 +13,13 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
+
+/* Tell clang not to warn about the 'child' variable, below.  */
+#if defined __clang__
+# pragma clang diagnostic ignored "-Wconditional-uninitialized"
+#endif
 
 #include <config.h>
 
@@ -35,8 +40,7 @@
 
 #define _(str) gettext (str)
 
-#if (((defined _WIN32 || defined __WIN32__) && ! defined __CYGWIN__) \
-     || defined __KLIBC__)
+#if (defined _WIN32 && ! defined __CYGWIN__) || defined __KLIBC__
 
 /* Native Windows API.  */
 # include <process.h>
@@ -47,13 +51,6 @@
 /* Unix API.  */
 # include <spawn.h>
 
-#endif
-
-/* environ is the exported symbol referencing the internal
-   __cygwin_environ variable on cygwin64:
-   <https://cygwin.com/ml/cygwin/2013-06/msg00228.html>.  */
-#if defined __CYGWIN__ && defined __x86_64__
-extern DLL_VARIABLE char **environ;
 #endif
 
 
@@ -74,9 +71,10 @@ nonintr_close (int fd)
 
   return retval;
 }
+#undef close /* avoid warning related to gnulib module unistd */
 #define close nonintr_close
 
-#if (defined _WIN32 || defined __WIN32__) && ! defined __CYGWIN__
+#if defined _WIN32 && ! defined __CYGWIN__
 static int
 nonintr_open (const char *pathname, int oflag, mode_t mode)
 {
@@ -117,8 +115,7 @@ create_pipe (const char *progname,
              bool slave_process, bool exit_on_error,
              int fd[2])
 {
-#if (((defined _WIN32 || defined __WIN32__) && ! defined __CYGWIN__) \
-     || defined __KLIBC__)
+#if (defined _WIN32 && ! defined __CYGWIN__) || defined __KLIBC__
 
   /* Native Windows API.
      This uses _pipe(), dup2(), and spawnv().  It could also be implemented

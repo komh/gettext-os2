@@ -1,5 +1,5 @@
 /* Test whether two files have the same ACLs.
-   Copyright (C) 2008-2016 Free Software Foundation, Inc.
+   Copyright (C) 2008-2019 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 /* Written by Bruno Haible <bruno@clisp.org>, 2008.  */
 
@@ -33,7 +33,6 @@
 # include <aclv.h>
 #endif
 
-#include "progname.h"
 #include "read-file.h"
 #include "xalloc.h"
 #include "macros.h"
@@ -43,8 +42,6 @@ main (int argc, char *argv[])
 {
   const char *file1;
   const char *file2;
-
-  set_program_name (argv[0]);
 
   ASSERT (argc == 3);
 
@@ -87,6 +84,9 @@ main (int argc, char *argv[])
         fflush (stderr);
         abort ();
       }
+
+    free (contents2);
+    free (contents1);
   }
 
   /* Compare the access permissions of the two files, including ACLs.  */
@@ -221,6 +221,12 @@ main (int argc, char *argv[])
                 return 1;
               }
           }
+        acl_free (text2);
+        if (acl2 != (acl_t)NULL)
+          acl_free (acl2);
+        acl_free (text1);
+        if (acl1 != (acl_t)NULL)
+          acl_free (acl1);
       }
 #elif HAVE_FACL && defined GETACL /* Solaris, Cygwin, not HP-UX */
   int count1;
@@ -290,6 +296,8 @@ main (int argc, char *argv[])
               return 1;
             }
         }
+      free (entries2);
+      free (entries1);
     }
 # ifdef ACE_GETACL
   count1 = acl (file1, ACE_GETACLCNT, 0, NULL);
@@ -369,6 +377,8 @@ main (int argc, char *argv[])
             return 1;
           }
       }
+    free (entries2);
+    free (entries1);
   }
 # endif
 #elif HAVE_GETACL /* HP-UX */
@@ -441,6 +451,8 @@ main (int argc, char *argv[])
               return 1;
             }
         }
+      free (entries2);
+      free (entries1);
     }
 
 # if HAVE_ACLV_H /* HP-UX >= 11.11 */
@@ -514,6 +526,8 @@ main (int argc, char *argv[])
               return 1;
             }
         }
+      free (entries2);
+      free (entries1);
     }
 # endif
 #elif HAVE_ACLX_GET /* AIX */
@@ -690,6 +704,8 @@ main (int argc, char *argv[])
               return 1;
             }
         }
+      free (entries2);
+      free (entries1);
     }
 #endif
   }

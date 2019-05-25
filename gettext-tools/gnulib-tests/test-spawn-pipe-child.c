@@ -1,5 +1,5 @@
 /* Child program invoked by test-spawn-pipe-main.
-   Copyright (C) 2009-2016 Free Software Foundation, Inc.
+   Copyright (C) 2009-2019 Free Software Foundation, Inc.
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program; if not, see <http://www.gnu.org/licenses/>.  */
+   along with this program; if not, see <https://www.gnu.org/licenses/>.  */
 
 #include <config.h>
 
@@ -22,7 +22,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#if (defined _WIN32 || defined __WIN32__) && ! defined __CYGWIN__
+#if defined _WIN32 && ! defined __CYGWIN__
 /* Get declarations of the native Windows API functions.  */
 # define WIN32_LEAN_AND_MEAN
 # include <windows.h>
@@ -53,7 +53,7 @@ static FILE *myerr;
 static int
 is_open (int fd)
 {
-#if (defined _WIN32 || defined __WIN32__) && ! defined __CYGWIN__
+#if defined _WIN32 && ! defined __CYGWIN__
   /* On native Windows, the initial state of unassigned standard file
      descriptors is that they are open but point to an
      INVALID_HANDLE_VALUE, and there is no fcntl.  */
@@ -98,9 +98,9 @@ main (int argc, char *argv[])
     case 1:
       /* Expect fd 2 is closed.
          But on HP-UX 11, fd 2 gets automatically re-opened to /dev/null if it
-         was closed. Future POSIX will allow this, see
-         <http://austingroupbugs.net/view.php?id=173>.  */
-#if !defined __hpux
+         was closed.  Similarly on native Windows.  Future POSIX will allow
+         this, see <http://austingroupbugs.net/view.php?id=173>.  */
+#if !(defined __hpux || (defined _WIN32 && ! defined __CYGWIN__))
       ASSERT (! is_open (STDERR_FILENO));
 #endif
       break;

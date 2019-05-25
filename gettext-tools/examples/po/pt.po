@@ -1,20 +1,23 @@
-# Portuguese translation of 'gettext-examples' package.
-# Copyright (C) 2005 Yoyodyne, Inc.
-# This file is distributed under the same license as the gettext-examples package.
-# Helder Correia <helder.pereira.correia@gmail.com>, 2005.
+# Portuguese (Portugal) translation of 'gettext-examples' package.
+# Copyright (C) 2018 Yoyodyne, Inc. (msgids)
+# This file is distributed under the same license as the gettext package.
+# Pedro Albuquerque <palbuquerque73@gmail.com>, 2019.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: gettext-examples 0.14.5\n"
-"Report-Msgid-Bugs-To: bug-gnu-gettext@gnu.org\n"
-"POT-Creation-Date: 2016-06-11 22:10+0900\n"
-"PO-Revision-Date: 2005-11-19 23:08+0000\n"
-"Last-Translator: Helder Correia <helder.pereira.correia@gmail.com>\n"
+"Project-Id-Version: gettext-examples-0.20-rc1\n"
+"Report-Msgid-Bugs-To: bug-gettext@gnu.org\n"
+"POT-Creation-Date: 2019-05-12 16:43+0200\n"
+"PO-Revision-Date: 2019-04-15 16:07+0200\n"
+"Last-Translator: Pedro Albuquerque <palbuquerque73@gmail.com>\n"
 "Language-Team: Portuguese <translation-team-pt@lists.sourceforge.net>\n"
 "Language: pt\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Bugs: Report translation errors to the Language-Team address.\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\\n\n"
+"X-Generator: Gtranslator 2.91.7\n"
 
 #: hello-c/hello.c:30 hello-c-gnome/hello.c:46
 #: hello-c-gnome3/hello.desktop.in.in:5 hello-c++/hello.cc:39
@@ -32,7 +35,7 @@ msgstr ""
 #: hello-perl/hello-1.pl.in:17 hello-perl/hello-2.pl.in:12
 #: hello-php/hello.php:12
 msgid "Hello, world!"
-msgstr "Olá, Mundo!"
+msgstr "Olá mundo!"
 
 #: hello-c/hello.c:31 hello-c-gnome/hello.c:51 hello-c++/hello.cc:40
 #: hello-c++-gnome/hello.cc:55 hello-c++-wxwidgets/hello.cc:71
@@ -42,48 +45,50 @@ msgstr "Olá, Mundo!"
 #: hello-tcl-tk/hello.tcl:16 hello-perl/hello-1.pl.in:19 hello-php/hello.php:14
 #, php-format
 msgid "This program is running as process number %d."
-msgstr "Este programa está a ser executado com o número de processo %d."
+msgstr "Este programa está em execução como processo nº %d."
 
 #: hello-c-gnome3/hello.c:79
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "<big>Hello world!</big>\n"
 "This program is running as process number <b>%d</b>."
-msgstr "Este programa está a ser executado com o número de processo %d."
+msgstr ""
+"<big>Olá mundo!</big>\n"
+"Este programa está em execução como processo nº <b>%d</b>."
 
 #: hello-c-gnome3/hello.c:84
 msgid "<big><u>This is another text</u></big>"
-msgstr ""
+msgstr "<big><u>Este é outro texto</u></big>"
 
 #: hello-c-gnome3/hello.c:86
 msgid "<big><i>This is yet another text</i></big>"
-msgstr ""
+msgstr "<big><i>Eis ainda outro texto</i></big>"
 
 #: hello-c-gnome3/hello.desktop.in.in:4
 msgid "Hello"
-msgstr ""
+msgstr "Olá"
 
-#: hello-c-gnome3/hello.ui:5
+#: hello-c-gnome3/hello.ui:6
 msgid "Example Application"
-msgstr ""
+msgstr "Aplicação exemplo"
 
-#: hello-c-gnome3/hello.ui:33
+#: hello-c-gnome3/hello.ui:34
 msgid "Update text"
-msgstr ""
-
-#: hello-c-gnome3/hello.gschema.xml:7
-msgid "Use XML markup"
-msgstr ""
+msgstr "Actualizar texto"
 
 #: hello-c-gnome3/hello.gschema.xml:8
+msgid "Use XML markup"
+msgstr "Usar marcação XML"
+
+#: hello-c-gnome3/hello.gschema.xml:9
 msgid "Whether to use XML markup in the text."
-msgstr ""
+msgstr "Se se deve usar marcação XML no texto."
 
 #: hello-c++-qt/hello.cc:52 hello-c++-kde/hellowindow.cc:49
 #: hello-smalltalk/hello.st.in:32 hello-ycp/hello.ycp:19
 #, ycp-format
 msgid "This program is running as process number %1."
-msgstr "Este programa está a ser executado com o número de processo %1."
+msgstr "Este programa está em execução como processo nº %1."
 
 #: hello-c++-kde/hello.cc:46
 msgid "Hello example"
@@ -91,31 +96,31 @@ msgstr "Exemplo Olá"
 
 #: hello-c++-kde/hello.cc:48
 msgid "Hello world example"
-msgstr "Exemplo Olá Mundo"
+msgstr "Exemplo Olá mundo"
 
 #: hello-sh/hello.sh:17
 #, sh-format
 msgid "This program is running as process number $pid."
-msgstr "Este process está a ser executado com o número de processo $pid."
+msgstr "Este programa está em execução como processo nº  $pid."
 
 #: hello-python/hello.py.in:13
 #, python-format
 msgid "This program is running as process number %(pid)d."
-msgstr "Este programa está a ser executado com o número de processo %(pid)d."
+msgstr "Este programa está em execução como processo nº %(pid)d."
 
 #: hello-clisp/hello.lisp.in:13 hello-guile/hello.scm:17
 #, scheme-format
 msgid "This program is running as process number ~D."
-msgstr "Este programa está a ser executado com o número de processo ~D."
+msgstr "Este programa está em execução como processo nº ~D."
 
 #: hello-java/Hello.java:18 hello-java-awt/Hello.java:28
 #: hello-java-swing/Hello.java:25 hello-java-qtjambi/Hello.java:34
 #: hello-csharp/hello.cs:17 hello-csharp-forms/hello.cs:36
 #, csharp-format
 msgid "This program is running as process number {0}."
-msgstr "Este programa está a ser executado com o número de processo {0}."
+msgstr "Este programa está em execução como processo nº {0}."
 
 #: hello-perl/hello-2.pl.in:14
 #, perl-brace-format
 msgid "This program is running as process number {pid}."
-msgstr "Este programa está a ser executado com o número de processo {pid}."
+msgstr "Este programa está em execução como processo nº {pid}."

@@ -1,5 +1,5 @@
 /* XML resource locating rules
-   Copyright (C) 2015-2016 Free Software Foundation, Inc.
+   Copyright (C) 2015, 2018 Free Software Foundation, Inc.
 
    This file was written by Daiki Ueno <ueno@gnu.org>, 2015.
 
@@ -14,7 +14,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 #ifndef _LOCATING_RULE_H
 #define _LOCATING_RULE_H
@@ -32,7 +32,7 @@ extern struct locating_rule_list_ty *locating_rule_list_alloc (void);
 
 extern bool
        locating_rule_list_add_from_directory (locating_rule_list_ty *rules,
-                                         const char *directory);
+                                              const char *directory);
 
 /* Determines the location of resource associated with FILENAME,
    accoding to the loaded locating rules.  */

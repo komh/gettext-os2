@@ -1,5 +1,5 @@
 /* xgettext Lua backend.
-   Copyright (C) 2012-2016 Free Software Foundation, Inc.
+   Copyright (C) 2012-2013, 2016, 2018 Free Software Foundation, Inc.
 
    This file was written by Ľubomír Remák <lubomirr@lubomirr.eu>, 2012.
 
@@ -14,7 +14,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -29,7 +29,14 @@
 #include <stdlib.h>
 
 #include "message.h"
+#include "rc-str-list.h"
 #include "xgettext.h"
+#include "xg-pos.h"
+#include "xg-mixed-string.h"
+#include "xg-arglist-context.h"
+#include "xg-arglist-callshape.h"
+#include "xg-arglist-parser.h"
+#include "xg-message.h"
 #include "error.h"
 #include "xalloc.h"
 #include "gettext.h"
@@ -41,7 +48,7 @@
 
 /* The Lua syntax is defined in the Lua manual section 9,
    which can be found at
-   http://www.lua.org/manual/5.2/manual.html#9  */
+   https://www.lua.org/manual/5.2/manual.html#9  */
 
 /* If true extract all strings.  */
 static bool extract_all = false;
@@ -118,15 +125,8 @@ init_flag_table_lua ()
   xgettext_record_flag ("string.format:1:lua-format");
 }
 
+
 /* ======================== Reading of characters.  ======================== */
-
-
-/* Real filename, used in error messages about the input file.  */
-static const char *real_file_name;
-
-/* Logical filename and line number, used to label the extracted messages.  */
-static char *logical_file_name;
-static int line_number;
 
 /* The input file stream.  */
 static FILE *fp;
@@ -383,6 +383,7 @@ phase2_getc ()
   else
     return c;
 }
+
 
 /* ========================== Reading of tokens.  ========================== */
 
@@ -1145,25 +1146,31 @@ extract_balanced (message_list_ty *mlp, token_type_ty delim,
             pos.line_number = token.line_number;
 
             if (extract_all)
-              remember_a_message (mlp, NULL, token.string, inner_context,
-                                  &pos, NULL, token.comment);
+              remember_a_message (mlp, NULL, token.string, false, inner_context,
+                                  &pos, NULL, token.comment, false);
             else
               {
+                mixed_string_ty *ms =
+                  mixed_string_alloc_simple (token.string, lc_string,
+                                             pos.file_name, pos.line_number);
+                free (token.string);
                 /* A string immediately after a symbol means a function call.  */
                 if (state)
                   {
                     struct arglist_parser *tmp_argparser;
                     tmp_argparser = arglist_parser_alloc (mlp, next_shapes);
 
-                    arglist_parser_remember (tmp_argparser, 1, token.string,
-                                             inner_context, pos.file_name,
-                                             pos.line_number, token.comment);
+                    arglist_parser_remember (tmp_argparser, 1, ms,
+                                             inner_context,
+                                             pos.file_name, pos.line_number,
+                                             token.comment, false);
                     arglist_parser_done (tmp_argparser, 1);
                   }
                 else
-                  arglist_parser_remember (argparser, arg, token.string,
-                                           inner_context, pos.file_name,
-                                           pos.line_number, token.comment);
+                  arglist_parser_remember (argparser, arg, ms,
+                                           inner_context,
+                                           pos.file_name, pos.line_number,
+                                           token.comment, false);
               }
           }
           drop_reference (token.comment);

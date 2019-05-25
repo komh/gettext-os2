@@ -1,5 +1,5 @@
 ## Makefile for the gettext-tools/libgettextpo subdirectory of GNU gettext
-## Copyright (C) 1995-1998, 2000-2011, 2015-2016 Free Software Foundation, Inc.
+## Copyright (C) 1995-1998, 2000-2016, 2019 Free Software Foundation, Inc.
 ##
 ## This program is free software: you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
 ## GNU General Public License for more details.
 ##
 ## You should have received a copy of the GNU General Public License
-## along with this program.  If not, see <http://www.gnu.org/licenses/>.
+## along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 ## Process this file with automake to produce Makefile.in.
 
@@ -99,7 +99,7 @@ libgettextpo_la_AUXSOURCES = \
 # Libtool's library version information for libgettextpo.
 # See the libtool documentation, section "Library interface versions".
 LTV_CURRENT=5
-LTV_REVISION=4
+LTV_REVISION=5
 LTV_AGE=5
 
 # How to build libgettextpo.la.
@@ -121,6 +121,15 @@ endif
 if OS2
 libgettextpo_la_LDFLAGS += -os2dllname gtpo
 endif
+
+# Specify installation directory, for --enable-relocatable.
+if RELOCATABLE_VIA_LD
+# This is needed, because libgettextpo depends on libintl.
+libgettextpo_la_LDFLAGS += `$(RELOCATABLE_LDFLAGS) $(libdir)`
+endif
+
+# Support for relocatability.
+RELOCATABLE_LIBRARY_PATH = $(libdir)
 
 # Version information according to Woe32 conventions.
 EXTRA_DIST += libgettextpo.rc

@@ -1,5 +1,5 @@
 /* Unicode CLDR plural rule parser and converter
-   Copyright (C) 2015-2016 Free Software Foundation, Inc.
+   Copyright (C) 2015, 2018-2019 Free Software Foundation, Inc.
 
    This file was written by Daiki Ueno <ueno@gnu.org>, 2015.
 
@@ -14,7 +14,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 #ifdef HAVE_CONFIG_H
 # include <config.h>
@@ -22,6 +22,7 @@
 
 #include "basename.h"
 #include "cldr-plural-exp.h"
+#include "closeout.h"
 #include "c-ctype.h"
 #include <errno.h>
 #include <error.h>
@@ -55,10 +56,9 @@ extract_rules (FILE *fp,
   doc = xmlReadFd (fileno (fp), logical_filename, NULL,
                    XML_PARSE_NONET
                    | XML_PARSE_NOWARNING
-                   | XML_PARSE_NOERROR
                    | XML_PARSE_NOBLANKS);
   if (doc == NULL)
-    error (EXIT_FAILURE, 0, _("memory exhausted"));
+    error (EXIT_FAILURE, 0, _("Could not parse file %s as XML"), logical_filename);
 
   node = xmlDocGetRootElement (doc);
   if (!node || !xmlStrEqual (node->name, BAD_CAST "supplementalData"))
@@ -66,8 +66,7 @@ extract_rules (FILE *fp,
       error_at_line (0, 0,
                      logical_filename,
                      xmlGetLineNo (node),
-                     _("\
-The root element must be <%s>"),
+                     _("The root element must be <%s>"),
                      "supplementalData");
       goto out;
     }
@@ -102,8 +101,7 @@ The root element must be <%s>"),
           error_at_line (0, 0,
                          logical_filename,
                          xmlGetLineNo (n),
-                         _("\
-The element <%s> does not have attribute <%s>"),
+                         _("The element <%s> does not have attribute <%s>"),
                          "pluralRules", "locales");
           continue;
         }
@@ -143,8 +141,7 @@ The element <%s> does not have attribute <%s>"),
               error_at_line (0, 0,
                              logical_filename,
                              xmlGetLineNo (n2),
-                             _("\
-The element <%s> does not have attribute <%s>"),
+                             _("The element <%s> does not have attribute <%s>"),
                              "pluralRule", "count");
               break;
             }
@@ -218,12 +215,16 @@ Similarly for optional arguments.\n\
       printf (_("\
   -V, --version               output version information and exit\n"));
       printf ("\n");
-      /* TRANSLATORS: The placeholder indicates the bug-reporting address
-         for this package.  Please add _another line_ saying
+      /* TRANSLATORS: The first placeholder is the web address of the Savannah
+         project of this package.  The second placeholder is the bug-reporting
+         email address for this package.  Please add _another line_ saying
          "Report translation bugs to <...>\n" with the address for translation
          bugs (typically your translation team's web or email address).  */
-      fputs (_("Report bugs to <bug-gnu-gettext@gnu.org>.\n"),
-             stdout);
+      printf(_("\
+Report bugs in the bug tracker at <%s>\n\
+or by email to <%s>.\n"),
+             "https://savannah.gnu.org/projects/gettext",
+             "bug-gettext@gnu.org");
     }
   exit (status);
 }
@@ -248,15 +249,16 @@ main (int argc, char **argv)
   /* Set program name for messages.  */
   set_program_name (argv[0]);
 
-#ifdef HAVE_SETLOCALE
   /* Set locale via LC_ALL.  */
   setlocale (LC_ALL, "");
-#endif
 
   /* Set the text message domain.  */
   bindtextdomain (PACKAGE, relocate (LOCALEDIR));
   bindtextdomain ("bison-runtime", relocate (BISON_LOCALEDIR));
   textdomain (PACKAGE);
+
+  /* Ensure that write errors on stdout are detected.  */
+  atexit (close_stdout);
 
   while ((optchar = getopt_long (argc, argv, "chV", long_options, NULL)) != EOF)
     switch (optchar)
@@ -287,11 +289,11 @@ main (int argc, char **argv)
       printf ("%s (GNU %s) %s\n", basename (program_name), PACKAGE, VERSION);
       /* xgettext: no-wrap */
       printf (_("Copyright (C) %s Free Software Foundation, Inc.\n\
-License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>\n\
+License GPLv3+: GNU GPL version 3 or later <%s>\n\
 This is free software: you are free to change and redistribute it.\n\
 There is NO WARRANTY, to the extent permitted by law.\n\
 "),
-              "2015");
+              "2015-2019", "https://gnu.org/licenses/gpl.html");
       printf (_("Written by %s.\n"), proper_name ("Daiki Ueno"));
       exit (EXIT_SUCCESS);
     }

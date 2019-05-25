@@ -1,5 +1,5 @@
 /* Message list header manipulation.
-   Copyright (C) 2007, 2015-2016 Free Software Foundation, Inc.
+   Copyright (C) 2007, 2016-2017 Free Software Foundation, Inc.
    Written by Bruno Haible <bruno@clisp.org>, 2007.
 
    This program is free software: you can redistribute it and/or modify
@@ -13,7 +13,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 
 #ifdef HAVE_CONFIG_H
@@ -30,30 +30,31 @@
 #define SIZEOF(a) (sizeof(a) / sizeof(a[0]))
 
 
+/* The known fields in their usual order.  */
+static const struct
+{
+  const char *name;
+  size_t len;
+}
+known_fields[] =
+  {
+    { "Project-Id-Version:", sizeof ("Project-Id-Version:") - 1 },
+    { "Report-Msgid-Bugs-To:", sizeof ("Report-Msgid-Bugs-To:") - 1 },
+    { "POT-Creation-Date:", sizeof ("POT-Creation-Date:") - 1 },
+    { "PO-Revision-Date:", sizeof ("PO-Revision-Date:") - 1 },
+    { "Last-Translator:", sizeof ("Last-Translator:") - 1 },
+    { "Language-Team:", sizeof ("Language-Team:") - 1 },
+    { "Language:", sizeof ("Language:") - 1 },
+    { "MIME-Version:", sizeof ("MIME-Version:") - 1 },
+    { "Content-Type:", sizeof ("Content-Type:") - 1 },
+    { "Content-Transfer-Encoding:", sizeof ("Content-Transfer-Encoding:") - 1 }
+  };
+
+
 void
 msgdomain_list_set_header_field (msgdomain_list_ty *mdlp,
                                  const char *field, const char *value)
 {
-  /* The known fields in their usual order.  */
-  static const struct
-    {
-      const char *name;
-      size_t len;
-    }
-  known_fields[] =
-    {
-      { "Project-Id-Version:", sizeof ("Project-Id-Version:") - 1 },
-      { "Report-Msgid-Bugs-To:", sizeof ("Report-Msgid-Bugs-To:") - 1 },
-      { "POT-Creation-Date:", sizeof ("POT-Creation-Date:") - 1 },
-      { "PO-Revision-Date:", sizeof ("PO-Revision-Date:") - 1 },
-      { "Last-Translator:", sizeof ("Last-Translator:") - 1 },
-      { "Language-Team:", sizeof ("Language-Team:") - 1 },
-      { "Language:", sizeof ("Language:") - 1 },
-      { "MIME-Version:", sizeof ("MIME-Version:") - 1 },
-      { "Content-Type:", sizeof ("Content-Type:") - 1 },
-      { "Content-Transfer-Encoding:",
-        sizeof ("Content-Transfer-Encoding:") - 1 }
-    };
   size_t field_len;
   int field_index;
   size_t k, i;
@@ -165,6 +166,59 @@ msgdomain_list_set_header_field (msgdomain_list_ty *mdlp,
               }
 
             mp->msgstr = new_header;
+            mp->msgstr_len = strlen (new_header) + 1;
           }
     }
+}
+
+
+void
+message_list_delete_header_field (message_list_ty *mlp,
+                                  const char *field)
+{
+  size_t field_len = strlen (field);
+  size_t j;
+
+  /* Search the header entry.  */
+  for (j = 0; j < mlp->nitems; j++)
+    if (is_header (mlp->item[j]) && !mlp->item[j]->obsolete)
+      {
+        message_ty *mp = mlp->item[j];
+
+        /* Modify the header entry.  */
+        const char *header = mp->msgstr;
+
+        /* Test whether the field occurs in the header entry.  */
+        const char *h;
+
+        for (h = header; *h != '\0'; )
+          {
+            if (strncmp (h, field, field_len) == 0)
+              break;
+            h = strchr (h, '\n');
+            if (h == NULL)
+              break;
+            h++;
+          }
+        if (h != NULL && *h != '\0')
+          {
+            /* Delete the field.  */
+            char *new_header = XCALLOC (strlen (header) + 1, char);
+
+            char *p = new_header;
+            memcpy (p, header, h - header);
+            p += h - header;
+            h = strchr (h, '\n');
+            if (h != NULL)
+              {
+                h++;
+                strcpy (p, h);
+              }
+            else
+              *p = '\0';
+
+            mp->msgstr = new_header;
+            mp->msgstr_len = strlen (new_header) + 1;
+          }
+      }
 }

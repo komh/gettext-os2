@@ -1,5 +1,5 @@
 /* Implementation of the internal dcigettext function.
-   Copyright (C) 1995-2016 Free Software Foundation, Inc.
+   Copyright (C) 1995-2019 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU Lesser General Public License as published by
@@ -12,7 +12,7 @@
    GNU Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 /* Tell glibc's <string.h> to provide a prototype for mempcpy().
    This must come before <config.h> because <config.h> may include
@@ -209,7 +209,7 @@ static void *mempcpy (void *dest, const void *src, size_t n);
                         it may be concatenated to a directory pathname.
    IS_PATH_WITH_DIR(P)  tests whether P contains a directory specification.
  */
-#if defined _WIN32 || defined __WIN32__ || defined __CYGWIN__ || defined __EMX__ || defined __DJGPP__
+#if defined _WIN32 || defined __CYGWIN__ || defined __EMX__ || defined __DJGPP__
   /* Win32, Cygwin, OS/2, DOS */
 # define ISSLASH(C) ((C) == '/' || (C) == '\\')
 # define HAS_DEVICE(P) \
@@ -560,9 +560,10 @@ DCIGETTEXT (const char *domainname, const char *msgid1, const char *msgid2,
 #  endif
 # endif
   search.localename = localename;
-# ifdef IN_LIBGLOCALE
+#endif
+#ifdef IN_LIBGLOCALE
   search.encoding = encoding;
-# endif
+#endif
 
   /* Since tfind/tsearch manage a balanced tree, concurrent tfind and
      tsearch calls can be fatal.  */
@@ -588,7 +589,6 @@ DCIGETTEXT (const char *domainname, const char *msgid1, const char *msgid2,
       __set_errno (saved_errno);
       return retval;
     }
-#endif
 
   /* See whether this is a SUID binary or not.  */
   DETERMINE_SECURE;
@@ -634,7 +634,7 @@ DCIGETTEXT (const char *domainname, const char *msgid1, const char *msgid2,
 	  for (;;)
 	    {
 	      resolved_dirname = (char *) alloca (path_max + dirname_len);
-	      ADD_BLOCK (block_list, tmp_dirname);
+	      ADD_BLOCK (block_list, resolved_dirname);
 
 	      __set_errno (0);
 	      ret = getcwd (resolved_dirname, path_max);
@@ -1111,7 +1111,12 @@ _nl_find_msg (struct loaded_l10nfile *domain_file,
 	      /* Resource problems are fatal.  If we continue onwards we will
 	         only attempt to calloc a new conv_tab and fail later.  */
 	      if (__builtin_expect (nullentry == (char *) -1, 0))
-	        return (char *) -1;
+		{
+# ifndef IN_LIBGLOCALE
+		  free ((char *) encoding);
+# endif
+		  goto unlock_fail;
+		}
 
 	      if (nullentry != NULL)
 		{

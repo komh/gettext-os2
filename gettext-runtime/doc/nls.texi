@@ -1,7 +1,18 @@
-@node Translation Intro
-@chapter Notes on the Free Translation Project
+@c This file is part of the GNU gettext manual.
+@c Copyright (C) 1995-2019 Free Software Foundation, Inc.
+@c See the file gettext.texi for copying conditions.
 
-@set STATUS Jun 2014
+@node The original ABOUT-NLS
+@section Notes on the Free Translation Project
+
+@cindex @file{ABOUT-NLS} file
+This section contains the text that was, for a long time, distributed
+as a file named @code{ABOUT-NLS}.
+
+@strong{ NOTE: } This documentation section is outdated.  It it included
+here for historical purposes only.
+
+@set STATUS May 2019
 
 Free software is going international!  The Free Translation Project is
 a way to get maintainers of free software, translators, and users all
@@ -29,7 +40,7 @@ on translations can contact the appropriate team.
 
 
 @node INSTALL Matters
-@section INSTALL Matters
+@subsection INSTALL Matters
 
 Some packages are @dfn{localizable} when properly installed; the
 programs they contain can be made to speak your own native language.
@@ -67,7 +78,7 @@ then contain a space separated list of two-letter codes, stating
 which languages are allowed.
 
 @node Using This Package
-@section Using This Package
+@subsection Using This Package
 
 @c Note: We don't document the locale aliases, because they are less and less
 @c used - locale.alias contains not a single UTF-8 locale and still lists
@@ -135,14 +146,14 @@ in this context.
 @c FIXME: The user doesn't care about design justifications. --bruno
 
 @node Translating Teams
-@section Translating Teams
+@subsection Translating Teams
 
 For the Free Translation Project to be a success, we need interested
 people who like their own language and write it well, and who are also
 able to synergize with other translators speaking the same language.
 Each translation team has its own mailing list.  The up-to-date list
 of teams can be found at the Free Translation Project's homepage,
-@file{http://translationproject.org/}, in the "Teams" area.
+@file{https://translationproject.org/}, in the "Teams" area.
 
 If you'd like to volunteer to @emph{work} at translating messages, you
 should become a member of the translating team for your own language.
@@ -167,7 +178,7 @@ the terminology in use.  Proven linguistic skills are praised
 more than programming skills, here.
 
 @node Available Packages
-@section Available Packages
+@subsection Available Packages
 
 Languages are not equally supported in all packages.  The following
 matrix shows the current state of internationalization, as of
@@ -189,11 +200,11 @@ mere existence a PO file and its wide availability in a distribution.
 If @value{STATUS} seems to be old, you may fetch a more recent copy
 of this @file{ABOUT-NLS} file on most GNU archive sites.  The most
 up-to-date matrix with full percentage details can be found at
-@file{http://translationproject.org/extra/matrix.html}.
+@file{https://translationproject.org/extra/matrix.html}.
 
 
 @node Using gettext in own code
-@section Using @code{gettext} in new packages
+@subsection Using @code{gettext} in new packages
 
 If you are writing a freely available program and want to internationalize
 it you are welcome to use GNU @file{gettext} in your package.  Of course

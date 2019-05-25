@@ -1,5 +1,5 @@
 # DO NOT EDIT! GENERATED AUTOMATICALLY!
-# Copyright (C) 2002-2016 Free Software Foundation, Inc.
+# Copyright (C) 2002-2019 Free Software Foundation, Inc.
 #
 # This file is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this file.  If not, see <http://www.gnu.org/licenses/>.
+# along with this file.  If not, see <https://www.gnu.org/licenses/>.
 #
 # As a special exception to the GNU General Public License,
 # this file may be distributed as part of a program that
@@ -47,35 +47,41 @@ AC_DEFUN([gtpo_EARLY],
   # Code from module alignof:
   # Code from module alloca-opt:
   # Code from module basename:
+  # Code from module builtin-expect:
   # Code from module c-ctype:
   # Code from module c-strcase:
   # Code from module c-strcaseeq:
   # Code from module c-strstr:
+  # Code from module cloexec:
   # Code from module close:
   # Code from module concat-filename:
-  # Code from module configmake:
   # Code from module diffseq:
+  # Code from module dirname-lgpl:
   # Code from module dosname:
+  # Code from module double-slash-root:
+  # Code from module dup2:
   # Code from module errno:
   # Code from module error:
   # Code from module error-progname:
   # Code from module exitfail:
   # Code from module extensions:
   # Code from module extern-inline:
+  # Code from module fcntl:
   # Code from module fcntl-h:
   # Code from module fd-hook:
-  # Code from module file-ostream:
   # Code from module filename:
   # Code from module float:
   # Code from module fopen:
   # Code from module fstat:
   # Code from module fstrcmp:
+  # Code from module fsync:
   # Code from module fwriteerror:
   # Code from module gcd:
   # Code from module getdelim:
+  # Code from module getdtablesize:
   # Code from module getline:
+  # Code from module getprogname:
   # Code from module gettext-h:
-  # Code from module gettimeofday:
   # Code from module gperf:
   # Code from module hard-locale:
   # Code from module hash:
@@ -88,7 +94,9 @@ AC_DEFUN([gtpo_EARLY],
   # Code from module intprops:
   # Code from module largefile:
   AC_REQUIRE([AC_SYS_LARGEFILE])
+  # Code from module libtextstyle-dummy:
   # Code from module libunistring-optional:
+  # Code from module limits-h:
   # Code from module linked-list:
   # Code from module list:
   # Code from module localcharset:
@@ -101,15 +109,12 @@ AC_DEFUN([gtpo_EARLY],
   # Code from module mbswidth:
   # Code from module memchr:
   # Code from module minmax:
-  # Code from module moo:
   # Code from module msvc-inval:
   # Code from module msvc-nothrow:
   # Code from module multiarch:
   # Code from module obstack:
   # Code from module open:
-  # Code from module ostream:
   # Code from module pathmax:
-  # Code from module progname:
   # Code from module raise:
   # Code from module rawmemchr:
   # Code from module realloc-posix:
@@ -125,11 +130,10 @@ AC_DEFUN([gtpo_EARLY],
   # Code from module snippet/warn-on-use:
   # Code from module ssize_t:
   # Code from module stat:
+  # Code from module stat-time:
   # Code from module stdarg:
   dnl Some compilers (e.g., AIX 5.3 cc) need to be in c99 mode
-  dnl for the builtin va_copy to work.  With Autoconf 2.60 or later,
-  dnl gl_PROG_CC_C99 arranges for this.  With older Autoconf gl_PROG_CC_C99
-  dnl shouldn't hurt, though installers are on their own to set c99 mode.
+  dnl for the builtin va_copy to work.  gl_PROG_CC_C99 arranges for this.
   gl_PROG_CC_C99
   # Code from module stdbool:
   # Code from module stddef:
@@ -149,7 +153,6 @@ AC_DEFUN([gtpo_EARLY],
   # Code from module strstr:
   # Code from module strstr-simple:
   # Code from module sys_stat:
-  # Code from module sys_time:
   # Code from module sys_types:
   # Code from module threadlib:
   gl_THREADLIB_EARLY
@@ -190,6 +193,7 @@ AC_DEFUN([gtpo_EARLY],
   # Code from module wcwidth:
   # Code from module xalloc:
   # Code from module xalloc-die:
+  # Code from module xalloc-oversized:
   # Code from module xconcat-filename:
   # Code from module xerror:
   # Code from module xlist:
@@ -214,12 +218,21 @@ AC_DEFUN([gtpo_INIT],
   gl_COMMON
   gl_source_base='libgettextpo'
   gl_FUNC_ALLOCA
+  gl___BUILTIN_EXPECT
+  gl_MODULE_INDICATOR_FOR_TESTS([cloexec])
   gl_FUNC_CLOSE
   if test $REPLACE_CLOSE = 1; then
     AC_LIBOBJ([close])
   fi
   gl_UNISTD_MODULE_INDICATOR([close])
-  gl_CONFIGMAKE_PREP
+  gl_DIRNAME_LGPL
+  gl_DOUBLE_SLASH_ROOT
+  gl_FUNC_DUP2
+  if test $HAVE_DUP2 = 0 || test $REPLACE_DUP2 = 1; then
+    AC_LIBOBJ([dup2])
+    gl_PREREQ_DUP2
+  fi
+  gl_UNISTD_MODULE_INDICATOR([dup2])
   gl_HEADER_ERRNO_H
   gl_ERROR
   if test $ac_cv_lib_error_at_line = no; then
@@ -230,6 +243,11 @@ AC_DEFUN([gtpo_INIT],
     [AM_][XGETTEXT_OPTION([--flag=error:3:c-format])
      AM_][XGETTEXT_OPTION([--flag=error_at_line:5:c-format])])
   AC_REQUIRE([gl_EXTERN_INLINE])
+  gl_FUNC_FCNTL
+  if test $HAVE_FCNTL = 0 || test $REPLACE_FCNTL = 1; then
+    AC_LIBOBJ([fcntl])
+  fi
+  gl_FCNTL_MODULE_INDICATOR([fcntl])
   gl_FCNTL_H
   gl_FLOAT_H
   if test $REPLACE_FLOAT_LDBL = 1; then
@@ -247,9 +265,20 @@ AC_DEFUN([gtpo_INIT],
   gl_FUNC_FSTAT
   if test $REPLACE_FSTAT = 1; then
     AC_LIBOBJ([fstat])
+    case "$host_os" in
+      mingw*)
+        AC_LIBOBJ([stat-w32])
+        ;;
+    esac
     gl_PREREQ_FSTAT
   fi
   gl_SYS_STAT_MODULE_INDICATOR([fstat])
+  gl_FUNC_FSYNC
+  if test $HAVE_FSYNC = 0; then
+    AC_LIBOBJ([fsync])
+    gl_PREREQ_FSYNC
+  fi
+  gl_UNISTD_MODULE_INDICATOR([fsync])
   gl_MODULE_INDICATOR([fwriteerror])
   gl_FUNC_GETDELIM
   if test $HAVE_GETDELIM = 0 || test $REPLACE_GETDELIM = 1; then
@@ -257,21 +286,21 @@ AC_DEFUN([gtpo_INIT],
     gl_PREREQ_GETDELIM
   fi
   gl_STDIO_MODULE_INDICATOR([getdelim])
+  gl_FUNC_GETDTABLESIZE
+  if test $HAVE_GETDTABLESIZE = 0 || test $REPLACE_GETDTABLESIZE = 1; then
+    AC_LIBOBJ([getdtablesize])
+    gl_PREREQ_GETDTABLESIZE
+  fi
+  gl_UNISTD_MODULE_INDICATOR([getdtablesize])
   gl_FUNC_GETLINE
   if test $REPLACE_GETLINE = 1; then
     AC_LIBOBJ([getline])
     gl_PREREQ_GETLINE
   fi
   gl_STDIO_MODULE_INDICATOR([getline])
+  gl_FUNC_GETPROGNAME
   AC_SUBST([LIBINTL])
   AC_SUBST([LTLIBINTL])
-  gl_FUNC_GETTIMEOFDAY
-  if test $HAVE_GETTIMEOFDAY = 0 || test $REPLACE_GETTIMEOFDAY = 1; then
-    AC_LIBOBJ([gettimeofday])
-    gl_PREREQ_GETTIMEOFDAY
-  fi
-  gl_SYS_TIME_MODULE_INDICATOR([gettimeofday])
-  gl_HARD_LOCALE
   AM_ICONV
   m4_ifdef([gl_ICONV_MODULE_INDICATOR],
     [gl_ICONV_MODULE_INDICATOR([iconv])])
@@ -286,9 +315,13 @@ AC_DEFUN([gtpo_INIT],
   fi
   gl_INLINE
   AC_REQUIRE([gl_LARGEFILE])
+  AC_REQUIRE([AC_C_INLINE])
+  AC_CHECK_FUNCS_ONCE([tcdrain])
   gl_LIBUNISTRING_OPTIONAL
+  gl_LIMITS_H
   gl_LOCALCHARSET
-  LOCALCHARSET_TESTS_ENVIRONMENT="CHARSETALIASDIR=\"\$(abs_top_builddir)/$gl_source_base\""
+  dnl For backward compatibility. Some packages still use this.
+  LOCALCHARSET_TESTS_ENVIRONMENT=
   AC_SUBST([LOCALCHARSET_TESTS_ENVIRONMENT])
   gl_LOCK
   gl_MODULE_INDICATOR([lock])
@@ -318,7 +351,6 @@ AC_DEFUN([gtpo_INIT],
   fi
   gl_STRING_MODULE_INDICATOR([memchr])
   gl_MINMAX
-  gl_MOO
   AC_REQUIRE([gl_MSVC_INVAL])
   if test $HAVE_MSVC_INVALID_PARAMETER_HANDLER = 1; then
     AC_LIBOBJ([msvc-inval])
@@ -327,6 +359,7 @@ AC_DEFUN([gtpo_INIT],
   if test $HAVE_MSVC_INVALID_PARAMETER_HANDLER = 1; then
     AC_LIBOBJ([msvc-nothrow])
   fi
+  gl_MODULE_INDICATOR([msvc-nothrow])
   gl_MULTIARCH
   AC_FUNC_OBSTACK
   dnl Note: AC_FUNC_OBSTACK does AC_LIBSOURCES([obstack.h, obstack.c]).
@@ -337,8 +370,6 @@ AC_DEFUN([gtpo_INIT],
   fi
   gl_FCNTL_MODULE_INDICATOR([open])
   gl_PATHMAX
-  AC_CHECK_DECLS([program_invocation_name], [], [], [#include <errno.h>])
-  AC_CHECK_DECLS([program_invocation_short_name], [], [], [#include <errno.h>])
   gl_FUNC_RAISE
   if test $HAVE_RAISE = 0 || test $REPLACE_RAISE = 1; then
     AC_LIBOBJ([raise])
@@ -385,9 +416,16 @@ AC_DEFUN([gtpo_INIT],
   gl_FUNC_STAT
   if test $REPLACE_STAT = 1; then
     AC_LIBOBJ([stat])
+    case "$host_os" in
+      mingw*)
+        AC_LIBOBJ([stat-w32])
+        ;;
+    esac
     gl_PREREQ_STAT
   fi
   gl_SYS_STAT_MODULE_INDICATOR([stat])
+  gl_STAT_TIME
+  gl_STAT_BIRTHTIME
   gl_STDARG_H
   AM_STDBOOL_H
   gl_STDDEF_H
@@ -444,8 +482,6 @@ AC_DEFUN([gtpo_INIT],
   gl_STRING_MODULE_INDICATOR([strstr])
   gl_HEADER_SYS_STAT_H
   AC_PROG_MKDIR_P
-  gl_HEADER_SYS_TIME_H
-  AC_PROG_MKDIR_P
   gl_SYS_TYPES_H
   AC_PROG_MKDIR_P
   gl_THREADLIB
@@ -455,14 +491,14 @@ AC_DEFUN([gtpo_INIT],
   gl_LIBUNISTRING_MODULE([0.9], [uniconv/u8-conv-from-enc])
   gl_LIBUNISTRING_LIBHEADER([0.9.4], [unictype.h])
   AC_REQUIRE([AC_C_INLINE])
-  gl_LIBUNISTRING_MODULE([0.9.6], [unictype/ctype-alpha])
+  gl_LIBUNISTRING_MODULE([0.9.8], [unictype/ctype-alpha])
   AC_REQUIRE([AC_C_INLINE])
-  gl_LIBUNISTRING_MODULE([0.9.6], [unictype/ctype-space])
+  gl_LIBUNISTRING_MODULE([0.9.8], [unictype/ctype-space])
   gl_LIBUNISTRING_LIBHEADER([0.9.4], [unilbrk.h])
   AC_REQUIRE([AC_C_INLINE])
-  gl_LIBUNISTRING_MODULE([0.9.6], [unilbrk/u8-possible-linebreaks])
-  gl_LIBUNISTRING_MODULE([0.9.6], [unilbrk/u8-width-linebreaks])
-  gl_LIBUNISTRING_MODULE([0.9.6], [unilbrk/ulc-width-linebreaks])
+  gl_LIBUNISTRING_MODULE([0.9.8], [unilbrk/u8-possible-linebreaks])
+  gl_LIBUNISTRING_MODULE([0.9.8], [unilbrk/u8-width-linebreaks])
+  gl_LIBUNISTRING_MODULE([0.9.8], [unilbrk/ulc-width-linebreaks])
   gl_UNISTD_H
   gl_LIBUNISTRING_LIBHEADER([0.9.4], [unistr.h])
   gl_MODULE_INDICATOR([unistr/u16-mbtouc])
@@ -482,7 +518,7 @@ AC_DEFUN([gtpo_INIT],
   gl_LIBUNISTRING_MODULE([0.9], [unistr/u8-uctomb])
   gl_LIBUNISTRING_LIBHEADER([0.9.4], [unitypes.h])
   gl_LIBUNISTRING_LIBHEADER([0.9.4], [uniwidth.h])
-  gl_LIBUNISTRING_MODULE([0.9.6], [uniwidth/width])
+  gl_LIBUNISTRING_MODULE([0.9.8], [uniwidth/width])
   gl_FUNC_GLIBC_UNLOCKED_IO
   gl_FUNC_VASNPRINTF
   gl_FUNC_VASPRINTF
@@ -495,6 +531,7 @@ AC_DEFUN([gtpo_INIT],
   gl_FUNC_WCWIDTH
   if test $HAVE_WCWIDTH = 0 || test $REPLACE_WCWIDTH = 1; then
     AC_LIBOBJ([wcwidth])
+    gl_PREREQ_WCWIDTH
   fi
   gl_WCHAR_MODULE_INDICATOR([wcwidth])
   gl_XSIZE
@@ -638,19 +675,17 @@ AC_DEFUN([gtpotests_LIBSOURCES], [
 # gnulib-tool and may be removed by future gnulib-tool invocations.
 AC_DEFUN([gtpo_FILE_LIST], [
   build-aux/config.rpath
-  build-aux/moopp
-  build-aux/snippet/_Noreturn.h
-  build-aux/snippet/arg-nonnull.h
-  build-aux/snippet/c++defs.h
-  build-aux/snippet/unused-parameter.h
-  build-aux/snippet/warn-on-use.h
   doc/relocatable.texi
+  lib/_Noreturn.h
   lib/alignof.h
   lib/alloca.in.h
+  lib/arg-nonnull.h
   lib/asnprintf.c
   lib/asprintf.c
+  lib/basename-lgpl.c
   lib/basename.c
   lib/basename.h
+  lib/c++defs.h
   lib/c-ctype.c
   lib/c-ctype.h
   lib/c-strcase.h
@@ -659,12 +694,16 @@ AC_DEFUN([gtpo_FILE_LIST], [
   lib/c-strncasecmp.c
   lib/c-strstr.c
   lib/c-strstr.h
+  lib/cloexec.c
+  lib/cloexec.h
   lib/close.c
   lib/concat-filename.c
   lib/concat-filename.h
-  lib/config.charset
   lib/diffseq.h
+  lib/dirname-lgpl.c
+  lib/dirname.h
   lib/dosname.h
+  lib/dup2.c
   lib/errno.in.h
   lib/error-progname.c
   lib/error-progname.h
@@ -672,11 +711,10 @@ AC_DEFUN([gtpo_FILE_LIST], [
   lib/error.h
   lib/exitfail.c
   lib/exitfail.h
+  lib/fcntl.c
   lib/fcntl.in.h
   lib/fd-hook.c
   lib/fd-hook.h
-  lib/file-ostream.oo.c
-  lib/file-ostream.oo.h
   lib/filename.h
   lib/float+.h
   lib/float.c
@@ -685,14 +723,17 @@ AC_DEFUN([gtpo_FILE_LIST], [
   lib/fstat.c
   lib/fstrcmp.c
   lib/fstrcmp.h
+  lib/fsync.c
   lib/fwriteerror.c
   lib/fwriteerror.h
   lib/gcd.c
   lib/gcd.h
   lib/getdelim.c
+  lib/getdtablesize.c
   lib/getline.c
+  lib/getprogname.c
+  lib/getprogname.h
   lib/gettext.h
-  lib/gettimeofday.c
   lib/gl_anylinked_list1.h
   lib/gl_anylinked_list2.h
   lib/gl_linked_list.c
@@ -723,12 +764,12 @@ AC_DEFUN([gtpo_FILE_LIST], [
   lib/intprops.h
   lib/itold.c
   lib/libunistring.valgrind
+  lib/limits.in.h
   lib/localcharset.c
   lib/localcharset.h
   lib/malloc.c
   lib/malloca.c
   lib/malloca.h
-  lib/malloca.valgrind
   lib/markup.c
   lib/markup.h
   lib/mbrtowc.c
@@ -738,7 +779,6 @@ AC_DEFUN([gtpo_FILE_LIST], [
   lib/memchr.c
   lib/memchr.valgrind
   lib/minmax.h
-  lib/moo.h
   lib/msvc-inval.c
   lib/msvc-inval.h
   lib/msvc-nothrow.c
@@ -746,26 +786,25 @@ AC_DEFUN([gtpo_FILE_LIST], [
   lib/obstack.c
   lib/obstack.h
   lib/open.c
-  lib/ostream.oo.c
-  lib/ostream.oo.h
   lib/pathmax.h
   lib/printf-args.c
   lib/printf-args.h
   lib/printf-parse.c
   lib/printf-parse.h
-  lib/progname.c
-  lib/progname.h
   lib/raise.c
   lib/rawmemchr.c
   lib/rawmemchr.valgrind
   lib/realloc.c
-  lib/ref-add.sin
-  lib/ref-del.sin
   lib/relocatable.c
   lib/relocatable.h
+  lib/relocatable.valgrind
   lib/signal.in.h
   lib/sigprocmask.c
   lib/size_max.h
+  lib/stat-time.c
+  lib/stat-time.h
+  lib/stat-w32.c
+  lib/stat-w32.h
   lib/stat.c
   lib/stdarg.in.h
   lib/stdbool.in.h
@@ -790,10 +829,11 @@ AC_DEFUN([gtpo_FILE_LIST], [
   lib/striconveha.c
   lib/striconveha.h
   lib/string.in.h
+  lib/stripslash.c
   lib/strstr.c
   lib/sys_stat.in.h
-  lib/sys_time.in.h
   lib/sys_types.in.h
+  lib/textstyle.in.h
   lib/time.in.h
   lib/uniconv.in.h
   lib/uniconv/u8-conv-from-enc.c
@@ -835,14 +875,17 @@ AC_DEFUN([gtpo_FILE_LIST], [
   lib/uniwidth/cjk.h
   lib/uniwidth/width.c
   lib/unlocked-io.h
+  lib/unused-parameter.h
   lib/vasnprintf.c
   lib/vasnprintf.h
   lib/vasprintf.c
   lib/verify.h
+  lib/warn-on-use.h
   lib/wchar.in.h
   lib/wctype-h.c
   lib/wctype.in.h
   lib/wcwidth.c
+  lib/xalloc-oversized.h
   lib/xalloc.h
   lib/xasprintf.c
   lib/xconcat-filename.c
@@ -862,9 +905,12 @@ AC_DEFUN([gtpo_FILE_LIST], [
   m4/absolute-header.m4
   m4/alloca.m4
   m4/asm-underscore.m4
+  m4/builtin-expect.m4
   m4/close.m4
   m4/codeset.m4
-  m4/configmake.m4
+  m4/dirname.m4
+  m4/double-slash-root.m4
+  m4/dup2.m4
   m4/eealloc.m4
   m4/errno_h.m4
   m4/error.m4
@@ -872,16 +918,18 @@ AC_DEFUN([gtpo_FILE_LIST], [
   m4/extensions.m4
   m4/extern-inline.m4
   m4/fcntl-o.m4
+  m4/fcntl.m4
   m4/fcntl_h.m4
   m4/float_h.m4
   m4/fopen.m4
   m4/fstat.m4
+  m4/fsync.m4
   m4/getdelim.m4
+  m4/getdtablesize.m4
   m4/getline.m4
-  m4/gettimeofday.m4
-  m4/glibc21.m4
+  m4/getprogname.m4
   m4/gnulib-common.m4
-  m4/hard-locale.m4
+  m4/host-cpu-c-abi.m4
   m4/iconv.m4
   m4/iconv_h.m4
   m4/iconv_open.m4
@@ -896,6 +944,7 @@ AC_DEFUN([gtpo_FILE_LIST], [
   m4/libunistring-base.m4
   m4/libunistring-optional.m4
   m4/libunistring.m4
+  m4/limits-h.m4
   m4/localcharset.m4
   m4/locale-fr.m4
   m4/locale-ja.m4
@@ -913,15 +962,16 @@ AC_DEFUN([gtpo_FILE_LIST], [
   m4/minmax.m4
   m4/mmap-anon.m4
   m4/mode_t.m4
-  m4/moo.m4
   m4/msvc-inval.m4
   m4/msvc-nothrow.m4
   m4/multiarch.m4
   m4/obstack.m4
   m4/off_t.m4
+  m4/open-cloexec.m4
   m4/open.m4
   m4/pathmax.m4
   m4/printf.m4
+  m4/pthread_rwlock_rdlock.m4
   m4/raise.m4
   m4/rawmemchr.m4
   m4/realloc.m4
@@ -931,6 +981,7 @@ AC_DEFUN([gtpo_FILE_LIST], [
   m4/sigpipe.m4
   m4/size_max.m4
   m4/ssize_t.m4
+  m4/stat-time.m4
   m4/stat.m4
   m4/stdarg.m4
   m4/stdbool.m4
@@ -947,7 +998,6 @@ AC_DEFUN([gtpo_FILE_LIST], [
   m4/strstr.m4
   m4/sys_socket_h.m4
   m4/sys_stat_h.m4
-  m4/sys_time_h.m4
   m4/sys_types_h.m4
   m4/threadlib.m4
   m4/time_h.m4

@@ -1,5 +1,5 @@
 /* Temporary directories and temporary files with automatic cleanup.
-   Copyright (C) 2001, 2003, 2006-2007, 2009-2016 Free Software Foundation,
+   Copyright (C) 2001, 2003, 2006-2007, 2009-2019 Free Software Foundation,
    Inc.
    Written by Bruno Haible <bruno@clisp.org>, 2006.
 
@@ -14,7 +14,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 
 #include <config.h>
@@ -26,11 +26,12 @@
 #include <fcntl.h>
 #include <limits.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
-#if (defined _WIN32 || defined __WIN32__) && ! defined __CYGWIN__
+#if defined _WIN32 && ! defined __CYGWIN__
 # define WIN32_LEAN_AND_MEAN  /* avoid including junk */
 # include <windows.h>
 #endif
@@ -63,10 +64,6 @@
    Temporary directory names are usually not that long.  */
 #ifndef PATH_MAX
 # define PATH_MAX 1024
-#endif
-
-#ifndef uintptr_t
-# define uintptr_t unsigned long
 #endif
 
 
@@ -165,7 +162,7 @@ string_equals (const void *x1, const void *x2)
 
 /* A hash function for NUL-terminated char* strings using
    the method described by Bruno Haible.
-   See http://www.haible.de/bruno/hashfunc.html.  */
+   See https://www.haible.de/bruno/hashfunc.html.  */
 static size_t
 string_hash (const void *x)
 {
@@ -180,8 +177,8 @@ string_hash (const void *x)
 
 
 /* The signal handler.  It gets called asynchronously.  */
-static void
-cleanup ()
+static _GL_ASYNC_SAFE void
+cleanup_action (int sig _GL_UNUSED)
 {
   size_t i;
 
@@ -279,7 +276,7 @@ create_temp_dir (const char *prefix, const char *parentdir,
 
           if (old_allocated == 0)
             /* First use of this facility.  Register the cleanup handler.  */
-            at_fatal_signal (&cleanup);
+            at_fatal_signal (&cleanup_action);
           else
             {
               /* Don't use memcpy() here, because memcpy takes non-volatile
@@ -563,7 +560,7 @@ cleanup_temp_dir (struct temp_dir *dir)
 }
 
 
-#if (defined _WIN32 || defined __WIN32__) && ! defined __CYGWIN__
+#if defined _WIN32 && ! defined __CYGWIN__
 
 /* On Windows, opening a file with _O_TEMPORARY has the effect of passing
    the FILE_FLAG_DELETE_ON_CLOSE flag to CreateFile(), which has the effect
@@ -583,7 +580,7 @@ supports_delete_on_close ()
       OSVERSIONINFO v;
 
       /* According to
-         <http://msdn.microsoft.com/en-us/library/windows/desktop/ms724451(v=vs.85).aspx>
+         <https://docs.microsoft.com/en-us/windows/desktop/api/sysinfoapi/nf-sysinfoapi-getversionexa>
          this structure must be initialized as follows:  */
       v.dwOSVersionInfoSize = sizeof (OSVERSIONINFO);
 
@@ -635,7 +632,7 @@ open_temp (const char *file_name, int flags, mode_t mode)
 
   block_fatal_signals ();
   /* Note: 'open' here is actually open() or open_safer().  */
-#if (defined _WIN32 || defined __WIN32__) && ! defined __CYGWIN__
+#if defined _WIN32 && ! defined __CYGWIN__
   /* Use _O_TEMPORARY when possible, to increase the chances that the
      temporary file is removed when the process crashes.  */
   if (supports_delete_on_close ())
@@ -661,7 +658,7 @@ fopen_temp (const char *file_name, const char *mode)
 
   block_fatal_signals ();
   /* Note: 'fopen' here is actually fopen() or fopen_safer().  */
-#if (defined _WIN32 || defined __WIN32__) && ! defined __CYGWIN__
+#if defined _WIN32 && ! defined __CYGWIN__
   /* Use _O_TEMPORARY when possible, to increase the chances that the
      temporary file is removed when the process crashes.  */
   if (supports_delete_on_close ())

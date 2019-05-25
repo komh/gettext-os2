@@ -1,6 +1,5 @@
 /* xgettext YCP backend.
-   Copyright (C) 2001-2003, 2005-2009, 2011, 2015-2016 Free Software
-   Foundation, Inc.
+   Copyright (C) 2001-2003, 2005-2009, 2011, 2018 Free Software Foundation, Inc.
 
    This file was written by Bruno Haible <haible@clisp.cons.org>, 2001.
 
@@ -15,7 +14,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
@@ -31,7 +30,11 @@
 #include <stdlib.h>
 
 #include "message.h"
+#include "rc-str-list.h"
 #include "xgettext.h"
+#include "xg-pos.h"
+#include "xg-arglist-context.h"
+#include "xg-message.h"
 #include "error.h"
 #include "xalloc.h"
 #include "gettext.h"
@@ -61,13 +64,7 @@ init_flag_table_ycp ()
 
 /* ======================== Reading of characters.  ======================== */
 
-
-/* Real filename, used in error messages about the input file.  */
-static const char *real_file_name;
-
-/* Logical filename and line number, used to label the extracted messages.  */
-static char *logical_file_name;
-static int line_number;
+/* Position in the current line.  */
 static int char_in_line;
 
 /* The input file stream.  */
@@ -684,8 +681,8 @@ extract_parenthesized (message_list_ty *mlp,
                 {
                   /* Seen an msgid.  */
                   plural_mp = remember_a_message (mlp, NULL, token.string,
-                                                  inner_context, &pos,
-                                                  NULL, token.comment);
+                                                  false, inner_context, &pos,
+                                                  NULL, token.comment, false);
                   plural_state = 1;
                   state = 2;
                 }
@@ -693,9 +690,9 @@ extract_parenthesized (message_list_ty *mlp,
                 {
                   /* Seen an msgid_plural.  */
                   if (plural_mp != NULL)
-                    remember_a_message_plural (plural_mp, token.string,
+                    remember_a_message_plural (plural_mp, token.string, false,
                                                inner_context, &pos,
-                                               token.comment);
+                                               token.comment, false);
                   state = 0;
                 }
               drop_reference (token.comment);

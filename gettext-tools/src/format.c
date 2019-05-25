@@ -1,5 +1,5 @@
 /* Format strings.
-   Copyright (C) 2001-2009, 2015-2016 Free Software Foundation, Inc.
+   Copyright (C) 2001-2010, 2012-2013, 2015, 2019 Free Software Foundation, Inc.
    Written by Bruno Haible <haible@clisp.cons.org>, 2001.
 
    This program is free software: you can redistribute it and/or modify
@@ -13,7 +13,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 #ifdef HAVE_CONFIG_H
 # include <config.h>
@@ -149,8 +149,7 @@ check_msgid_msgstr_format_i (const char *msgid, const char *msgid_plural,
             }
           else
             {
-              error_logger (_("\
-'%s' is not a valid %s format string, unlike '%s'. Reason: %s"),
+              error_logger (_("'%s' is not a valid %s format string, unlike '%s'. Reason: %s"),
                             pretty_msgstr, format_language_pretty[i],
                             pretty_msgid, invalid_reason);
               seen_errors++;

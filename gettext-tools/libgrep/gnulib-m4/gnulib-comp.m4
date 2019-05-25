@@ -1,5 +1,5 @@
 # DO NOT EDIT! GENERATED AUTOMATICALLY!
-# Copyright (C) 2002-2016 Free Software Foundation, Inc.
+# Copyright (C) 2002-2019 Free Software Foundation, Inc.
 #
 # This file is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this file.  If not, see <http://www.gnu.org/licenses/>.
+# along with this file.  If not, see <https://www.gnu.org/licenses/>.
 #
 # As a special exception to the GNU General Public License,
 # this file may be distributed as part of a program that
@@ -43,8 +43,11 @@ AC_DEFUN([grgl_EARLY],
 
   AC_REQUIRE([AM_PROG_CC_C_O])
   # Code from module btowc:
+  # Code from module builtin-expect:
   # Code from module havelib:
+  # Code from module intprops:
   # Code from module langinfo:
+  # Code from module libc-config:
   # Code from module localeconv:
   # Code from module lock:
   # Code from module mbrlen:
@@ -81,7 +84,9 @@ AC_DEFUN([grgl_INIT],
     gl_PREREQ_BTOWC
   fi
   gl_WCHAR_MODULE_INDICATOR([btowc])
+  gl___BUILTIN_EXPECT
   gl_LANGINFO_H
+  gl___INLINE
   gl_FUNC_LOCALECONV
   if test $REPLACE_LOCALECONV = 1; then
     AC_LIBOBJ([localeconv])
@@ -97,7 +102,7 @@ AC_DEFUN([grgl_INIT],
   fi
   gl_WCHAR_MODULE_INDICATOR([mbrlen])
   gl_FUNC_MBTOWC
-  if test $REPLACE_MBTOWC = 1; then
+  if test $HAVE_MBTOWC = 0 || test $REPLACE_MBTOWC = 1; then
     AC_LIBOBJ([mbtowc])
     gl_PREREQ_MBTOWC
   fi
@@ -261,13 +266,15 @@ AC_DEFUN([grgltests_LIBSOURCES], [
 # gnulib-tool and may be removed by future gnulib-tool invocations.
 AC_DEFUN([grgl_FILE_LIST], [
   build-aux/config.rpath
-  build-aux/snippet/c++defs.h
-  build-aux/snippet/warn-on-use.h
   lib/btowc.c
+  lib/c++defs.h
+  lib/cdefs.h
   lib/glthread/lock.c
   lib/glthread/lock.h
   lib/glthread/threadlib.c
+  lib/intprops.h
   lib/langinfo.in.h
+  lib/libc-config.h
   lib/localeconv.c
   lib/mbrlen.c
   lib/mbtowc-impl.h
@@ -279,12 +286,17 @@ AC_DEFUN([grgl_FILE_LIST], [
   lib/regex_internal.c
   lib/regex_internal.h
   lib/regexec.c
+  lib/warn-on-use.h
   lib/wcrtomb.c
   m4/00gnulib.m4
+  m4/__inline.m4
   m4/btowc.m4
+  m4/builtin-expect.m4
   m4/codeset.m4
   m4/eealloc.m4
+  m4/glibc21.m4
   m4/gnulib-common.m4
+  m4/host-cpu-c-abi.m4
   m4/langinfo_h.m4
   m4/lib-ld.m4
   m4/lib-link.m4
@@ -299,6 +311,7 @@ AC_DEFUN([grgl_FILE_LIST], [
   m4/mbstate_t.m4
   m4/mbtowc.m4
   m4/nl_langinfo.m4
+  m4/pthread_rwlock_rdlock.m4
   m4/regex.m4
   m4/threadlib.m4
   m4/warn-on-use.m4

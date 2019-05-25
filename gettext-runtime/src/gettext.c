@@ -1,5 +1,5 @@
 /* gettext - retrieve text string from message catalog and print it.
-   Copyright (C) 1995-1997, 2000-2007, 2012, 2015-2016 Free Software
+   Copyright (C) 1995-1997, 2000-2007, 2012, 2018-2019 Free Software
    Foundation, Inc.
    Written by Ulrich Drepper <drepper@gnu.ai.mit.edu>, May 1995.
 
@@ -14,7 +14,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 #ifdef HAVE_CONFIG_H
 # include <config.h>
@@ -49,6 +49,7 @@ static bool do_expand;
 /* Long options.  */
 static const struct option long_options[] =
 {
+  { "context", required_argument, NULL, 'c' },
   { "domain", required_argument, NULL, 'd' },
   { "help", no_argument, NULL, 'h' },
   { "shell-script", no_argument, NULL, 's' },
@@ -76,16 +77,15 @@ main (int argc, char *argv[])
   bool do_version = false;
   const char *domain = getenv ("TEXTDOMAIN");
   const char *domaindir = getenv ("TEXTDOMAINDIR");
+  const char *context = NULL;
   add_newline = true;
   do_expand = false;
 
   /* Set program name for message texts.  */
   set_program_name (argv[0]);
 
-#ifdef HAVE_SETLOCALE
   /* Set locale via LC_ALL.  */
   setlocale (LC_ALL, "");
-#endif
 
   /* Set the text message domain.  */
   bindtextdomain (PACKAGE, relocate (LOCALEDIR));
@@ -95,11 +95,14 @@ main (int argc, char *argv[])
   atexit (close_stdout);
 
   /* Parse command line options.  */
-  while ((optchar = getopt_long (argc, argv, "+d:eEhnsV", long_options, NULL))
+  while ((optchar = getopt_long (argc, argv, "+c:d:eEhnsV", long_options, NULL))
          != EOF)
     switch (optchar)
     {
     case '\0':          /* Long option.  */
+      break;
+    case 'c':
+      context = optarg;
       break;
     case 'd':
       domain = optarg;
@@ -132,11 +135,11 @@ main (int argc, char *argv[])
       printf ("%s (GNU %s) %s\n", basename (program_name), PACKAGE, VERSION);
       /* xgettext: no-wrap */
       printf (_("Copyright (C) %s Free Software Foundation, Inc.\n\
-License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>\n\
+License GPLv3+: GNU GPL version 3 or later <%s>\n\
 This is free software: you are free to change and redistribute it.\n\
 There is NO WARRANTY, to the extent permitted by law.\n\
 "),
-              "1995-1997, 2000-2007");
+              "1995-2019", "https://gnu.org/licenses/gpl.html");
       printf (_("Written by %s.\n"), proper_name ("Ulrich Drepper"));
       exit (EXIT_SUCCESS);
     }
@@ -186,7 +189,10 @@ There is NO WARRANTY, to the extent permitted by law.\n\
             bindtextdomain (domain, domaindir);
 
           /* Write out the result.  */
-          fputs (dgettext (domain, msgid), stdout);
+          fputs ((context != NULL
+                  ? dpgettext_expr (domain, context, msgid)
+                  : dgettext (domain, msgid)),
+                 stdout);
         }
     }
   else
@@ -212,7 +218,10 @@ There is NO WARRANTY, to the extent permitted by law.\n\
                 msgid = expand_escape (msgid);
 
               /* Write out the result.  */
-              fputs (domain == NULL ? msgid : dgettext (domain, msgid),
+              fputs ((domain == NULL ? msgid :
+                      context != NULL
+                      ? dpgettext_expr (domain, context, msgid)
+                      : dgettext (domain, msgid)),
                      stdout);
 
               /* We separate the arguments by a single ' '.  */
@@ -252,14 +261,25 @@ Display native language translation of a textual message.\n"));
       printf ("\n");
       /* xgettext: no-wrap */
       printf (_("\
-  -d, --domain=TEXTDOMAIN   retrieve translated messages from TEXTDOMAIN\n\
-  -e                        enable expansion of some escape sequences\n\
-  -E                        (ignored for compatibility)\n\
-  -h, --help                display this help and exit\n\
-  -n                        suppress trailing newline\n\
-  -V, --version             display version information and exit\n\
+  -d, --domain=TEXTDOMAIN   retrieve translated messages from TEXTDOMAIN\n"));
+      printf (_("\
+  -c, --context=CONTEXT     specify context for MSGID\n"));
+      printf (_("\
+  -e                        enable expansion of some escape sequences\n"));
+      printf (_("\
+  -n                        suppress trailing newline\n"));
+      printf (_("\
+  -E                        (ignored for compatibility)\n"));
+      printf (_("\
   [TEXTDOMAIN] MSGID        retrieve translated message corresponding\n\
                             to MSGID from TEXTDOMAIN\n"));
+      printf ("\n");
+      printf (_("\
+Informative output:\n"));
+      printf (_("\
+  -h, --help                display this help and exit\n"));
+      printf (_("\
+  -V, --version             display version information and exit\n"));
       printf ("\n");
       /* xgettext: no-wrap */
       printf (_("\
@@ -273,11 +293,16 @@ found in the selected catalog are translated.\n\
 Standard search directory: %s\n"),
               getenv ("IN_HELP2MAN") == NULL ? LOCALEDIR : "@localedir@");
       printf ("\n");
-      /* TRANSLATORS: The placeholder indicates the bug-reporting address
-         for this package.  Please add _another line_ saying
+      /* TRANSLATORS: The first placeholder is the web address of the Savannah
+         project of this package.  The second placeholder is the bug-reporting
+         email address for this package.  Please add _another line_ saying
          "Report translation bugs to <...>\n" with the address for translation
          bugs (typically your translation team's web or email address).  */
-      fputs (_("Report bugs to <bug-gnu-gettext@gnu.org>.\n"), stdout);
+      printf(_("\
+Report bugs in the bug tracker at <%s>\n\
+or by email to <%s>.\n"),
+             "https://savannah.gnu.org/projects/gettext",
+             "bug-gettext@gnu.org");
     }
 
   exit (status);

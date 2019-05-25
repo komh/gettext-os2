@@ -1,6 +1,6 @@
 /* nl_langinfo() replacement: query locale dependent information.
 
-   Copyright (C) 2007-2016 Free Software Foundation, Inc.
+   Copyright (C) 2007-2019 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -13,7 +13,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 #include <config.h>
 
@@ -22,19 +22,19 @@
 
 #include <locale.h>
 #include <string.h>
-#if (defined _WIN32 || defined __WIN32__) && ! defined __CYGWIN__
+#if defined _WIN32 && ! defined __CYGWIN__
 # define WIN32_LEAN_AND_MEAN  /* avoid including junk */
 # include <windows.h>
 # include <stdio.h>
 #endif
 
+#if !REPLACE_NL_LANGINFO || GNULIB_defined_CODESET
 /* Return the codeset of the current locale, if this is easily deducible.
    Otherwise, return "".  */
 static char *
 ctype_codeset (void)
 {
   static char buf[2 + 10 + 1];
-  size_t buflen = 0;
   char const *locale = setlocale (LC_CTYPE, NULL);
   char *codeset = buf;
   size_t codesetlen;
@@ -65,7 +65,7 @@ ctype_codeset (void)
         }
     }
 
-#if (defined _WIN32 || defined __WIN32__) && ! defined __CYGWIN__
+# if defined _WIN32 && ! defined __CYGWIN__
   /* If setlocale is successful, it returns the number of the
      codepage, as a string.  Otherwise, fall back on Windows API
      GetACP, which returns the locale's codepage as a number (although
@@ -77,9 +77,10 @@ ctype_codeset (void)
   else
     sprintf (buf + 2, "%u", GetACP ());
   codeset = memcpy (buf, "CP", 2);
-#endif
+# endif
   return codeset;
 }
+#endif
 
 
 #if REPLACE_NL_LANGINFO
@@ -99,14 +100,32 @@ rpl_nl_langinfo (nl_item item)
 # endif
 # if GNULIB_defined_T_FMT_AMPM
     case T_FMT_AMPM:
-      return "%I:%M:%S %p";
+      return (char *) "%I:%M:%S %p";
+# endif
+# if GNULIB_defined_ALTMON
+    case ALTMON_1:
+    case ALTMON_2:
+    case ALTMON_3:
+    case ALTMON_4:
+    case ALTMON_5:
+    case ALTMON_6:
+    case ALTMON_7:
+    case ALTMON_8:
+    case ALTMON_9:
+    case ALTMON_10:
+    case ALTMON_11:
+    case ALTMON_12:
+      /* We don't ship the appropriate localizations with gnulib.  Therefore,
+         treat ALTMON_i like MON_i.  */
+      item = item - ALTMON_1 + MON_1;
+      break;
 # endif
 # if GNULIB_defined_ERA
     case ERA:
       /* The format is not standardized.  In glibc it is a sequence of strings
          of the form "direction:offset:start_date:end_date:era_name:era_format"
          with an empty string at the end.  */
-      return "";
+      return (char *) "";
     case ERA_D_FMT:
       /* The %Ex conversion in strftime behaves like %x if the locale does not
          have an alternative time format.  */
@@ -125,13 +144,13 @@ rpl_nl_langinfo (nl_item item)
     case ALT_DIGITS:
       /* The format is not standardized.  In glibc it is a sequence of 10
          strings, appended in memory.  */
-      return "\0\0\0\0\0\0\0\0\0\0";
+      return (char *) "\0\0\0\0\0\0\0\0\0\0";
 # endif
 # if GNULIB_defined_YESEXPR || !FUNC_NL_LANGINFO_YESEXPR_WORKS
     case YESEXPR:
-      return "^[yY]";
+      return (char *) "^[yY]";
     case NOEXPR:
-      return "^[nN]";
+      return (char *) "^[nN]";
 # endif
     default:
       break;
@@ -163,38 +182,40 @@ nl_langinfo (nl_item item)
           return codeset;
       }
 # ifdef __BEOS__
-      return "UTF-8";
+      return (char *) "UTF-8";
 # else
-      return "ISO-8859-1";
+      return (char *) "ISO-8859-1";
 # endif
     /* nl_langinfo items of the LC_NUMERIC category */
     case RADIXCHAR:
       return localeconv () ->decimal_point;
     case THOUSEP:
       return localeconv () ->thousands_sep;
+# ifdef GROUPING
     case GROUPING:
       return localeconv () ->grouping;
+# endif
     /* nl_langinfo items of the LC_TIME category.
        TODO: Really use the locale.  */
     case D_T_FMT:
     case ERA_D_T_FMT:
-      return "%a %b %e %H:%M:%S %Y";
+      return (char *) "%a %b %e %H:%M:%S %Y";
     case D_FMT:
     case ERA_D_FMT:
-      return "%m/%d/%y";
+      return (char *) "%m/%d/%y";
     case T_FMT:
     case ERA_T_FMT:
-      return "%H:%M:%S";
+      return (char *) "%H:%M:%S";
     case T_FMT_AMPM:
-      return "%I:%M:%S %p";
+      return (char *) "%I:%M:%S %p";
     case AM_STR:
       if (!strftime (nlbuf, sizeof nlbuf, "%p", &tmm))
-        return "AM";
+        return (char *) "AM";
       return nlbuf;
     case PM_STR:
       tmm.tm_hour = 12;
       if (!strftime (nlbuf, sizeof nlbuf, "%p", &tmm))
-        return "PM";
+        return (char *) "PM";
       return nlbuf;
     case DAY_1:
     case DAY_2:
@@ -229,28 +250,49 @@ nl_langinfo (nl_item item)
           return (char *) abdays[item - ABDAY_1];
         return nlbuf;
       }
-    case MON_1:
-    case MON_2:
-    case MON_3:
-    case MON_4:
-    case MON_5:
-    case MON_6:
-    case MON_7:
-    case MON_8:
-    case MON_9:
-    case MON_10:
-    case MON_11:
-    case MON_12:
-      {
-        static char const months[][sizeof "September"] = {
-          "January", "February", "March", "April", "May", "June", "July",
-          "September", "October", "November", "December"
-        };
+    {
+      static char const months[][sizeof "September"] = {
+        "January", "February", "March", "April", "May", "June", "July",
+        "September", "October", "November", "December"
+      };
+      case MON_1:
+      case MON_2:
+      case MON_3:
+      case MON_4:
+      case MON_5:
+      case MON_6:
+      case MON_7:
+      case MON_8:
+      case MON_9:
+      case MON_10:
+      case MON_11:
+      case MON_12:
         tmm.tm_mon = item - MON_1;
         if (!strftime (nlbuf, sizeof nlbuf, "%B", &tmm))
           return (char *) months[item - MON_1];
         return nlbuf;
-      }
+      case ALTMON_1:
+      case ALTMON_2:
+      case ALTMON_3:
+      case ALTMON_4:
+      case ALTMON_5:
+      case ALTMON_6:
+      case ALTMON_7:
+      case ALTMON_8:
+      case ALTMON_9:
+      case ALTMON_10:
+      case ALTMON_11:
+      case ALTMON_12:
+        tmm.tm_mon = item - ALTMON_1;
+        /* The platforms without nl_langinfo() don't support strftime with %OB.
+           We don't even need to try.  */
+        #if 0
+        if (!strftime (nlbuf, sizeof nlbuf, "%OB", &tmm))
+        #endif
+          if (!strftime (nlbuf, sizeof nlbuf, "%B", &tmm))
+            return (char *) months[item - ALTMON_1];
+        return nlbuf;
+    }
     case ABMON_1:
     case ABMON_2:
     case ABMON_3:
@@ -274,12 +316,13 @@ nl_langinfo (nl_item item)
         return nlbuf;
       }
     case ERA:
-      return "";
+      return (char *) "";
     case ALT_DIGITS:
-      return "\0\0\0\0\0\0\0\0\0\0";
+      return (char *) "\0\0\0\0\0\0\0\0\0\0";
     /* nl_langinfo items of the LC_MONETARY category.  */
     case CRNCYSTR:
       return localeconv () ->currency_symbol;
+# ifdef INT_CURR_SYMBOL
     case INT_CURR_SYMBOL:
       return localeconv () ->int_curr_symbol;
     case MON_DECIMAL_POINT:
@@ -308,14 +351,15 @@ nl_langinfo (nl_item item)
       return & localeconv () ->p_sign_posn;
     case N_SIGN_POSN:
       return & localeconv () ->n_sign_posn;
+# endif
     /* nl_langinfo items of the LC_MESSAGES category
        TODO: Really use the locale. */
     case YESEXPR:
-      return "^[yY]";
+      return (char *) "^[yY]";
     case NOEXPR:
-      return "^[nN]";
+      return (char *) "^[nN]";
     default:
-      return "";
+      return (char *) "";
     }
 }
 

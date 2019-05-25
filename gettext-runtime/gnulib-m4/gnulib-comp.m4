@@ -1,5 +1,5 @@
 # DO NOT EDIT! GENERATED AUTOMATICALLY!
-# Copyright (C) 2002-2016 Free Software Foundation, Inc.
+# Copyright (C) 2002-2019 Free Software Foundation, Inc.
 #
 # This file is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this file.  If not, see <http://www.gnu.org/licenses/>.
+# along with this file.  If not, see <https://www.gnu.org/licenses/>.
 #
 # As a special exception to the GNU General Public License,
 # this file may be distributed as part of a program that
@@ -50,13 +50,14 @@ AC_DEFUN([gl_EARLY],
   # Code from module areadlink:
   # Code from module atexit:
   # Code from module basename:
+  # Code from module binary-io:
   # Code from module c-ctype:
   # Code from module c-strcase:
   # Code from module canonicalize-lgpl:
   # Code from module careadlinkat:
   # Code from module closeout:
-  # Code from module configmake:
   # Code from module csharpcomp-script:
+  # Code from module dirname-lgpl:
   # Code from module dosname:
   # Code from module double-slash-root:
   # Code from module environ:
@@ -64,12 +65,15 @@ AC_DEFUN([gl_EARLY],
   # Code from module error:
   # Code from module extensions:
   # Code from module extern-inline:
+  # Code from module fcntl-h:
+  # Code from module filename:
+  # Code from module flexmember:
   # Code from module fwriteerror:
   # Code from module getopt-gnu:
   # Code from module getopt-posix:
+  # Code from module getprogname:
   # Code from module gettext-h:
   # Code from module gettext-runtime-misc:
-  # Code from module gettimeofday:
   # Code from module gperf:
   # Code from module hard-locale:
   # Code from module havelib:
@@ -85,11 +89,13 @@ AC_DEFUN([gl_EARLY],
   # Code from module langinfo:
   # Code from module largefile:
   AC_REQUIRE([AC_SYS_LARGEFILE])
+  # Code from module limits-h:
   # Code from module localcharset:
   # Code from module locale:
   # Code from module localename:
   # Code from module lock:
   # Code from module lstat:
+  # Code from module malloc-posix:
   # Code from module malloca:
   # Code from module mbchar:
   # Code from module mbiter:
@@ -122,6 +128,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module snippet/warn-on-use:
   # Code from module ssize_t:
   # Code from module stat:
+  # Code from module stat-time:
   # Code from module stdbool:
   # Code from module stddef:
   # Code from module stdint:
@@ -136,7 +143,6 @@ AC_DEFUN([gl_EARLY],
   # Code from module strnlen1:
   # Code from module strtoul:
   # Code from module sys_stat:
-  # Code from module sys_time:
   # Code from module sys_types:
   # Code from module threadlib:
   gl_THREADLIB_EARLY
@@ -155,6 +161,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module wctype-h:
   # Code from module wcwidth:
   # Code from module xalloc:
+  # Code from module xalloc-oversized:
   # Code from module xreadlink:
   # Code from module xstriconv:
 ])
@@ -176,7 +183,7 @@ AC_DEFUN([gl_INIT],
   gl_COMMON
   gl_source_base='gnulib-lib'
   gl_FUNC_ALLOCA
-  gl_PROG_ANSI_CXX([CXX], [ANSICXX])
+  AC_REQUIRE([gl_ANSI_CXX])
   gl_FUNC_ATEXIT
   if test $ac_cv_func_atexit = no; then
     AC_LIBOBJ([atexit])
@@ -190,9 +197,9 @@ AC_DEFUN([gl_INIT],
   gl_STDLIB_MODULE_INDICATOR([canonicalize_file_name])
   gl_STDLIB_MODULE_INDICATOR([realpath])
   AC_CHECK_FUNCS_ONCE([readlinkat])
-  gl_CONFIGMAKE_PREP
   AC_REQUIRE([gt_CSHARPCOMP])
   AC_CONFIG_FILES([csharpcomp.sh:../build-aux/csharpcomp.sh.in])
+  gl_DIRNAME_LGPL
   gl_DOUBLE_SLASH_ROOT
   gl_ENVIRON
   gl_UNISTD_MODULE_INDICATOR([environ])
@@ -206,35 +213,24 @@ AC_DEFUN([gl_INIT],
     [AM_][XGETTEXT_OPTION([--flag=error:3:c-format])
      AM_][XGETTEXT_OPTION([--flag=error_at_line:5:c-format])])
   AC_REQUIRE([gl_EXTERN_INLINE])
+  gl_FCNTL_H
+  AC_C_FLEXIBLE_ARRAY_MEMBER
   gl_MODULE_INDICATOR([fwriteerror])
   gl_FUNC_GETOPT_GNU
-  if test $REPLACE_GETOPT = 1; then
-    AC_LIBOBJ([getopt])
-    AC_LIBOBJ([getopt1])
-    gl_PREREQ_GETOPT
-    dnl Arrange for unistd.h to include getopt.h.
-    GNULIB_GL_UNISTD_H_GETOPT=1
-  fi
-  AC_SUBST([GNULIB_GL_UNISTD_H_GETOPT])
-  gl_MODULE_INDICATOR_FOR_TESTS([getopt-gnu])
+  dnl Because of the way gl_FUNC_GETOPT_GNU is implemented (the gl_getopt_required
+  dnl mechanism), there is no need to do any AC_LIBOBJ or AC_SUBST here; they are
+  dnl done in the getopt-posix module.
   gl_FUNC_GETOPT_POSIX
   if test $REPLACE_GETOPT = 1; then
     AC_LIBOBJ([getopt])
     AC_LIBOBJ([getopt1])
-    gl_PREREQ_GETOPT
     dnl Arrange for unistd.h to include getopt.h.
     GNULIB_GL_UNISTD_H_GETOPT=1
   fi
   AC_SUBST([GNULIB_GL_UNISTD_H_GETOPT])
+  gl_FUNC_GETPROGNAME
   AC_SUBST([LIBINTL])
   AC_SUBST([LTLIBINTL])
-  gl_FUNC_GETTIMEOFDAY
-  if test $HAVE_GETTIMEOFDAY = 0 || test $REPLACE_GETTIMEOFDAY = 1; then
-    AC_LIBOBJ([gettimeofday])
-    gl_PREREQ_GETTIMEOFDAY
-  fi
-  gl_SYS_TIME_MODULE_INDICATOR([gettimeofday])
-  gl_HARD_LOCALE
   AM_ICONV
   m4_ifdef([gl_ICONV_MODULE_INDICATOR],
     [gl_ICONV_MODULE_INDICATOR([iconv])])
@@ -262,11 +258,14 @@ AC_DEFUN([gl_INIT],
   AC_CONFIG_FILES([javacomp.sh:../build-aux/javacomp.sh.in])
   gl_LANGINFO_H
   AC_REQUIRE([gl_LARGEFILE])
+  gl_LIMITS_H
   gl_LOCALCHARSET
-  LOCALCHARSET_TESTS_ENVIRONMENT="CHARSETALIASDIR=\"\$(abs_top_builddir)/$gl_source_base\""
+  dnl For backward compatibility. Some packages still use this.
+  LOCALCHARSET_TESTS_ENVIRONMENT=
   AC_SUBST([LOCALCHARSET_TESTS_ENVIRONMENT])
   gl_LOCALE_H
   gl_LOCALENAME
+  gl_LOCALE_MODULE_INDICATOR([localename])
   gl_LOCK
   gl_MODULE_INDICATOR([lock])
   gl_FUNC_LSTAT
@@ -275,6 +274,11 @@ AC_DEFUN([gl_INIT],
     gl_PREREQ_LSTAT
   fi
   gl_SYS_STAT_MODULE_INDICATOR([lstat])
+  gl_FUNC_MALLOC_POSIX
+  if test $REPLACE_MALLOC = 1; then
+    AC_LIBOBJ([malloc])
+  fi
+  gl_STDLIB_MODULE_INDICATOR([malloc-posix])
   gl_MALLOCA
   gl_MBCHAR
   gl_MBITER
@@ -313,6 +317,7 @@ AC_DEFUN([gl_INIT],
   if test $HAVE_MSVC_INVALID_PARAMETER_HANDLER = 1; then
     AC_LIBOBJ([msvc-nothrow])
   fi
+  gl_MODULE_INDICATOR([msvc-nothrow])
   gl_MULTIARCH
   gl_PATHMAX
   AC_CHECK_DECLS([program_invocation_name], [], [], [#include <errno.h>])
@@ -372,9 +377,16 @@ AC_DEFUN([gl_INIT],
   gl_FUNC_STAT
   if test $REPLACE_STAT = 1; then
     AC_LIBOBJ([stat])
+    case "$host_os" in
+      mingw*)
+        AC_LIBOBJ([stat-w32])
+        ;;
+    esac
     gl_PREREQ_STAT
   fi
   gl_SYS_STAT_MODULE_INDICATOR([stat])
+  gl_STAT_TIME
+  gl_STAT_BIRTHTIME
   AM_STDBOOL_H
   gl_STDDEF_H
   gl_STDINT_H
@@ -409,8 +421,6 @@ AC_DEFUN([gl_INIT],
   fi
   gl_HEADER_SYS_STAT_H
   AC_PROG_MKDIR_P
-  gl_HEADER_SYS_TIME_H
-  AC_PROG_MKDIR_P
   gl_SYS_TYPES_H
   AC_PROG_MKDIR_P
   gl_THREADLIB
@@ -423,13 +433,14 @@ AC_DEFUN([gl_INIT],
   gl_LIBUNISTRING_MODULE([0.9], [unistr/u8-uctomb])
   gl_LIBUNISTRING_LIBHEADER([0.9.4], [unitypes.h])
   gl_LIBUNISTRING_LIBHEADER([0.9.4], [uniwidth.h])
-  gl_LIBUNISTRING_MODULE([0.9.6], [uniwidth/width])
+  gl_LIBUNISTRING_MODULE([0.9.8], [uniwidth/width])
   gl_FUNC_GLIBC_UNLOCKED_IO
   gl_WCHAR_H
   gl_WCTYPE_H
   gl_FUNC_WCWIDTH
   if test $HAVE_WCWIDTH = 0 || test $REPLACE_WCWIDTH = 1; then
     AC_LIBOBJ([wcwidth])
+    gl_PREREQ_WCWIDTH
   fi
   gl_WCHAR_MODULE_INDICATOR([wcwidth])
   # End of code from modules
@@ -577,21 +588,23 @@ AC_DEFUN([gl_FILE_LIST], [
   build-aux/csharpcomp.sh.in
   build-aux/install-reloc
   build-aux/javacomp.sh.in
+  build-aux/libtool-reloc
   build-aux/reloc-ldflags
-  build-aux/snippet/_Noreturn.h
-  build-aux/snippet/arg-nonnull.h
-  build-aux/snippet/c++defs.h
-  build-aux/snippet/unused-parameter.h
-  build-aux/snippet/warn-on-use.h
   doc/relocatable.texi
+  lib/_Noreturn.h
   lib/alloca.in.h
   lib/allocator.c
   lib/allocator.h
   lib/areadlink.c
   lib/areadlink.h
+  lib/arg-nonnull.h
   lib/atexit.c
+  lib/basename-lgpl.c
   lib/basename.c
   lib/basename.h
+  lib/binary-io.c
+  lib/binary-io.h
+  lib/c++defs.h
   lib/c-ctype.c
   lib/c-ctype.h
   lib/c-strcase.h
@@ -602,19 +615,29 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/careadlinkat.h
   lib/closeout.c
   lib/closeout.h
-  lib/config.charset
+  lib/dirname-lgpl.c
+  lib/dirname.h
   lib/dosname.h
   lib/errno.in.h
   lib/error.c
   lib/error.h
+  lib/fcntl.in.h
+  lib/filename.h
+  lib/flexmember.h
   lib/fwriteerror.c
   lib/fwriteerror.h
+  lib/getopt-cdefs.in.h
+  lib/getopt-core.h
+  lib/getopt-ext.h
+  lib/getopt-pfx-core.h
+  lib/getopt-pfx-ext.h
   lib/getopt.c
   lib/getopt.in.h
   lib/getopt1.c
   lib/getopt_int.h
+  lib/getprogname.c
+  lib/getprogname.h
   lib/gettext.h
-  lib/gettimeofday.c
   lib/glthread/lock.c
   lib/glthread/lock.h
   lib/glthread/threadlib.c
@@ -632,15 +655,18 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/intprops.h
   lib/iswblank.c
   lib/langinfo.in.h
+  lib/limits.in.h
   lib/localcharset.c
   lib/localcharset.h
   lib/locale.in.h
+  lib/localename-table.c
+  lib/localename-table.h
   lib/localename.c
   lib/localename.h
   lib/lstat.c
+  lib/malloc.c
   lib/malloca.c
   lib/malloca.h
-  lib/malloca.valgrind
   lib/mbchar.c
   lib/mbchar.h
   lib/mbiter.c
@@ -666,8 +692,6 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/propername.h
   lib/raise.c
   lib/readlink.c
-  lib/ref-add.sin
-  lib/ref-del.sin
   lib/relocatable.c
   lib/relocatable.h
   lib/relocwrapper.c
@@ -675,6 +699,10 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/setlocale.c
   lib/signal.in.h
   lib/sigprocmask.c
+  lib/stat-time.c
+  lib/stat-time.h
+  lib/stat-w32.c
+  lib/stat-w32.h
   lib/stat.c
   lib/stdbool.in.h
   lib/stddef.in.h
@@ -690,13 +718,13 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/striconv.c
   lib/striconv.h
   lib/string.in.h
+  lib/stripslash.c
   lib/strnlen.c
   lib/strnlen1.c
   lib/strnlen1.h
   lib/strtol.c
   lib/strtoul.c
   lib/sys_stat.in.h
-  lib/sys_time.in.h
   lib/sys_types.in.h
   lib/time.in.h
   lib/trim.c
@@ -712,11 +740,14 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/uniwidth/cjk.h
   lib/uniwidth/width.c
   lib/unlocked-io.h
+  lib/unused-parameter.h
   lib/verify.h
+  lib/warn-on-use.h
   lib/wchar.in.h
   lib/wctype-h.c
   lib/wctype.in.h
   lib/wcwidth.c
+  lib/xalloc-oversized.h
   lib/xalloc.h
   lib/xmalloc.c
   lib/xreadlink.c
@@ -732,9 +763,9 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/atexit.m4
   m4/canonicalize.m4
   m4/codeset.m4
-  m4/configmake.m4
   m4/csharp.m4
   m4/csharpcomp.m4
+  m4/dirname.m4
   m4/double-slash-root.m4
   m4/eealloc.m4
   m4/environ.m4
@@ -743,16 +774,18 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/extensions.m4
   m4/extern-inline.m4
   m4/fcntl-o.m4
+  m4/fcntl_h.m4
+  m4/flexmember.m4
   m4/getopt.m4
-  m4/gettimeofday.m4
-  m4/glibc21.m4
+  m4/getprogname.m4
   m4/gnulib-common.m4
-  m4/hard-locale.m4
+  m4/host-cpu-c-abi.m4
   m4/iconv.m4
   m4/iconv_h.m4
   m4/iconv_open.m4
   m4/include_next.m4
   m4/inline.m4
+  m4/intl-thread-locale.m4
   m4/intlmacosx.m4
   m4/iswblank.m4
   m4/java.m4
@@ -764,6 +797,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/lib-link.m4
   m4/lib-prefix.m4
   m4/libunistring-base.m4
+  m4/limits-h.m4
   m4/localcharset.m4
   m4/locale-fr.m4
   m4/locale-ja.m4
@@ -773,6 +807,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/lock.m4
   m4/longlong.m4
   m4/lstat.m4
+  m4/malloc.m4
   m4/malloca.m4
   m4/mbchar.m4
   m4/mbiter.m4
@@ -789,6 +824,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/nocrash.m4
   m4/off_t.m4
   m4/pathmax.m4
+  m4/pthread_rwlock_rdlock.m4
   m4/raise.m4
   m4/readlink.m4
   m4/relocatable-lib.m4
@@ -799,6 +835,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/signalblocking.m4
   m4/sigpipe.m4
   m4/ssize_t.m4
+  m4/stat-time.m4
   m4/stat.m4
   m4/stdbool.m4
   m4/stddef_h.m4
@@ -811,7 +848,6 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/strtoul.m4
   m4/sys_socket_h.m4
   m4/sys_stat_h.m4
-  m4/sys_time_h.m4
   m4/sys_types_h.m4
   m4/threadlib.m4
   m4/time_h.m4

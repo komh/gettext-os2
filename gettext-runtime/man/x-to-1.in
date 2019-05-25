@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# Copyright (C) 2001, 2003, 2015-2016 Free Software Foundation, Inc.
+# Copyright (C) 2001-2019 Free Software Foundation, Inc.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -13,11 +13,29 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
 
 # This program creates a program's manual from the .x skeleton and its --help
 # output.
+#
+# Usage: x-to-1 [OPTIONS] PERL HELP2MAN EXECUTABLE PROGRAM.x PROGRAM.1
+# where
+#
+#   PERL        The file name of the perl program.
+#   HELP2MAN    Either the file name of the help2man perl script, or a complete
+#               command such as "$PERL -w -- help2man".
+#   EXECUTABLE  The file name of the program to invoke with --help.
+#   PROGRAM     The name of the program.
+#   PROGRAM.x   The .x skeleton is a file containing manual page text that is
+#               not part of the --help output. It is passed to help2man via
+#               its --include option. Its format is described in the help2man
+#               documentation.
+#   PROGRAM.1   The output file, a manual page in mandoc format.
+#
+# Options:
+#   --update    Don't overwrite the output if nothing would change.
+
 
 update=
 while true; do
@@ -37,8 +55,27 @@ executable="$3"
 aux="$4"
 output="$5"
 
+# Accommodate both possible forms of the HELP2MAN argument.
+case "$HELP2MAN" in
+  "$PERL "*) ;;
+  *) HELP2MAN="$PERL $HELP2MAN" ;;
+esac
+
 progname=`basename $aux .x`
-case "$PERL" in *"/missing perl") perlok=no;; *) perlok=yes;; esac
+# configure determined whether perl exists.
+case "$PERL" in
+  *"/missing perl")
+    perlok=no
+    ;;
+  *)
+    # Determine whether all the perl modules that help2man needs are installed.
+    if $HELP2MAN --help >/dev/null 2>/dev/null; then
+      perlok=yes
+    else
+      perlok=no
+    fi
+    ;;
+esac
 if test @CROSS_COMPILING@ = no && test -f $executable && test $perlok = yes; then
   echo "Updating man page $output"
   echo "$HELP2MAN --include=$aux $executable > $output"

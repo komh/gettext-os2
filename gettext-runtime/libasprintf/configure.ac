@@ -1,5 +1,5 @@
 dnl Configuration for the GNU libasprintf library
-dnl Copyright (C) 2002-2011, 2015-2016 Free Software Foundation, Inc.
+dnl Copyright (C) 2002-2012, 2016, 2018-2019 Free Software Foundation, Inc.
 dnl
 dnl This program is free software: you can redistribute it and/or modify
 dnl it under the terms of the GNU General Public License as published by
@@ -12,11 +12,11 @@ dnl MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 dnl GNU General Public License for more details.
 dnl
 dnl You should have received a copy of the GNU General Public License
-dnl along with this program.  If not, see <http://www.gnu.org/licenses/>.
+dnl along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 dnl Process this file with autoconf to produce a configure script.
 
-AC_PREREQ([2.59])
+AC_PREREQ([2.63])
 AC_INIT([libasprintf], [1.0])
 AC_CONFIG_SRCDIR([vasprintf.c])
 AC_CONFIG_AUX_DIR([../../build-aux])
@@ -35,12 +35,30 @@ dnl Checks for compiler output filename suffixes.
 AC_OBJEXT
 AC_EXEEXT
 
+dnl For a 64-bit build on AIX, AC_PROG_RANLIB is not sufficient.
+gl_PROG_AR_RANLIB
+
 dnl Early checks, assembled by gnulib.
 gl_EARLY
 
 dnl Check for build configuration.
+
 gl_WOE32_DLL
+
 LT_INIT([win32-dll])
+
+dnl Prepares the libtool configuration for handling of Windows resources, and
+dnl sets the RC variable to a program that compiles Windows resource files.
+LT_LANG([Windows Resource])
+
+dnl On mingw and Cygwin, we can activate special Makefile rules which add
+dnl version information to the shared libraries and executables.
+case "$host_os" in
+  mingw* | cygwin*) is_woe32=yes ;;
+  *) is_woe32=no ;;
+esac
+AM_CONDITIONAL([WOE32], [test $is_woe32 = yes])
+
 case "$host_os" in
   # On Cygwin, without -no-undefined, a warning is emitted and only a static
   # library is built.

@@ -35,7 +35,12 @@ func_tmpdir ()
 }
 
 func_tmpdir
-builddir=`pwd`
+# builddir may already be set by the script that invokes this one.
+case "$builddir" in
+  '') builddir=`pwd` ;;
+  /* | ?:*) ;;
+  *) builddir=`pwd`/$builddir ;;
+esac
 cd "$builddir" ||
   {
     echo "$0: cannot determine build directory (unreadable parent dir?)" >&2
@@ -196,10 +201,10 @@ cd "$builddir" ||
   # on both.
   func_test_copy ()
   {
-    "$builddir"/test-copy-file${EXEEXT} "$1" "$2" || exit 1
+    ${CHECKER} "$builddir"/test-copy-file${EXEEXT} "$1" "$2" || exit 1
     if test "$USE_ACL" != 0; then
-      "$builddir"/test-sameacls${EXEEXT} "$1" "$2" || exit 1
-      func_test_same_acls                "$1" "$2" || exit 1
+      ${CHECKER} "$builddir"/test-sameacls${EXEEXT} "$1" "$2" || exit 1
+      func_test_same_acls                           "$1" "$2" || exit 1
     fi
   }
 

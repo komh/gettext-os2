@@ -1,5 +1,5 @@
 /* Reading PO files.
-   Copyright (C) 1995-1998, 2000-2003, 2005-2006, 2008-2009, 2015-2016 Free
+   Copyright (C) 1995-1998, 2000-2003, 2005-2006, 2008-2009, 2014-2016 Free
    Software Foundation, Inc.
    This file was written by Peter Miller <millerp@canb.auug.org.au>
 
@@ -14,7 +14,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 #ifdef HAVE_CONFIG_H
 # include <config.h>
@@ -397,6 +397,8 @@ default_add_message (default_catalog_reader_ty *this,
          appropriate.  */
       mp = message_alloc (msgctxt, msgid, msgid_plural, msgstr, msgstr_len,
                           msgstr_pos);
+      if (msgid_plural != NULL)
+        free (msgid_plural);
       mp->prev_msgctxt = prev_msgctxt;
       mp->prev_msgid = prev_msgid;
       mp->prev_msgid_plural = prev_msgid_plural;

@@ -1,5 +1,5 @@
 /* Reading PO files.
-   Copyright (C) 1995-1998, 2000-2003, 2005-2006, 2008-2009, 2015-2016 Free
+   Copyright (C) 1995-1998, 2000-2003, 2005-2006, 2008-2009, 2014-2015 Free
    Software Foundation, Inc.
    This file was written by Bruno Haible <haible@clisp.cons.org>.
 
@@ -14,7 +14,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 #ifndef _READ_CATALOG_H
 #define _READ_CATALOG_H

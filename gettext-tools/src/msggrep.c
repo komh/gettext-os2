@@ -1,5 +1,5 @@
 /* Extract some translations of a translation catalog.
-   Copyright (C) 2001-2007, 2009-2010, 2012, 2015-2016 Free Software
+   Copyright (C) 2001-2007, 2009-2010, 2012, 2014, 2016, 2018-2019 Free Software
    Foundation, Inc.
    Written by Bruno Haible <haible@clisp.cons.org>, 2001.
 
@@ -14,7 +14,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 
 #ifdef HAVE_CONFIG_H
@@ -38,6 +38,8 @@
 
 #include <fnmatch.h>
 
+#include <textstyle.h>
+
 #include "closeout.h"
 #include "dir-list.h"
 #include "error.h"
@@ -54,7 +56,6 @@
 #include "write-po.h"
 #include "write-properties.h"
 #include "write-stringtable.h"
-#include "color.h"
 #include "str-list.h"
 #include "msgl-charset.h"
 #include "xalloc.h"
@@ -164,10 +165,8 @@ main (int argc, char **argv)
   set_program_name (argv[0]);
   error_print_progname = maybe_print_progname;
 
-#ifdef HAVE_SETLOCALE
   /* Set locale via LC_ALL.  */
   setlocale (LC_ALL, "");
-#endif
 
   /* Set the text message domain.  */
   bindtextdomain (PACKAGE, relocate (LOCALEDIR));
@@ -245,8 +244,8 @@ main (int argc, char **argv)
           FILE *fp = fopen (optarg, "r");
 
           if (fp == NULL)
-            error (EXIT_FAILURE, errno, _("\
-error while opening \"%s\" for reading"), optarg);
+            error (EXIT_FAILURE, errno,
+                   _("error while opening \"%s\" for reading"), optarg);
 
           while (!feof (fp))
             {
@@ -256,8 +255,8 @@ error while opening \"%s\" for reading"), optarg);
               if (count == 0)
                 {
                   if (ferror (fp))
-                    error (EXIT_FAILURE, errno, _("\
-error while reading \"%s\""), optarg);
+                    error (EXIT_FAILURE, errno,
+                           _("error while reading \"%s\""), optarg);
                   /* EOF reached.  */
                   break;
                 }
@@ -418,11 +417,11 @@ error while reading \"%s\""), optarg);
       printf ("%s (GNU %s) %s\n", basename (program_name), PACKAGE, VERSION);
       /* xgettext: no-wrap */
       printf (_("Copyright (C) %s Free Software Foundation, Inc.\n\
-License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>\n\
+License GPLv3+: GNU GPL version 3 or later <%s>\n\
 This is free software: you are free to change and redistribute it.\n\
 There is NO WARRANTY, to the extent permitted by law.\n\
 "),
-              "2001-2016");
+              "2001-2019", "https://gnu.org/licenses/gpl.html");
       printf (_("Written by %s.\n"), proper_name ("Bruno Haible"));
       exit (EXIT_SUCCESS);
     }
@@ -633,12 +632,16 @@ Informative output:\n"));
       printf (_("\
   -V, --version               output version information and exit\n"));
       printf ("\n");
-      /* TRANSLATORS: The placeholder indicates the bug-reporting address
-         for this package.  Please add _another line_ saying
+      /* TRANSLATORS: The first placeholder is the web address of the Savannah
+         project of this package.  The second placeholder is the bug-reporting
+         email address for this package.  Please add _another line_ saying
          "Report translation bugs to <...>\n" with the address for translation
          bugs (typically your translation team's web or email address).  */
-      fputs (_("Report bugs to <bug-gnu-gettext@gnu.org>.\n"),
-             stdout);
+      printf(_("\
+Report bugs in the bug tracker at <%s>\n\
+or by email to <%s>.\n"),
+             "https://savannah.gnu.org/projects/gettext",
+             "bug-gettext@gnu.org");
     }
 
   exit (status);
@@ -676,6 +679,7 @@ nonintr_close (int fd)
 
   return retval;
 }
+#undef close
 #define close nonintr_close
 
 #endif

@@ -1,5 +1,5 @@
 /* Copying of files.
-   Copyright (C) 2001-2003, 2006-2007, 2009-2016 Free Software Foundation, Inc.
+   Copyright (C) 2001-2003, 2006-2007, 2009-2019 Free Software Foundation, Inc.
    Written by Bruno Haible <haible@clisp.cons.org>, 2001.
 
    This program is free software: you can redistribute it and/or modify
@@ -13,7 +13,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 
 #include <config.h>
@@ -28,18 +28,12 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#if HAVE_UTIME || HAVE_UTIMES
-# if HAVE_UTIME_H
-#  include <utime.h>
-# else
-#  include <sys/utime.h>
-# endif
-#endif
-
 #include "error.h"
 #include "ignore-value.h"
 #include "safe-read.h"
 #include "full-write.h"
+#include "stat-time.h"
+#include "utimens.h"
 #include "acl.h"
 #include "binary-io.h"
 #include "quote.h"
@@ -117,23 +111,13 @@ qcopy_file_preserving (const char *src_filename, const char *dest_filename)
 #endif
 
   /* Preserve the access and modification times.  */
-#if HAVE_UTIME
   {
-    struct utimbuf ut;
+    struct timespec ts[2];
 
-    ut.actime = statbuf.st_atime;
-    ut.modtime = statbuf.st_mtime;
-    utime (dest_filename, &ut);
+    ts[0] = get_stat_atime (&statbuf);
+    ts[1] = get_stat_mtime (&statbuf);
+    utimens (dest_filename, ts);
   }
-#elif HAVE_UTIMES
-  {
-    struct timeval ut[2];
-
-    ut[0].tv_sec = statbuf.st_atime; ut[0].tv_usec = 0;
-    ut[1].tv_sec = statbuf.st_mtime; ut[1].tv_usec = 0;
-    utimes (dest_filename, &ut);
-  }
-#endif
 
 #if HAVE_CHOWN
   /* Preserve the owner and group.  */

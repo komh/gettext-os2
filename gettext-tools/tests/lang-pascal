@@ -4,9 +4,9 @@
 # Test of gettext facilities in the Object Pascal language.
 # Assumes the following packages are installed: fpk.
 
-# Note: This test fails with fpk 1.0.10 when an UTF-8 locale is present,
-# because fpk ignores the locale's encoding. It supports only unibyte locales.
-# This here is a quick workaround:
+# Note: This test fails with fpk 1.0.10 ... 3.0.0 when an UTF-8 locale is
+# present, because fpk ignores the locale's encoding. It supports only unibyte
+# locales. This here is a quick workaround:
 UTF8_LOCALE_UNSUPPORTED=yes
 
 cat <<\EOF > pascalprog.pp
@@ -34,7 +34,13 @@ EOF
 }
 
 : ${XGETTEXT=xgettext}
-${XGETTEXT} -o pascalprog.tmp --omit-header --add-location pascalprog.rst || Exit 1
+# fpc 3.0.0 or newer produces a .rsj file instead of a .rst file.
+if test -f pascalprog.rsj; then
+  suffix=rsj
+else
+  suffix=rst
+fi
+${XGETTEXT} -o pascalprog.tmp --omit-header --add-location pascalprog.${suffix} || Exit 1
 LC_ALL=C tr -d '\r' < pascalprog.tmp > pascalprog.pot || Exit 1
 
 cat <<EOF > pascalprog.ok

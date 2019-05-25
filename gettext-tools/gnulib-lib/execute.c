@@ -1,5 +1,5 @@
 /* Creation of autonomous subprocesses.
-   Copyright (C) 2001-2004, 2006-2016 Free Software Foundation, Inc.
+   Copyright (C) 2001-2004, 2006-2019 Free Software Foundation, Inc.
    Written by Bruno Haible <haible@clisp.cons.org>, 2001.
 
    This program is free software: you can redistribute it and/or modify
@@ -13,7 +13,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 
 #include <config.h>
@@ -35,7 +35,7 @@
 
 #define _(str) gettext (str)
 
-#if (defined _WIN32 || defined __WIN32__) && ! defined __CYGWIN__
+#if defined _WIN32 && ! defined __CYGWIN__
 
 /* Native Windows API.  */
 # include <process.h>
@@ -48,15 +48,8 @@
 
 #endif
 
-/* environ is the exported symbol referencing the internal
-   __cygwin_environ variable on cygwin64:
-   <https://cygwin.com/ml/cygwin/2013-06/msg00228.html>.  */
-#if defined __CYGWIN__ && defined __x86_64__
-extern DLL_VARIABLE char **environ;
-#endif
 
-
-#if defined EINTR && ((defined _WIN32 || defined __WIN32__) && ! defined __CYGWIN__)
+#if defined EINTR && (defined _WIN32 && ! defined __CYGWIN__)
 
 /* EINTR handling for close(), open().
    These functions can return -1/EINTR even though we don't have any
@@ -73,6 +66,7 @@ nonintr_close (int fd)
 
   return retval;
 }
+#undef close /* avoid warning related to gnulib module unistd */
 #define close nonintr_close
 
 static int
@@ -106,7 +100,7 @@ execute (const char *progname,
          bool slave_process, bool exit_on_error,
          int *termsigp)
 {
-#if (defined _WIN32 || defined __WIN32__) && ! defined __CYGWIN__
+#if defined _WIN32 && ! defined __CYGWIN__
 
   /* Native Windows API.  */
   int orig_stdin;

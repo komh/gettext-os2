@@ -1,5 +1,5 @@
 ## Makefile for the gettext-tools/tests subdirectory of GNU gettext
-## Copyright (C) 1995-1997, 2001-2010, 2015-2016 Free Software Foundation, Inc.
+## Copyright (C) 1995-1997, 2001-2010, 2012-2016, 2018-2019 Free Software Foundation, Inc.
 ##
 ## This program is free software: you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
 ## GNU General Public License for more details.
 ##
 ## You should have received a copy of the GNU General Public License
-## along with this program.  If not, see <http://www.gnu.org/licenses/>.
+## along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 ## Process this file with automake to produce Makefile.in.
 
@@ -20,8 +20,11 @@ AUTOMAKE_OPTIONS = 1.11 gnits no-dependencies color-tests
 EXTRA_DIST =
 MOSTLYCLEANFILES = core *.stackdump
 
-TESTS = gettext-1 gettext-2 gettext-3 gettext-4 gettext-5 gettext-6 gettext-7 \
-	gettext-8 \
+TESTS = gettext-1 gettext-2 \
+	intl-1 intl-2 intl-3 intl-4 intl-5 \
+	intl-setlocale-1 intl-setlocale-2 \
+	intl-thread-1 intl-thread-2 intl-thread-3 \
+	intl-version \
 	msgattrib-1 msgattrib-2 msgattrib-3 msgattrib-4 msgattrib-5 \
 	msgattrib-6 msgattrib-7 msgattrib-8 msgattrib-9 msgattrib-10 \
 	msgattrib-11 msgattrib-12 msgattrib-13 msgattrib-14 msgattrib-15 \
@@ -46,7 +49,7 @@ TESTS = gettext-1 gettext-2 gettext-3 gettext-4 gettext-5 gettext-6 gettext-7 \
 	msgfilter-sr-latin-1 msgfilter-quote-1 \
 	msgfmt-1 msgfmt-2 msgfmt-3 msgfmt-4 msgfmt-5 msgfmt-6 msgfmt-7 \
 	msgfmt-8 msgfmt-9 msgfmt-10 msgfmt-11 msgfmt-12 msgfmt-13 msgfmt-14 \
-	msgfmt-15 msgfmt-16 msgfmt-17 msgfmt-18 \
+	msgfmt-15 msgfmt-16 msgfmt-17 msgfmt-18 msgfmt-19 \
 	msgfmt-properties-1 \
 	msgfmt-qt-1 msgfmt-qt-2 \
 	msgfmt-desktop-1 msgfmt-desktop-2 \
@@ -58,7 +61,8 @@ TESTS = gettext-1 gettext-2 gettext-3 gettext-4 gettext-5 gettext-6 gettext-7 \
 	msgmerge-7 msgmerge-8 msgmerge-9 msgmerge-10 msgmerge-11 msgmerge-12 \
 	msgmerge-13 msgmerge-14 msgmerge-15 msgmerge-16 msgmerge-17 \
 	msgmerge-18 msgmerge-19 msgmerge-20 msgmerge-21 msgmerge-22 \
-	msgmerge-23 msgmerge-24 msgmerge-25 \
+	msgmerge-23 msgmerge-24 msgmerge-25 msgmerge-26 msgmerge-27 \
+	msgmerge-28 \
 	msgmerge-compendium-1 msgmerge-compendium-2 msgmerge-compendium-3 \
 	msgmerge-compendium-4 msgmerge-compendium-5 msgmerge-compendium-6 \
 	msgmerge-properties-1 msgmerge-properties-2 \
@@ -76,11 +80,14 @@ TESTS = gettext-1 gettext-2 gettext-3 gettext-4 gettext-5 gettext-6 gettext-7 \
 	xgettext-13 xgettext-14 \
 	xgettext-appdata-1 \
 	xgettext-awk-1 xgettext-awk-2 \
-	xgettext-c-2 xgettext-c-3 xgettext-c-4 xgettext-c-5 \
-	xgettext-c-6 xgettext-c-7 xgettext-c-8 xgettext-c-9 xgettext-c-10 \
-	xgettext-c-11 xgettext-c-12 xgettext-c-13 xgettext-c-14 xgettext-c-15 \
-	xgettext-c-16 xgettext-c-17 xgettext-c-18 xgettext-c-19 xgettext-c-20 \
-	xgettext-c-21 \
+	xgettext-c-2 xgettext-c-3 xgettext-c-4 xgettext-c-5 xgettext-c-6 \
+	xgettext-c-comment-1 xgettext-c-comment-2 xgettext-c-comment-3 \
+	xgettext-c-comment-4 xgettext-c-comment-5 xgettext-c-comment-6 \
+	xgettext-c-escape-1 xgettext-c-escape-2 xgettext-c-escape-3 \
+	xgettext-c-format-1 xgettext-c-format-2 xgettext-c-format-3 \
+	xgettext-c-format-4 xgettext-c-format-5 \
+	xgettext-c-ctxt-1 xgettext-c-ctxt-2 xgettext-c-ctxt-3 \
+	xgettext-c-c++-1 xgettext-c-c++-2 \
 	xgettext-csharp-1 xgettext-csharp-2 xgettext-csharp-3 \
 	xgettext-csharp-4 xgettext-csharp-5 xgettext-csharp-6 \
 	xgettext-csharp-7 xgettext-csharp-8 \
@@ -95,8 +102,10 @@ TESTS = gettext-1 gettext-2 gettext-3 gettext-4 gettext-5 gettext-6 gettext-7 \
 	xgettext-perl-1 xgettext-perl-2 xgettext-perl-3 xgettext-perl-4 \
 	xgettext-perl-5 xgettext-perl-6 xgettext-perl-7 xgettext-perl-8 \
 	xgettext-php-1 xgettext-php-2 xgettext-php-3 xgettext-php-4 \
-	xgettext-po-1 \
-	xgettext-properties-1 \
+	xgettext-po-1 xgettext-po-2 \
+	xgettext-properties-1 xgettext-properties-2 xgettext-properties-3 \
+	xgettext-properties-4 \
+	xgettext-rst-1 xgettext-rst-2 \
 	xgettext-python-1 xgettext-python-2 xgettext-python-3 \
 	xgettext-python-4 \
 	xgettext-scheme-1 xgettext-scheme-2 xgettext-scheme-3 \
@@ -110,7 +119,8 @@ TESTS = gettext-1 gettext-2 gettext-3 gettext-4 gettext-5 gettext-6 gettext-7 \
 	xgettext-lua-1 xgettext-lua-2 \
 	xgettext-javascript-1 xgettext-javascript-2 xgettext-javascript-3 \
 	xgettext-javascript-4 xgettext-javascript-5 xgettext-javascript-6 \
-	xgettext-vala-1 \
+	xgettext-javascript-7 \
+	xgettext-vala-1 xgettext-vala-2 \
 	xgettext-gsettings-1 \
 	xgettext-desktop-1 \
 	xgettext-its-1 xgettext-its-2 \
@@ -152,17 +162,20 @@ TESTS = gettext-1 gettext-2 gettext-3 gettext-4 gettext-5 gettext-6 gettext-7 \
 
 EXTRA_DIST += init.sh init.cfg $(TESTS) \
 	test.mo overflow-1.mo overflow-2.mo overflow-3.mo overflow-4.mo \
-	overflow-5.mo overflow-6.mo xg-c-1.ok.po mex-test2.ok \
+	overflow-5.mo overflow-6.mo sysdep-without-nul.mo \
+	xg-c-1.ok.po mex-test2.ok \
 	mm-ko.ascii.pot mm-ko.euc-kr.po mm-ko-comp.euc-kr.po \
 	mm-viet.comp.po mm-viet.pot mm-viet.out \
 	msguniq-a.in msguniq-a.inp msguniq-a.out \
 	qttest_pl.po qttest_pl.qm \
 	qttest2_de.po qttest2_de.qm qttest2_de.ts \
-	gettext-3-1.po gettext-3-2.po gettext-4.po gettext-5.po \
-	gettext-6-1.po gettext-6-2.po gettext-7.po \
+	intl-1.po intl-2-1.po intl-2-2.po intl-4.po \
+	intl-setlocale-1-1.po intl-setlocale-1-2.po intl-setlocale-2.po \
+	intl-thread-1.po intl-thread-2-1.po intl-thread-2-2.po \
+	intl-thread-3.po \
 	gettextpo-1.de.po \
 	xgettext-1 \
-	xgettext-c-1 xg-c-21.c \
+	xgettext-c-1 xg-c-comment-6.c xg-c-escape-3.c xg-vala-2.vala \
 	common/supplemental/plurals.xml
 
 XGETTEXT = ../src/xgettext
@@ -170,7 +183,7 @@ XGETTEXT = ../src/xgettext
 # For debugging memory leaks and memory allocation bugs.
 # You should build with --disable-shared when using valgrind.
 CHECKER =
-#CHECKER = valgrind --tool=memcheck --suppressions=$(abs_srcdir)/../gnulib-lib/malloca.valgrind --suppressions=$(abs_srcdir)/../gnulib-lib/libunistring.valgrind --num-callers=20 --leak-check=yes --leak-resolution=high --show-reachable=yes
+#CHECKER = valgrind --tool=memcheck --suppressions=$(abs_srcdir)/../gnulib-lib/libunistring.valgrind --num-callers=20 --leak-check=yes --leak-resolution=high --show-reachable=yes
 #CHECKER = valgrind --tool=massif --format=html --depth=10 --alloc-fn=xmalloc --alloc-fn=xrealloc --stacks=no
 
 TESTS_ENVIRONMENT = top_srcdir=$(top_srcdir) \
@@ -196,6 +209,10 @@ TESTS_ENVIRONMENT = top_srcdir=$(top_srcdir) \
 		    RECODE="$(CHECKER) recode" \
 		    CONFIG_SHELL='$(SHELL)'
 
+# Invoke the shell explicitly, because the execute-permission bit on the scripts
+# may get lost in particular circumstances (e.g. when unpacking a tarball, or
+# under Cygwin).
+# This has the consequence that all tests have to be shell scripts.
 LOG_COMPILER = $(SHELL)
 
 # Update the expected test results.
@@ -205,7 +222,7 @@ xg-c-1.ok.po: $(top_srcdir)/src/xgettext.c $(top_srcdir)/src/msgfmt.c
 	  -k_ --omit-header --no-location \
 	  $(top_srcdir)/src/xgettext.c $(top_srcdir)/src/msgfmt.c
 
-# Three auxiliary programs used by the tests.
+# Auxiliary programs used by the tests.
 AM_CPPFLAGS = \
   -I.. \
   -I../gnulib-lib -I$(top_srcdir)/gnulib-lib \
@@ -216,7 +233,7 @@ DEFS = -DLOCALEDIR=\"$(localedir)\" @DEFS@
 LDADD = $(LDADD_@USE_INCLUDED_LIBINTL@) @INTL_MACOSX_LIBS@
 LDADD_yes = ../intl/libintl.la @LTLIBTHREAD@
 LDADD_no = ../intl/libgnuintl.la @LTLIBTHREAD@ @LTLIBINTL@
-check_PROGRAMS = tstgettext tstngettext testlocale gettext-3-prg gettext-4-prg gettext-5-prg gettext-6-prg gettext-7-prg gettext-8-prg cake fc3 fc4 fc5 gettextpo-1-prg sentence-1-prg
+check_PROGRAMS = tstgettext tstngettext testlocale intl-1-prg intl-3-prg intl-4-prg intl-5-prg intl-setlocale-1-prg intl-setlocale-2-prg intl-thread-1-prg intl-thread-2-prg intl-thread-3-prg intl-version-prg cake fc3 fc4 fc5 gettextpo-1-prg sentence-1-prg
 tstgettext_SOURCES = tstgettext.c setlocale.c
 tstgettext_CFLAGS = -DINSTALLDIR=\".\"
 tstgettext_LDADD = ../gnulib-lib/libgettextlib.la $(LDADD)
@@ -224,24 +241,35 @@ tstngettext_SOURCES = tstngettext.c setlocale.c
 tstngettext_CFLAGS = -DINSTALLDIR=\".\"
 tstngettext_LDADD = ../gnulib-lib/libgettextlib.la $(LDADD)
 testlocale_SOURCES = testlocale.c
-gettext_3_prg_SOURCES = gettext-3-prg.c
-gettext_3_prg_LDADD = ../gnulib-lib/libgettextlib.la $(LDADD)
-gettext_4_prg_SOURCES = gettext-4-prg.c
-gettext_4_prg_LDADD = ../gnulib-lib/libgettextlib.la $(LDADD)
-gettext_5_prg_SOURCES = gettext-5-prg.c
-gettext_5_prg_LDADD = ../gnulib-lib/libgettextlib.la $(LDADD)
-gettext_6_prg_SOURCES = gettext-6-prg.c
-gettext_6_prg_CFLAGS = $(gettext_6_prg_CFLAGS_@HAVE_NEWLOCALE@)
-gettext_6_prg_CFLAGS_1 = -DUSE_POSIX_THREADS
-gettext_6_prg_LDADD = ../gnulib-lib/libgettextlib.la $(LDADD) $(gettext_6_prg_LDADD_@HAVE_NEWLOCALE@)
-gettext_6_prg_LDADD_1 = -lpthread
-gettext_7_prg_SOURCES = gettext-7-prg.c
-gettext_7_prg_CFLAGS = $(gettext_7_prg_CFLAGS_@HAVE_NEWLOCALE@)
-gettext_7_prg_CFLAGS_1 = -DUSE_POSIX_THREADS
-gettext_7_prg_LDADD = ../gnulib-lib/libgettextlib.la $(LDADD) $(gettext_7_prg_LDADD_@HAVE_NEWLOCALE@)
-gettext_7_prg_LDADD_1 = -lpthread
-gettext_8_prg_SOURCES = gettext-8-prg.c
-gettext_8_prg_LDADD = ../gnulib-lib/libgettextlib.la $(LDADD)
+intl_1_prg_SOURCES = intl-1-prg.c
+intl_1_prg_LDADD = ../gnulib-lib/libgettextlib.la $(LDADD)
+intl_3_prg_SOURCES = intl-3-prg.c
+intl_3_prg_LDADD = ../gnulib-lib/libgettextlib.la $(LDADD)
+intl_4_prg_SOURCES = intl-4-prg.c
+intl_4_prg_LDADD = ../gnulib-lib/libgettextlib.la $(LDADD)
+intl_5_prg_SOURCES = intl-5-prg.c
+intl_5_prg_LDADD = ../gnulib-lib/libgettextlib.la $(LDADD)
+intl_setlocale_1_prg_SOURCES = intl-setlocale-1-prg.c
+intl_setlocale_1_prg_LDADD = ../gnulib-lib/libgettextlib.la $(LDADD)
+intl_setlocale_2_prg_SOURCES = intl-setlocale-2-prg.c
+intl_setlocale_2_prg_LDADD = ../gnulib-lib/libgettextlib.la $(LDADD)
+intl_thread_1_prg_SOURCES = intl-thread-1-prg.c
+intl_thread_1_prg_CFLAGS = $(intl_thread_1_prg_CFLAGS_@HAVE_NEWLOCALE@)
+intl_thread_1_prg_CFLAGS_1 = -DUSE_POSIX_THREADS
+intl_thread_1_prg_LDADD = ../gnulib-lib/libgettextlib.la $(LDADD) $(intl_thread_1_prg_LDADD_@HAVE_NEWLOCALE@)
+intl_thread_1_prg_LDADD_1 = -lpthread
+intl_thread_2_prg_SOURCES = intl-thread-2-prg.c
+intl_thread_2_prg_CFLAGS = $(intl_thread_2_prg_CFLAGS_@HAVE_NEWLOCALE@)
+intl_thread_2_prg_CFLAGS_1 = -DUSE_POSIX_THREADS
+intl_thread_2_prg_LDADD = ../gnulib-lib/libgettextlib.la $(LDADD) $(intl_thread_2_prg_LDADD_@HAVE_NEWLOCALE@)
+intl_thread_2_prg_LDADD_1 = -lpthread
+intl_thread_3_prg_SOURCES = intl-thread-3-prg.c
+intl_thread_3_prg_CFLAGS = $(intl_thread_3_prg_CFLAGS_@HAVE_NEWLOCALE@)
+intl_thread_3_prg_CFLAGS_1 = -DUSE_POSIX_THREADS
+intl_thread_3_prg_LDADD = ../gnulib-lib/libgettextlib.la $(LDADD) $(intl_thread_3_prg_LDADD_@HAVE_NEWLOCALE@)
+intl_thread_3_prg_LDADD_1 = -lpthread
+intl_version_prg_SOURCES = intl-version-prg.c
+intl_version_prg_LDADD = ../gnulib-lib/libgettextlib.la $(LDADD)
 cake_SOURCES = plural-1-prg.c setlocale.c
 cake_LDADD = ../gnulib-lib/libgettextlib.la $(LDADD)
 fc3_SOURCES = format-c-3-prg.c setlocale.c

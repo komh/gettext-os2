@@ -1,5 +1,5 @@
 /* Writing binary .mo files.
-   Copyright (C) 1995-1998, 2000-2007, 2015-2016 Free Software Foundation, Inc.
+   Copyright (C) 1995-1998, 2000-2007, 2016 Free Software Foundation, Inc.
    Written by Ulrich Drepper <drepper@gnu.ai.mit.edu>, April 1995.
 
    This program is free software: you can redistribute it and/or modify
@@ -13,7 +13,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 #ifdef HAVE_CONFIG_H
 # include <config.h>
@@ -45,6 +45,7 @@
 #include "xsize.h"
 #include "xalloc.h"
 #include "xmalloca.h"
+#include "msgl-header.h"
 #include "binary-io.h"
 #include "fwriteerror.h"
 #include "gettext.h"
@@ -786,6 +787,10 @@ msgdomain_write_mo (message_list_ty *mlp,
   /* If no entry for this domain don't even create the file.  */
   if (mlp->nitems != 0)
     {
+      /* Support for "reproducible builds": Delete information that may vary
+         between builds in the same conditions.  */
+      message_list_delete_header_field (mlp, "POT-Creation-Date:");
+
       if (strcmp (domain_name, "-") == 0)
         {
           output_file = stdout;

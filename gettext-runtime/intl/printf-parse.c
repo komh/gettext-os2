@@ -1,5 +1,5 @@
 /* Formatted output to strings.
-   Copyright (C) 1999-2000, 2002-2003, 2006-2008, 2011, 2015-2016 Free Software
+   Copyright (C) 1999-2000, 2002-2003, 2006-2008, 2010-2011, 2018 Free Software
    Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
@@ -13,7 +13,7 @@
    GNU Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 /* This file can be parametrized with the following macros:
      CHAR_T             The element type of the format string.
@@ -402,7 +402,7 @@ PRINTF_PARSE (const CHAR_T *format, DIRECTIVES *d, arguments *a)
                       cp++;
                     }
 #if defined __APPLE__ && defined __MACH__
-                  /* On MacOS X 10.3, PRIdMAX is defined as "qd".
+                  /* On Mac OS X 10.3, PRIdMAX is defined as "qd".
                      We cannot change it to "lld" because PRIdMAX must also
                      be understood by the system's printf routines.  */
                   else if (*cp == 'q')
@@ -420,8 +420,8 @@ PRINTF_PARSE (const CHAR_T *format, DIRECTIVES *d, arguments *a)
                       cp++;
                     }
 #endif
-#if (defined _WIN32 || defined __WIN32__) && ! defined __CYGWIN__
-                  /* On native Win32, PRIdMAX is defined as "I64d".
+#if defined _WIN32 && ! defined __CYGWIN__
+                  /* On native Windows, PRIdMAX is defined as "I64d".
                      We cannot change it to "lld" because PRIdMAX must also
                      be understood by the system's printf routines.  */
                   else if (*cp == 'I' && cp[1] == '6' && cp[2] == '4')

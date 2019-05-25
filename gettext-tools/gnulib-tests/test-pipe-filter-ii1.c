@@ -1,5 +1,5 @@
 /* Test of filtering of data through a subprocess.
-   Copyright (C) 2009-2016 Free Software Foundation, Inc.
+   Copyright (C) 2009-2019 Free Software Foundation, Inc.
    Written by Bruno Haible <haible@clisp.cons.org>, 2009.
 
    This program is free software: you can redistribute it and/or modify
@@ -13,7 +13,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 #include <config.h>
 
@@ -22,7 +22,6 @@
 #include "binary-io.h"
 #include "c-ctype.h"
 #include "read-file.h"
-#include "progname.h"
 #include "macros.h"
 
 
@@ -97,8 +96,6 @@ main (int argc, char *argv[])
   size_t input_size;
   char *input;
 
-  set_program_name (argv[0]);
-
   ASSERT (argc == 3);
 
   tr_program = argv[1];
@@ -132,6 +129,8 @@ main (int argc, char *argv[])
     ASSERT (l.nwritten == input_size);
     ASSERT (l.nread == input_size);
   }
+
+  free (input);
 
   return 0;
 }

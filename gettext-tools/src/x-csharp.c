@@ -1,6 +1,5 @@
 /* xgettext C# backend.
-   Copyright (C) 2003, 2005-2009, 2011, 2015-2016 Free Software Foundation,
-   Inc.
+   Copyright (C) 2003-2009, 2011, 2014, 2018-2019 Free Software Foundation, Inc.
    Written by Bruno Haible <bruno@clisp.org>, 2003.
 
    This program is free software: you can redistribute it and/or modify
@@ -14,7 +13,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
@@ -30,7 +29,15 @@
 #include <string.h>
 
 #include "message.h"
+#include "rc-str-list.h"
 #include "xgettext.h"
+#include "xg-pos.h"
+#include "xg-encoding.h"
+#include "xg-mixed-string.h"
+#include "xg-arglist-context.h"
+#include "xg-arglist-callshape.h"
+#include "xg-arglist-parser.h"
+#include "xg-message.h"
 #include "c-ctype.h"
 #include "error.h"
 #include "error-progname.h"
@@ -125,13 +132,6 @@ init_flag_table_csharp ()
 
 /* ======================== Reading of characters.  ======================== */
 
-/* Real filename, used in error messages about the input file.  */
-static const char *real_file_name;
-
-/* Logical filename and line number, used to label the extracted messages.  */
-static char *logical_file_name;
-static int line_number;
-
 /* The input file stream.  */
 static FILE *fp;
 
@@ -222,8 +222,7 @@ phase2_getc ()
                                       non_ascii_error_message (lexical_context,
                                                                real_file_name,
                                                                line_number),
-                                      _("\
-Please specify the source encoding through --from-code.")));
+                                      _("Please specify the source encoding through --from-code.")));
           exit (EXIT_FAILURE);
         }
       return c;
@@ -517,74 +516,8 @@ phase3_ungetc (int c)
 
 /* ========================= Accumulating strings.  ======================== */
 
-/* A string buffer type that allows appending Unicode characters.
-   Returns the entire string in UTF-8 encoding.  */
-
-struct string_buffer
-{
-  /* The part of the string that has already been converted to UTF-8.  */
-  char *utf8_buffer;
-  size_t utf8_buflen;
-  size_t utf8_allocated;
-};
-
-/* Initialize a 'struct string_buffer' to empty.  */
-static inline void
-init_string_buffer (struct string_buffer *bp)
-{
-  bp->utf8_buffer = NULL;
-  bp->utf8_buflen = 0;
-  bp->utf8_allocated = 0;
-}
-
-/* Auxiliary function: Ensure count more bytes are available in bp->utf8.  */
-static inline void
-string_buffer_append_unicode_grow (struct string_buffer *bp, size_t count)
-{
-  if (bp->utf8_buflen + count > bp->utf8_allocated)
-    {
-      size_t new_allocated = 2 * bp->utf8_allocated + 10;
-      if (new_allocated < bp->utf8_buflen + count)
-        new_allocated = bp->utf8_buflen + count;
-      bp->utf8_allocated = new_allocated;
-      bp->utf8_buffer = xrealloc (bp->utf8_buffer, new_allocated);
-    }
-}
-
-/* Auxiliary function: Append a Unicode character to bp->utf8.
-   uc must be < 0x110000.  */
-static inline void
-string_buffer_append_unicode (struct string_buffer *bp, unsigned int uc)
-{
-  unsigned char utf8buf[6];
-  int count = u8_uctomb (utf8buf, uc, 6);
-
-  if (count < 0)
-    /* The caller should have ensured that uc is not out-of-range.  */
-    abort ();
-
-  string_buffer_append_unicode_grow (bp, count);
-  memcpy (bp->utf8_buffer + bp->utf8_buflen, utf8buf, count);
-  bp->utf8_buflen += count;
-}
-
-/* Return the string buffer's contents.  */
-static char *
-string_buffer_result (struct string_buffer *bp)
-{
-  /* NUL-terminate it.  */
-  string_buffer_append_unicode_grow (bp, 1);
-  bp->utf8_buffer[bp->utf8_buflen] = '\0';
-  /* Return it.  */
-  return bp->utf8_buffer;
-}
-
-/* Free the memory pointed to by a 'struct string_buffer'.  */
-static inline void
-free_string_buffer (struct string_buffer *bp)
-{
-  free (bp->utf8_buffer);
-}
+/* See xg-mixed-string.h for the API.
+   In this extractor, we add only Unicode characters.  */
 
 
 /* ======================== Accumulating comments.  ======================== */
@@ -592,31 +525,32 @@ free_string_buffer (struct string_buffer *bp)
 
 /* Accumulating a single comment line.  */
 
-static struct string_buffer comment_buffer;
+static struct mixed_string_buffer comment_buffer;
 
 static inline void
 comment_start ()
 {
-  lexical_context = lc_comment;
-  comment_buffer.utf8_buflen = 0;
+  mixed_string_buffer_init (&comment_buffer, lc_comment,
+                            logical_file_name, line_number);
 }
 
 static inline bool
 comment_at_start ()
 {
-  return (comment_buffer.utf8_buflen == 0);
+  return mixed_string_buffer_is_empty (&comment_buffer);
 }
 
 static inline void
 comment_add (int c)
 {
-  string_buffer_append_unicode (&comment_buffer, c);
+  mixed_string_buffer_append_unicode (&comment_buffer, c);
 }
 
 static inline void
 comment_line_end (size_t chars_to_remove)
 {
-  char *buffer = string_buffer_result (&comment_buffer);
+  char *buffer =
+    mixed_string_contents_free1 (mixed_string_buffer_result (&comment_buffer));
   size_t buflen = strlen (buffer);
 
   buflen -= chars_to_remove;
@@ -1324,7 +1258,8 @@ typedef struct token_ty token_ty;
 struct token_ty
 {
   token_type_ty type;
-  char *string;         /* for token_type_string_literal, token_type_symbol */
+  char *string;                         /* for token_type_symbol */
+  mixed_string_ty *mixed_string;        /* for token_type_string_literal */
   refcounted_string_list_ty *comment;   /* for token_type_string_literal */
   int line_number;
   int logical_line_number;
@@ -1335,10 +1270,13 @@ struct token_ty
 static inline void
 free_token (token_ty *tp)
 {
-  if (tp->type == token_type_string_literal || tp->type == token_type_symbol)
+  if (tp->type == token_type_symbol)
     free (tp->string);
   if (tp->type == token_type_string_literal)
-    drop_reference (tp->comment);
+    {
+      mixed_string_free (tp->mixed_string);
+      drop_reference (tp->comment);
+    }
 }
 
 
@@ -1639,14 +1577,15 @@ phase6_get (token_ty *tp)
         case '"':
           /* Regular string literal.  */
           {
-            struct mixed_string_buffer *literal;
+            struct mixed_string_buffer literal;
 
             lexical_context = lc_string;
-            literal = mixed_string_buffer_alloc (lexical_context,
-                                                 logical_file_name,
-                                                 logical_line_number);
-            accumulate_escaped (literal, '"');
-            tp->string = mixed_string_buffer_done (literal);
+            mixed_string_buffer_init (&literal,
+                                      lexical_context,
+                                      logical_file_name,
+                                      logical_line_number);
+            accumulate_escaped (&literal, '"');
+            tp->mixed_string = mixed_string_buffer_result (&literal);
             tp->comment = add_reference (savable_comment);
             lexical_context = lc_outside;
             tp->type = token_type_string_literal;
@@ -1682,10 +1621,11 @@ phase6_get (token_ty *tp)
           if (c == '"')
             {
               /* Verbatim string literal.  */
-              struct string_buffer literal;
+              struct mixed_string_buffer literal;
 
               lexical_context = lc_string;
-              init_string_buffer (&literal);
+              mixed_string_buffer_init (&literal, lexical_context,
+                                        logical_file_name, logical_line_number);
               for (;;)
                 {
                   /* Use phase 2, because phase 4 elides comments and phase 3
@@ -1703,10 +1643,9 @@ phase6_get (token_ty *tp)
                         }
                     }
                   /* No special treatment of newline and backslash here.  */
-                  string_buffer_append_unicode (&literal, c);
+                  mixed_string_buffer_append_unicode (&literal, c);
                 }
-              tp->string = xstrdup (string_buffer_result (&literal));
-              free_string_buffer (&literal);
+              tp->mixed_string = mixed_string_buffer_result (&literal);
               tp->comment = add_reference (savable_comment);
               lexical_context = lc_outside;
               tp->type = token_type_string_literal;
@@ -1719,11 +1658,14 @@ phase6_get (token_ty *tp)
             c = do_getc_unicode_escaped (is_identifier_start);
           if (is_identifier_start (c))
             {
-              static struct string_buffer buffer;
-              buffer.utf8_buflen = 0;
+              struct mixed_string_buffer buffer;
+              mixed_string_ty *mixed_string;
+
+              mixed_string_buffer_init (&buffer, lexical_context,
+                                        logical_file_name, logical_line_number);
               for (;;)
                 {
-                  string_buffer_append_unicode (&buffer, c);
+                  mixed_string_buffer_append_unicode (&buffer, c);
                   c = phase4_getc ();
                   if (c == '\\')
                     c = do_getc_unicode_escaped (is_identifier_part);
@@ -1731,7 +1673,9 @@ phase6_get (token_ty *tp)
                     break;
                 }
               phase4_ungetc (c);
-              tp->string = xstrdup (string_buffer_result (&buffer));
+              mixed_string = mixed_string_buffer_result (&buffer);
+              tp->string = mixed_string_contents (mixed_string);
+              mixed_string_free (mixed_string);
               tp->type = token_type_symbol;
               return;
             }
@@ -1778,8 +1722,7 @@ phase7_get (token_ty *tp)
   phase6_get (tp);
   if (tp->type == token_type_string_literal)
     {
-      char *sum = tp->string;
-      size_t sum_len = strlen (sum);
+      mixed_string_ty *sum = tp->mixed_string;
 
       for (;;)
         {
@@ -1798,12 +1741,7 @@ phase7_get (token_ty *tp)
                   phase6_get (&token_after);
                   if (token_after.type != token_type_dot)
                     {
-                      char *addend = token3.string;
-                      size_t addend_len = strlen (addend);
-
-                      sum = (char *) xrealloc (sum, sum_len + addend_len + 1);
-                      memcpy (sum + sum_len, addend, addend_len + 1);
-                      sum_len += addend_len;
+                      sum = mixed_string_concat_free1 (sum, token3.mixed_string);
 
                       phase6_unget (&token_after);
                       free_token (&token3);
@@ -1817,7 +1755,7 @@ phase7_get (token_ty *tp)
           phase6_unget (&token2);
           break;
         }
-      tp->string = sum;
+      tp->mixed_string = sum;
     }
 }
 
@@ -1995,9 +1933,7 @@ extract_parenthesized (message_list_ty *mlp, token_type_ty terminator,
                                      arglist_parser_alloc (mlp,
                                                            state ? next_shapes : NULL)))
             {
-              xgettext_current_source_encoding = po_charset_utf8;
               arglist_parser_done (argparser, arg);
-              xgettext_current_source_encoding = xgettext_global_source_encoding;
               return true;
             }
           next_context_iter = null_context_list_iterator;
@@ -2007,9 +1943,7 @@ extract_parenthesized (message_list_ty *mlp, token_type_ty terminator,
         case token_type_rparen:
           if (terminator == token_type_rparen)
             {
-              xgettext_current_source_encoding = po_charset_utf8;
               arglist_parser_done (argparser, arg);
-              xgettext_current_source_encoding = xgettext_global_source_encoding;
               return false;
             }
           if (terminator == token_type_rbrace)
@@ -2029,9 +1963,7 @@ extract_parenthesized (message_list_ty *mlp, token_type_ty terminator,
                                      null_context, null_context_list_iterator,
                                      arglist_parser_alloc (mlp, NULL)))
             {
-              xgettext_current_source_encoding = po_charset_utf8;
               arglist_parser_done (argparser, arg);
-              xgettext_current_source_encoding = xgettext_global_source_encoding;
               return true;
             }
           next_context_iter = null_context_list_iterator;
@@ -2041,9 +1973,7 @@ extract_parenthesized (message_list_ty *mlp, token_type_ty terminator,
         case token_type_rbrace:
           if (terminator == token_type_rbrace)
             {
-              xgettext_current_source_encoding = po_charset_utf8;
               arglist_parser_done (argparser, arg);
-              xgettext_current_source_encoding = xgettext_global_source_encoding;
               return false;
             }
           if (terminator == token_type_rparen)
@@ -2071,19 +2001,22 @@ extract_parenthesized (message_list_ty *mlp, token_type_ty terminator,
         case token_type_string_literal:
           {
             lex_pos_ty pos;
+
             pos.file_name = logical_file_name;
             pos.line_number = token.line_number;
 
-            xgettext_current_source_encoding = po_charset_utf8;
             if (extract_all)
-              remember_a_message (mlp, NULL, token.string, inner_context,
-                                  &pos, NULL, token.comment);
+              {
+                char *string = mixed_string_contents (token.mixed_string);
+                mixed_string_free (token.mixed_string);
+                remember_a_message (mlp, NULL, string, true, inner_context,
+                                    &pos, NULL, token.comment, true);
+              }
             else
-              arglist_parser_remember (argparser, arg, token.string,
+              arglist_parser_remember (argparser, arg, token.mixed_string,
                                        inner_context,
                                        pos.file_name, pos.line_number,
-                                       token.comment);
-            xgettext_current_source_encoding = xgettext_global_source_encoding;
+                                       token.comment, true);
           }
           drop_reference (token.comment);
           next_context_iter = null_context_list_iterator;
@@ -2091,9 +2024,7 @@ extract_parenthesized (message_list_ty *mlp, token_type_ty terminator,
           continue;
 
         case token_type_eof:
-          xgettext_current_source_encoding = po_charset_utf8;
           arglist_parser_done (argparser, arg);
-          xgettext_current_source_encoding = xgettext_global_source_encoding;
           return true;
 
         case token_type_dot:

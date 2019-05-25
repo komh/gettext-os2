@@ -1,5 +1,5 @@
 /* Converts Uniforum style .po files to binary .mo files
-   Copyright (C) 1995-1998, 2000-2007, 2009-2010, 2012, 2015-2016 Free Software
+   Copyright (C) 1995-1998, 2000-2007, 2009-2010, 2012, 2014-2016, 2018-2019 Free Software
    Foundation, Inc.
    Written by Ulrich Drepper <drepper@gnu.ai.mit.edu>, April 1995.
 
@@ -14,7 +14,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 #ifdef HAVE_CONFIG_H
 # include <config.h>
@@ -260,10 +260,8 @@ main (int argc, char *argv[])
   error_one_per_line = 1;
   exit_status = EXIT_SUCCESS;
 
-#ifdef HAVE_SETLOCALE
   /* Set locale via LC_ALL.  */
   setlocale (LC_ALL, "");
-#endif
 
   /* Set the text message domain.  */
   bindtextdomain (PACKAGE, relocate (LOCALEDIR));
@@ -444,11 +442,11 @@ main (int argc, char *argv[])
       printf ("%s (GNU %s) %s\n", basename (program_name), PACKAGE, VERSION);
       /* xgettext: no-wrap */
       printf (_("Copyright (C) %s Free Software Foundation, Inc.\n\
-License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>\n\
+License GPLv3+: GNU GPL version 3 or later <%s>\n\
 This is free software: you are free to change and redistribute it.\n\
 There is NO WARRANTY, to the extent permitted by law.\n\
 "),
-              "1995-1998, 2000-2016");
+              "1995-2019", "https://gnu.org/licenses/gpl.html");
       printf (_("Written by %s.\n"), proper_name ("Ulrich Drepper"));
       exit (EXIT_SUCCESS);
     }
@@ -1076,11 +1074,16 @@ Informative output:\n"));
       printf (_("\
   -v, --verbose               increase verbosity level\n"));
       printf ("\n");
-      /* TRANSLATORS: The placeholder indicates the bug-reporting address
-         for this package.  Please add _another line_ saying
+      /* TRANSLATORS: The first placeholder is the web address of the Savannah
+         project of this package.  The second placeholder is the bug-reporting
+         email address for this package.  Please add _another line_ saying
          "Report translation bugs to <...>\n" with the address for translation
          bugs (typically your translation team's web or email address).  */
-      fputs (_("Report bugs to <bug-gnu-gettext@gnu.org>.\n"), stdout);
+      printf(_("\
+Report bugs in the bug tracker at <%s>\n\
+or by email to <%s>.\n"),
+             "https://savannah.gnu.org/projects/gettext",
+             "bug-gettext@gnu.org");
     }
 
   exit (status);
@@ -1153,7 +1156,6 @@ struct msgfmt_catalog_reader_ty
   DEFAULT_CATALOG_READER_TY
 
   bool has_header_entry;
-  bool has_nonfuzzy_header_entry;
 };
 
 
@@ -1167,7 +1169,6 @@ msgfmt_constructor (abstract_catalog_reader_ty *that)
   default_constructor (that);
 
   this->has_header_entry = false;
-  this->has_nonfuzzy_header_entry = false;
 }
 
 
@@ -1186,23 +1187,9 @@ msgfmt_parse_debrief (abstract_catalog_reader_ty *that)
       if (!this->has_header_entry)
         {
           multiline_error (xasprintf ("%s: ", this->file_name),
-                           xasprintf (_("\
-warning: PO file header missing or invalid\n")));
+                           xasprintf (_("warning: PO file header missing or invalid\n")));
           multiline_error (NULL,
-                           xasprintf (_("\
-warning: charset conversion will not work\n")));
-        }
-      else if (!this->has_nonfuzzy_header_entry)
-        {
-          /* Has only a fuzzy header entry.  Since the versions 0.10.xx
-             ignore a fuzzy header entry and even give an error on it, we
-             give a warning, to increase operability with these older
-             msgfmt versions.  This warning can go away in January 2003.  */
-          multiline_warning (xasprintf ("%s: ", this->file_name),
-                             xasprintf (_("warning: PO file header fuzzy\n")));
-          multiline_warning (NULL,
-                             xasprintf (_("\
-warning: older versions of msgfmt will give an error on this\n")));
+                           xasprintf (_("warning: charset conversion will not work\n")));
         }
     }
 }
@@ -1225,13 +1212,14 @@ msgfmt_set_domain (default_catalog_reader_ty *this, char *name)
           exit_status = EXIT_FAILURE;
           if (correct == 0)
             {
-              error (0, 0, _("\
-domain name \"%s\" not suitable as file name"), name);
+              error (0, 0,
+                     _("domain name \"%s\" not suitable as file name"), name);
               return;
             }
           else
-            error (0, 0, _("\
-domain name \"%s\" not suitable as file name: will use prefix"), name);
+            error (0, 0,
+                   _("domain name \"%s\" not suitable as file name: will use prefix"),
+                   name);
           name[correct] = '\0';
         }
 
@@ -1323,8 +1311,6 @@ msgfmt_frob_new_message (default_catalog_reader_ty *that, message_ty *mp,
           if (is_header (mp))
             {
               this->has_header_entry = true;
-              if (!mp->is_fuzzy)
-                this->has_nonfuzzy_header_entry = true;
             }
           else
             /* We don't count the header entry in the statistic so place
@@ -1354,8 +1340,8 @@ msgfmt_comment_special (abstract_catalog_reader_ty *that, const char *s)
       if (!include_fuzzies && check_compatibility && !warned)
         {
           warned = true;
-          error (0, 0, _("\
-%s: warning: source file contains fuzzy translation"),
+          error (0, 0,
+                 _("%s: warning: source file contains fuzzy translation"),
                  gram_pos.file_name);
         }
     }

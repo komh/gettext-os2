@@ -1,5 +1,5 @@
 /* xgettext awk backend.
-   Copyright (C) 2002-2003, 2006, 2015-2016 Free Software Foundation, Inc.
+   Copyright (C) 2002-2003, 2006, 2014-2015, 2018 Free Software Foundation, Inc.
    Written by Bruno Haible <haible@clisp.cons.org>, 2002.
 
    This program is free software: you can redistribute it and/or modify
@@ -13,13 +13,13 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 
 #include <stdio.h>
 
 #include "message.h"
-#include "xgettext.h"
+#include "xg-arglist-context.h"
 
 
 #ifdef __cplusplus
@@ -34,7 +34,7 @@ extern "C" {
 
 #define SCANNERS_AWK \
   { "awk",              extract_awk,                                    \
-                        &flag_table_awk, &formatstring_awk, NULL, NULL }, \
+                        &flag_table_awk, &formatstring_awk, NULL },     \
 
 /* Scan an awk file and add its translatable strings to mdlp.  */
 extern void extract_awk (FILE *fp, const char *real_filename,

@@ -1,5 +1,5 @@
-# wcwidth.m4 serial 23
-dnl Copyright (C) 2006-2016 Free Software Foundation, Inc.
+# wcwidth.m4 serial 29
+dnl Copyright (C) 2006-2019 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
@@ -34,13 +34,28 @@ AC_DEFUN([gl_FUNC_WCWIDTH],
     HAVE_DECL_WCWIDTH=0
   fi
 
-  if test $ac_cv_func_wcwidth = yes; then
+  if test $ac_cv_func_wcwidth != yes; then
+    AC_CACHE_CHECK([whether wcwidth is a macro],
+      [gl_cv_func_wcwidth_macro],
+      [AC_EGREP_CPP([wchar_header_defines_wcwidth], [
+#include <wchar.h>
+#ifdef wcwidth
+ wchar_header_defines_wcwidth
+#endif],
+         [gl_cv_func_wcwidth_macro=yes],
+         [gl_cv_func_wcwidth_macro=no])
+      ])
+  fi
+
+  if test $ac_cv_func_wcwidth = yes || test $gl_cv_func_wcwidth_macro = yes; then
     HAVE_WCWIDTH=1
     dnl On Mac OS X 10.3, wcwidth(0x0301) (COMBINING ACUTE ACCENT) returns 1.
     dnl On OpenBSD 5.0, wcwidth(0x05B0) (HEBREW POINT SHEVA) returns 1.
     dnl On OSF/1 5.1, wcwidth(0x200B) (ZERO WIDTH SPACE) returns 1.
     dnl On OpenBSD 5.8, wcwidth(0xFF1A) (FULLWIDTH COLON) returns 0.
     dnl This leads to bugs in 'ls' (coreutils).
+    dnl On Solaris 11.4, wcwidth(0x2202) (PARTIAL DIFFERENTIAL) returns 2,
+    dnl even in Western locales.
     AC_CACHE_CHECK([whether wcwidth works reasonably in UTF-8 locales],
       [gl_cv_func_wcwidth_works],
       [
@@ -67,7 +82,7 @@ int wcwidth (int);
 int main ()
 {
   int result = 0;
-  if (setlocale (LC_ALL, "fr_FR.UTF-8") != NULL)
+  if (setlocale (LC_ALL, "en_US.UTF-8") != NULL)
     {
       if (wcwidth (0x0301) > 0)
         result |= 1;
@@ -77,6 +92,8 @@ int main ()
         result |= 4;
       if (wcwidth (0xFF1A) == 0)
         result |= 8;
+      if (wcwidth (0x2202) > 1)
+        result |= 16;
     }
   return result;
 }]])],
@@ -85,9 +102,13 @@ int main ()
           [
 changequote(,)dnl
            case "$host_os" in
-                     # Guess yes on glibc and AIX 7 systems.
-             *-gnu* | aix[7-9]*) gl_cv_func_wcwidth_works="guessing yes";;
-             *)                  gl_cv_func_wcwidth_works="guessing no";;
+                            # Guess yes on glibc systems.
+             *-gnu* | gnu*) gl_cv_func_wcwidth_works="guessing yes";;
+                            # Guess yes on musl systems.
+             *-musl*)       gl_cv_func_wcwidth_works="guessing yes";;
+                            # Guess yes on AIX 7 systems.
+             aix[7-9]*)     gl_cv_func_wcwidth_works="guessing yes";;
+             *)             gl_cv_func_wcwidth_works="guessing no";;
            esac
 changequote([,])dnl
           ])
@@ -101,4 +122,10 @@ changequote([,])dnl
   fi
   dnl We don't substitute HAVE_WCWIDTH. We assume that if the system does not
   dnl have the wcwidth function, then it does not declare it.
+])
+
+# Prerequisites of lib/wcwidth.c.
+AC_DEFUN([gl_PREREQ_WCWIDTH], [
+  AC_REQUIRE([AC_C_INLINE])
+  :
 ])

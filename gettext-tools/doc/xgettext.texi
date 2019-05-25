@@ -1,3 +1,7 @@
+@c This file is part of the GNU gettext manual.
+@c Copyright (C) 1995-2019 Free Software Foundation, Inc.
+@c See the file gettext.texi for copying conditions.
+
 @pindex xgettext
 @cindex @code{xgettext} program, usage
 @example
@@ -73,8 +77,8 @@ are @code{C}, @code{C++}, @code{ObjectiveC}, @code{PO}, @code{Shell},
 @code{Python}, @code{Lisp}, @code{EmacsLisp}, @code{librep}, @code{Scheme},
 @code{Smalltalk}, @code{Java}, @code{JavaProperties}, @code{C#}, @code{awk},
 @code{YCP}, @code{Tcl}, @code{Perl}, @code{PHP}, @code{GCC-source},
-@code{NXStringTable}, @code{RST}, @code{Glade}, @code{Lua}, @code{JavaScript},
-@code{Vala}, @code{GSettings}, @code{Desktop}.
+@code{NXStringTable}, @code{RST}, @code{RSJ}, @code{Glade}, @code{Lua},
+@code{JavaScript}, @code{Vala}, @code{GSettings}, @code{Desktop}.
 
 @item -C
 @itemx --c++
@@ -276,7 +280,8 @@ For Objective C: Like for C, and also @code{NSLocalizedString}, @code{_},
 
 @item
 For Shell scripts: @code{gettext}, @code{ngettext:1,2}, @code{eval_gettext},
-@code{eval_ngettext:1,2}.
+@code{eval_ngettext:1,2}, @code{eval_pgettext:1c,2},
+@code{eval_npgettext:1c,2,3}.
 
 @item
 For Python: @code{gettext}, @code{ugettext}, @code{dgettext:2},

@@ -1,8 +1,8 @@
-/* A Bison parser, made by GNU Bison 3.0.4.  */
+/* A Bison parser, made by GNU Bison 3.2.2.  */
 
 /* Bison implementation for Yacc-like parsers in C
 
-   Copyright (C) 1984, 1989-1990, 2000-2015 Free Software Foundation, Inc.
+   Copyright (C) 1984, 1989-1990, 2000-2015, 2018 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -40,11 +40,14 @@
    define necessary library symbols; they are noted "INFRINGES ON
    USER NAME SPACE" below.  */
 
+/* Undocumented macros, especially those whose name start with YY_,
+   are private implementation details.  Do not rely on them.  */
+
 /* Identify Bison output.  */
 #define YYBISON 1
 
 /* Bison version.  */
-#define YYBISON_VERSION "3.0.4"
+#define YYBISON_VERSION "3.2.2"
 
 /* Skeleton name.  */
 #define YYSKELETON_NAME "yacc.c"
@@ -67,11 +70,11 @@
 #define yynerrs         __gettextnerrs
 
 
-/* Copy the first part of user declarations.  */
-#line 1 "plural.y" /* yacc.c:339  */
+/* First part of user prologue.  */
+#line 1 "plural.y" /* yacc.c:338  */
 
 /* Expression parsing for plural form selection.
-   Copyright (C) 2000-2016 Free Software Foundation, Inc.
+   Copyright (C) 2000-2019 Free Software Foundation, Inc.
    Written by Ulrich Drepper <drepper@cygnus.com>, 2000.
 
    This program is free software: you can redistribute it and/or modify
@@ -85,16 +88,7 @@
    GNU Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
-
-/* For bison < 2.0, the bison generated parser uses alloca.  AIX 3 forces us
-   to put this declaration at the beginning of the file.  The declaration in
-   bison's skeleton file comes too late.  This must come before <config.h>
-   because <config.h> may include arbitrary system headers.
-   This can go away once the AM_INTL_SUBDIR macro requires bison >= 2.0.  */
-#if defined _AIX && !defined __GNUC__
- #pragma alloca
-#endif
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 #ifdef HAVE_CONFIG_H
 # include <config.h>
@@ -112,13 +106,16 @@
 #endif
 
 
-#line 116 "plural.c" /* yacc.c:339  */
-
+#line 110 "plural.c" /* yacc.c:338  */
 # ifndef YY_NULLPTR
-#  if defined __cplusplus && 201103L <= __cplusplus
-#   define YY_NULLPTR nullptr
+#  if defined __cplusplus
+#   if 201103L <= __cplusplus
+#    define YY_NULLPTR nullptr
+#   else
+#    define YY_NULLPTR 0
+#   endif
 #  else
-#   define YY_NULLPTR 0
+#   define YY_NULLPTR ((void*)0)
 #  endif
 # endif
 
@@ -166,13 +163,13 @@ extern int __gettextdebug;
 
 union YYSTYPE
 {
-#line 49 "plural.y" /* yacc.c:355  */
+#line 40 "plural.y" /* yacc.c:353  */
 
   unsigned long int num;
   enum expression_operator op;
   struct expression *exp;
 
-#line 176 "plural.c" /* yacc.c:355  */
+#line 173 "plural.c" /* yacc.c:353  */
 };
 
 typedef union YYSTYPE YYSTYPE;
@@ -186,8 +183,8 @@ int __gettextparse (struct parse_args *arg);
 
 #endif /* !YY__GETTEXT_PLURAL_H_INCLUDED  */
 
-/* Copy the second part of user declarations.  */
-#line 55 "plural.y" /* yacc.c:358  */
+/* Second part of user prologue.  */
+#line 46 "plural.y" /* yacc.c:355  */
 
 /* Prototypes for local functions.  */
 static int yylex (YYSTYPE *lval, struct parse_args *arg);
@@ -264,7 +261,7 @@ new_exp_3 (enum expression_operator op, struct expression *bexp,
 }
 
 
-#line 268 "plural.c" /* yacc.c:358  */
+#line 265 "plural.c" /* yacc.c:355  */
 
 #ifdef short
 # undef short
@@ -285,13 +282,13 @@ typedef signed char yytype_int8;
 #ifdef YYTYPE_UINT16
 typedef YYTYPE_UINT16 yytype_uint16;
 #else
-typedef unsigned short int yytype_uint16;
+typedef unsigned short yytype_uint16;
 #endif
 
 #ifdef YYTYPE_INT16
 typedef YYTYPE_INT16 yytype_int16;
 #else
-typedef short int yytype_int16;
+typedef short yytype_int16;
 #endif
 
 #ifndef YYSIZE_T
@@ -303,7 +300,7 @@ typedef short int yytype_int16;
 #  include <stddef.h> /* INFRINGES ON USER NAME SPACE */
 #  define YYSIZE_T size_t
 # else
-#  define YYSIZE_T unsigned int
+#  define YYSIZE_T unsigned
 # endif
 #endif
 
@@ -339,15 +336,6 @@ typedef short int yytype_int16;
 # define YY_ATTRIBUTE_UNUSED YY_ATTRIBUTE ((__unused__))
 #endif
 
-#if !defined _Noreturn \
-     && (!defined __STDC_VERSION__ || __STDC_VERSION__ < 201112)
-# if defined _MSC_VER && 1200 <= _MSC_VER
-#  define _Noreturn __declspec (noreturn)
-# else
-#  define _Noreturn YY_ATTRIBUTE ((__noreturn__))
-# endif
-#endif
-
 /* Suppress unused-variable warnings by "using" E.  */
 #if ! defined lint || defined __GNUC__
 # define YYUSE(E) ((void) (E))
@@ -355,7 +343,7 @@ typedef short int yytype_int16;
 # define YYUSE(E) /* empty */
 #endif
 
-#if defined __GNUC__ && 407 <= __GNUC__ * 100 + __GNUC_MINOR__
+#if defined __GNUC__ && ! defined __ICC && 407 <= __GNUC__ * 100 + __GNUC_MINOR__
 /* Suppress an incorrect diagnostic about yylval being uninitialized.  */
 # define YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN \
     _Pragma ("GCC diagnostic push") \
@@ -523,7 +511,7 @@ union yyalloc
 #define YYMAXUTOK   262
 
 #define YYTRANSLATE(YYX)                                                \
-  ((unsigned int) (YYX) <= YYMAXUTOK ? yytranslate[YYX] : YYUNDEFTOK)
+  ((unsigned) (YYX) <= YYMAXUTOK ? yytranslate[YYX] : YYUNDEFTOK)
 
 /* YYTRANSLATE[TOKEN-NUM] -- Symbol number corresponding to TOKEN-NUM
    as returned by yylex, without out-of-bounds checking.  */
@@ -562,8 +550,8 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,   152,   152,   160,   164,   168,   172,   176,   180,   184,
-     188,   192,   196,   201
+       0,   143,   143,   151,   155,   159,   163,   167,   171,   175,
+     179,   183,   187,   192
 };
 #endif
 
@@ -743,38 +731,38 @@ do {                                                                      \
 } while (0)
 
 
-/*----------------------------------------.
-| Print this symbol's value on YYOUTPUT.  |
-`----------------------------------------*/
+/*-----------------------------------.
+| Print this symbol's value on YYO.  |
+`-----------------------------------*/
 
 static void
-yy_symbol_value_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, struct parse_args *arg)
+yy_symbol_value_print (FILE *yyo, int yytype, YYSTYPE const * const yyvaluep, struct parse_args *arg)
 {
-  FILE *yyo = yyoutput;
-  YYUSE (yyo);
+  FILE *yyoutput = yyo;
+  YYUSE (yyoutput);
   YYUSE (arg);
   if (!yyvaluep)
     return;
 # ifdef YYPRINT
   if (yytype < YYNTOKENS)
-    YYPRINT (yyoutput, yytoknum[yytype], *yyvaluep);
+    YYPRINT (yyo, yytoknum[yytype], *yyvaluep);
 # endif
   YYUSE (yytype);
 }
 
 
-/*--------------------------------.
-| Print this symbol on YYOUTPUT.  |
-`--------------------------------*/
+/*---------------------------.
+| Print this symbol on YYO.  |
+`---------------------------*/
 
 static void
-yy_symbol_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, struct parse_args *arg)
+yy_symbol_print (FILE *yyo, int yytype, YYSTYPE const * const yyvaluep, struct parse_args *arg)
 {
-  YYFPRINTF (yyoutput, "%s %s (",
+  YYFPRINTF (yyo, "%s %s (",
              yytype < YYNTOKENS ? "token" : "nterm", yytname[yytype]);
 
-  yy_symbol_value_print (yyoutput, yytype, yyvaluep, arg);
-  YYFPRINTF (yyoutput, ")");
+  yy_symbol_value_print (yyo, yytype, yyvaluep, arg);
+  YYFPRINTF (yyo, ")");
 }
 
 /*------------------------------------------------------------------.
@@ -808,7 +796,7 @@ do {                                                            \
 static void
 yy_reduce_print (yytype_int16 *yyssp, YYSTYPE *yyvsp, int yyrule, struct parse_args *arg)
 {
-  unsigned long int yylno = yyrline[yyrule];
+  unsigned long yylno = yyrline[yyrule];
   int yynrhs = yyr2[yyrule];
   int yyi;
   YYFPRINTF (stderr, "Reducing stack by rule %d (line %lu):\n",
@@ -941,7 +929,7 @@ yytnamerr (char *yyres, const char *yystr)
   if (! yyres)
     return yystrlen (yystr);
 
-  return yystpcpy (yyres, yystr) - yyres;
+  return (YYSIZE_T) (yystpcpy (yyres, yystr) - yyres);
 }
 # endif
 
@@ -1034,6 +1022,7 @@ yysyntax_error (YYSIZE_T *yymsg_alloc, char **yymsg,
       case N:                               \
         yyformat = S;                       \
       break
+    default: /* Avoid compiler warnings. */
       YYCASE_(0, YY_("syntax error"));
       YYCASE_(1, YY_("syntax error, unexpected %s"));
       YYCASE_(2, YY_("syntax error, unexpected %s, expecting %s"));
@@ -1187,12 +1176,12 @@ YYSTYPE yylval YY_INITIAL_VALUE (= yyval_default);
   yyssp++;
 
  yysetstate:
-  *yyssp = yystate;
+  *yyssp = (yytype_int16) yystate;
 
   if (yyss + yystacksize - 1 <= yyssp)
     {
       /* Get the current used size of the three stacks, in elements.  */
-      YYSIZE_T yysize = yyssp - yyss + 1;
+      YYSIZE_T yysize = (YYSIZE_T) (yyssp - yyss + 1);
 
 #ifdef yyoverflow
       {
@@ -1210,7 +1199,6 @@ YYSTYPE yylval YY_INITIAL_VALUE (= yyval_default);
                     &yyss1, yysize * sizeof (*yyssp),
                     &yyvs1, yysize * sizeof (*yyvsp),
                     &yystacksize);
-
         yyss = yyss1;
         yyvs = yyvs1;
       }
@@ -1244,7 +1232,7 @@ YYSTYPE yylval YY_INITIAL_VALUE (= yyval_default);
       yyvsp = yyvs + yysize - 1;
 
       YYDPRINTF ((stderr, "Stack size increased to %lu\n",
-                  (unsigned long int) yystacksize));
+                  (unsigned long) yystacksize));
 
       if (yyss + yystacksize - 1 <= yyssp)
         YYABORT;
@@ -1355,106 +1343,106 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 153 "plural.y" /* yacc.c:1646  */
+#line 144 "plural.y" /* yacc.c:1645  */
     {
 	    if ((yyvsp[0].exp) == NULL)
 	      YYABORT;
 	    arg->res = (yyvsp[0].exp);
 	  }
-#line 1365 "plural.c" /* yacc.c:1646  */
+#line 1353 "plural.c" /* yacc.c:1645  */
     break;
 
   case 3:
-#line 161 "plural.y" /* yacc.c:1646  */
+#line 152 "plural.y" /* yacc.c:1645  */
     {
 	    (yyval.exp) = new_exp_3 (qmop, (yyvsp[-4].exp), (yyvsp[-2].exp), (yyvsp[0].exp));
 	  }
-#line 1373 "plural.c" /* yacc.c:1646  */
+#line 1361 "plural.c" /* yacc.c:1645  */
     break;
 
   case 4:
-#line 165 "plural.y" /* yacc.c:1646  */
+#line 156 "plural.y" /* yacc.c:1645  */
     {
 	    (yyval.exp) = new_exp_2 (lor, (yyvsp[-2].exp), (yyvsp[0].exp));
 	  }
-#line 1381 "plural.c" /* yacc.c:1646  */
+#line 1369 "plural.c" /* yacc.c:1645  */
     break;
 
   case 5:
-#line 169 "plural.y" /* yacc.c:1646  */
+#line 160 "plural.y" /* yacc.c:1645  */
     {
 	    (yyval.exp) = new_exp_2 (land, (yyvsp[-2].exp), (yyvsp[0].exp));
 	  }
-#line 1389 "plural.c" /* yacc.c:1646  */
+#line 1377 "plural.c" /* yacc.c:1645  */
     break;
 
   case 6:
-#line 173 "plural.y" /* yacc.c:1646  */
+#line 164 "plural.y" /* yacc.c:1645  */
     {
 	    (yyval.exp) = new_exp_2 ((yyvsp[-1].op), (yyvsp[-2].exp), (yyvsp[0].exp));
 	  }
-#line 1397 "plural.c" /* yacc.c:1646  */
+#line 1385 "plural.c" /* yacc.c:1645  */
     break;
 
   case 7:
-#line 177 "plural.y" /* yacc.c:1646  */
+#line 168 "plural.y" /* yacc.c:1645  */
     {
 	    (yyval.exp) = new_exp_2 ((yyvsp[-1].op), (yyvsp[-2].exp), (yyvsp[0].exp));
 	  }
-#line 1405 "plural.c" /* yacc.c:1646  */
+#line 1393 "plural.c" /* yacc.c:1645  */
     break;
 
   case 8:
-#line 181 "plural.y" /* yacc.c:1646  */
+#line 172 "plural.y" /* yacc.c:1645  */
     {
 	    (yyval.exp) = new_exp_2 ((yyvsp[-1].op), (yyvsp[-2].exp), (yyvsp[0].exp));
 	  }
-#line 1413 "plural.c" /* yacc.c:1646  */
+#line 1401 "plural.c" /* yacc.c:1645  */
     break;
 
   case 9:
-#line 185 "plural.y" /* yacc.c:1646  */
+#line 176 "plural.y" /* yacc.c:1645  */
     {
 	    (yyval.exp) = new_exp_2 ((yyvsp[-1].op), (yyvsp[-2].exp), (yyvsp[0].exp));
 	  }
-#line 1421 "plural.c" /* yacc.c:1646  */
+#line 1409 "plural.c" /* yacc.c:1645  */
     break;
 
   case 10:
-#line 189 "plural.y" /* yacc.c:1646  */
+#line 180 "plural.y" /* yacc.c:1645  */
     {
 	    (yyval.exp) = new_exp_1 (lnot, (yyvsp[0].exp));
 	  }
-#line 1429 "plural.c" /* yacc.c:1646  */
+#line 1417 "plural.c" /* yacc.c:1645  */
     break;
 
   case 11:
-#line 193 "plural.y" /* yacc.c:1646  */
+#line 184 "plural.y" /* yacc.c:1645  */
     {
 	    (yyval.exp) = new_exp_0 (var);
 	  }
-#line 1437 "plural.c" /* yacc.c:1646  */
+#line 1425 "plural.c" /* yacc.c:1645  */
     break;
 
   case 12:
-#line 197 "plural.y" /* yacc.c:1646  */
+#line 188 "plural.y" /* yacc.c:1645  */
     {
 	    if (((yyval.exp) = new_exp_0 (num)) != NULL)
 	      (yyval.exp)->val.num = (yyvsp[0].num);
 	  }
-#line 1446 "plural.c" /* yacc.c:1646  */
+#line 1434 "plural.c" /* yacc.c:1645  */
     break;
 
   case 13:
-#line 202 "plural.y" /* yacc.c:1646  */
+#line 193 "plural.y" /* yacc.c:1645  */
     {
 	    (yyval.exp) = (yyvsp[-1].exp);
 	  }
-#line 1454 "plural.c" /* yacc.c:1646  */
+#line 1442 "plural.c" /* yacc.c:1645  */
     break;
 
 
-#line 1458 "plural.c" /* yacc.c:1646  */
+#line 1446 "plural.c" /* yacc.c:1645  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1479,14 +1467,13 @@ yyreduce:
   /* Now 'shift' the result of the reduction.  Determine what state
      that goes to, based on the state we popped back to and the rule
      number reduced by.  */
-
-  yyn = yyr1[yyn];
-
-  yystate = yypgoto[yyn - YYNTOKENS] + *yyssp;
-  if (0 <= yystate && yystate <= YYLAST && yycheck[yystate] == *yyssp)
-    yystate = yytable[yystate];
-  else
-    yystate = yydefgoto[yyn - YYNTOKENS];
+  {
+    const int yylhs = yyr1[yyn] - YYNTOKENS;
+    const int yyi = yypgoto[yylhs] + *yyssp;
+    yystate = (0 <= yyi && yyi <= YYLAST && yycheck[yyi] == *yyssp
+               ? yytable[yyi]
+               : yydefgoto[yylhs]);
+  }
 
   goto yynewstate;
 
@@ -1682,7 +1669,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 207 "plural.y" /* yacc.c:1906  */
+#line 198 "plural.y" /* yacc.c:1903  */
 
 
 void

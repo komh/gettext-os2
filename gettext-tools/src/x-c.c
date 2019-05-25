@@ -1,6 +1,5 @@
 /* xgettext C/C++/ObjectiveC backend.
-   Copyright (C) 1995-1998, 2000-2009, 2012, 2015-2016 Free Software
-   Foundation, Inc.
+   Copyright (C) 1995-1998, 2000-2009, 2012-2015, 2018 Free Software Foundation, Inc.
 
    This file was written by Peter Miller <millerp@canb.auug.org.au>
 
@@ -15,7 +14,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
@@ -32,7 +31,15 @@
 #include <string.h>
 
 #include "message.h"
+#include "rc-str-list.h"
 #include "xgettext.h"
+#include "xg-pos.h"
+#include "xg-encoding.h"
+#include "xg-mixed-string.h"
+#include "xg-arglist-context.h"
+#include "xg-arglist-callshape.h"
+#include "xg-arglist-parser.h"
+#include "xg-message.h"
 #include "error.h"
 #include "error-progname.h"
 #include "xalloc.h"
@@ -549,13 +556,6 @@ init_flag_table_kde ()
 
 /* ======================== Reading of characters.  ======================== */
 
-/* Real filename, used in error messages about the input file.  */
-static const char *real_file_name;
-
-/* Logical filename and line number, used to label the extracted messages.  */
-static char *logical_file_name;
-static int line_number;
-
 /* The input file stream.  */
 static FILE *fp;
 
@@ -747,7 +747,7 @@ phase2_ungetc (int c)
    line.  Basically, all you need to do is elide "\\\n" sequences from
    the input.  */
 
-static unsigned char phase3_pushback[2];
+static unsigned char phase3_pushback[9];
 static int phase3_pushback_length;
 
 
@@ -771,7 +771,7 @@ phase3_getc ()
 }
 
 
-/* Supports 2 characters of pushback.  */
+/* Supports 9 characters of pushback.  */
 static void
 phase3_ungetc (int c)
 {
@@ -952,246 +952,235 @@ typedef struct token_ty token_ty;
 struct token_ty
 {
   token_type_ty type;
-  char *string;         /* for token_type_name, token_type_string_literal */
+  char *string;                         /* for token_type_name */
+  mixed_string_ty *mixed_string;        /* for token_type_string_literal */
   refcounted_string_list_ty *comment;   /* for token_type_string_literal,
                                            token_type_objc_special */
-  enum literalstring_escape_type escape; /* for token_type_string_literal */
   long number;
   int line_number;
 };
+
+
+/* 7. Replace escape sequences within character strings with their
+   single character equivalents.  This is called from phase 5, because
+   we don't have to worry about the #include argument.  There are
+   pathological cases which could bite us (like the DOS directory
+   separator), but just pretend it can't happen.  */
+
+/* Return value of phase7_getc when EOF is reached.  */
+#define P7_EOF (-1)
+#define P7_STRING_END (-2)
+
+/* Replace escape sequences within character strings with their single
+   character equivalents.  */
+#define P7_QUOTES (-3)
+#define P7_QUOTE (-4)
+#define P7_NEWLINE (-5)
+
+/* Convert an UTF-16 or UTF-32 code point to a return value that can be
+   distinguished from a single-byte return value.  */
+#define UNICODE(code) (0x100 + (code))
+
+/* Test a return value of phase7_getuc whether it designates an UTF-16 or
+   UTF-32 code point.  */
+#define IS_UNICODE(p7_result) ((p7_result) >= 0x100)
+
+/* Extract the UTF-16 or UTF-32 code of a return value that satisfies
+   IS_UNICODE.  */
+#define UNICODE_VALUE(p7_result) ((p7_result) - 0x100)
+
+
+static int
+phase7_getc ()
+{
+  int c, n, j;
+
+  /* Use phase 3, because phase 4 elides comments.  */
+  c = phase3_getc ();
+
+  /* Return a magic newline indicator, so that we can distinguish
+     between the user requesting a newline in the string (e.g. using
+     "\n" or "\012") from the user failing to terminate the string or
+     character constant.  The ANSI C standard says: 3.1.3.4 Character
+     Constants contain "any character except single quote, backslash or
+     newline; or an escape sequence" and 3.1.4 String Literals contain
+     "any character except double quote, backslash or newline; or an
+     escape sequence".
+
+     Most compilers give a fatal error in this case, however gcc is
+     stupidly silent, even though this is a very common typo.  OK, so
+     "gcc --pedantic" will tell me, but that gripes about too much other
+     stuff.  Could I have a "gcc -Wnewline-in-string" option, or
+     better yet a "gcc -fno-newline-in-string" option, please?  Gcc is
+     also inconsistent between string literals and character constants:
+     you may not embed newlines in character constants; try it, you get
+     a useful diagnostic.  --PMiller  */
+  if (c == '\n')
+    return P7_NEWLINE;
+
+  if (c == '"')
+    return P7_QUOTES;
+  if (c == '\'')
+    return P7_QUOTE;
+  if (c != '\\')
+    return c;
+  c = phase3_getc ();
+  switch (c)
+    {
+    default:
+      /* Invalid escape sequences generate a GCC warning, and GCC transforms
+         \c to the character c.  So let's do the same.  */
+    case '"':
+    case '\'':
+    case '?':
+    case '\\':
+      return c;
+
+    case 'a':
+      return '\a';
+    case 'b':
+      return '\b';
+
+      /* The \e escape is preculiar to gcc, and assumes an ASCII
+         character set (or superset).  We don't provide support for it
+         here.  */
+
+    case 'f':
+      return '\f';
+    case 'n':
+      return '\n';
+    case 'r':
+      return '\r';
+    case 't':
+      return '\t';
+    case 'v':
+      return '\v';
+
+    case 'x':
+      c = phase3_getc ();
+      switch (c)
+        {
+        default:
+          phase3_ungetc (c);
+          phase3_ungetc ('x');
+          return '\\';
+
+        case '0': case '1': case '2': case '3': case '4':
+        case '5': case '6': case '7': case '8': case '9':
+        case 'A': case 'B': case 'C': case 'D': case 'E': case 'F':
+        case 'a': case 'b': case 'c': case 'd': case 'e': case 'f':
+          break;
+        }
+      n = 0;
+      for (;;)
+        {
+          switch (c)
+            {
+            default:
+              phase3_ungetc (c);
+              return n;
+
+            case '0': case '1': case '2': case '3': case '4':
+            case '5': case '6': case '7': case '8': case '9':
+              n = n * 16 + c - '0';
+              break;
+
+            case 'A': case 'B': case 'C': case 'D': case 'E': case 'F':
+              n = n * 16 + 10 + c - 'A';
+              break;
+
+            case 'a': case 'b': case 'c': case 'd': case 'e': case 'f':
+              n = n * 16 + 10 + c - 'a';
+              break;
+            }
+          c = phase3_getc ();
+        }
+      return n;
+
+    case '0': case '1': case '2': case '3':
+    case '4': case '5': case '6': case '7':
+      n = 0;
+      for (j = 0; j < 3; ++j)
+        {
+          n = n * 8 + c - '0';
+          c = phase3_getc ();
+          switch (c)
+            {
+            default:
+              break;
+
+            case '0': case '1': case '2': case '3':
+            case '4': case '5': case '6': case '7':
+              continue;
+            }
+          break;
+        }
+      phase3_ungetc (c);
+      return n;
+
+    case 'U': case 'u':
+      {
+        unsigned char buf[8];
+
+        n = 0;
+        for (j = 0; j < (c == 'u' ? 4 : 8); j++)
+          {
+            int c1 = phase3_getc ();
+
+            if (c1 >= '0' && c1 <= '9')
+              n = (n << 4) + (c1 - '0');
+            else if (c1 >= 'A' && c1 <= 'F')
+              n = (n << 4) + (c1 - 'A' + 10);
+            else if (c1 >= 'a' && c1 <= 'f')
+              n = (n << 4) + (c1 - 'a' + 10);
+            else
+              {
+                phase3_ungetc (c1);
+                while (--j >= 0)
+                  phase3_ungetc (buf[j]);
+                phase3_ungetc (c);
+                return '\\';
+              }
+
+            buf[j] = c1;
+          }
+
+        if (n < 0x110000)
+          return UNICODE (n);
+
+        error_with_progname = false;
+        error (0, 0, _("%s:%d: warning: invalid Unicode character"),
+               logical_file_name, line_number);
+        error_with_progname = true;
+
+        while (--j >= 0)
+          phase3_ungetc (buf[j]);
+        phase3_ungetc (c);
+        return '\\';
+      }
+    }
+}
+
+
+static void
+phase7_ungetc (int c)
+{
+  phase3_ungetc (c);
+}
 
 
 /* Free the memory pointed to by a 'struct token_ty'.  */
 static inline void
 free_token (token_ty *tp)
 {
-  if (tp->type == token_type_name || tp->type == token_type_string_literal)
+  if (tp->type == token_type_name)
     free (tp->string);
+  if (tp->type == token_type_string_literal)
+    mixed_string_free (tp->mixed_string);
   if (tp->type == token_type_string_literal
       || tp->type == token_type_objc_special)
     drop_reference (tp->comment);
 }
-
-
-static char *
-literalstring_parse (const char *string, lex_pos_ty *pos,
-                     enum literalstring_escape_type type)
-{
-  struct mixed_string_buffer *bp;
-  const char *p;
-
-  /* Start accumulating the string.  */
-  bp = mixed_string_buffer_alloc (lc_string,
-                                  logical_file_name,
-                                  line_number);
-
-  for (p = string; ; )
-    {
-      int c = *p++;
-
-      if (c == '\0')
-        break;
-
-      if (c != '\\')
-        {
-          mixed_string_buffer_append_char (bp, c);
-          continue;
-        }
-
-      if (!(type & LET_ANSI_C) && !(type & LET_UNICODE))
-        {
-          mixed_string_buffer_append_char (bp, '\\');
-          continue;
-        }
-
-      c = *p++;
-      if (c == '\0')
-        break;
-
-      if (type & LET_ANSI_C)
-        switch (c)
-          {
-          case '"':
-          case '\'':
-          case '?':
-          case '\\':
-            mixed_string_buffer_append_char (bp, c);
-            continue;
-
-          case 'a':
-            mixed_string_buffer_append_char (bp, '\a');
-            continue;
-          case 'b':
-            mixed_string_buffer_append_char (bp, '\b');
-            continue;
-
-            /* The \e escape is preculiar to gcc, and assumes an ASCII
-               character set (or superset).  We don't provide support for it
-               here.  */
-
-          case 'f':
-            mixed_string_buffer_append_char (bp, '\f');
-            continue;
-          case 'n':
-            mixed_string_buffer_append_char (bp, '\n');
-            continue;
-          case 'r':
-            mixed_string_buffer_append_char (bp, '\r');
-            continue;
-          case 't':
-            mixed_string_buffer_append_char (bp, '\t');
-            continue;
-          case 'v':
-            mixed_string_buffer_append_char (bp, '\v');
-            continue;
-
-          case 'x':
-            c = *p++;
-            if (c == '\0')
-              break;
-            switch (c)
-              {
-              default:
-                mixed_string_buffer_append_char (bp, '\\');
-                mixed_string_buffer_append_char (bp, 'x');
-                mixed_string_buffer_append_char (bp, c);
-                break;
-
-              case '0': case '1': case '2': case '3': case '4':
-              case '5': case '6': case '7': case '8': case '9':
-              case 'A': case 'B': case 'C': case 'D': case 'E': case 'F':
-              case 'a': case 'b': case 'c': case 'd': case 'e': case 'f':
-                {
-                  int n;
-
-                  for (n = 0; ; c = *p++)
-                    {
-                      switch (c)
-                        {
-                        default:
-                          break;
-
-                        case '0': case '1': case '2': case '3': case '4':
-                        case '5': case '6': case '7': case '8': case '9':
-                          n = n * 16 + c - '0';
-                          continue;
-
-                        case 'A': case 'B': case 'C': case 'D': case 'E':
-                        case 'F':
-                          n = n * 16 + 10 + c - 'A';
-                          continue;
-
-                        case 'a': case 'b': case 'c': case 'd': case 'e':
-                        case 'f':
-                          n = n * 16 + 10 + c - 'a';
-                          continue;
-                        }
-                      break;
-                    }
-
-                  mixed_string_buffer_append_char (bp, n);
-                  --p;
-                }
-                break;
-              }
-            continue;
-
-          case '0': case '1': case '2': case '3':
-          case '4': case '5': case '6': case '7':
-            {
-              int n, j;
-
-              for (n = 0, j = 0; j < 3; ++j)
-                {
-                  n = n * 8 + c - '0';
-                  c = *p++;
-                  switch (c)
-                    {
-                    default:
-                      break;
-
-                    case '0': case '1': case '2': case '3':
-                    case '4': case '5': case '6': case '7':
-                      continue;
-                    }
-                  break;
-                }
-
-              mixed_string_buffer_append_char (bp, n);
-              --p;
-            }
-            continue;
-          }
-
-      if (type & LET_UNICODE)
-        switch (c)
-          {
-          case 'U': case 'u':
-            {
-              unsigned char buf[8];
-              int prefix = c;
-              int length = prefix == 'u' ? 4 : 8;
-              int n, j;
-
-              for (n = 0, j = 0; j < length; j++)
-                {
-                  c = *p++;
-
-                  if (c >= '0' && c <= '9')
-                    n = (n << 4) + (c - '0');
-                  else if (c >= 'A' && c <= 'F')
-                    n = (n << 4) + (c - 'A' + 10);
-                  else if (c >= 'a' && c <= 'f')
-                    n = (n << 4) + (c - 'a' + 10);
-                  else
-                    break;
-
-                  buf[j] = c;
-                }
-
-              if (j == length)
-                {
-                  if (n < 0x110000)
-                    mixed_string_buffer_append_unicode (bp, n);
-                  else
-                    {
-                      error_with_progname = false;
-                      error_at_line (0, 0,
-                                     pos->file_name, pos->line_number,
-                                     _("\
-warning: invalid Unicode character"));
-                      error_with_progname = true;
-                    }
-                }
-              else
-                {
-                  int i;
-
-                  mixed_string_buffer_append_char (bp, '\\');
-                  mixed_string_buffer_append_char (bp, prefix);
-
-                  for (i = 0; i < j; i++)
-                    mixed_string_buffer_append_char (bp, buf[i]);
-
-                  --p;
-                }
-            }
-            continue;
-          }
-
-      if (c == '\0')
-        break;
-
-      mixed_string_buffer_append_char (bp, c);
-    }
-
-  return mixed_string_buffer_done (bp);
-}
-
-struct literalstring_parser literalstring_c =
-  {
-    literalstring_parse
-  };
 
 
 /* 5. Parse each resulting logical line as preprocessing tokens and
@@ -1208,11 +1197,6 @@ phase5_get (token_ty *tp)
   static int bufmax;
   int bufpos;
   int c;
-  int last_was_backslash;
-  bool raw_expected = false;
-  int delimiter_left_end;
-  int delimiter_right_start;
-  int last_rparen;
 
   if (phase5_pushback_length)
     {
@@ -1291,69 +1275,184 @@ phase5_get (token_ty *tp)
             case '5': case '6': case '7': case '8': case '9':
               continue;
 
-            default:
-              /* Recognize string literals prefixed by R, u8, u8R, u,
-                 uR, U, UR, L, or LR.  It is defined in the C standard
-                 ISO/IEC 9899:201x and the C++ standard ISO/IEC
-                 14882:2011.  The raw string literals prefixed by R,
-                 u8R, uR, UR, or LR are only valid in C++.
-
-                 Since gettext's argument is a byte sequence, we are
-                 only interested in u8, R, and u8R.  */
-              if (c == '"')
+            case '"':
+              /* Recognize C11 / C++11 string literals.
+                 See (for C) ISO 9899:2011 section 6.4.5
+                 and (for C++) ISO C++ 11 section 2.14.5 [lex.string].
+                 Note: The programmer who passes an UTF-8 encoded string to
+                 gettext() or similar API functions will have to have called
+                 bind_textdomain_codeset (DOMAIN, "UTF-8") first.  */
+              if (bufpos == 2 && buffer[0] == 'u' && buffer[1] == '8')
+                goto string_literal;
+              /* Recognize C++11 raw string literals.
+                 See ISO C++ 11 section 2.14.5 [lex.string].
+                 Here it is important to properly parse all cases according to
+                 the standard, otherwise our parser could get confused by
+                 double-quotes inside the raw string.
+                 Note: The programmer who passes an UTF-8 encoded string to
+                 gettext() or similar API functions will have to have called
+                 bind_textdomain_codeset (DOMAIN, "UTF-8") first.  */
+              if (cxx_extensions
+                  && (bufpos == 1
+                      || (bufpos == 2
+                          && (buffer[0] == 'u' || buffer[0] == 'U'
+                              || buffer[0] == 'L'))
+                      || (bufpos == 3 && buffer[0] == 'u' && buffer[1] == '8'))
+                  && buffer[bufpos - 1] == 'R')
                 {
-                  bool is_prefix = false;
-
-                  switch (buffer[0])
+                  /* Only R and u8R raw strings can be used as gettext()
+                     arguments, for type reasons.  */
+                  const bool relevant = (bufpos != 2);
+                  int starting_line_number = line_number;
+                  bufpos = 0;
+                  /* Start the buffer with a closing parenthesis.  This makes the
+                     parsing code below simpler.  */
+                  buffer[bufpos++] = ')';
+                  /* Parse the initial delimiter.  */
+                  for (;;)
                     {
-                    case 'R':
-                      if (cxx_extensions && bufpos == 1)
-                        {
-                          is_prefix = true;
-                          raw_expected = true;
-                        }
-                      break;
-                    case 'u':
-                      if (bufpos == 1)
-                        is_prefix = true;
-                      else
-                        switch (buffer[1])
-                          {
-                          case 'R':
-                            if (cxx_extensions && bufpos == 2)
-                              {
-                                is_prefix = true;
-                                raw_expected = true;
-                              }
-                            break;
-                          case '8':
-                            if (bufpos == 2)
-                              is_prefix = true;
-                            else if (cxx_extensions
-                                     && bufpos == 3 && buffer[2] == 'R')
-                              {
-                                is_prefix = true;
-                                raw_expected = true;
-                              }
-                            break;
-                          }
-                      break;
-                    case 'U':
-                    case 'L':
-                      if (bufpos == 1)
-                        is_prefix = true;
-                      else if (cxx_extensions
-                               && bufpos == 2 && buffer[1] == 'R')
-                        {
-                          is_prefix = true;
-                          raw_expected = true;
-                        }
-                      break;
-                    }
+                      bool valid_delimiter_char;
 
-                  if (is_prefix)
-                    goto string;
+                      c = phase3_getc ();
+                      switch (c)
+                        {
+                        case 'A': case 'B': case 'C': case 'D': case 'E':
+                        case 'F': case 'G': case 'H': case 'I': case 'J':
+                        case 'K': case 'L': case 'M': case 'N': case 'O':
+                        case 'P': case 'Q': case 'R': case 'S': case 'T':
+                        case 'U': case 'V': case 'W': case 'X': case 'Y':
+                        case 'Z':
+                        case 'a': case 'b': case 'c': case 'd': case 'e':
+                        case 'f': case 'g': case 'h': case 'i': case 'j':
+                        case 'k': case 'l': case 'm': case 'n': case 'o':
+                        case 'p': case 'q': case 'r': case 's': case 't':
+                        case 'u': case 'v': case 'w': case 'x': case 'y':
+                        case 'z':
+                        case '0': case '1': case '2': case '3': case '4':
+                        case '5': case '6': case '7': case '8': case '9':
+                        case '_': case '{': case '}': case '[': case ']':
+                        case '#': case '<': case '>': case '%': case ':':
+                        case ';': case '.': case '?': case '*': case '+':
+                        case '-': case '/': case '^': case '&': case '|':
+                        case '~': case '!': case '=': case ',': case '\'':
+                          valid_delimiter_char = true;
+                          break;
+                        case '"':
+                          /* A double-quote within the delimiter! This is too
+                             weird.  We don't support this.  */
+                          error_with_progname = false;
+                          error (0, 0, _("%s:%d: warning: a double-quote in the delimiter of a raw string literal is unsupported"),
+                                 logical_file_name, starting_line_number);
+                          error_with_progname = true;
+                          /* FALLTHROUGH */
+                        default:
+                          valid_delimiter_char = false;
+                          break;
+                        }
+                      if (!valid_delimiter_char)
+                        break;
+
+                      if (bufpos >= bufmax)
+                        {
+                          bufmax = 2 * bufmax + 10;
+                          buffer = xrealloc (buffer, bufmax);
+                        }
+                      buffer[bufpos++] = c;
+                    }
+                  if (c == '(')
+                    {
+                      struct mixed_string_buffer msb;
+                      /* The state is either 0 or
+                         N, after a ')' and N-1 bytes of the delimiter have been
+                         encountered.  */
+                      int state;
+
+                      /* Start accumulating the string.  */
+                      if (relevant)
+                        mixed_string_buffer_init (&msb, lc_string,
+                                                  logical_file_name,
+                                                  line_number);
+                      state = 0;
+
+                      for (;;)
+                        {
+                          c = phase3_getc ();
+
+                          /* Keep line_number in sync.  */
+                          if (relevant)
+                            msb.line_number = line_number;
+
+                          if (c == EOF)
+                            break;
+
+                          /* Update the state.  */
+                          if (c == (state < bufpos ? buffer[state] : '"'))
+                            {
+                              if (state < bufpos)
+                                state++;
+                              else /* state == bufpos && c == '"' */
+                                {
+                                  /* Finished parsing the string.  */
+                                  if (relevant)
+                                    {
+                                      tp->type = token_type_string_literal;
+                                      tp->mixed_string = mixed_string_buffer_result (&msb);
+                                      tp->comment = add_reference (savable_comment);
+                                    }
+                                  else
+                                    tp->type = token_type_symbol;
+                                  return;
+                                }
+                            }
+                          else
+                            {
+                              int i;
+
+                              /* None of the bytes buffer[0]...buffer[state-1]
+                                 can be ')'.  */
+                              if (relevant)
+                                for (i = 0; i < state; i++)
+                                  mixed_string_buffer_append_char (&msb, buffer[i]);
+
+                              /* But c may be ')'.  */
+                              if (c == ')')
+                                state = 1;
+                              else
+                                {
+                                  if (relevant)
+                                    mixed_string_buffer_append_char (&msb, c);
+                                  state = 0;
+                                }
+                            }
+                        }
+                    }
+                  if (c == EOF)
+                    {
+                      error_with_progname = false;
+                      error (0, 0, _("%s:%d: warning: unterminated raw string literal"),
+                             logical_file_name, starting_line_number);
+                      error_with_progname = true;
+                      tp->type = token_type_eof;
+                      return;
+                    }
+                  /* The error message for c == '"' was already emitted above.  */
+                  if (c != '"')
+                    {
+                      error_with_progname = false;
+                      error (0, 0, _("%s:%d: warning: invalid raw string literal syntax"),
+                             logical_file_name, starting_line_number);
+                      error_with_progname = true;
+                    }
+                  /* To get into a sane state, read up until the next double-quote,
+                     newline, or EOF.  */
+                  while (!(c == EOF || c == '"' || c == '\n'))
+                    c = phase3_getc ();
+                  tp->type = token_type_symbol;
+                  return;
                 }
+              /* FALLTHROUGH */
+
+            default:
               phase4_ungetc (c);
               break;
             }
@@ -1402,6 +1501,11 @@ phase5_get (token_ty *tp)
           c = phase4_getc ();
           switch (c)
             {
+            case 'p':
+            case 'P':
+              /* In C99 and C++17, 'p' and 'P' can be used as an exponent
+                 marker.  */
+              /* FALLTHROUGH */
             case 'e':
             case 'E':
               if (bufpos >= bufmax)
@@ -1420,12 +1524,12 @@ phase5_get (token_ty *tp)
 
             case 'A': case 'B': case 'C': case 'D':           case 'F':
             case 'G': case 'H': case 'I': case 'J': case 'K': case 'L':
-            case 'M': case 'N': case 'O': case 'P': case 'Q': case 'R':
+            case 'M': case 'N': case 'O':           case 'Q': case 'R':
             case 'S': case 'T': case 'U': case 'V': case 'W': case 'X':
             case 'Y': case 'Z':
             case 'a': case 'b': case 'c': case 'd':           case 'f':
             case 'g': case 'h': case 'i': case 'j': case 'k': case 'l':
-            case 'm': case 'n': case 'o': case 'p': case 'q': case 'r':
+            case 'm': case 'n': case 'o':           case 'q': case 'r':
             case 's': case 't': case 'u': case 'v': case 'w': case 'x':
             case 'y': case 'z':
             case '0': case '1': case '2': case '3': case '4':
@@ -1433,6 +1537,56 @@ phase5_get (token_ty *tp)
             case '.':
               continue;
 
+            case '_':
+              if (cxx_extensions)
+                /* In C++, an underscore can be part of a preprocessing number
+                   token.  */
+                continue;
+              else
+                {
+                  phase4_ungetc (c);
+                  break;
+                }
+
+            case '\'':
+              if (cxx_extensions)
+                {
+                  /* In C++14, a single-quote followed by a digit, ASCII letter,
+                     or underscore can be part of a preprocessing number token.  */
+                  int c1 = phase4_getc ();
+                  switch (c1)
+                    {
+                    case '0': case '1': case '2': case '3': case '4':
+                    case '5': case '6': case '7': case '8': case '9':
+                    case 'A': case 'B': case 'C': case 'D': case 'E': case 'F':
+                    case 'G': case 'H': case 'I': case 'J': case 'K': case 'L':
+                    case 'M': case 'N': case 'O': case 'P': case 'Q': case 'R':
+                    case 'S': case 'T': case 'U': case 'V': case 'W': case 'X':
+                    case 'Y': case 'Z':
+                    case 'a': case 'b': case 'c': case 'd': case 'e': case 'f':
+                    case 'g': case 'h': case 'i': case 'j': case 'k': case 'l':
+                    case 'm': case 'n': case 'o': case 'p': case 'q': case 'r':
+                    case 's': case 't': case 'u': case 'v': case 'w': case 'x':
+                    case 'y': case 'z':
+                    case '_':
+                      if (bufpos >= bufmax)
+                        {
+                          bufmax = 2 * bufmax + 10;
+                          buffer = xrealloc (buffer, bufmax);
+                        }
+                      buffer[bufpos++] = c;
+                      c = c1;
+                      continue;
+                    default:
+                      /* The two phase4_getc() calls that returned c and c1 did
+                         nothing more than to call phase3_getc(), without any
+                         lookahead.  Therefore 2 pushback characters are
+                         supported in this case.  */
+                      phase4_ungetc (c1);
+                      break;
+                    }
+                }
+              /* FALLTHROUGH */
             default:
               phase4_ungetc (c);
               break;
@@ -1454,148 +1608,70 @@ phase5_get (token_ty *tp)
          but ignoring it has no effect unless one of the keywords is
          "L".  Just pretend it won't happen.  Also, we don't need to
          remember the character constant.  */
-      last_was_backslash = false;
       for (;;)
         {
-          c = phase3_getc ();
-          if (last_was_backslash)
+          c = phase7_getc ();
+          if (c == P7_NEWLINE)
             {
-              last_was_backslash = false;
-              continue;
-            }
-          switch (c)
-            {
-            case '\\':
-              last_was_backslash = true;
-              /* FALLTHROUGH */
-            default:
-              continue;
-            case '\n':
               error_with_progname = false;
               error (0, 0, _("%s:%d: warning: unterminated character constant"),
                      logical_file_name, line_number - 1);
               error_with_progname = true;
-              phase3_ungetc ('\n');
-              break;
-            case EOF: case '\'':
+              phase7_ungetc ('\n');
               break;
             }
-          break;
+          if (c == EOF || c == P7_QUOTE)
+            break;
         }
       tp->type = token_type_character_constant;
       return;
 
     case '"':
+    string_literal:
+      /* We could worry about the 'L' or 'u' or 'U' before wide string
+         constants, but since gettext's argument is a 'const char *', not
+         a 'const wchar_t *' (for 'L') nor a 'const char16_t *' (for 'u')
+         nor a 'const char32_t *' (for 'U'), the compiler would complain
+         about the argument not matching the prototype.  Just pretend it
+         won't happen.  */
       {
-      string:
-        /* We could worry about the 'L' before wide string constants,
-           but since gettext's argument is not a wide character string,
-           let the compiler complain about the argument not matching the
-           prototype.  Just pretend it won't happen.  */
-        last_was_backslash = false;
-        delimiter_left_end = -1;
-        delimiter_right_start = -1;
-        last_rparen = -1;
-        bufpos = 0;
+        struct mixed_string_buffer msb;
+
+        /* Start accumulating the string.  */
+        mixed_string_buffer_init (&msb, lc_string,
+                                  logical_file_name, line_number);
+
         for (;;)
           {
-            c = phase3_getc ();
-            if (last_was_backslash && !raw_expected)
-              {
-                last_was_backslash = false;
-                if (bufpos >= bufmax)
-                  {
-                    bufmax = 2 * bufmax + 10;
-                    buffer = xrealloc (buffer, bufmax);
-                  }
-                buffer[bufpos++] = c;
-                continue;
-              }
-            switch (c)
-              {
-              case '\\':
-                last_was_backslash = true;
-                /* FALLTHROUGH */
-              default:
-                if (raw_expected)
-                  {
-                    if (c == '(' && delimiter_left_end < 0)
-                      delimiter_left_end = bufpos;
-                    else if (c == ')' && delimiter_left_end >= 0)
-                      last_rparen = bufpos;
-                  }
-                else if (c == '\n')
-                  {
-                    error_with_progname = false;
-                    error (0, 0,
-                           _("%s:%d: warning: unterminated string literal"),
-                           logical_file_name, line_number - 1);
-                    error_with_progname = true;
-                    phase3_ungetc ('\n');
-                    break;
-                  }
-                if (bufpos >= bufmax)
-                  {
-                    bufmax = 2 * bufmax + 10;
-                    buffer = xrealloc (buffer, bufmax);
-                  }
-                buffer[bufpos++] = c;
-                continue;
+            c = phase7_getc ();
 
-              case '"':
-                if (raw_expected && delimiter_left_end >= 0)
-                  {
-                    if (last_rparen < 0
-                        || delimiter_left_end != bufpos - (last_rparen + 1)
-                        || strncmp (buffer, buffer + last_rparen + 1,
-                                    delimiter_left_end) != 0)
-                      {
-                        if (bufpos >= bufmax)
-                          {
-                            bufmax = 2 * bufmax + 10;
-                            buffer = xrealloc (buffer, bufmax);
-                          }
-                        buffer[bufpos++] = c;
-                        continue;
-                      }
-                    delimiter_right_start = last_rparen;
-                  }
-                break;
+            /* Keep line_number in sync.  */
+            msb.line_number = line_number;
 
-              case EOF:
-                break;
-              }
-            break;
-          }
-        if (bufpos >= bufmax)
-          {
-            bufmax = 2 * bufmax + 10;
-            buffer = xrealloc (buffer, bufmax);
-          }
-        buffer[bufpos] = 0;
-
-        if (raw_expected)
-          {
-            if (delimiter_left_end < 0 || delimiter_right_start < 0)
+            if (c == P7_NEWLINE)
               {
                 error_with_progname = false;
                 error (0, 0, _("%s:%d: warning: unterminated string literal"),
                        logical_file_name, line_number - 1);
                 error_with_progname = true;
+                phase7_ungetc ('\n');
+                break;
+              }
+            if (c == EOF || c == P7_QUOTES)
+              break;
+            if (c == P7_QUOTE)
+              c = '\'';
+            if (IS_UNICODE (c))
+              {
+                assert (UNICODE_VALUE (c) >= 0
+                        && UNICODE_VALUE (c) < 0x110000);
+                mixed_string_buffer_append_unicode (&msb, UNICODE_VALUE (c));
               }
             else
-              {
-                buffer[delimiter_right_start] = '\0';
-                tp->type = token_type_string_literal;
-                tp->string = xstrdup (&buffer[delimiter_left_end + 1]);
-                tp->escape = LET_NONE;
-                tp->comment = add_reference (savable_comment);
-                return;
-              }
+              mixed_string_buffer_append_char (&msb, c);
           }
         tp->type = token_type_string_literal;
-        tp->string = xstrdup (buffer);
-        tp->escape = LET_ANSI_C | LET_UNICODE;
+        tp->mixed_string = mixed_string_buffer_result (&msb);
         tp->comment = add_reference (savable_comment);
         return;
       }
@@ -1762,13 +1838,13 @@ phase6_get (token_ty *tp)
           && buf[1].type == token_type_number
           && buf[2].type == token_type_string_literal)
         {
-          logical_file_name = xstrdup (buf[2].string);
+          logical_file_name = mixed_string_contents (buf[2].mixed_string);
           line_number = buf[1].number;
         }
       if (bufpos >= 2 && buf[0].type == token_type_number
           && buf[1].type == token_type_string_literal)
         {
-          logical_file_name = xstrdup (buf[1].string);
+          logical_file_name = mixed_string_contents (buf[1].mixed_string);
           line_number = buf[0].number;
         }
 
@@ -1846,10 +1922,11 @@ phase8a_get (token_ty *tp)
       /* Turn PRIdXXX into "<PRIdXXX>".  */
       char *new_string = xasprintf ("<%s>", tp->string);
       free (tp->string);
-      tp->string = new_string;
+      tp->mixed_string =
+        mixed_string_alloc_utf8 (new_string, lc_string,
+                                 logical_file_name, line_number);
       tp->comment = add_reference (savable_comment);
       tp->type = token_type_string_literal;
-      tp->escape = LET_ANSI_C | LET_UNICODE;
     }
 }
 
@@ -1930,10 +2007,7 @@ phase8c_unget (token_ty *tp)
 
 /* 8. Concatenate adjacent string literals to form single string
    literals (because we don't expand macros, there are a few things we
-   will miss).
-
-   FIXME: handle the case when the string literals have different
-   tp->escape setting.  */
+   will miss).  */
 
 static void
 phase8_get (token_ty *tp)
@@ -1944,7 +2018,6 @@ phase8_get (token_ty *tp)
   for (;;)
     {
       token_ty tmp;
-      size_t len;
 
       phase8c_get (&tmp);
       if (tmp.type != token_type_string_literal)
@@ -1952,9 +2025,8 @@ phase8_get (token_ty *tp)
           phase8c_unget (&tmp);
           return;
         }
-      len = strlen (tp->string);
-      tp->string = xrealloc (tp->string, len + strlen (tmp.string) + 1);
-      strcpy (tp->string + len, tmp.string);
+      tp->mixed_string =
+        mixed_string_concat_free1 (tp->mixed_string, tmp.mixed_string);
       free_token (&tmp);
     }
 }
@@ -1985,19 +2057,18 @@ struct xgettext_token_ty
   /* This field is used only for xgettext_token_type_keyword.  */
   const struct callshapes *shapes;
 
-  /* This field is used only for xgettext_token_type_string_literal,
-     xgettext_token_type_keyword, xgettext_token_type_symbol.  */
+  /* This field is used only for xgettext_token_type_keyword,
+     xgettext_token_type_symbol.  */
   char *string;
 
   /* This field is used only for xgettext_token_type_string_literal.  */
-  enum literalstring_escape_type escape;
+  mixed_string_ty *mixed_string;
 
   /* This field is used only for xgettext_token_type_string_literal.  */
   refcounted_string_list_ty *comment;
 
-  /* These fields are only for
-       xgettext_token_type_keyword,
-       xgettext_token_type_string_literal.  */
+  /* This field is used only for xgettext_token_type_keyword,
+     xgettext_token_type_string_literal.  */
   lex_pos_ty pos;
 };
 
@@ -2066,8 +2137,7 @@ x_c_lex (xgettext_token_ty *tp)
           last_non_comment_line = newline_count;
 
           tp->type = xgettext_token_type_string_literal;
-          tp->string = token.string;
-          tp->escape = token.escape;
+          tp->mixed_string = token.mixed_string;
           tp->comment = token.comment;
           tp->pos.file_name = logical_file_name;
           tp->pos.line_number = token.line_number;
@@ -2222,42 +2292,22 @@ extract_parenthesized (message_list_ty *mlp,
           continue;
 
         case xgettext_token_type_string_literal:
-          if (extract_all)
-            {
-              char *string;
-              refcounted_string_list_ty *comment;
-              const char *encoding;
-
-              string = literalstring_parse (token.string, &token.pos,
-                                            token.escape);
-              free (token.string);
-              token.string = string;
-
-              if (token.comment != NULL)
-                {
-                  comment = savable_comment_convert_encoding (token.comment,
-                                                              &token.pos);
-                  drop_reference (token.comment);
-                  token.comment = comment;
-                }
-
-              /* token.string and token.comment are already converted
-                 to UTF-8.  Prevent further conversion in
-                 remember_a_message.  */
-              encoding = xgettext_current_source_encoding;
-              xgettext_current_source_encoding = po_charset_utf8;
-              remember_a_message (mlp, NULL, token.string, inner_context,
-                                  &token.pos, NULL, token.comment);
-              xgettext_current_source_encoding = encoding;
-            }
-          else
-            arglist_parser_remember_literal (argparser, arg, token.string,
-                                             inner_context,
-                                             token.pos.file_name,
-                                             token.pos.line_number,
-                                             token.comment,
-                                             token.escape);
-          drop_reference (token.comment);
+          {
+            if (extract_all)
+              {
+                char *string = mixed_string_contents (token.mixed_string);
+                mixed_string_free (token.mixed_string);
+                remember_a_message (mlp, NULL, string, true, inner_context,
+                                    &token.pos, NULL, token.comment, false);
+              }
+            else
+              arglist_parser_remember (argparser, arg, token.mixed_string,
+                                       inner_context,
+                                       token.pos.file_name,
+                                       token.pos.line_number,
+                                       token.comment, false);
+            drop_reference (token.comment);
+          }
           next_context_iter = null_context_list_iterator;
           selectorcall_context_iter = null_context_list_iterator;
           state = 0;

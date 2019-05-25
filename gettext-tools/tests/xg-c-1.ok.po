@@ -16,7 +16,7 @@ msgstr ""
 #, c-format, no-wrap
 msgid ""
 "Copyright (C) %s Free Software Foundation, Inc.\n"
-"License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>\n"
+"License GPLv3+: GNU GPL version 3 or later <%s>\n"
 "This is free software: you are free to change and redistribute it.\n"
 "There is NO WARRANTY, to the extent permitted by law.\n"
 msgstr ""
@@ -143,8 +143,8 @@ msgid ""
 "                                EmacsLisp, librep, Scheme, Smalltalk, Java,\n"
 "                                JavaProperties, C#, awk, YCP, Tcl, Perl, "
 "PHP,\n"
-"                                GCC-source, NXStringTable, RST, Glade, Lua,\n"
-"                                JavaScript, Vala, Desktop)\n"
+"                                GCC-source, NXStringTable, RST, RSJ, Glade,\n"
+"                                Lua, JavaScript, Vala, Desktop)\n"
 msgstr ""
 
 #, c-format
@@ -423,7 +423,10 @@ msgstr ""
 msgid "  -V, --version               output version information and exit\n"
 msgstr ""
 
-msgid "Report bugs to <bug-gnu-gettext@gnu.org>.\n"
+#, c-format
+msgid ""
+"Report bugs in the bug tracker at <%s>\n"
+"or by email to <%s>.\n"
 msgstr ""
 
 msgid "this file may not contain domain directives"
@@ -440,66 +443,6 @@ msgstr ""
 
 #, c-format
 msgid "error while opening \"%s\" for reading"
-msgstr ""
-
-#, c-format
-msgid "Non-ASCII character at %s%s."
-msgstr ""
-
-#, c-format
-msgid "Non-ASCII comment at or before %s%s."
-msgstr ""
-
-#, c-format
-msgid "Non-ASCII string at %s%s."
-msgstr ""
-
-msgid "Please specify the source encoding through --from-code."
-msgstr ""
-
-#, c-format
-msgid "%s%s: warning: "
-msgstr ""
-
-#, c-format
-msgid ""
-"Although being used in a format string position, the %s is not a valid %s "
-"format string. Reason: %s\n"
-msgstr ""
-
-#, c-format
-msgid ""
-"Although declared as such, the %s is not a valid %s format string. Reason: "
-"%s\n"
-msgstr ""
-
-#, c-format
-msgid ""
-"'%s' format string with unnamed arguments cannot be properly localized:\n"
-"The translator cannot reorder the arguments.\n"
-"Please consider using a format string with named arguments,\n"
-"and a mapping instead of a tuple for the arguments.\n"
-msgstr ""
-
-msgid ""
-"Empty msgid.  It is reserved by GNU gettext:\n"
-"gettext(\"\") returns the header entry with\n"
-"meta information, not the empty string.\n"
-msgstr ""
-
-#, c-format
-msgid "ambiguous argument specification for keyword '%.*s'"
-msgstr ""
-
-#, c-format
-msgid "warning: missing context for keyword '%.*s'"
-msgstr ""
-
-#, c-format
-msgid "warning: missing context for plural argument of keyword '%.*s'"
-msgstr ""
-
-msgid "context mismatch between singular and plural form"
 msgstr ""
 
 msgid ""
@@ -818,12 +761,6 @@ msgid "warning: PO file header missing or invalid\n"
 msgstr ""
 
 msgid "warning: charset conversion will not work\n"
-msgstr ""
-
-msgid "warning: PO file header fuzzy\n"
-msgstr ""
-
-msgid "warning: older versions of msgfmt will give an error on this\n"
 msgstr ""
 
 #, c-format

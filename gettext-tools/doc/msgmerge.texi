@@ -1,3 +1,7 @@
+@c This file is part of the GNU gettext manual.
+@c Copyright (C) 1995-2019 Free Software Foundation, Inc.
+@c See the file gettext.texi for copying conditions.
+
 @pindex msgmerge
 @cindex @code{msgmerge} program, usage
 @example
@@ -119,6 +123,14 @@ The backup suffix is @samp{~}, unless set with @code{--suffix} or the
 @opindex -m@r{, @code{msgmerge} option}
 @opindex --multi-domain@r{, @code{msgmerge} option}
 Apply @var{ref}.pot to each of the domains in @var{def}.po.
+
+@item --for-msgfmt
+@opindex --for-msgfmt@r{, @code{msgmerge} option}
+Produce a PO file meant for @code{msgfmt} only, not for a translator.
+This option omits untranslated messages, fuzzy messages (except the header
+entry), and obsolete messages from the output.  Also, it omits translator
+comments and @samp{#: @var{filename}:@var{line}} lines from the output.
+In particular, this option implies @samp{--no-fuzzy-matching}.
 
 @item -N
 @itemx --no-fuzzy-matching

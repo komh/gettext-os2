@@ -1,5 +1,5 @@
 /* kwset.c - search for any of a set of keywords.
-   Copyright 1989, 1998, 2000, 2005-2006, 2010, 2012, 2015-2016 Free Software
+   Copyright 1989, 1998, 2000, 2005-2006, 2010, 2012 Free Software
    Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
@@ -13,7 +13,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 /* Written August 1989 by Mike Haertel.
    The author may be reached (Email) at the address mike@ai.mit.edu,

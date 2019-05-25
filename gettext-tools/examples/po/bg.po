@@ -1,20 +1,21 @@
 # Bulgarian translations for gettext-examples package.
 # Copyright (C) 2010 Yoyodyne, Inc. (msgids)
 # This file is distributed under the same license as the gettext package.
-# Roumen Petrov <transl@roumenpetrov.info>, 2010,2014,2015.
+# Roumen Petrov <transl@roumenpetrov.info>, 2010,2014,2015,2019.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: GNU gettext-examples 0.19.4.73\n"
-"Report-Msgid-Bugs-To: bug-gnu-gettext@gnu.org\n"
-"POT-Creation-Date: 2016-06-11 22:10+0900\n"
-"PO-Revision-Date: 2015-06-24 08:27+0300\n"
+"Project-Id-Version: GNU gettext-examples 0.20-rc1\n"
+"Report-Msgid-Bugs-To: bug-gettext@gnu.org\n"
+"POT-Creation-Date: 2019-05-12 16:43+0200\n"
+"PO-Revision-Date: 2019-04-16 21:01+0300\n"
 "Last-Translator: Roumen Petrov <transl@roumenpetrov.info>\n"
 "Language-Team: Bulgarian <dict@ludost.net>\n"
 "Language: bg\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Bugs: Report translation errors to the Language-Team address.\n"
 
 #: hello-c/hello.c:30 hello-c-gnome/hello.c:46
 #: hello-c-gnome3/hello.desktop.in.in:5 hello-c++/hello.cc:39
@@ -65,21 +66,21 @@ msgstr "<big><i>А това е един друг текст</i></big>"
 msgid "Hello"
 msgstr "Здравейте"
 
-#: hello-c-gnome3/hello.ui:5
+#: hello-c-gnome3/hello.ui:6
 msgid "Example Application"
 msgstr "Примерно приложение"
 
-#: hello-c-gnome3/hello.ui:33
+#: hello-c-gnome3/hello.ui:34
 msgid "Update text"
 msgstr "Обноваване на текст"
 
-#: hello-c-gnome3/hello.gschema.xml:7
+#: hello-c-gnome3/hello.gschema.xml:8
 msgid "Use XML markup"
 msgstr "Използване на XML markup"
 
-#: hello-c-gnome3/hello.gschema.xml:8
+#: hello-c-gnome3/hello.gschema.xml:9
 msgid "Whether to use XML markup in the text."
-msgstr "Дали да се използва XML markup за текста."
+msgstr "Дали да се използва XML markup за текст."
 
 #: hello-c++-qt/hello.cc:52 hello-c++-kde/hellowindow.cc:49
 #: hello-smalltalk/hello.st.in:32 hello-ycp/hello.ycp:19
@@ -121,9 +122,3 @@ msgstr "Програмата е пусната под процес номер {0
 #, perl-brace-format
 msgid "This program is running as process number {pid}."
 msgstr "Програмата е пусната под процес номер {pid}."
-
-#~ msgid "Set label sensitive"
-#~ msgstr "Задава чувствителност на надписа."
-
-#~ msgid "Whether to set the label sensitive."
-#~ msgstr "Определя дали надписа да е чувствителен."

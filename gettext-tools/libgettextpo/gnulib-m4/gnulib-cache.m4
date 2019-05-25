@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2016 Free Software Foundation, Inc.
+# Copyright (C) 2002-2019 Free Software Foundation, Inc.
 #
 # This file is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -11,7 +11,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this file.  If not, see <http://www.gnu.org/licenses/>.
+# along with this file.  If not, see <https://www.gnu.org/licenses/>.
 #
 # As a special exception to the GNU General Public License,
 # this file may be distributed as part of a program that
@@ -27,7 +27,64 @@
 
 
 # Specification in the form of a command-line invocation:
-#   gnulib-tool --import --local-dir=gnulib-local --lib=libgnu --source-base=libgettextpo --m4-base=libgettextpo/gnulib-m4 --doc-base=doc --tests-base=tests --aux-dir=../build-aux --makefile-name=Makefile.gnulib --no-conditional-dependencies --libtool --macro-prefix=gtpo basename c-ctype c-strcase c-strstr close error error-progname file-ostream filename fopen fstrcmp fwriteerror gcd getline gettext-h hash iconv libunistring-optional markup minmax open ostream progname relocatable-lib sigpipe stdbool stdio stdlib stpcpy stpncpy strchrnul strerror unictype/ctype-space unilbrk/ulc-width-linebreaks unistr/u16-mbtouc unistr/u8-mbtouc unistr/u8-mbtoucr unistr/u8-uctomb uniwidth/width unlocked-io vasprintf xalloc xconcat-filename xerror xmalloca xstriconv xvasprintf
+# gnulib-tool --import --local-dir=gnulib-local \
+#  --lib=libgnu \
+#  --source-base=libgettextpo \
+#  --m4-base=libgettextpo/gnulib-m4 \
+#  --doc-base=doc \
+#  --tests-base=tests \
+#  --aux-dir=../build-aux \
+#  --makefile-name=Makefile.gnulib \
+#  --no-conditional-dependencies \
+#  --libtool \
+#  --macro-prefix=gtpo \
+#  --avoid=progname \
+#  basename \
+#  c-ctype \
+#  c-strcase \
+#  c-strstr \
+#  close \
+#  error \
+#  error-progname \
+#  filename \
+#  fopen \
+#  fstrcmp \
+#  fwriteerror \
+#  gcd \
+#  getline \
+#  gettext-h \
+#  hash \
+#  iconv \
+#  libtextstyle-dummy \
+#  libunistring-optional \
+#  markup \
+#  minmax \
+#  open \
+#  realloc-posix \
+#  relocatable-lib \
+#  sigpipe \
+#  stdbool \
+#  stdio \
+#  stdlib \
+#  stpcpy \
+#  stpncpy \
+#  strchrnul \
+#  strerror \
+#  unictype/ctype-space \
+#  unilbrk/ulc-width-linebreaks \
+#  unistr/u16-mbtouc \
+#  unistr/u8-mbtouc \
+#  unistr/u8-mbtoucr \
+#  unistr/u8-uctomb \
+#  uniwidth/width \
+#  unlocked-io \
+#  vasprintf \
+#  xalloc \
+#  xconcat-filename \
+#  xerror \
+#  xmalloca \
+#  xstriconv \
+#  xvasprintf
 
 # Specification in the form of a few gnulib-tool.m4 macro invocations:
 gl_LOCAL_DIR([../gnulib-local])
@@ -39,7 +96,6 @@ gl_MODULES([
   close
   error
   error-progname
-  file-ostream
   filename
   fopen
   fstrcmp
@@ -49,12 +105,12 @@ gl_MODULES([
   gettext-h
   hash
   iconv
+  libtextstyle-dummy
   libunistring-optional
   markup
   minmax
   open
-  ostream
-  progname
+  realloc-posix
   relocatable-lib
   sigpipe
   stdbool
@@ -80,7 +136,7 @@ gl_MODULES([
   xstriconv
   xvasprintf
 ])
-gl_AVOID([])
+gl_AVOID([ progname])
 gl_SOURCE_BASE([libgettextpo])
 gl_M4_BASE([libgettextpo/gnulib-m4])
 gl_PO_BASE([])

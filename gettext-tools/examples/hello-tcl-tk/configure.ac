@@ -3,9 +3,9 @@ dnl This file is in the public domain.
 dnl
 dnl Configuration file - processed by autoconf.
 
-AC_INIT
-AC_CONFIG_SRCDIR(hello.tcl)
-AM_INIT_AUTOMAKE(hello-tcl-tk, 0)
+AC_INIT([hello-tcl-tk], [0])
+AC_CONFIG_SRCDIR([hello.tcl])
+AM_INIT_AUTOMAKE([1.11])
 
 dnl Check for availability of the Tcl/Tk interpreter.
 AC_PATH_PROG(WISH, wish)
@@ -24,7 +24,13 @@ else
 fi
 save_prefix="$prefix"
 prefix="$final_prefix"
-eval "pkgdatadir=\"${datadir}/${PACKAGE}\""
+save_datarootdir="$datarootdir"
+eval "datarootdir=\"${datarootdir}\""
+save_datadir="$datadir"
+eval "datadir=\"${datadir}\""
+pkgdatadir="${datadir}/${PACKAGE}"
+datadir="$save_datadir"
+datarootdir="$save_datarootdir"
 prefix="$save_prefix"
 AC_SUBST(pkgdatadir)
 

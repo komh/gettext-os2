@@ -1,5 +1,5 @@
 /* Filtering of data through a subprocess.
-   Copyright (C) 2001-2003, 2008-2016 Free Software Foundation, Inc.
+   Copyright (C) 2001-2003, 2008-2019 Free Software Foundation, Inc.
    Written by Bruno Haible <bruno@clisp.org>, 2009.
 
    This program is free software: you can redistribute it and/or modify
@@ -13,7 +13,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 #include <config.h>
 
@@ -25,7 +25,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <unistd.h>
-#if (defined _WIN32 || defined __WIN32__) && ! defined __CYGWIN__
+#if defined _WIN32 && ! defined __CYGWIN__
 # include <windows.h>
 #elif defined __KLIBC__
 # define INCL_DOS
@@ -162,8 +162,7 @@ WaitForMultipleObjects (DWORD nCount, const HANDLE *pHandles, BOOL bWaitAll,
 
 #include "pipe-filter-aux.h"
 
-#if (((defined _WIN32 || defined __WIN32__) && ! defined __CYGWIN__) \
-     || defined __KLIBC__)
+#if (defined _WIN32 && ! defined __CYGWIN__) || defined __KLIBC__
 
 struct locals
 {
@@ -265,8 +264,7 @@ pipe_filter_ii_execute (const char *progname,
 {
   pid_t child;
   int fd[2];
-#if !(((defined _WIN32 || defined __WIN32__) && ! defined __CYGWIN__) \
-      || defined __KLIBC__)
+#if !((defined _WIN32 && ! defined __CYGWIN__) || defined __KLIBC__)
   struct sigaction orig_sigpipe_action;
 #endif
 
@@ -277,8 +275,7 @@ pipe_filter_ii_execute (const char *progname,
   if (child == -1)
     return -1;
 
-#if (((defined _WIN32 || defined __WIN32__) && ! defined __CYGWIN__) \
-     || defined __KLIBC__)
+#if (defined _WIN32 && ! defined __CYGWIN__) || defined __KLIBC__
   /* Native Windows API.  */
   /* Pipes have a non-blocking mode, see function SetNamedPipeHandleState and
      the article "Named Pipe Type, Read, and Wait Modes", but Microsoft's
@@ -586,8 +583,7 @@ pipe_filter_ii_execute (const char *progname,
   {
     int saved_errno = errno;
     close (fd[1]);
-#if !(((defined _WIN32 || defined __WIN32__) && ! defined __CYGWIN__) \
-      || defined __KLIBC__)
+#if !((defined _WIN32 && ! defined __CYGWIN__) || defined __KLIBC__)
     if (sigaction (SIGPIPE, &orig_sigpipe_action, NULL) < 0)
       abort ();
 #endif

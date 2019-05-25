@@ -58,6 +58,20 @@ int vfprintf(FILE *, const char *, va_list);
 #include "trio.h"
 #endif
 
+#if defined(__clang__) || \
+    (defined(__GNUC__) && (__GNUC__ * 100 + __GNUC_MINOR__ >= 406))
+#define XML_IGNORE_PEDANTIC_WARNINGS \
+    _Pragma("GCC diagnostic push") \
+    _Pragma("GCC diagnostic ignored \"-Wpedantic\"")
+#define XML_POP_WARNINGS \
+    _Pragma("GCC diagnostic pop")
+#else
+#define XML_IGNORE_PEDANTIC_WARNINGS
+#define XML_POP_WARNINGS
+#endif
+
+#include <libxml/xmlstring.h>
+
 /*
  * Internal variable indicating if a callback has been registered for
  * node creation/destruction. It avoids spending a lot of time in locking
@@ -68,7 +82,7 @@ extern int __xmlRegisterCallbacks;
  * internal error reporting routines, shared but not partof the API.
  */
 void __xmlIOErr(int domain, int code, const char *extra);
-void __xmlLoaderErr(void *ctx, const char *msg, const char *filename);
+void __xmlLoaderErr(void *ctx, const char *msg, const char *filename) LIBXML_ATTR_FORMAT(2,0);
 #ifdef LIBXML_HTML_ENABLED
 /*
  * internal function of HTML parser needed for xmlParseInNodeContext
@@ -93,12 +107,13 @@ int __xmlInitializeDict(void);
 int __xmlRandom(void);
 #endif
 
-int xmlNop(void);
+XMLPUBFUN xmlChar * XMLCALL xmlEscapeFormatString(xmlChar **msg);
+int xmlInputReadCallbackNop(void *context, char *buffer, int len);
 
 #ifdef IN_LIBXML
 #ifdef __GNUC__
 #ifdef PIC
-#ifdef linux
+#ifdef __linux__
 #if (__GNUC__ == 3 && __GNUC_MINOR__ >= 3) || (__GNUC__ > 3)
 #include "elfgcchack.h"
 #endif
@@ -106,7 +121,7 @@ int xmlNop(void);
 #endif
 #endif
 #endif
-#if !defined(PIC) && !defined(NOLIBTOOL)
-#  define LIBXML_STATIC
+#if !defined(PIC) && !defined(NOLIBTOOL) && !defined(LIBXML_STATIC)
+# define LIBXML_STATIC 1
 #endif
 #endif /* ! __XML_LIBXML_H__ */

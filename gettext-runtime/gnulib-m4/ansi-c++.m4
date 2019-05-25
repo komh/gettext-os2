@@ -1,5 +1,5 @@
-# ansi-c++.m4 serial 9
-dnl Copyright (C) 2002-2003, 2005, 2010-2016 Free Software Foundation, Inc.
+# ansi-c++.m4 serial 10
+dnl Copyright (C) 2002-2003, 2005, 2010-2019 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
@@ -125,4 +125,14 @@ EOF
   else
     AM_CONDITIONAL([am__fastdepCXX], [false])
   fi
+])
+
+# gl_ANSI_CXX
+# Sets CXX to the name of a sufficiently ANSI C++ compliant compiler, or to
+# "no" if none is found.
+# Defines the Automake condition ANSICXX to true if such a compiler was found,
+# or to false if not.
+AC_DEFUN([gl_ANSI_CXX],
+[
+  gl_PROG_ANSI_CXX([CXX], [ANSICXX])
 ])

@@ -1,5 +1,5 @@
 /* Abstract sequential list data type.  -*- coding: utf-8 -*-
-   Copyright (C) 2006-2016 Free Software Foundation, Inc.
+   Copyright (C) 2006-2019 Free Software Foundation, Inc.
    Written by Bruno Haible <bruno@clisp.org>, 2006.
 
    This program is free software: you can redistribute it and/or modify
@@ -13,7 +13,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 #ifndef _GL_LIST_H
 #define _GL_LIST_H
@@ -333,7 +333,9 @@ extern bool gl_list_remove_at (gl_list_t list, size_t position);
 extern bool gl_list_remove (gl_list_t list, const void *elt);
 
 /* Free an entire list.
-   (But this call does not free the elements of the list.)  */
+   (But this call does not free the elements of the list.  It only invokes
+   the DISPOSE_FN on each of the elements of the list, and only if the list
+   is not a sublist.)  */
 extern void gl_list_free (gl_list_t list);
 
 #endif /* End of inline and gl_xlist.h-defined functions.  */

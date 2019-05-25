@@ -1,5 +1,5 @@
 /* Conversion to UTF-8 from legacy encodings.
-   Copyright (C) 2002, 2006-2007, 2009-2016 Free Software Foundation, Inc.
+   Copyright (C) 2002, 2006-2007, 2009-2019 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify it
    under the terms of the GNU General Public License as published
@@ -12,7 +12,7 @@
    General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 /* Written by Bruno Haible <bruno@clisp.org>.  */
 
@@ -77,7 +77,8 @@ u8_conv_from_encoding (const char *fromcode,
             }
         }
 
-      memcpy ((char *) result, src, srclen);
+      if (srclen > 0)
+        memcpy ((char *) result, src, srclen);
       *lengthp = srclen;
       return result;
     }

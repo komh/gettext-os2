@@ -1,5 +1,5 @@
 /* xgettext Emacs Lisp backend.
-   Copyright (C) 2001-2003, 2005-2009, 2015-2016 Free Software Foundation, Inc.
+   Copyright (C) 2001-2003, 2005-2009, 2018-2019 Free Software Foundation, Inc.
 
    This file was written by Bruno Haible <haible@clisp.cons.org>, 2001-2002.
 
@@ -14,7 +14,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
@@ -31,6 +31,12 @@
 
 #include "message.h"
 #include "xgettext.h"
+#include "xg-pos.h"
+#include "xg-mixed-string.h"
+#include "xg-arglist-context.h"
+#include "xg-arglist-callshape.h"
+#include "xg-arglist-parser.h"
+#include "xg-message.h"
 #include "error.h"
 #include "xalloc.h"
 #include "hash.h"
@@ -122,13 +128,6 @@ init_flag_table_elisp ()
 
 /* ======================== Reading of characters.  ======================== */
 
-/* Real filename, used in error messages about the input file.  */
-static const char *real_file_name;
-
-/* Logical filename and line number, used to label the extracted messages.  */
-static char *logical_file_name;
-static int line_number;
-
 /* The input file stream.  */
 static FILE *fp;
 
@@ -142,8 +141,8 @@ do_getc ()
   if (c == EOF)
     {
       if (ferror (fp))
-        error (EXIT_FAILURE, errno, _("\
-error while reading \"%s\""), real_file_name);
+        error (EXIT_FAILURE, errno,
+               _("error while reading \"%s\""), real_file_name);
     }
   else if (c == '\n')
    line_number++;
@@ -710,12 +709,19 @@ read_object (struct object *op, bool first_in_list, bool new_backquote_flag,
                   {
                     /* These are the argument positions.  */
                     if (argparser != NULL && inner.type == t_string)
-                      arglist_parser_remember (argparser, arg,
-                                               string_of_object (&inner),
-                                               inner_context,
-                                               logical_file_name,
-                                               inner.line_number_at_start,
-                                               savable_comment);
+                      {
+                        char *s = string_of_object (&inner);
+                        mixed_string_ty *ms =
+                          mixed_string_alloc_simple (s, lc_string,
+                                                     logical_file_name,
+                                                     inner.line_number_at_start);
+                        free (s);
+                        arglist_parser_remember (argparser, arg, ms,
+                                                 inner_context,
+                                                 logical_file_name,
+                                                 inner.line_number_at_start,
+                                                 savable_comment, false);
+                      }
                   }
 
                 free_object (&inner);
@@ -897,8 +903,9 @@ read_object (struct object *op, bool first_in_list, bool new_backquote_flag,
 
                 pos.file_name = logical_file_name;
                 pos.line_number = op->line_number_at_start;
-                remember_a_message (mlp, NULL, string_of_object (op),
-                                    null_context, &pos, NULL, savable_comment);
+                remember_a_message (mlp, NULL, string_of_object (op), false,
+                                    null_context, &pos, NULL, savable_comment,
+                                    false);
               }
             last_non_comment_line = line_number;
             return;

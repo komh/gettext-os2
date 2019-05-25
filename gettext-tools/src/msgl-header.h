@@ -1,5 +1,5 @@
 /* Message list header manipulation.
-   Copyright (C) 2007, 2015-2016 Free Software Foundation, Inc.
+   Copyright (C) 2007, 2016 Free Software Foundation, Inc.
    Written by Bruno Haible <bruno@clisp.org>, 2007.
 
    This program is free software: you can redistribute it and/or modify
@@ -13,7 +13,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 #ifndef _MSGL_HEADER_H
 #define _MSGL_HEADER_H
@@ -33,6 +33,12 @@ extern "C" {
 extern void
        msgdomain_list_set_header_field (msgdomain_list_ty *mdlp,
                                         const char *field, const char *value);
+
+/* Remove the given field from the header.
+   The FIELD name ends in a colon.  */
+extern void
+       message_list_delete_header_field (message_list_ty *mlp,
+                                         const char *field);
 
 
 #ifdef __cplusplus

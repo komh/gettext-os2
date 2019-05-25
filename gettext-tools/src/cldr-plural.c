@@ -1,8 +1,8 @@
-/* A Bison parser, made by GNU Bison 3.0.4.  */
+/* A Bison parser, made by GNU Bison 3.2.2.  */
 
 /* Bison implementation for Yacc-like parsers in C
 
-   Copyright (C) 1984, 1989-1990, 2000-2015 Free Software Foundation, Inc.
+   Copyright (C) 1984, 1989-1990, 2000-2015, 2018 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -40,11 +40,14 @@
    define necessary library symbols; they are noted "INFRINGES ON
    USER NAME SPACE" below.  */
 
+/* Undocumented macros, especially those whose name start with YY_,
+   are private implementation details.  Do not rely on them.  */
+
 /* Identify Bison output.  */
 #define YYBISON 1
 
 /* Bison version.  */
-#define YYBISON_VERSION "3.0.4"
+#define YYBISON_VERSION "3.2.2"
 
 /* Skeleton name.  */
 #define YYSKELETON_NAME "yacc.c"
@@ -61,8 +64,8 @@
 
 
 
-/* Copy the first part of user declarations.  */
-#line 19 "cldr-plural.y" /* yacc.c:339  */
+/* First part of user prologue.  */
+#line 19 "cldr-plural.y" /* yacc.c:338  */
 
 #ifdef HAVE_CONFIG_H
 # include <config.h>
@@ -166,13 +169,16 @@ new_range (struct cldr_plural_operand_ty *start,
   return result;
 }
 
-#line 170 "cldr-plural.c" /* yacc.c:339  */
-
+#line 173 "cldr-plural.c" /* yacc.c:338  */
 # ifndef YY_NULLPTR
-#  if defined __cplusplus && 201103L <= __cplusplus
-#   define YY_NULLPTR nullptr
+#  if defined __cplusplus
+#   if 201103L <= __cplusplus
+#    define YY_NULLPTR nullptr
+#   else
+#    define YY_NULLPTR 0
+#   endif
 #  else
-#   define YY_NULLPTR 0
+#   define YY_NULLPTR ((void*)0)
 #  endif
 # endif
 
@@ -232,7 +238,7 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 127 "cldr-plural.y" /* yacc.c:355  */
+#line 127 "cldr-plural.y" /* yacc.c:353  */
 
   char *sval;
   struct cldr_plural_condition_ty *cval;
@@ -243,7 +249,7 @@ union YYSTYPE
   struct cldr_plural_range_list_ty *rval;
   int ival;
 
-#line 247 "cldr-plural.c" /* yacc.c:355  */
+#line 253 "cldr-plural.c" /* yacc.c:353  */
 };
 
 typedef union YYSTYPE YYSTYPE;
@@ -257,9 +263,7 @@ int yyparse (struct cldr_plural_parse_args *arg);
 
 #endif /* !YY_YY_CLDR_PLURAL_H_INCLUDED  */
 
-/* Copy the second part of user declarations.  */
 
-#line 263 "cldr-plural.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -280,13 +284,13 @@ typedef signed char yytype_int8;
 #ifdef YYTYPE_UINT16
 typedef YYTYPE_UINT16 yytype_uint16;
 #else
-typedef unsigned short int yytype_uint16;
+typedef unsigned short yytype_uint16;
 #endif
 
 #ifdef YYTYPE_INT16
 typedef YYTYPE_INT16 yytype_int16;
 #else
-typedef short int yytype_int16;
+typedef short yytype_int16;
 #endif
 
 #ifndef YYSIZE_T
@@ -298,7 +302,7 @@ typedef short int yytype_int16;
 #  include <stddef.h> /* INFRINGES ON USER NAME SPACE */
 #  define YYSIZE_T size_t
 # else
-#  define YYSIZE_T unsigned int
+#  define YYSIZE_T unsigned
 # endif
 #endif
 
@@ -334,15 +338,6 @@ typedef short int yytype_int16;
 # define YY_ATTRIBUTE_UNUSED YY_ATTRIBUTE ((__unused__))
 #endif
 
-#if !defined _Noreturn \
-     && (!defined __STDC_VERSION__ || __STDC_VERSION__ < 201112)
-# if defined _MSC_VER && 1200 <= _MSC_VER
-#  define _Noreturn __declspec (noreturn)
-# else
-#  define _Noreturn YY_ATTRIBUTE ((__noreturn__))
-# endif
-#endif
-
 /* Suppress unused-variable warnings by "using" E.  */
 #if ! defined lint || defined __GNUC__
 # define YYUSE(E) ((void) (E))
@@ -350,7 +345,7 @@ typedef short int yytype_int16;
 # define YYUSE(E) /* empty */
 #endif
 
-#if defined __GNUC__ && 407 <= __GNUC__ * 100 + __GNUC_MINOR__
+#if defined __GNUC__ && ! defined __ICC && 407 <= __GNUC__ * 100 + __GNUC_MINOR__
 /* Suppress an incorrect diagnostic about yylval being uninitialized.  */
 # define YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN \
     _Pragma ("GCC diagnostic push") \
@@ -518,7 +513,7 @@ union yyalloc
 #define YYMAXUTOK   268
 
 #define YYTRANSLATE(YYX)                                                \
-  ((unsigned int) (YYX) <= YYMAXUTOK ? yytranslate[YYX] : YYUNDEFTOK)
+  ((unsigned) (YYX) <= YYMAXUTOK ? yytranslate[YYX] : YYUNDEFTOK)
 
 /* YYTRANSLATE[TOKEN-NUM] -- Symbol number corresponding to TOKEN-NUM
    as returned by yylex, without out-of-bounds checking.  */
@@ -760,38 +755,38 @@ do {                                                                      \
 } while (0)
 
 
-/*----------------------------------------.
-| Print this symbol's value on YYOUTPUT.  |
-`----------------------------------------*/
+/*-----------------------------------.
+| Print this symbol's value on YYO.  |
+`-----------------------------------*/
 
 static void
-yy_symbol_value_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, struct cldr_plural_parse_args *arg)
+yy_symbol_value_print (FILE *yyo, int yytype, YYSTYPE const * const yyvaluep, struct cldr_plural_parse_args *arg)
 {
-  FILE *yyo = yyoutput;
-  YYUSE (yyo);
+  FILE *yyoutput = yyo;
+  YYUSE (yyoutput);
   YYUSE (arg);
   if (!yyvaluep)
     return;
 # ifdef YYPRINT
   if (yytype < YYNTOKENS)
-    YYPRINT (yyoutput, yytoknum[yytype], *yyvaluep);
+    YYPRINT (yyo, yytoknum[yytype], *yyvaluep);
 # endif
   YYUSE (yytype);
 }
 
 
-/*--------------------------------.
-| Print this symbol on YYOUTPUT.  |
-`--------------------------------*/
+/*---------------------------.
+| Print this symbol on YYO.  |
+`---------------------------*/
 
 static void
-yy_symbol_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, struct cldr_plural_parse_args *arg)
+yy_symbol_print (FILE *yyo, int yytype, YYSTYPE const * const yyvaluep, struct cldr_plural_parse_args *arg)
 {
-  YYFPRINTF (yyoutput, "%s %s (",
+  YYFPRINTF (yyo, "%s %s (",
              yytype < YYNTOKENS ? "token" : "nterm", yytname[yytype]);
 
-  yy_symbol_value_print (yyoutput, yytype, yyvaluep, arg);
-  YYFPRINTF (yyoutput, ")");
+  yy_symbol_value_print (yyo, yytype, yyvaluep, arg);
+  YYFPRINTF (yyo, ")");
 }
 
 /*------------------------------------------------------------------.
@@ -825,7 +820,7 @@ do {                                                            \
 static void
 yy_reduce_print (yytype_int16 *yyssp, YYSTYPE *yyvsp, int yyrule, struct cldr_plural_parse_args *arg)
 {
-  unsigned long int yylno = yyrline[yyrule];
+  unsigned long yylno = yyrline[yyrule];
   int yynrhs = yyr2[yyrule];
   int yyi;
   YYFPRINTF (stderr, "Reducing stack by rule %d (line %lu):\n",
@@ -958,7 +953,7 @@ yytnamerr (char *yyres, const char *yystr)
   if (! yyres)
     return yystrlen (yystr);
 
-  return yystpcpy (yyres, yystr) - yyres;
+  return (YYSIZE_T) (yystpcpy (yyres, yystr) - yyres);
 }
 # endif
 
@@ -1051,6 +1046,7 @@ yysyntax_error (YYSIZE_T *yymsg_alloc, char **yymsg,
       case N:                               \
         yyformat = S;                       \
       break
+    default: /* Avoid compiler warnings. */
       YYCASE_(0, YY_("syntax error"));
       YYCASE_(1, YY_("syntax error, unexpected %s"));
       YYCASE_(2, YY_("syntax error, unexpected %s, expecting %s"));
@@ -1115,69 +1111,69 @@ yydestruct (const char *yymsg, int yytype, YYSTYPE *yyvaluep, struct cldr_plural
   switch (yytype)
     {
           case 10: /* KEYWORD  */
-#line 138 "cldr-plural.y" /* yacc.c:1257  */
+#line 138 "cldr-plural.y" /* yacc.c:1254  */
       { free (((*yyvaluep).sval)); }
-#line 1121 "cldr-plural.c" /* yacc.c:1257  */
+#line 1117 "cldr-plural.c" /* yacc.c:1254  */
         break;
 
     case 11: /* INTEGER  */
-#line 143 "cldr-plural.y" /* yacc.c:1257  */
+#line 143 "cldr-plural.y" /* yacc.c:1254  */
       { free (((*yyvaluep).oval)); }
-#line 1127 "cldr-plural.c" /* yacc.c:1257  */
+#line 1123 "cldr-plural.c" /* yacc.c:1254  */
         break;
 
     case 12: /* DECIMAL  */
-#line 143 "cldr-plural.y" /* yacc.c:1257  */
+#line 143 "cldr-plural.y" /* yacc.c:1254  */
       { free (((*yyvaluep).oval)); }
-#line 1133 "cldr-plural.c" /* yacc.c:1257  */
+#line 1129 "cldr-plural.c" /* yacc.c:1254  */
         break;
 
     case 13: /* OPERAND  */
-#line 145 "cldr-plural.y" /* yacc.c:1257  */
+#line 145 "cldr-plural.y" /* yacc.c:1254  */
       { }
-#line 1139 "cldr-plural.c" /* yacc.c:1257  */
+#line 1135 "cldr-plural.c" /* yacc.c:1254  */
         break;
 
     case 24: /* condition  */
-#line 139 "cldr-plural.y" /* yacc.c:1257  */
+#line 139 "cldr-plural.y" /* yacc.c:1254  */
       { cldr_plural_condition_free (((*yyvaluep).cval)); }
-#line 1145 "cldr-plural.c" /* yacc.c:1257  */
+#line 1141 "cldr-plural.c" /* yacc.c:1254  */
         break;
 
     case 25: /* and_condition  */
-#line 139 "cldr-plural.y" /* yacc.c:1257  */
+#line 139 "cldr-plural.y" /* yacc.c:1254  */
       { cldr_plural_condition_free (((*yyvaluep).cval)); }
-#line 1151 "cldr-plural.c" /* yacc.c:1257  */
+#line 1147 "cldr-plural.c" /* yacc.c:1254  */
         break;
 
     case 26: /* relation  */
-#line 140 "cldr-plural.y" /* yacc.c:1257  */
+#line 140 "cldr-plural.y" /* yacc.c:1254  */
       { cldr_plural_relation_free (((*yyvaluep).lval)); }
-#line 1157 "cldr-plural.c" /* yacc.c:1257  */
+#line 1153 "cldr-plural.c" /* yacc.c:1254  */
         break;
 
     case 27: /* expression  */
-#line 141 "cldr-plural.y" /* yacc.c:1257  */
+#line 141 "cldr-plural.y" /* yacc.c:1254  */
       { free (((*yyvaluep).eval)); }
-#line 1163 "cldr-plural.c" /* yacc.c:1257  */
+#line 1159 "cldr-plural.c" /* yacc.c:1254  */
         break;
 
     case 28: /* range_list  */
-#line 144 "cldr-plural.y" /* yacc.c:1257  */
+#line 144 "cldr-plural.y" /* yacc.c:1254  */
       { cldr_plural_range_list_free (((*yyvaluep).rval)); }
-#line 1169 "cldr-plural.c" /* yacc.c:1257  */
+#line 1165 "cldr-plural.c" /* yacc.c:1254  */
         break;
 
     case 29: /* range_or_integer  */
-#line 142 "cldr-plural.y" /* yacc.c:1257  */
+#line 142 "cldr-plural.y" /* yacc.c:1254  */
       { cldr_plural_range_free (((*yyvaluep).gval)); }
-#line 1175 "cldr-plural.c" /* yacc.c:1257  */
+#line 1171 "cldr-plural.c" /* yacc.c:1254  */
         break;
 
     case 30: /* range  */
-#line 142 "cldr-plural.y" /* yacc.c:1257  */
+#line 142 "cldr-plural.y" /* yacc.c:1254  */
       { cldr_plural_range_free (((*yyvaluep).gval)); }
-#line 1181 "cldr-plural.c" /* yacc.c:1257  */
+#line 1177 "cldr-plural.c" /* yacc.c:1254  */
         break;
 
 
@@ -1275,12 +1271,12 @@ YYSTYPE yylval YY_INITIAL_VALUE (= yyval_default);
   yyssp++;
 
  yysetstate:
-  *yyssp = yystate;
+  *yyssp = (yytype_int16) yystate;
 
   if (yyss + yystacksize - 1 <= yyssp)
     {
       /* Get the current used size of the three stacks, in elements.  */
-      YYSIZE_T yysize = yyssp - yyss + 1;
+      YYSIZE_T yysize = (YYSIZE_T) (yyssp - yyss + 1);
 
 #ifdef yyoverflow
       {
@@ -1298,7 +1294,6 @@ YYSTYPE yylval YY_INITIAL_VALUE (= yyval_default);
                     &yyss1, yysize * sizeof (*yyssp),
                     &yyvs1, yysize * sizeof (*yyvsp),
                     &yystacksize);
-
         yyss = yyss1;
         yyvs = yyvs1;
       }
@@ -1332,7 +1327,7 @@ YYSTYPE yylval YY_INITIAL_VALUE (= yyval_default);
       yyvsp = yyvs + yysize - 1;
 
       YYDPRINTF ((stderr, "Stack size increased to %lu\n",
-                  (unsigned long int) yystacksize));
+                  (unsigned long) yystacksize));
 
       if (yyss + yystacksize - 1 <= yyssp)
         YYABORT;
@@ -1443,7 +1438,7 @@ yyreduce:
   switch (yyn)
     {
         case 4:
-#line 164 "cldr-plural.y" /* yacc.c:1646  */
+#line 164 "cldr-plural.y" /* yacc.c:1645  */
     {
           struct cldr_plural_rule_ty *rule = new_rule ((yyvsp[-3].sval), (yyvsp[-1].cval));
           struct cldr_plural_rule_list_ty *result = arg->result;
@@ -1456,144 +1451,144 @@ yyreduce:
             }
           result->items[result->nitems++] = rule;
         }
-#line 1460 "cldr-plural.c" /* yacc.c:1646  */
+#line 1455 "cldr-plural.c" /* yacc.c:1645  */
     break;
 
   case 6:
-#line 180 "cldr-plural.y" /* yacc.c:1646  */
+#line 180 "cldr-plural.y" /* yacc.c:1645  */
     {
           (yyval.cval) = (yyvsp[0].cval);
         }
-#line 1468 "cldr-plural.c" /* yacc.c:1646  */
+#line 1463 "cldr-plural.c" /* yacc.c:1645  */
     break;
 
   case 7:
-#line 184 "cldr-plural.y" /* yacc.c:1646  */
+#line 184 "cldr-plural.y" /* yacc.c:1645  */
     {
           (yyval.cval) = new_branch_condition (CLDR_PLURAL_CONDITION_OR, (yyvsp[-2].cval), (yyvsp[0].cval));
         }
-#line 1476 "cldr-plural.c" /* yacc.c:1646  */
+#line 1471 "cldr-plural.c" /* yacc.c:1645  */
     break;
 
   case 8:
-#line 190 "cldr-plural.y" /* yacc.c:1646  */
+#line 190 "cldr-plural.y" /* yacc.c:1645  */
     {
           (yyval.cval) = new_leaf_condition ((yyvsp[0].lval));
         }
-#line 1484 "cldr-plural.c" /* yacc.c:1646  */
+#line 1479 "cldr-plural.c" /* yacc.c:1645  */
     break;
 
   case 9:
-#line 194 "cldr-plural.y" /* yacc.c:1646  */
+#line 194 "cldr-plural.y" /* yacc.c:1645  */
     {
           (yyval.cval) = new_branch_condition (CLDR_PLURAL_CONDITION_AND,
                                      (yyvsp[-2].cval),
                                      new_leaf_condition ((yyvsp[0].lval)));
         }
-#line 1494 "cldr-plural.c" /* yacc.c:1646  */
+#line 1489 "cldr-plural.c" /* yacc.c:1645  */
     break;
 
   case 10:
-#line 202 "cldr-plural.y" /* yacc.c:1646  */
+#line 202 "cldr-plural.y" /* yacc.c:1645  */
     {
           (yyval.lval) = new_relation ((yyvsp[-2].eval), CLDR_PLURAL_RELATION_EQUAL, (yyvsp[0].rval));
         }
-#line 1502 "cldr-plural.c" /* yacc.c:1646  */
+#line 1497 "cldr-plural.c" /* yacc.c:1645  */
     break;
 
   case 11:
-#line 206 "cldr-plural.y" /* yacc.c:1646  */
+#line 206 "cldr-plural.y" /* yacc.c:1645  */
     {
           (yyval.lval) = new_relation ((yyvsp[-2].eval), CLDR_PLURAL_RELATION_NOT_EQUAL, (yyvsp[0].rval));
         }
-#line 1510 "cldr-plural.c" /* yacc.c:1646  */
+#line 1505 "cldr-plural.c" /* yacc.c:1645  */
     break;
 
   case 12:
-#line 212 "cldr-plural.y" /* yacc.c:1646  */
+#line 212 "cldr-plural.y" /* yacc.c:1645  */
     {
           (yyval.eval) = new_expression ((yyvsp[0].ival), 0);
         }
-#line 1518 "cldr-plural.c" /* yacc.c:1646  */
+#line 1513 "cldr-plural.c" /* yacc.c:1645  */
     break;
 
   case 13:
-#line 216 "cldr-plural.y" /* yacc.c:1646  */
+#line 216 "cldr-plural.y" /* yacc.c:1645  */
     {
           (yyval.eval) = new_expression ((yyvsp[-2].ival), (yyvsp[0].oval)->value.ival);
         }
-#line 1526 "cldr-plural.c" /* yacc.c:1646  */
+#line 1521 "cldr-plural.c" /* yacc.c:1645  */
     break;
 
   case 14:
-#line 222 "cldr-plural.y" /* yacc.c:1646  */
+#line 222 "cldr-plural.y" /* yacc.c:1645  */
     {
           struct cldr_plural_range_list_ty *ranges =
             XMALLOC (struct cldr_plural_range_list_ty);
           memset (ranges, 0, sizeof (struct cldr_plural_range_list_ty));
           (yyval.rval) = add_range (ranges, (yyvsp[0].gval));
         }
-#line 1537 "cldr-plural.c" /* yacc.c:1646  */
+#line 1532 "cldr-plural.c" /* yacc.c:1645  */
     break;
 
   case 15:
-#line 229 "cldr-plural.y" /* yacc.c:1646  */
+#line 229 "cldr-plural.y" /* yacc.c:1645  */
     {
           (yyval.rval) = add_range ((yyvsp[-2].rval), (yyvsp[0].gval));
         }
-#line 1545 "cldr-plural.c" /* yacc.c:1646  */
+#line 1540 "cldr-plural.c" /* yacc.c:1645  */
     break;
 
   case 16:
-#line 235 "cldr-plural.y" /* yacc.c:1646  */
+#line 235 "cldr-plural.y" /* yacc.c:1645  */
     {
           (yyval.gval) = (yyvsp[0].gval);
         }
-#line 1553 "cldr-plural.c" /* yacc.c:1646  */
+#line 1548 "cldr-plural.c" /* yacc.c:1645  */
     break;
 
   case 17:
-#line 239 "cldr-plural.y" /* yacc.c:1646  */
+#line 239 "cldr-plural.y" /* yacc.c:1645  */
     {
           (yyval.gval) = new_range ((yyvsp[0].oval), (yyvsp[0].oval));
         }
-#line 1561 "cldr-plural.c" /* yacc.c:1646  */
+#line 1556 "cldr-plural.c" /* yacc.c:1645  */
     break;
 
   case 18:
-#line 245 "cldr-plural.y" /* yacc.c:1646  */
+#line 245 "cldr-plural.y" /* yacc.c:1645  */
     {
           (yyval.gval) = new_range ((yyvsp[-2].oval), (yyvsp[0].oval));
         }
-#line 1569 "cldr-plural.c" /* yacc.c:1646  */
+#line 1564 "cldr-plural.c" /* yacc.c:1645  */
     break;
 
   case 29:
-#line 272 "cldr-plural.y" /* yacc.c:1646  */
+#line 272 "cldr-plural.y" /* yacc.c:1645  */
     { free ((yyvsp[0].oval)); }
-#line 1575 "cldr-plural.c" /* yacc.c:1646  */
+#line 1570 "cldr-plural.c" /* yacc.c:1645  */
     break;
 
   case 30:
-#line 274 "cldr-plural.y" /* yacc.c:1646  */
+#line 274 "cldr-plural.y" /* yacc.c:1645  */
     { free ((yyvsp[-2].oval)); free ((yyvsp[0].oval)); }
-#line 1581 "cldr-plural.c" /* yacc.c:1646  */
+#line 1576 "cldr-plural.c" /* yacc.c:1645  */
     break;
 
   case 31:
-#line 276 "cldr-plural.y" /* yacc.c:1646  */
+#line 276 "cldr-plural.y" /* yacc.c:1645  */
     { free ((yyvsp[0].oval)); }
-#line 1587 "cldr-plural.c" /* yacc.c:1646  */
+#line 1582 "cldr-plural.c" /* yacc.c:1645  */
     break;
 
   case 32:
-#line 278 "cldr-plural.y" /* yacc.c:1646  */
+#line 278 "cldr-plural.y" /* yacc.c:1645  */
     { free ((yyvsp[-2].oval)); free ((yyvsp[0].oval)); }
-#line 1593 "cldr-plural.c" /* yacc.c:1646  */
+#line 1588 "cldr-plural.c" /* yacc.c:1645  */
     break;
 
 
-#line 1597 "cldr-plural.c" /* yacc.c:1646  */
+#line 1592 "cldr-plural.c" /* yacc.c:1645  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1618,14 +1613,13 @@ yyreduce:
   /* Now 'shift' the result of the reduction.  Determine what state
      that goes to, based on the state we popped back to and the rule
      number reduced by.  */
-
-  yyn = yyr1[yyn];
-
-  yystate = yypgoto[yyn - YYNTOKENS] + *yyssp;
-  if (0 <= yystate && yystate <= YYLAST && yycheck[yystate] == *yyssp)
-    yystate = yytable[yystate];
-  else
-    yystate = yydefgoto[yyn - YYNTOKENS];
+  {
+    const int yylhs = yyr1[yyn] - YYNTOKENS;
+    const int yyi = yypgoto[yylhs] + *yyssp;
+    yystate = (0 <= yyi && yyi <= YYLAST && yycheck[yyi] == *yyssp
+               ? yytable[yyi]
+               : yydefgoto[yylhs]);
+  }
 
   goto yynewstate;
 
@@ -1821,7 +1815,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 281 "cldr-plural.y" /* yacc.c:1906  */
+#line 281 "cldr-plural.y" /* yacc.c:1903  */
 
 
 static int
