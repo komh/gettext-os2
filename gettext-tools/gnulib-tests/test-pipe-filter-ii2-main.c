@@ -1,6 +1,6 @@
 /* Test harness for pipe-filter-ii.
 
-   Copyright (C) 2009-2019 Free Software Foundation, Inc.
+   Copyright (C) 2009-2022 Free Software Foundation, Inc.
    Written by Paolo Bonzini <bonzini@gnu.org>, 2009.
 
    This program is free software: you can redistribute it and/or modify
@@ -26,6 +26,7 @@
 #include <string.h>
 #include <signal.h>
 
+#include "binary-io.h"
 #include "full-write.h"
 #include "macros.h"
 
@@ -87,6 +88,8 @@ main (int argc, char **argv)
   const char *path[] = { NULL, NULL };
 
   ASSERT (argc == 2);
+
+  set_binary_mode (STDOUT_FILENO, O_BINARY);
 
   /* Test writing to a nonexistent program traps sooner or later.  */
   {

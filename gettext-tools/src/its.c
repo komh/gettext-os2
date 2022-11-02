@@ -1,5 +1,5 @@
 /* Internationalization Tag Set (ITS) handling
-   Copyright (C) 2015, 2018 Free Software Foundation, Inc.
+   Copyright (C) 2015, 2018-2020 Free Software Foundation, Inc.
 
    This file was written by Daiki Ueno <ueno@gnu.org>, 2015.
 
@@ -27,7 +27,7 @@
 #include <errno.h>
 #include "error.h"
 #include "gettext.h"
-#include "hash.h"
+#include "mem-hash-map.h"
 #include <stdint.h>
 #include <libxml/tree.h>
 #include <libxml/parser.h>
@@ -723,7 +723,7 @@ its_translate_rule_constructor (struct its_rule_ty *pop, xmlNode *node)
   free (prop);
 }
 
-struct its_value_list_ty *
+static struct its_value_list_ty *
 its_translate_rule_eval (struct its_rule_ty *pop, struct its_pool_ty *pool,
                          xmlNode *node)
 {
@@ -859,7 +859,7 @@ its_localization_note_rule_constructor (struct its_rule_ty *pop, xmlNode *node)
   /* FIXME: locNoteRef and locNoteRefPointer */
 }
 
-struct its_value_list_ty *
+static struct its_value_list_ty *
 its_localization_note_rule_eval (struct its_rule_ty *pop,
                                  struct its_pool_ty *pool,
                                  xmlNode *node)
@@ -1006,7 +1006,7 @@ its_element_within_text_rule_constructor (struct its_rule_ty *pop,
   free (prop);
 }
 
-struct its_value_list_ty *
+static struct its_value_list_ty *
 its_element_within_text_rule_eval (struct its_rule_ty *pop,
                                    struct its_pool_ty *pool,
                                    xmlNode *node)
@@ -1093,7 +1093,7 @@ its_preserve_space_rule_constructor (struct its_rule_ty *pop,
   free (prop);
 }
 
-struct its_value_list_ty *
+static struct its_value_list_ty *
 its_preserve_space_rule_eval (struct its_rule_ty *pop,
                               struct its_pool_ty *pool,
                               xmlNode *node)
@@ -1186,7 +1186,7 @@ its_extension_context_rule_constructor (struct its_rule_ty *pop, xmlNode *node)
     }
 }
 
-struct its_value_list_ty *
+static struct its_value_list_ty *
 its_extension_context_rule_eval (struct its_rule_ty *pop,
                                  struct its_pool_ty *pool,
                                  xmlNode *node)
@@ -1245,7 +1245,7 @@ its_extension_escape_rule_constructor (struct its_rule_ty *pop, xmlNode *node)
   free (prop);
 }
 
-struct its_value_list_ty *
+static struct its_value_list_ty *
 its_extension_escape_rule_eval (struct its_rule_ty *pop,
                                 struct its_pool_ty *pool,
                                 xmlNode *node)
@@ -1427,17 +1427,17 @@ its_rule_list_add_from_doc (struct its_rule_list_ty *rules,
       struct its_rule_ty *rule;
 
       rule = its_rule_parse (doc, node);
-      if (!rule)
-        continue;
-
-      if (rules->nitems == rules->nitems_max)
+      if (rule != NULL)
         {
-          rules->nitems_max = 2 * rules->nitems_max + 1;
-          rules->items =
-            xrealloc (rules->items,
-                      sizeof (struct its_rule_ty *) * rules->nitems_max);
+          if (rules->nitems == rules->nitems_max)
+            {
+              rules->nitems_max = 2 * rules->nitems_max + 1;
+              rules->items =
+                xrealloc (rules->items,
+                          sizeof (struct its_rule_ty *) * rules->nitems_max);
+            }
+          rules->items[rules->nitems++] = rule;
         }
-      rules->items[rules->nitems++] = rule;
     }
 
   return true;

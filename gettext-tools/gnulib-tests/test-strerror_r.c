@@ -1,5 +1,5 @@
 /* Test of strerror_r() function.
-   Copyright (C) 2007-2019 Free Software Foundation, Inc.
+   Copyright (C) 2007-2022 Free Software Foundation, Inc.
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -165,9 +165,6 @@ main (void)
 
     strerror_r (EACCES, buf, sizeof buf);
     strerror_r (-5, buf, sizeof buf);
-    ASSERT (msg1 == msg2 || msg1 == msg4 || STREQ (msg1, str1));
-    ASSERT (msg2 == msg4 || STREQ (msg2, str2));
-    ASSERT (msg3 == msg4 || STREQ (msg3, str3));
     ASSERT (STREQ (msg4, str4));
 
     free (str1);

@@ -1,3 +1,67 @@
+2022-10-10  Bruno Haible  <bruno@clisp.org>
+
+	Prepare for 0.21.1 release: Update translations.
+	* gettext-runtime/po/*.po: Update from TP.
+	* gettext-tools/po/*.po: Likewise.
+	* gettext-tools/examples/po/*.po: Likewise.
+	* gettext-tools/examples/po/LINGUAS: Add 'ka'.
+	* gettext-tools/examples/hello-*/po/LINGUAS: Likewise.
+	* gettext-tools/examples/Makefile.am (EXAMPLESPOFILES): Add ka.po.
+
+2020-07-26  Bruno Haible  <bruno@clisp.org>
+
+	Update translations (from the TP).
+	* gettext-runtime/po/*.po: Update.
+	* gettext-tools/po/*.po: Update.
+	* gettext-tools/examples/po/*.po: Update.
+	* gettext-tools/examples/po/LINGUAS: Add 'nn'.
+	* gettext-tools/examples/hello-*/po/LINGUAS: Likewise.
+	* gettext-tools/examples/Makefile.am (EXAMPLESPOFILES): Add nn.po.
+
+	Prepare for 0.21 release.
+	* gettext-runtime/doc/matrix.texi: Update from TP.
+	* gettext-runtime/doc/nls.texi (STATUS): Update.
+	* gettext-runtime/intl/libgnuintl.in.h (LIBINTL_VERSION): Bump.
+	* gettext-tools/libgettextpo/gettext-po.in.h (LIBGETTEXTPO_VERSION): Bump.
+	* libtextstyle/version.sh: Update VERSION_NUMBER, RELEASE_DATE.
+	* gettext-runtime/po/Makefile.in.in: Bump Origin version.
+	* NEWS, libtextstyle/NEWS, gettext-runtime/NEWS: Update.
+	* libtextstyle/lib/Makefile.am (LTV_*): Bump to 1:1:1.
+	* gettext-runtime/intl/Makefile.am (LTV_*): Bump to 10:0:2.
+	* gettext-tools/libgettextpo/Makefile.am (LTV_*): Bump to 5:7:5.
+	* gettext-tools/configure.ac (ARCHIVE_VERSION): Bump to 0.21.
+	* gettext-tools/misc/autopoint.in: Allow version 0.21.
+
+2020-04-14  Bruno Haible  <bruno@clisp.org>
+
+	Merge from 0.20.x branch: Update translations (from the TP).
+	* gettext-runtime/po/*.po: Update.
+	* gettext-tools/po/*.po: Update.
+	* gettext-tools/examples/po/*.po: Update.
+	* gettext-tools/examples/po/LINGUAS: Add 'sq'.
+	* gettext-tools/examples/hello-*/po/LINGUAS: Likewise.
+	* gettext-tools/examples/Makefile.am (EXAMPLESPOFILES): Add sq.po.
+
+2020-04-11  Bruno Haible  <bruno@clisp.org>
+
+	po: Emit a warning when creating a tarball without POT file.
+	* gettext-runtime/po/Makefile.in.in (dist2): Emit a warning when the POT file
+	does not exist.
+	* gettext-tools/examples/hello-*/po/Makefile.am (distdir1): Likewise.
+
+2020-04-05  Bruno Haible  <bruno@clisp.org>
+
+	po, examples: In the .po -> .gmo rules, really consider the newest changes to the POT file.
+	Reported by Petr Ovtchenkov <ptr@void-ptr.info> in
+	<https://lists.gnu.org/archive/html/bug-gnulib/2020-04/msg00000.html>.
+	Helped by Paul Smith.
+
+	* gettext-runtime/po/Makefile.in.in (.po.gmo): Write dependency on the POT file
+	as a target rule, since inference rules don't support prerequisites.
+	* gettext-tools/examples/hello-*/po/Makefile.am: Likewise, also for the .po.qm
+	rule.
+	* NEWS: Mention the fix.
+
 2019-05-12  Bruno Haible  <bruno@clisp.org>
 
 	Update translations (from the TP).

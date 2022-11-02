@@ -1,5 +1,5 @@
 ## Makefile for the gnulib-local directory of GNU gettext
-## Copyright (C) 2006-2008, 2010-2012, 2014-2019 Free Software Foundation, Inc.
+## Copyright (C) 2006-2008, 2010-2012, 2014-2021 Free Software Foundation, Inc.
 ##
 ## This program is free software: you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -24,24 +24,18 @@ lib/alloca.in.h \
 lib/argmatch.h.diff \
 lib/backupfile.c \
 lib/backupfile.h \
-lib/basename.c \
-lib/basename.h \
-lib/clean-temp.c.diff \
 lib/closeout.c \
 lib/closeout.h \
-lib/diffseq.h.diff \
 lib/error.h.diff \
 lib/error-progname.c \
 lib/error-progname.h \
 lib/exitfail.h.diff \
-lib/fnmatch.c.diff \
-lib/fnmatch_loop.c.diff \
 lib/getopt-core.h.diff \
 lib/gettext.h \
 lib/gl_array_list.h.diff \
 lib/gl_linkedhash_list.h.diff \
-lib/hash.c \
-lib/hash.h \
+lib/hash.c.diff \
+lib/hash.h.diff \
 lib/libxml/buf.c \
 lib/libxml/buf.h \
 lib/libxml/c14n.c \
@@ -144,38 +138,35 @@ lib/libxml/xpointer.c \
 lib/libxml/xpointer.in.h \
 lib/markup.c \
 lib/markup.h \
+lib/mem-hash-map.c \
+lib/mem-hash-map.h \
 lib/obstack.h.diff \
 lib/progname.h.diff \
 lib/regex_internal.h.diff \
 lib/unistd.in.h.diff \
-lib/xalloc.h \
 lib/xerror.c \
 lib/xerror.h \
 lib/xgetcwd.c \
 lib/xgetcwd.h \
-lib/xmalloc.c \
-lib/xstrdup.c \
-m4/alloca.m4 \
 m4/backupfile.m4 \
 m4/java.m4 \
 m4/libxml.m4 \
-m4/unionwait.m4 \
 modules/backupfile \
-modules/basename \
 modules/closeout \
 modules/error-progname \
-modules/fnmatch.diff \
 modules/gettext-runtime-misc \
 modules/gettext-tools-misc \
-modules/hash \
 modules/java \
 modules/libtextstyle-dummy \
 modules/libxml \
 modules/markup \
-modules/wait-process.diff \
-modules/xalloc \
-modules/xalloc-die \
+modules/mem-hash-map \
 modules/xerror \
 modules/xgetcwd
+
+# Extra files to be installed.
+
+gettextsrcdir = $(datadir)/gettext
+gettextsrc_DATA = lib/gettext.h
 
 maintainer-update-po:

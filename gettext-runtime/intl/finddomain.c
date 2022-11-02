@@ -1,5 +1,5 @@
 /* Handle list of needed message catalogs
-   Copyright (C) 1995-2016 Free Software Foundation, Inc.
+   Copyright (C) 1995-2020 Free Software Foundation, Inc.
    Written by Ulrich Drepper <drepper@gnu.org>, 1995.
 
    This program is free software: you can redistribute it and/or modify
@@ -50,13 +50,20 @@
 /* List of already loaded domains.  */
 static struct loaded_l10nfile *_nl_loaded_domains;
 
+/* Lock that protects the access to _NL_LOADED_DOMAINS.  */
+gl_rwlock_define_initialized (static, lock);
+
 
 /* Return a data structure describing the message catalog described by
-   the DOMAINNAME and CATEGORY parameters with respect to the currently
-   established bindings.  */
+   the DIRNAME or WDIRNAME, LOCALE, and DOMAINNAME parameters with respect
+   to the currently established bindings.  */
 struct loaded_l10nfile *
 internal_function
-_nl_find_domain (const char *dirname, char *locale,
+_nl_find_domain (const char *dirname,
+#if defined _WIN32 && !defined __CYGWIN__
+		 const wchar_t *wdirname,
+#endif
+		 char *locale,
 		 const char *domainname, struct binding *domainbinding)
 {
   struct loaded_l10nfile *retval;
@@ -83,14 +90,19 @@ _nl_find_domain (const char *dirname, char *locale,
    */
 
   /* We need to protect modifying the _NL_LOADED_DOMAINS data.  */
-  gl_rwlock_define_initialized (static, lock);
   gl_rwlock_rdlock (lock);
 
   /* If we have already tested for this locale entry there has to
      be one data set in the list of loaded domains.  */
-  retval = _nl_make_l10nflist (&_nl_loaded_domains, dirname,
-			       strlen (dirname) + 1, 0, locale, NULL, NULL,
-			       NULL, NULL, domainname, 0);
+  retval = _nl_make_l10nflist (&_nl_loaded_domains,
+			       dirname,
+			       dirname != NULL ? strlen (dirname) + 1 : 0,
+#if defined _WIN32 && !defined __CYGWIN__
+			       wdirname,
+			       wdirname != NULL ? wcslen (wdirname) + 1 : 0,
+#endif
+			       0, locale, NULL, NULL, NULL, NULL,
+			       domainname, 0);
 
   gl_rwlock_unlock (lock);
 
@@ -124,18 +136,9 @@ _nl_find_domain (const char *dirname, char *locale,
   alias_value = _nl_expand_alias (locale);
   if (alias_value != NULL)
     {
-#if defined _LIBC || defined HAVE_STRDUP
       locale = strdup (alias_value);
       if (locale == NULL)
 	return NULL;
-#else
-      size_t len = strlen (alias_value) + 1;
-      locale = (char *) malloc (len);
-      if (locale == NULL)
-	return NULL;
-
-      memcpy (locale, alias_value, len);
-#endif
     }
 
   /* Now we determine the single parts of the locale name.  First
@@ -151,8 +154,14 @@ _nl_find_domain (const char *dirname, char *locale,
 
   /* Create all possible locale entries which might be interested in
      generalization.  */
-  retval = _nl_make_l10nflist (&_nl_loaded_domains, dirname,
-			       strlen (dirname) + 1, mask, language, territory,
+  retval = _nl_make_l10nflist (&_nl_loaded_domains,
+			       dirname,
+			       dirname != NULL ? strlen (dirname) + 1 : 0,
+#if defined _WIN32 && !defined __CYGWIN__
+			       wdirname,
+			       wdirname != NULL ? wcslen (wdirname) + 1 : 0,
+#endif
+			       mask, language, territory,
 			       codeset, normalized_codeset, modifier,
 			       domainname, 1);
 

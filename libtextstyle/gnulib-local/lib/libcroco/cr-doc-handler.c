@@ -1,7 +1,18 @@
-/* -*- Mode: C; indent-tabs-mode: ni; c-basic-offset: 8 -*- */
+/* -*- Mode: C; indent-tabs-mode: nil; c-basic-offset: 8 -*- */
+
+/* libcroco - Library for parsing and applying CSS
+ * Copyright (C) 2006-2019 Free Software Foundation, Inc.
+ *
+ * This file is not part of the GNU gettext program, but is used with
+ * GNU gettext.
+ *
+ * The original copyright notice is as follows:
+ */
 
 /*
  * This file is part of The Croco Library
+ *
+ * Copyright (C) 2003-2004 Dodji Seketeli.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of version 2.1 of the GNU Lesser General Public
@@ -16,8 +27,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA
- * 
- * See COPRYRIGHTS file for copyright information.
  */
 
 #include <config.h>
@@ -77,6 +86,7 @@ cr_doc_handler_new (void)
         g_return_val_if_fail (result, NULL);
 
         memset (result, 0, sizeof (CRDocHandler));
+        result->ref_count++;
 
         result->priv = g_try_malloc (sizeof (CRDocHandlerPriv));
         if (!result->priv) {
@@ -101,7 +111,7 @@ cr_doc_handler_new (void)
  *Returns CR_OK upon successfull completion, an error code otherwise.
  */
 enum CRStatus
-cr_doc_handler_get_ctxt (CRDocHandler * a_this, gpointer * a_ctxt)
+cr_doc_handler_get_ctxt (CRDocHandler const * a_this, gpointer * a_ctxt)
 {
         g_return_val_if_fail (a_this && a_this->priv, CR_BAD_PARAM_ERROR);
 
@@ -138,7 +148,7 @@ cr_doc_handler_set_ctxt (CRDocHandler * a_this, gpointer a_ctxt)
  *Returns CR_OK upon successfull completion, an error code otherwise.
  */
 enum CRStatus
-cr_doc_handler_get_result (CRDocHandler * a_this, gpointer * a_result)
+cr_doc_handler_get_result (CRDocHandler const * a_this, gpointer * a_result)
 {
         g_return_val_if_fail (a_this && a_this->priv, CR_BAD_PARAM_ERROR);
 
@@ -261,6 +271,7 @@ cr_doc_handler_destroy (CRDocHandler * a_this)
 /**
  * cr_doc_handler_associate_a_parser:
  *Associates a parser to the current document handler
+ *
  *@a_this: the current instance of document handler.
  *@a_parser: the parser to associate.
  */

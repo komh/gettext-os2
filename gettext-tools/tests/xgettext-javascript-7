@@ -17,14 +17,19 @@ var s7 = _(tag`A template literal with a tag`);
 var s8 = `a${`b${`c`+d}`}e`;
 var s9 = _("a normal string");
 var s10 = `abc${foo({},_('should be extracted'))}xyz`;
+var f1 = function () {
+  return _("first normal string") + `${foo}` + _("second normal string");
+};
+var s11 = _("another normal string");
+var s12 = { property: `A template literal with ${n} substitution` };
+var s13 = _("yet another normal string");
+
 EOF
 
 : ${XGETTEXT=xgettext}
 ${XGETTEXT} --add-comments --no-location -o xg-js-7.tmp xg-js-7.js 2>xg-js-7.err
 test $? = 0 || { cat xg-js-7.err; Exit 1; }
-# Don't simplify this to "grep ... < xg-js-7.tmp", otherwise OpenBSD 4.0 grep
-# only outputs "Binary file (standard input) matches".
-cat xg-js-7.tmp | grep -v 'POT-Creation-Date' | LC_ALL=C tr -d '\r' > xg-js-7.pot
+func_filter_POT_Creation_Date xg-js-7.tmp xg-js-7.pot
 
 cat <<\EOF > xg-js-7.ok
 # SOME DESCRIPTIVE TITLE.
@@ -64,6 +69,18 @@ msgid "a normal string"
 msgstr ""
 
 msgid "should be extracted"
+msgstr ""
+
+msgid "first normal string"
+msgstr ""
+
+msgid "second normal string"
+msgstr ""
+
+msgid "another normal string"
+msgstr ""
+
+msgid "yet another normal string"
 msgstr ""
 EOF
 

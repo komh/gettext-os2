@@ -1,5 +1,5 @@
 /* Test of fnmatch string matching function.
-   Copyright (C) 2009-2019 Free Software Foundation, Inc.
+   Copyright (C) 2009-2022 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -51,6 +51,16 @@ main ()
      fixed.
    */
   ASSERT (res = fnmatch ("[/b", "[/b", 0) == 0);
+
+  ASSERT (fnmatch ("[[:alpha:]'[:alpha:]\0]", "a", 0) == FNM_NOMATCH);
+  ASSERT (fnmatch ("[a[.\0.]]", "a", 0) == FNM_NOMATCH);
+#ifdef FNM_EXTMATCH
+  ASSERT (fnmatch ("**(!()", "**(!()", FNM_EXTMATCH) == 0);
+#endif
+#ifdef FNM_LEADING_DIR
+  ASSERT (fnmatch ("x?y", "x/y/z", FNM_PATHNAME | FNM_LEADING_DIR)
+          == FNM_NOMATCH);
+#endif
 
   return 0;
 }

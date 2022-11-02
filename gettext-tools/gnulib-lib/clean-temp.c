@@ -1,5 +1,5 @@
 /* Temporary directories and temporary files with automatic cleanup.
-   Copyright (C) 2001, 2003, 2006-2007, 2009-2019 Free Software Foundation,
+   Copyright (C) 2001, 2003, 2006-2007, 2009-2022 Free Software Foundation,
    Inc.
    Written by Bruno Haible <bruno@clisp.org>, 2006.
 
@@ -16,7 +16,6 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
-
 #include <config.h>
 
 /* Specification.  */
@@ -24,9 +23,9 @@
 
 #include <errno.h>
 #include <fcntl.h>
-#include <limits.h>
+#include <signal.h>
 #include <stdbool.h>
-#include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -36,15 +35,24 @@
 # include <windows.h>
 #endif
 
+#include "clean-temp-simple.h"
+#include "clean-temp-private.h"
 #include "error.h"
 #include "fatal-signal.h"
+#include "asyncsafe-spin.h"
 #include "pathmax.h"
 #include "tmpdir.h"
 #include "xalloc.h"
 #include "xmalloca.h"
+#include "glthread/lock.h"
+#include "thread-optim.h"
 #include "gl_xlist.h"
 #include "gl_linkedhash_list.h"
+#include "gl_linked_list.h"
 #include "gettext.h"
+#if GNULIB_TEMPNAME
+# include "tempname.h"
+#endif
 #if GNULIB_FWRITEERROR
 # include "fwriteerror.h"
 #endif
@@ -66,173 +74,62 @@
 # define PATH_MAX 1024
 #endif
 
+#if defined _WIN32 && ! defined __CYGWIN__
+/* Don't assume that UNICODE is not defined.  */
+# undef OSVERSIONINFO
+# define OSVERSIONINFO OSVERSIONINFOA
+# undef GetVersionEx
+# define GetVersionEx GetVersionExA
+#endif
 
-/* The use of 'volatile' in the types below (and ISO C 99 section 5.1.2.3.(5))
-   ensure that while constructing or modifying the data structures, the field
-   values are written to memory in the order of the C statements.  So the
-   signal handler can rely on these field values to be up to date.  */
+
+/* Lock that protects the dir_cleanup_list from concurrent modification in
+   different threads.  */
+gl_lock_define_initialized (static, dir_cleanup_list_lock)
+
+/* Lock that protects the descriptors list from concurrent modification in
+   different threads.  */
+gl_lock_define_initialized (static, descriptors_lock)
 
 
-/* Registry for a single temporary directory.
-   'struct temp_dir' from the public header file overlaps with this.  */
-struct tempdir
+/* Close a file descriptor and the stream that contains it.
+   Avoids race conditions with signal-handler code that might want to close the
+   same file descriptor.  */
+static int
+asyncsafe_fclose_variant (struct closeable_fd *element, FILE *fp,
+                          int (*fclose_variant) (FILE *))
 {
-  /* The absolute pathname of the directory.  */
-  char * volatile dirname;
-  /* Whether errors during explicit cleanup are reported to standard error.  */
-  bool cleanup_verbose;
-  /* Absolute pathnames of subdirectories.  */
-  gl_list_t /* <char *> */ volatile subdirs;
-  /* Absolute pathnames of files.  */
-  gl_list_t /* <char *> */ volatile files;
-};
+  if (fileno (fp) != element->fd)
+    abort ();
 
-/* List of all temporary directories.  */
-static struct
-{
-  struct tempdir * volatile * volatile tempdir_list;
-  size_t volatile tempdir_count;
-  size_t tempdir_allocated;
-} cleanup_list /* = { NULL, 0, 0 } */;
+  /* Flush buffered data first, to minimize the duration of the spin lock.  */
+  fflush (fp);
 
-/* List of all open file descriptors to temporary files.  */
-static gl_list_t /* <int> */ volatile descriptors;
+  sigset_t saved_mask;
+  int ret;
+  int saved_errno;
 
-
-/* For the subdirs and for the files, we use a gl_list_t of type LINKEDHASH.
-   Why?  We need a data structure that
-
-     1) Can contain an arbitrary number of 'char *' values.  The strings
-        are compared via strcmp, not pointer comparison.
-     2) Has insertion and deletion operations that are fast: ideally O(1),
-        or possibly O(log n).  This is important for GNU sort, which may
-        create a large number of temporary files.
-     3) Allows iteration through all elements from within a signal handler.
-     4) May or may not allow duplicates.  It doesn't matter here, since
-        any file or subdir can only be removed once.
-
-   Criterion 1) would allow any gl_list_t or gl_oset_t implementation.
-
-   Criterion 2) leaves only GL_LINKEDHASH_LIST, GL_TREEHASH_LIST, or
-   GL_TREE_OSET.
-
-   Criterion 3) puts at disadvantage GL_TREEHASH_LIST and GL_TREE_OSET.
-   Namely, iteration through the elements of a binary tree requires access
-   to many ->left, ->right, ->parent pointers. However, the rebalancing
-   code for insertion and deletion in an AVL or red-black tree is so
-   complicated that we cannot assume that >left, ->right, ->parent pointers
-   are in a consistent state throughout these operations.  Therefore, to
-   avoid a crash in the signal handler, all destructive operations to the
-   lists would have to be protected by a
-       block_fatal_signals ();
-       ...
-       unblock_fatal_signals ();
-   pair.  Which causes extra system calls.
-
-   Criterion 3) would also discourage GL_ARRAY_LIST and GL_CARRAY_LIST,
-   if they were not already excluded.  Namely, these implementations use
-   xrealloc(), leaving a time window in which in the list->elements pointer
-   points to already deallocated memory.  To avoid a crash in the signal
-   handler at such a moment, all destructive operations would have to
-   protected by block/unblock_fatal_signals (), in this case too.
-
-   A list of type GL_LINKEDHASH_LIST without duplicates fulfills all
-   requirements:
-     2) Insertion and deletion are O(1) on average.
-     3) The gl_list_iterator, gl_list_iterator_next implementations do
-        not trigger memory allocations, nor other system calls, and are
-        therefore safe to be called from a signal handler.
-        Furthermore, since SIGNAL_SAFE_LIST is defined, the implementation
-        of the destructive functions ensures that the list structure is
-        safe to be traversed at any moment, even when interrupted by an
-        asynchronous signal.
- */
-
-/* String equality and hash code functions used by the lists.  */
-
-static bool
-string_equals (const void *x1, const void *x2)
-{
-  const char *s1 = (const char *) x1;
-  const char *s2 = (const char *) x2;
-  return strcmp (s1, s2) == 0;
-}
-
-#define SIZE_BITS (sizeof (size_t) * CHAR_BIT)
-
-/* A hash function for NUL-terminated char* strings using
-   the method described by Bruno Haible.
-   See https://www.haible.de/bruno/hashfunc.html.  */
-static size_t
-string_hash (const void *x)
-{
-  const char *s = (const char *) x;
-  size_t h = 0;
-
-  for (; *s; s++)
-    h = *s + ((h << 9) | (h >> (SIZE_BITS - 9)));
-
-  return h;
-}
-
-
-/* The signal handler.  It gets called asynchronously.  */
-static _GL_ASYNC_SAFE void
-cleanup_action (int sig _GL_UNUSED)
-{
-  size_t i;
-
-  /* First close all file descriptors to temporary files.  */
-  {
-    gl_list_t fds = descriptors;
-
-    if (fds != NULL)
-      {
-        gl_list_iterator_t iter;
-        const void *element;
-
-        iter = gl_list_iterator (fds);
-        while (gl_list_iterator_next (&iter, &element, NULL))
-          {
-            int fd = (int) (uintptr_t) element;
-            close (fd);
-          }
-        gl_list_iterator_free (&iter);
-      }
-  }
-
-  for (i = 0; i < cleanup_list.tempdir_count; i++)
+  asyncsafe_spin_lock (&element->lock, get_fatal_signal_set (), &saved_mask);
+  if (!element->closed)
     {
-      struct tempdir *dir = cleanup_list.tempdir_list[i];
-
-      if (dir != NULL)
-        {
-          gl_list_iterator_t iter;
-          const void *element;
-
-          /* First cleanup the files in the subdirectories.  */
-          iter = gl_list_iterator (dir->files);
-          while (gl_list_iterator_next (&iter, &element, NULL))
-            {
-              const char *file = (const char *) element;
-              unlink (file);
-            }
-          gl_list_iterator_free (&iter);
-
-          /* Then cleanup the subdirectories.  */
-          iter = gl_list_iterator (dir->subdirs);
-          while (gl_list_iterator_next (&iter, &element, NULL))
-            {
-              const char *subdir = (const char *) element;
-              rmdir (subdir);
-            }
-          gl_list_iterator_free (&iter);
-
-          /* Then cleanup the temporary directory itself.  */
-          rmdir (dir->dirname);
-        }
+      ret = fclose_variant (fp); /* invokes close (element->fd) */
+      saved_errno = errno;
+      element->closed = true;
     }
+  else
+    {
+      ret = 0;
+      saved_errno = 0;
+    }
+  asyncsafe_spin_unlock (&element->lock, &saved_mask);
+  element->done = true;
+
+  errno = saved_errno;
+  return ret;
 }
+
+
+/* ========= Temporary directories and temporary files inside them ========= */
 
 /* Create a temporary directory.
    PREFIX is used as a prefix for the name of the temporary directory. It
@@ -247,6 +144,10 @@ struct temp_dir *
 create_temp_dir (const char *prefix, const char *parentdir,
                  bool cleanup_verbose)
 {
+  bool mt = gl_multithreaded ();
+
+  if (mt) gl_lock_lock (dir_cleanup_list_lock);
+
   struct tempdir * volatile *tmpdirp = NULL;
   struct tempdir *tmpdir;
   size_t i;
@@ -255,28 +156,31 @@ create_temp_dir (const char *prefix, const char *parentdir,
 
   /* See whether it can take the slot of an earlier temporary directory
      already cleaned up.  */
-  for (i = 0; i < cleanup_list.tempdir_count; i++)
-    if (cleanup_list.tempdir_list[i] == NULL)
+  for (i = 0; i < dir_cleanup_list.tempdir_count; i++)
+    if (dir_cleanup_list.tempdir_list[i] == NULL)
       {
-        tmpdirp = &cleanup_list.tempdir_list[i];
+        tmpdirp = &dir_cleanup_list.tempdir_list[i];
         break;
       }
   if (tmpdirp == NULL)
     {
       /* See whether the array needs to be extended.  */
-      if (cleanup_list.tempdir_count == cleanup_list.tempdir_allocated)
+      if (dir_cleanup_list.tempdir_count == dir_cleanup_list.tempdir_allocated)
         {
           /* Note that we cannot use xrealloc(), because then the cleanup()
              function could access an already deallocated array.  */
-          struct tempdir * volatile *old_array = cleanup_list.tempdir_list;
-          size_t old_allocated = cleanup_list.tempdir_allocated;
-          size_t new_allocated = 2 * cleanup_list.tempdir_allocated + 1;
+          struct tempdir * volatile *old_array = dir_cleanup_list.tempdir_list;
+          size_t old_allocated = dir_cleanup_list.tempdir_allocated;
+          size_t new_allocated = 2 * dir_cleanup_list.tempdir_allocated + 1;
           struct tempdir * volatile *new_array =
             XNMALLOC (new_allocated, struct tempdir * volatile);
 
           if (old_allocated == 0)
-            /* First use of this facility.  Register the cleanup handler.  */
-            at_fatal_signal (&cleanup_action);
+            {
+              /* First use of this facility.  */
+              if (clean_temp_init () < 0)
+                xalloc_die ();
+            }
           else
             {
               /* Don't use memcpy() here, because memcpy takes non-volatile
@@ -288,31 +192,40 @@ create_temp_dir (const char *prefix, const char *parentdir,
                 new_array[k] = old_array[k];
             }
 
-          cleanup_list.tempdir_list = new_array;
-          cleanup_list.tempdir_allocated = new_allocated;
+          dir_cleanup_list.tempdir_list = new_array;
+          dir_cleanup_list.tempdir_allocated = new_allocated;
 
           /* Now we can free the old array.  */
+          /* No, we can't do that.  If cleanup_action is running in a different
+             thread and has already fetched the tempdir_list pointer (getting
+             old_array) but not yet accessed its i-th element, that thread may
+             crash when accessing an element of the already freed old_array
+             array.  */
+          #if 0
           if (old_array != NULL)
             free ((struct tempdir **) old_array);
+          #endif
         }
 
-      tmpdirp = &cleanup_list.tempdir_list[cleanup_list.tempdir_count];
+      tmpdirp = &dir_cleanup_list.tempdir_list[dir_cleanup_list.tempdir_count];
       /* Initialize *tmpdirp before incrementing tempdir_count, so that
          cleanup() will skip this entry before it is fully initialized.  */
       *tmpdirp = NULL;
-      cleanup_list.tempdir_count++;
+      dir_cleanup_list.tempdir_count++;
     }
 
   /* Initialize a 'struct tempdir'.  */
   tmpdir = XMALLOC (struct tempdir);
   tmpdir->dirname = NULL;
   tmpdir->cleanup_verbose = cleanup_verbose;
-  tmpdir->subdirs = gl_list_create_empty (GL_LINKEDHASH_LIST,
-                                          string_equals, string_hash, NULL,
-                                          false);
-  tmpdir->files = gl_list_create_empty (GL_LINKEDHASH_LIST,
-                                        string_equals, string_hash, NULL,
-                                        false);
+  tmpdir->subdirs =
+    gl_list_create_empty (GL_LINKEDHASH_LIST,
+                          clean_temp_string_equals, clean_temp_string_hash,
+                          NULL, false);
+  tmpdir->files =
+    gl_list_create_empty (GL_LINKEDHASH_LIST,
+                          clean_temp_string_equals, clean_temp_string_hash,
+                          NULL, false);
 
   /* Create the temporary directory.  */
   xtemplate = (char *) xmalloca (PATH_MAX);
@@ -324,6 +237,7 @@ create_temp_dir (const char *prefix, const char *parentdir,
     }
   block_fatal_signals ();
   tmpdirname = mkdtemp (xtemplate);
+  int saved_errno = errno;
   if (tmpdirname != NULL)
     {
       tmpdir->dirname = tmpdirname;
@@ -332,7 +246,7 @@ create_temp_dir (const char *prefix, const char *parentdir,
   unblock_fatal_signals ();
   if (tmpdirname == NULL)
     {
-      error (0, errno,
+      error (0, saved_errno,
              _("cannot create a temporary directory using template \"%s\""),
              xtemplate);
       goto quit;
@@ -342,10 +256,12 @@ create_temp_dir (const char *prefix, const char *parentdir,
      block because then the cleanup handler would not remove the directory
      if xstrdup fails.  */
   tmpdir->dirname = xstrdup (tmpdirname);
+  if (mt) gl_lock_unlock (dir_cleanup_list_lock);
   freea (xtemplate);
   return (struct temp_dir *) tmpdir;
 
  quit:
+  if (mt) gl_lock_unlock (dir_cleanup_list_lock);
   freea (xtemplate);
   return NULL;
 }
@@ -358,10 +274,15 @@ register_temp_file (struct temp_dir *dir,
                     const char *absolute_file_name)
 {
   struct tempdir *tmpdir = (struct tempdir *)dir;
+  bool mt = gl_multithreaded ();
+
+  if (mt) gl_lock_lock (dir_cleanup_list_lock);
 
   /* Add absolute_file_name to tmpdir->files, without duplicates.  */
   if (gl_list_search (tmpdir->files, absolute_file_name) == NULL)
     gl_list_add_first (tmpdir->files, xstrdup (absolute_file_name));
+
+  if (mt) gl_lock_unlock (dir_cleanup_list_lock);
 }
 
 /* Unregister the given ABSOLUTE_FILE_NAME as being a file inside DIR, that
@@ -372,6 +293,10 @@ unregister_temp_file (struct temp_dir *dir,
                       const char *absolute_file_name)
 {
   struct tempdir *tmpdir = (struct tempdir *)dir;
+  bool mt = gl_multithreaded ();
+
+  if (mt) gl_lock_lock (dir_cleanup_list_lock);
+
   gl_list_t list = tmpdir->files;
   gl_list_node_t node;
 
@@ -383,6 +308,8 @@ unregister_temp_file (struct temp_dir *dir,
       gl_list_remove_node (list, node);
       free (old_string);
     }
+
+  if (mt) gl_lock_unlock (dir_cleanup_list_lock);
 }
 
 /* Register the given ABSOLUTE_DIR_NAME as being a subdirectory inside DIR,
@@ -393,10 +320,15 @@ register_temp_subdir (struct temp_dir *dir,
                       const char *absolute_dir_name)
 {
   struct tempdir *tmpdir = (struct tempdir *)dir;
+  bool mt = gl_multithreaded ();
+
+  if (mt) gl_lock_lock (dir_cleanup_list_lock);
 
   /* Add absolute_dir_name to tmpdir->subdirs, without duplicates.  */
   if (gl_list_search (tmpdir->subdirs, absolute_dir_name) == NULL)
     gl_list_add_first (tmpdir->subdirs, xstrdup (absolute_dir_name));
+
+  if (mt) gl_lock_unlock (dir_cleanup_list_lock);
 }
 
 /* Unregister the given ABSOLUTE_DIR_NAME as being a subdirectory inside DIR,
@@ -408,6 +340,10 @@ unregister_temp_subdir (struct temp_dir *dir,
                         const char *absolute_dir_name)
 {
   struct tempdir *tmpdir = (struct tempdir *)dir;
+  bool mt = gl_multithreaded ();
+
+  if (mt) gl_lock_lock (dir_cleanup_list_lock);
+
   gl_list_t list = tmpdir->subdirs;
   gl_list_node_t node;
 
@@ -419,28 +355,16 @@ unregister_temp_subdir (struct temp_dir *dir,
       gl_list_remove_node (list, node);
       free (old_string);
     }
-}
 
-/* Remove a file, with optional error message.
-   Return 0 upon success, or -1 if there was some problem.  */
-static int
-do_unlink (struct temp_dir *dir, const char *absolute_file_name)
-{
-  if (unlink (absolute_file_name) < 0 && dir->cleanup_verbose
-      && errno != ENOENT)
-    {
-      error (0, errno, _("cannot remove temporary file %s"), absolute_file_name);
-      return -1;
-    }
-  return 0;
+  if (mt) gl_lock_unlock (dir_cleanup_list_lock);
 }
 
 /* Remove a directory, with optional error message.
    Return 0 upon success, or -1 if there was some problem.  */
 static int
-do_rmdir (struct temp_dir *dir, const char *absolute_dir_name)
+do_rmdir (const char *absolute_dir_name, bool cleanup_verbose)
 {
-  if (rmdir (absolute_dir_name) < 0 && dir->cleanup_verbose
+  if (rmdir (absolute_dir_name) < 0 && cleanup_verbose
       && errno != ENOENT)
     {
       error (0, errno,
@@ -458,7 +382,7 @@ cleanup_temp_file (struct temp_dir *dir,
 {
   int err;
 
-  err = do_unlink (dir, absolute_file_name);
+  err = clean_temp_unlink (absolute_file_name, dir->cleanup_verbose);
   unregister_temp_file (dir, absolute_file_name);
 
   return err;
@@ -472,13 +396,14 @@ cleanup_temp_subdir (struct temp_dir *dir,
 {
   int err;
 
-  err = do_rmdir (dir, absolute_dir_name);
+  err = do_rmdir (absolute_dir_name, dir->cleanup_verbose);
   unregister_temp_subdir (dir, absolute_dir_name);
 
   return err;
 }
 
 /* Remove all registered files and subdirectories inside DIR.
+   Only to be called with dir_cleanup_list_lock locked.
    Return 0 upon success, or -1 if there was some problem.  */
 int
 cleanup_temp_dir_contents (struct temp_dir *dir)
@@ -497,7 +422,7 @@ cleanup_temp_dir_contents (struct temp_dir *dir)
     {
       char *file = (char *) element;
 
-      err |= do_unlink (dir, file);
+      err |= clean_temp_unlink (file, dir->cleanup_verbose);
       gl_list_remove_node (list, node);
       /* Now only we can free file.  */
       free (file);
@@ -511,7 +436,7 @@ cleanup_temp_dir_contents (struct temp_dir *dir)
     {
       char *subdir = (char *) element;
 
-      err |= do_rmdir (dir, subdir);
+      err |= do_rmdir (subdir, dir->cleanup_verbose);
       gl_list_remove_node (list, node);
       /* Now only we can free subdir.  */
       free (subdir);
@@ -527,31 +452,36 @@ cleanup_temp_dir_contents (struct temp_dir *dir)
 int
 cleanup_temp_dir (struct temp_dir *dir)
 {
+  bool mt = gl_multithreaded ();
+
+  if (mt) gl_lock_lock (dir_cleanup_list_lock);
+
   struct tempdir *tmpdir = (struct tempdir *)dir;
   int err = 0;
   size_t i;
 
   err |= cleanup_temp_dir_contents (dir);
-  err |= do_rmdir (dir, tmpdir->dirname);
+  err |= do_rmdir (tmpdir->dirname, dir->cleanup_verbose);
 
-  for (i = 0; i < cleanup_list.tempdir_count; i++)
-    if (cleanup_list.tempdir_list[i] == tmpdir)
+  for (i = 0; i < dir_cleanup_list.tempdir_count; i++)
+    if (dir_cleanup_list.tempdir_list[i] == tmpdir)
       {
-        /* Remove cleanup_list.tempdir_list[i].  */
-        if (i + 1 == cleanup_list.tempdir_count)
+        /* Remove dir_cleanup_list.tempdir_list[i].  */
+        if (i + 1 == dir_cleanup_list.tempdir_count)
           {
-            while (i > 0 && cleanup_list.tempdir_list[i - 1] == NULL)
+            while (i > 0 && dir_cleanup_list.tempdir_list[i - 1] == NULL)
               i--;
-            cleanup_list.tempdir_count = i;
+            dir_cleanup_list.tempdir_count = i;
           }
         else
-          cleanup_list.tempdir_list[i] = NULL;
+          dir_cleanup_list.tempdir_list[i] = NULL;
         /* Now only we can free the tmpdir->dirname, tmpdir->subdirs,
            tmpdir->files, and tmpdir itself.  */
         gl_list_free (tmpdir->files);
         gl_list_free (tmpdir->subdirs);
         free (tmpdir->dirname);
         free (tmpdir);
+        if (mt) gl_lock_unlock (dir_cleanup_list_lock);
         return err;
       }
 
@@ -559,6 +489,8 @@ cleanup_temp_dir (struct temp_dir *dir)
   abort ();
 }
 
+
+/* ================== Opening and closing temporary files ================== */
 
 #if defined _WIN32 && ! defined __CYGWIN__
 
@@ -572,9 +504,6 @@ static bool
 supports_delete_on_close ()
 {
   static int known; /* 1 = yes, -1 = no, 0 = unknown */
-  /* M4 wants to close and later reopen a temporary file, so
-     delete-on-close must not be used.  */
-  known = -1;
   if (!known)
     {
       OSVERSIONINFO v;
@@ -599,33 +528,32 @@ supports_delete_on_close ()
 static void
 register_fd (int fd)
 {
+  bool mt = gl_multithreaded ();
+
+  if (mt) gl_lock_lock (descriptors_lock);
+
   if (descriptors == NULL)
-    descriptors = gl_list_create_empty (GL_LINKEDHASH_LIST, NULL, NULL, NULL,
+    descriptors = gl_list_create_empty (GL_LINKED_LIST, NULL, NULL, NULL,
                                         false);
-  gl_list_add_first (descriptors, (void *) (uintptr_t) fd);
-}
 
-/* Unregister a file descriptor to be closed.  */
-static void
-unregister_fd (int fd)
-{
-  gl_list_t fds = descriptors;
-  gl_list_node_t node;
+  struct closeable_fd *element = XMALLOC (struct closeable_fd);
+  element->fd = fd;
+  element->closed = false;
+  asyncsafe_spin_init (&element->lock);
+  element->done = false;
 
-  if (fds == NULL)
-    /* descriptors should already contain fd.  */
-    abort ();
-  node = gl_list_search (fds, (void *) (uintptr_t) fd);
-  if (node == NULL)
-    /* descriptors should already contain fd.  */
-    abort ();
-  gl_list_remove_node (fds, node);
+  gl_list_add_first (descriptors, element);
+
+  if (mt) gl_lock_unlock (descriptors_lock);
 }
 
 /* Open a temporary file in a temporary directory.
-   Registers the resulting file descriptor to be closed.  */
+   FILE_NAME must already have been passed to register_temp_file.
+   Registers the resulting file descriptor to be closed.
+   DELETE_ON_CLOSE indicates whether the file can be deleted when the resulting
+   file descriptor or stream is closed.  */
 int
-open_temp (const char *file_name, int flags, mode_t mode)
+open_temp (const char *file_name, int flags, mode_t mode, bool delete_on_close)
 {
   int fd;
   int saved_errno;
@@ -635,7 +563,7 @@ open_temp (const char *file_name, int flags, mode_t mode)
 #if defined _WIN32 && ! defined __CYGWIN__
   /* Use _O_TEMPORARY when possible, to increase the chances that the
      temporary file is removed when the process crashes.  */
-  if (supports_delete_on_close ())
+  if (delete_on_close && supports_delete_on_close ())
     fd = open (file_name, flags | _O_TEMPORARY, mode);
   else
 #endif
@@ -649,9 +577,12 @@ open_temp (const char *file_name, int flags, mode_t mode)
 }
 
 /* Open a temporary file in a temporary directory.
-   Registers the resulting file descriptor to be closed.  */
+   FILE_NAME must already have been passed to register_temp_file.
+   Registers the resulting file descriptor to be closed.
+   DELETE_ON_CLOSE indicates whether the file can be deleted when the resulting
+   file descriptor or stream is closed.  */
 FILE *
-fopen_temp (const char *file_name, const char *mode)
+fopen_temp (const char *file_name, const char *mode, bool delete_on_close)
 {
   FILE *fp;
   int saved_errno;
@@ -661,7 +592,7 @@ fopen_temp (const char *file_name, const char *mode)
 #if defined _WIN32 && ! defined __CYGWIN__
   /* Use _O_TEMPORARY when possible, to increase the chances that the
      temporary file is removed when the process crashes.  */
-  if (supports_delete_on_close ())
+  if (delete_on_close && supports_delete_on_close ())
     {
       size_t mode_len = strlen (mode);
       char *augmented_mode = (char *) xmalloca (mode_len + 2);
@@ -694,90 +625,219 @@ fopen_temp (const char *file_name, const char *mode)
   return fp;
 }
 
-/* Close a temporary file in a temporary directory.
+#if GNULIB_TEMPNAME
+
+struct try_create_file_params
+{
+  int flags;
+  mode_t mode;
+};
+
+static int
+try_create_file (char *file_name_tmpl, void *params_)
+{
+  struct try_create_file_params *params = params_;
+  return open (file_name_tmpl,
+               (params->flags & ~O_ACCMODE) | O_RDWR | O_CREAT | O_EXCL,
+               params->mode);
+}
+
+/* Open a temporary file, generating its name based on FILE_NAME_TMPL.
+   FILE_NAME_TMPL must match the rules for mk[s]temp (i.e. end in "XXXXXX",
+   possibly with a suffix).  The name constructed does not exist at the time
+   of the call.  FILE_NAME_TMPL is overwritten with the result.
+   A safe choice for MODE is S_IRUSR | S_IWUSR, a.k.a. 0600.
+   Registers the file for deletion.
+   Opens the file, with the given FLAGS and mode MODE.
+   Registers the resulting file descriptor to be closed.  */
+int
+gen_register_open_temp (char *file_name_tmpl, int suffixlen,
+                        int flags, mode_t mode)
+{
+  block_fatal_signals ();
+
+  struct try_create_file_params params;
+  params.flags = flags;
+  params.mode = mode;
+
+  int fd = try_tempname (file_name_tmpl, suffixlen, &params, try_create_file);
+
+  int saved_errno = errno;
+  if (fd >= 0)
+    {
+      if (clean_temp_init () < 0)
+        xalloc_die ();
+      register_fd (fd);
+      if (register_temporary_file (file_name_tmpl) < 0)
+        xalloc_die ();
+    }
+  unblock_fatal_signals ();
+  errno = saved_errno;
+  return fd;
+}
+
+#endif
+
+/* Close a temporary file.
+   FD must have been returned by open_temp or gen_register_open_temp.
    Unregisters the previously registered file descriptor.  */
 int
 close_temp (int fd)
 {
-  if (fd >= 0)
-    {
-      /* No blocking of signals is needed here, since a double close of a
-         file descriptor is harmless.  */
-      int result = close (fd);
-      int saved_errno = errno;
-
-      /* No race condition here: we assume a single-threaded program, hence
-         fd cannot be re-opened here.  */
-
-      unregister_fd (fd);
-
-      errno = saved_errno;
-      return result;
-    }
-  else
+  if (fd < 0)
     return close (fd);
+
+  clean_temp_init_asyncsafe_close ();
+
+  int result = 0;
+  int saved_errno = 0;
+
+  bool mt = gl_multithreaded ();
+
+  if (mt) gl_lock_lock (descriptors_lock);
+
+  gl_list_t list = descriptors;
+  if (list == NULL)
+    /* descriptors should already contain fd.  */
+    abort ();
+
+  /* Search through the list, and clean it up on the fly.  */
+  bool found = false;
+  gl_list_iterator_t iter = gl_list_iterator (list);
+  const void *elt;
+  gl_list_node_t node;
+  if (gl_list_iterator_next (&iter, &elt, &node))
+    for (;;)
+      {
+        struct closeable_fd *element = (struct closeable_fd *) elt;
+
+        /* Close the file descriptor, avoiding races with the signal
+           handler.  */
+        if (element->fd == fd)
+          {
+            found = true;
+            result = clean_temp_asyncsafe_close (element);
+            saved_errno = errno;
+          }
+
+        bool free_this_node = element->done;
+        struct closeable_fd *element_to_free = element;
+        gl_list_node_t node_to_free = node;
+
+        bool have_next = gl_list_iterator_next (&iter, &elt, &node);
+
+        if (free_this_node)
+          {
+            free (element_to_free);
+            gl_list_remove_node (list, node_to_free);
+          }
+
+        if (!have_next)
+          break;
+      }
+  gl_list_iterator_free (&iter);
+  if (!found)
+    /* descriptors should already contain fd.  */
+    abort ();
+
+  if (mt) gl_lock_unlock (descriptors_lock);
+
+  errno = saved_errno;
+  return result;
 }
 
-/* Close a temporary file in a temporary directory.
+static int
+fclose_variant_temp (FILE *fp, int (*fclose_variant) (FILE *))
+{
+  int fd = fileno (fp);
+
+  int result = 0;
+  int saved_errno = 0;
+
+  bool mt = gl_multithreaded ();
+
+  if (mt) gl_lock_lock (descriptors_lock);
+
+  gl_list_t list = descriptors;
+  if (list == NULL)
+    /* descriptors should already contain fd.  */
+    abort ();
+
+  /* Search through the list, and clean it up on the fly.  */
+  bool found = false;
+  gl_list_iterator_t iter = gl_list_iterator (list);
+  const void *elt;
+  gl_list_node_t node;
+  if (gl_list_iterator_next (&iter, &elt, &node))
+    for (;;)
+      {
+        struct closeable_fd *element = (struct closeable_fd *) elt;
+
+        /* Close the file descriptor and the stream, avoiding races with the
+           signal handler.  */
+        if (element->fd == fd)
+          {
+            found = true;
+            result = asyncsafe_fclose_variant (element, fp, fclose_variant);
+            saved_errno = errno;
+          }
+
+        bool free_this_node = element->done;
+        struct closeable_fd *element_to_free = element;
+        gl_list_node_t node_to_free = node;
+
+        bool have_next = gl_list_iterator_next (&iter, &elt, &node);
+
+        if (free_this_node)
+          {
+            free (element_to_free);
+            gl_list_remove_node (list, node_to_free);
+          }
+
+        if (!have_next)
+          break;
+      }
+  gl_list_iterator_free (&iter);
+  if (!found)
+    /* descriptors should have contained fd.  */
+    abort ();
+
+  if (mt) gl_lock_unlock (descriptors_lock);
+
+  errno = saved_errno;
+  return result;
+}
+
+/* Close a temporary file.
+   FP must have been returned by fopen_temp, or by fdopen on a file descriptor
+   returned by open_temp or gen_register_open_temp.
    Unregisters the previously registered file descriptor.  */
 int
 fclose_temp (FILE *fp)
 {
-  int fd = fileno (fp);
-  /* No blocking of signals is needed here, since a double close of a
-     file descriptor is harmless.  */
-  int result = fclose (fp);
-  int saved_errno = errno;
-
-  /* No race condition here: we assume a single-threaded program, hence
-     fd cannot be re-opened here.  */
-
-  unregister_fd (fd);
-
-  errno = saved_errno;
-  return result;
+  return fclose_variant_temp (fp, fclose);
 }
 
 #if GNULIB_FWRITEERROR
 /* Like fwriteerror.
+   FP must have been returned by fopen_temp, or by fdopen on a file descriptor
+   returned by open_temp or gen_register_open_temp.
    Unregisters the previously registered file descriptor.  */
 int
 fwriteerror_temp (FILE *fp)
 {
-  int fd = fileno (fp);
-  /* No blocking of signals is needed here, since a double close of a
-     file descriptor is harmless.  */
-  int result = fwriteerror (fp);
-  int saved_errno = errno;
-
-  /* No race condition here: we assume a single-threaded program, hence
-     fd cannot be re-opened here.  */
-
-  unregister_fd (fd);
-
-  errno = saved_errno;
-  return result;
+  return fclose_variant_temp (fp, fwriteerror);
 }
 #endif
 
 #if GNULIB_CLOSE_STREAM
 /* Like close_stream.
+   FP must have been returned by fopen_temp, or by fdopen on a file descriptor
+   returned by open_temp or gen_register_open_temp.
    Unregisters the previously registered file descriptor.  */
 int
 close_stream_temp (FILE *fp)
 {
-  int fd = fileno (fp);
-  /* No blocking of signals is needed here, since a double close of a
-     file descriptor is harmless.  */
-  int result = close_stream (fp);
-  int saved_errno = errno;
-
-  /* No race condition here: we assume a single-threaded program, hence
-     fd cannot be re-opened here.  */
-
-  unregister_fd (fd);
-
-  errno = saved_errno;
-  return result;
+  return fclose_variant_temp (fp, close_stream);
 }
 #endif

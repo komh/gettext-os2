@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 Free Software Foundation, Inc.
+# Copyright (C) 2002-2022 Free Software Foundation, Inc.
 #
 # This file is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -39,8 +39,10 @@
 #  --macro-prefix=gl \
 #  ansi-c++-opt \
 #  atexit \
-#  basename \
+#  attribute \
+#  basename-lgpl \
 #  binary-io \
+#  bison \
 #  closeout \
 #  csharpcomp-script \
 #  error \
@@ -51,6 +53,7 @@
 #  java \
 #  javacomp-script \
 #  memmove \
+#  noreturn \
 #  progname \
 #  propername \
 #  relocatable-prog \
@@ -69,8 +72,10 @@ gl_LOCAL_DIR([../gnulib-local])
 gl_MODULES([
   ansi-c++-opt
   atexit
-  basename
+  attribute
+  basename-lgpl
   binary-io
+  bison
   closeout
   csharpcomp-script
   error
@@ -81,6 +86,7 @@ gl_MODULES([
   java
   javacomp-script
   memmove
+  noreturn
   progname
   propername
   relocatable-prog

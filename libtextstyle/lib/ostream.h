@@ -21,6 +21,7 @@
 #ifndef _OSTREAM_H
 #define _OSTREAM_H
 
+#include <stdarg.h>
 #include <stddef.h>
 #include <string.h>
 
@@ -47,7 +48,7 @@ typedef enum
 
 /* An output stream is an object to which one can feed a sequence of bytes.  */
 
-#line 51 "ostream.h"
+#line 52 "ostream.h"
 struct any_ostream_representation;
 /* ostream_t is defined as a pointer to struct any_ostream_representation.
    In C++ mode, we use a smart pointer class.
@@ -139,7 +140,7 @@ extern const typeinfo_t ostream_typeinfo;
 
 extern const struct ostream_implementation ostream_vtable;
 
-#line 60 "ostream.oo.h"
+#line 61 "ostream.oo.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -147,6 +148,21 @@ extern "C" {
 
 /* Write a string's contents to a stream.  */
 extern void ostream_write_str (ostream_t stream, const char *string);
+
+/* Writes formatted output to a stream.
+   Returns the size of formatted output, or a negative value in case of an
+   error.  */
+extern ptrdiff_t ostream_printf (ostream_t stream, const char *format, ...)
+#if (__GNUC__ == 3 && __GNUC_MINOR__ >= 1) || __GNUC__ > 3
+  __attribute__ ((__format__ (__printf__, 2, 3)))
+#endif
+  ;
+extern ptrdiff_t ostream_vprintf (ostream_t stream,
+                                  const char *format, va_list args)
+#if (__GNUC__ == 3 && __GNUC_MINOR__ >= 1) || __GNUC__ > 3
+  __attribute__ ((__format__ (__printf__, 2, 0)))
+#endif
+  ;
 
 #if HAVE_INLINE
 

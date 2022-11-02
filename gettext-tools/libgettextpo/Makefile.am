@@ -1,5 +1,5 @@
 ## Makefile for the gettext-tools/libgettextpo subdirectory of GNU gettext
-## Copyright (C) 1995-1998, 2000-2016, 2019 Free Software Foundation, Inc.
+## Copyright (C) 1995-1998, 2000-2016, 2019-2022 Free Software Foundation, Inc.
 ##
 ## This program is free software: you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -40,7 +40,7 @@ AM_CPPFLAGS = \
   -I../src -I$(top_srcdir)/src \
   -I../intl -I$(top_srcdir)/../gettext-runtime/intl
 
-DEFS = -DIN_LIBGETTEXTPO=1 @DEFS@
+DEFS = -DIN_LIBGETTEXTPO=1 -DOMIT_SETLOCALE_LOCK=1 @DEFS@
 
 # libgettextpo contains the public API for PO files.
 libgettextpo_la_SOURCES = \
@@ -65,31 +65,33 @@ libgettextpo_la_AUXSOURCES = \
   ../src/read-catalog.c \
   ../src/plural-table.c \
   ../src/format-c.c \
-  ../src/format-sh.c \
   ../src/format-python.c \
   ../src/format-python-brace.c \
+  ../src/format-java.c \
+  ../src/format-java-printf.c \
+  ../src/format-csharp.c \
+  ../src/format-javascript.c \
+  ../src/format-scheme.c \
   ../src/format-lisp.c \
   ../src/format-elisp.c \
   ../src/format-librep.c \
-  ../src/format-scheme.c \
-  ../src/format-java.c \
-  ../src/format-javascript.c \
-  ../src/format-csharp.c \
+  ../src/format-ruby.c \
+  ../src/format-sh.c \
   ../src/format-awk.c \
+  ../src/format-lua.c \
   ../src/format-pascal.c \
-  ../src/format-ycp.c \
+  ../src/format-smalltalk.c \
+  ../src/format-qt.c \
+  ../src/format-qt-plural.c \
+  ../src/format-kde.c \
+  ../src/format-kde-kuit.c \
+  ../src/format-boost.c \
   ../src/format-tcl.c \
   ../src/format-perl.c \
   ../src/format-perl-brace.c \
   ../src/format-php.c \
   ../src/format-gcc-internal.c \
   ../src/format-gfc-internal.c \
-  ../src/format-qt.c \
-  ../src/format-qt-plural.c \
-  ../src/format-kde.c \
-  ../src/format-kde-kuit.c \
-  ../src/format-boost.c \
-  ../src/format-lua.c \
   ../src/format.c \
   ../src/plural-exp.c \
   ../src/plural-eval.c \
@@ -99,17 +101,20 @@ libgettextpo_la_AUXSOURCES = \
 # Libtool's library version information for libgettextpo.
 # See the libtool documentation, section "Library interface versions".
 LTV_CURRENT=5
-LTV_REVISION=5
+LTV_REVISION=8
 LTV_AGE=5
 
 # How to build libgettextpo.la.
 # Don't make it depend on libgettextsrc.la or libgettextlib.la, since they
 # define an uncontrolled amount of symbols.
+# Limit the exported symbols: Don't export libgettextpo_*, except do export
+# libgettextpo_version.
 libgettextpo_la_LIBADD = libgnu.la $(WOE32_LIBADD) $(LTLIBUNISTRING)
 libgettextpo_la_LDFLAGS = \
   -version-info $(LTV_CURRENT):$(LTV_REVISION):$(LTV_AGE) \
   -rpath $(libdir) \
-  @LTLIBINTL@ @LTLIBICONV@ -lc -no-undefined
+  @LTLIBINTL@ @LTLIBICONV@ -lc -no-undefined \
+  -export-symbols-regex '^([^l]|l[^i]|li[^b]|lib[^g]|libg[^e]|libge[^t]|libget[^t]|libgett[^e]|libgette[^x]|libgettex[^t]|libgettext[^p]|libgettextp[^o]|libgettextpo[^_]|libgettextpo_version).*'
 
 # Tell the mingw or Cygwin linker which symbols to export.
 if WOE32DLL
@@ -152,6 +157,8 @@ config.h: $(BUILT_SOURCES)
 	  echo '#define GTPO_CONFIG_H'; \
 	  echo; \
 	  echo '#include "../config.h"'; \
+	  : "We don't use gnulib module 'fchdir' here."; \
+	  echo '#undef REPLACE_FCHDIR'; \
 	  : "Turn all gettext() calls into dgettext() calls."; \
 	  echo '#define DEFAULT_TEXT_DOMAIN "gettext-tools"'; \
 	  : "All code is collected in a single library,"; \
@@ -175,8 +182,8 @@ config.h: $(BUILT_SOURCES)
 	          ;; \
 	      esac; \
 	    done; \
-	  } 5>&1 \
-	    | sed -e 's,.* ,,' | LC_ALL=C sort | LC_ALL=C uniq \
+	  } 5>&1 1>&2 \
+	    | sed -e 's,.* ,,' | grep -v '@' | LC_ALL=C sort | LC_ALL=C uniq \
 	    | sed -e 's,^obstack_free$$,__obstack_free,' \
 	    | sed -e 's,^\(.*\)$$,#define \1 libgettextpo_\1,' > config.h-t && \
 	  if test -f config.h; then \

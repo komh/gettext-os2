@@ -1,6 +1,6 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html401/loose.dtd">
 <html>
-<!-- Created on May, 12 2019 by texi2html 1.78a -->
+<!-- Created on October, 9 2022 by texi2html 1.78a -->
 <!--
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -42,8 +42,8 @@ ul.toc {list-style: none}
 <body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
 
 <table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="gettext_14.html#SEC253" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="gettext_16.html#SEC328" title="Next chapter"> &gt;&gt; </a>]</td>
+<tr><td valign="middle" align="left">[<a href="gettext_14.html#SEC261" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="gettext_16.html#SEC338" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
@@ -51,14 +51,14 @@ ul.toc {list-style: none}
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left">[<a href="gettext_toc.html#SEC_Top" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="gettext_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="gettext_21.html#SEC376" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="gettext_21.html#SEC387" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="gettext_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
 
 <hr size="2">
 <a name="Programming-Languages"></a>
-<a name="SEC254"></a>
-<h1 class="chapter"> <a href="gettext_toc.html#TOC248">15. Other Programming Languages</a> </h1>
+<a name="SEC262"></a>
+<h1 class="chapter"> <a href="gettext_toc.html#TOC256">15. Other Programming Languages</a> </h1>
 
 <p>While the presentation of <code>gettext</code> focuses mostly on C and
 implicitly applies to C++ as well, its scope is far broader than that:
@@ -69,8 +69,8 @@ approach.
 
 
 <a name="Language-Implementors"></a>
-<a name="SEC255"></a>
-<h2 class="section"> <a href="gettext_toc.html#TOC249">15.1 The Language Implementor's View</a> </h2>
+<a name="SEC263"></a>
+<h2 class="section"> <a href="gettext_toc.html#TOC257">15.1 The Language Implementor's View</a> </h2>
 
 <p>All programming and scripting languages that have the notion of strings
 are eligible to supporting <code>gettext</code>.  Supporting <code>gettext</code>
@@ -107,6 +107,7 @@ making the <code>textdomain</code> function available from within the
 language, or by introducing a magic variable called <code>TEXTDOMAIN</code>.
 Similarly, you should allow the programmer to designate where to search
 for message catalogs, by providing access to the <code>bindtextdomain</code>
+function or &mdash; on native Windows platforms &mdash; to the <code>wbindtextdomain</code>
 function.
 
 </li><li>
@@ -119,17 +120,51 @@ Remember that gettext will act as a no-op if the <code>LC_MESSAGES</code> and
 A programmer should have a way to extract translatable strings from a
 program into a PO file.  The GNU <code>xgettext</code> program is being
 extended to support very different programming languages.  Please
-contact the GNU <code>gettext</code> maintainers to help them doing this.  If
-the string extractor is best integrated into your language's parser, GNU
-<code>xgettext</code> can function as a front end to your string extractor.
-
+contact the GNU <code>gettext</code> maintainers to help them doing this.
+The GNU <code>gettext</code> maintainers will need from you a formal
+description of the lexical structure of source files.  It should
+answer the questions:
+<ul>
+<li>
+What does a token look like?
 </li><li>
-The language's library should have a string formatting facility where
-the arguments of a format string are denoted by a positional number or a
-name.  This is needed because for some languages and some messages with
-more than one substitutable argument, the translation will need to
-output the substituted arguments in different order.  See section <a href="gettext_4.html#SEC29">Special Comments preceding Keywords</a>.
-
+What does a string literal look like? What escape characters exist
+inside a string?
+</li><li>
+What escape characters exist outside of strings?  If Unicode escapes
+are supported, are they applied before or after tokenization?
+</li><li>
+What is the syntax for function calls?  How are consecutive arguments
+in the same function call separated?
+</li><li>
+What is the syntax for comments?
+</li></ul>
+<p>Based on this description, the GNU <code>gettext</code> maintainers
+can add support to <code>xgettext</code>.
+</p>
+<p>If the string extractor is best integrated into your language's parser,
+GNU <code>xgettext</code> can function as a front end to your string extractor.
+</p>
+</li><li>
+The language's library should have a string formatting facility.
+Additionally:
+<ol>
+<li>
+There must be a way, in the format string, to denote the arguments by a
+positional number or a name.  This is needed because for some languages
+and some messages with more than one substitutable argument, the
+translation will need to output the substituted arguments in different
+order.  See section <a href="gettext_4.html#SEC29">Special Comments preceding Keywords</a>.
+</li><li>
+The syntax of format strings must be documented in a way that translators
+can understand.  The GNU <code>gettext</code> manual will be extended to
+include a pointer to this documentation.
+</li></ol>
+<p>Based on this, the GNU <code>gettext</code> maintainers can add a format string
+equivalence checker to <code>msgfmt</code>, so that translators get told
+immediately when they have made a mistake during the translation of a
+format string.
+</p>
 </li><li>
 If the language has more than one implementation, and not all of the
 implementations use <code>gettext</code>, but the programs should be portable
@@ -168,8 +203,8 @@ and plural handling).
 
 
 <a name="Programmers-for-other-Languages"></a>
-<a name="SEC256"></a>
-<h2 class="section"> <a href="gettext_toc.html#TOC250">15.2 The Programmer's View</a> </h2>
+<a name="SEC264"></a>
+<h2 class="section"> <a href="gettext_toc.html#TOC258">15.2 The Programmer's View</a> </h2>
 
 <p>For the programmer, the general procedure is the same as for the C
 language.  The Emacs PO mode marking supports other languages, and the GNU
@@ -180,8 +215,8 @@ underlying language runtime.
 </p>
 
 <a name="Translators-for-other-Languages"></a>
-<a name="SEC257"></a>
-<h2 class="section"> <a href="gettext_toc.html#TOC251">15.3 The Translator's View</a> </h2>
+<a name="SEC265"></a>
+<h2 class="section"> <a href="gettext_toc.html#TOC259">15.3 The Translator's View</a> </h2>
 
 <p>The translator works exactly as in the C language case.  The only
 difference is that when translating format strings, she has to be aware
@@ -191,8 +226,8 @@ strings.
 
 
 <a name="c_002dformat"></a>
-<a name="SEC258"></a>
-<h3 class="subsection"> <a href="gettext_toc.html#TOC252">15.3.1 C Format Strings</a> </h3>
+<a name="SEC266"></a>
+<h3 class="subsection"> <a href="gettext_toc.html#TOC260">15.3.1 C Format Strings</a> </h3>
 
 <p>C format strings are described in POSIX (IEEE P1003.1 2001), section
 XSH 3 fprintf(),
@@ -217,8 +252,8 @@ on this reordering ability: On the few platforms where <code>printf()</code>,
 or &lsquo;<tt>libintl.so</tt>&rsquo; provides replacement functions, and GNU <code>&lt;libintl.h&gt;</code>
 activates these replacement functions automatically.
 </p>
-<a name="IDX1061"></a>
-<a name="IDX1062"></a>
+<a name="IDX1109"></a>
+<a name="IDX1110"></a>
 <p>As a special feature for Farsi (Persian) and maybe Arabic, translators can
 insert an &lsquo;<samp>I</samp>&rsquo; flag into numeric format directives.  For example, the
 translation of <code>&quot;%d&quot;</code> can be <code>&quot;%Id&quot;</code>.  The effect of this flag,
@@ -234,17 +269,141 @@ glibc when NLS is disabled.)
 </p>
 
 <a name="objc_002dformat"></a>
-<a name="SEC259"></a>
-<h3 class="subsection"> <a href="gettext_toc.html#TOC253">15.3.2 Objective C Format Strings</a> </h3>
+<a name="SEC267"></a>
+<h3 class="subsection"> <a href="gettext_toc.html#TOC261">15.3.2 Objective C Format Strings</a> </h3>
 
 <p>Objective C format strings are like C format strings.  They support an
 additional format directive: &quot;%@&quot;, which when executed consumes an argument
 of type <code>Object *</code>.
 </p>
 
+<a name="python_002dformat"></a>
+<a name="SEC268"></a>
+<h3 class="subsection"> <a href="gettext_toc.html#TOC262">15.3.3 Python Format Strings</a> </h3>
+
+<p>There are two kinds of format strings in Python: those acceptable to
+the Python built-in format operator <code>%</code>, labelled as
+&lsquo;<samp>python-format</samp>&rsquo;, and those acceptable to the <code>format</code> method
+of the &lsquo;<samp>str</samp>&rsquo; object.
+</p>
+<p>Python <code>%</code> format strings are described in
+Python Library reference /
+5. Built-in Types /
+5.6. Sequence Types /
+5.6.2. String Formatting Operations.
+<a href="https://docs.python.org/2/library/stdtypes.html#string-formatting-operations">https://docs.python.org/2/library/stdtypes.html#string-formatting-operations</a>.
+</p>
+<p>Python brace format strings are described in PEP 3101 &ndash; Advanced
+String Formatting, <a href="https://www.python.org/dev/peps/pep-3101/">https://www.python.org/dev/peps/pep-3101/</a>.
+</p>
+
+<a name="java_002dformat"></a>
+<a name="SEC269"></a>
+<h3 class="subsection"> <a href="gettext_toc.html#TOC263">15.3.4 Java Format Strings</a> </h3>
+
+<p>There are two kinds of format strings in Java: those acceptable to the
+<code>MessageFormat.format</code> function, labelled as &lsquo;<samp>java-format</samp>&rsquo;,
+and those acceptable to the <code>String.format</code> and
+<code>PrintStream.printf</code> functions, labelled as &lsquo;<samp>java-printf-format</samp>&rsquo;.
+</p>
+<p>Java format strings are described in the JDK documentation for class
+<code>java.text.MessageFormat</code>,
+<a href="https://docs.oracle.com/javase/7/docs/api/java/text/MessageFormat.html">https://docs.oracle.com/javase/7/docs/api/java/text/MessageFormat.html</a>.
+See also the ICU documentation
+<a href="http://icu-project.org/apiref/icu4j/com/ibm/icu/text/MessageFormat.html">http://icu-project.org/apiref/icu4j/com/ibm/icu/text/MessageFormat.html</a>.
+</p>
+<p>Java <code>printf</code> format strings are described in the JDK documentation
+for class <code>java.util.Formatter</code>,
+<a href="https://docs.oracle.com/javase/7/docs/api/java/util/Formatter.html">https://docs.oracle.com/javase/7/docs/api/java/util/Formatter.html</a>.
+</p>
+
+<a name="csharp_002dformat"></a>
+<a name="SEC270"></a>
+<h3 class="subsection"> <a href="gettext_toc.html#TOC264">15.3.5 C# Format Strings</a> </h3>
+
+<p>C# format strings are described in the .NET documentation for class
+<code>System.String</code> and in
+<a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/cpguide/html/cpConFormattingOverview.asp">http://msdn.microsoft.com/library/default.asp?url=/library/en-us/cpguide/html/cpConFormattingOverview.asp</a>.
+</p>
+
+<a name="javascript_002dformat"></a>
+<a name="SEC271"></a>
+<h3 class="subsection"> <a href="gettext_toc.html#TOC265">15.3.6 JavaScript Format Strings</a> </h3>
+
+<p>Although JavaScript specification itself does not define any format
+strings, many JavaScript implementations provide printf-like
+functions.  <code>xgettext</code> understands a set of common format strings
+used in popular JavaScript implementations including Gjs, Seed, and
+Node.JS.  In such a format string, a directive starts with &lsquo;<samp>%</samp>&rsquo;
+and is finished by a specifier: &lsquo;<samp>%</samp>&rsquo; denotes a literal percent
+sign, &lsquo;<samp>c</samp>&rsquo; denotes a character, &lsquo;<samp>s</samp>&rsquo; denotes a string,
+&lsquo;<samp>b</samp>&rsquo;, &lsquo;<samp>d</samp>&rsquo;, &lsquo;<samp>o</samp>&rsquo;, &lsquo;<samp>x</samp>&rsquo;, &lsquo;<samp>X</samp>&rsquo; denote an integer,
+&lsquo;<samp>f</samp>&rsquo; denotes floating-point number, &lsquo;<samp>j</samp>&rsquo; denotes a JSON
+object.
+</p>
+
+<a name="scheme_002dformat"></a>
+<a name="SEC272"></a>
+<h3 class="subsection"> <a href="gettext_toc.html#TOC266">15.3.7 Scheme Format Strings</a> </h3>
+
+<p>Scheme format strings are documented in the SLIB manual, section
+Format Specification.
+</p>
+
+<a name="lisp_002dformat"></a>
+<a name="SEC273"></a>
+<h3 class="subsection"> <a href="gettext_toc.html#TOC267">15.3.8 Lisp Format Strings</a> </h3>
+
+<p>Lisp format strings are described in the Common Lisp HyperSpec,
+chapter 22.3 Formatted Output,
+<a href="http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/sec_22-3.html">http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/sec_22-3.html</a>.
+</p>
+
+<a name="elisp_002dformat"></a>
+<a name="SEC274"></a>
+<h3 class="subsection"> <a href="gettext_toc.html#TOC268">15.3.9 Emacs Lisp Format Strings</a> </h3>
+
+<p>Emacs Lisp format strings are documented in the Emacs Lisp reference,
+section Formatting Strings,
+<a href="https://www.gnu.org/manual/elisp-manual-21-2.8/html_chapter/elisp_4.html#SEC75">https://www.gnu.org/manual/elisp-manual-21-2.8/html_chapter/elisp_4.html#SEC75</a>.
+Note that as of version 21, XEmacs supports numbered argument specifications
+in format strings while FSF Emacs doesn't.
+</p>
+
+<a name="librep_002dformat"></a>
+<a name="SEC275"></a>
+<h3 class="subsection"> <a href="gettext_toc.html#TOC269">15.3.10 librep Format Strings</a> </h3>
+
+<p>librep format strings are documented in the librep manual, section
+Formatted Output,
+<a href="http://librep.sourceforge.net/librep-manual.html#Formatted%20Output">http://librep.sourceforge.net/librep-manual.html#Formatted%20Output</a>,
+<a href="http://www.gwinnup.org/research/docs/librep.html#SEC122">http://www.gwinnup.org/research/docs/librep.html#SEC122</a>.
+</p>
+
+<a name="ruby_002dformat"></a>
+<a name="SEC276"></a>
+<h3 class="subsection"> <a href="gettext_toc.html#TOC270">15.3.11 Ruby Format Strings</a> </h3>
+
+<p>Ruby format strings are described in the documentation of the Ruby
+functions <code>format</code> and <code>sprintf</code>, in
+<a href="https://ruby-doc.org/core-2.7.1/Kernel.html#method-i-sprintf">https://ruby-doc.org/core-2.7.1/Kernel.html#method-i-sprintf</a>.
+</p>
+<p>There are two kinds of format strings in Ruby:
+</p><ul>
+<li>
+Those that take a list of arguments without names.  They support
+argument reordering by use of the <code>%<var>n</var>$</code> syntax.  Note
+that if one argument uses this syntax, all must use this syntax.
+</li><li>
+Those that take a hash table, containing named arguments.  The
+syntax is <code>%&lt;<var>name</var>&gt;</code>.  Note that <code>%{<var>name</var>}</code> is
+equivalent to <code>%&lt;<var>name</var>&gt;s</code>.
+</li></ul>
+
+
 <a name="sh_002dformat"></a>
-<a name="SEC260"></a>
-<h3 class="subsection"> <a href="gettext_toc.html#TOC254">15.3.3 Shell Format Strings</a> </h3>
+<a name="SEC277"></a>
+<h3 class="subsection"> <a href="gettext_toc.html#TOC271">15.3.12 Shell Format Strings</a> </h3>
 
 <p>Shell format strings, as supported by GNU gettext and the &lsquo;<samp>envsubst</samp>&rsquo;
 program, are strings with references to shell variables in the form
@@ -263,67 +422,35 @@ ASCII characters, not start with a digit and be nonempty; otherwise such
 a variable reference is ignored.
 </p>
 
-<a name="python_002dformat"></a>
-<a name="SEC261"></a>
-<h3 class="subsection"> <a href="gettext_toc.html#TOC255">15.3.4 Python Format Strings</a> </h3>
+<a name="awk_002dformat"></a>
+<a name="SEC278"></a>
+<h3 class="subsection"> <a href="gettext_toc.html#TOC272">15.3.13 awk Format Strings</a> </h3>
 
-<p>There are two kinds of format strings in Python: those acceptable to
-the Python built-in format operator <code>%</code>, labelled as
-&lsquo;<samp>python-format</samp>&rsquo;, and those acceptable to the <code>format</code> method
-of the &lsquo;<samp>str</samp>&rsquo; object.
-</p>
-<p>Python <code>%</code> format strings are described in
-Python Library reference /
-5. Built-in Types /
-5.6. Sequence Types /
-5.6.2. String Formatting Operations.
-<a href="https://docs.python.org/2/library/stdtypes.html#string-formatting-operations">https://docs.python.org/2/library/stdtypes.html#string-formatting-operations</a>.
-</p>
-<p>Python brace format strings are described in PEP 3101 &ndash; Advanced
-String Formatting, <a href="https://www.python.org/dev/peps/pep-3101/">https://www.python.org/dev/peps/pep-3101/</a>.
+<p>awk format strings are described in the gawk documentation, section
+Printf,
+<a href="https://www.gnu.org/manual/gawk/html_node/Printf.html#Printf">https://www.gnu.org/manual/gawk/html_node/Printf.html#Printf</a>.
 </p>
 
-<a name="lisp_002dformat"></a>
-<a name="SEC262"></a>
-<h3 class="subsection"> <a href="gettext_toc.html#TOC256">15.3.5 Lisp Format Strings</a> </h3>
+<a name="lua_002dformat"></a>
+<a name="SEC279"></a>
+<h3 class="subsection"> <a href="gettext_toc.html#TOC273">15.3.14 Lua Format Strings</a> </h3>
 
-<p>Lisp format strings are described in the Common Lisp HyperSpec,
-chapter 22.3 Formatted Output,
-<a href="http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/sec_22-3.html">http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/sec_22-3.html</a>.
+<p>Lua format strings are described in the Lua reference manual, section String Manipulation,
+<a href="https://www.lua.org/manual/5.1/manual.html#pdf-string.format">https://www.lua.org/manual/5.1/manual.html#pdf-string.format</a>.
 </p>
 
-<a name="elisp_002dformat"></a>
-<a name="SEC263"></a>
-<h3 class="subsection"> <a href="gettext_toc.html#TOC257">15.3.6 Emacs Lisp Format Strings</a> </h3>
+<a name="object_002dpascal_002dformat"></a>
+<a name="SEC280"></a>
+<h3 class="subsection"> <a href="gettext_toc.html#TOC274">15.3.15 Object Pascal Format Strings</a> </h3>
 
-<p>Emacs Lisp format strings are documented in the Emacs Lisp reference,
-section Formatting Strings,
-<a href="https://www.gnu.org/manual/elisp-manual-21-2.8/html_chapter/elisp_4.html#SEC75">https://www.gnu.org/manual/elisp-manual-21-2.8/html_chapter/elisp_4.html#SEC75</a>.
-Note that as of version 21, XEmacs supports numbered argument specifications
-in format strings while FSF Emacs doesn't.
-</p>
-
-<a name="librep_002dformat"></a>
-<a name="SEC264"></a>
-<h3 class="subsection"> <a href="gettext_toc.html#TOC258">15.3.7 librep Format Strings</a> </h3>
-
-<p>librep format strings are documented in the librep manual, section
-Formatted Output,
-<a href="http://librep.sourceforge.net/librep-manual.html#Formatted%20Output">http://librep.sourceforge.net/librep-manual.html#Formatted%20Output</a>,
-<a href="http://www.gwinnup.org/research/docs/librep.html#SEC122">http://www.gwinnup.org/research/docs/librep.html#SEC122</a>.
-</p>
-
-<a name="scheme_002dformat"></a>
-<a name="SEC265"></a>
-<h3 class="subsection"> <a href="gettext_toc.html#TOC259">15.3.8 Scheme Format Strings</a> </h3>
-
-<p>Scheme format strings are documented in the SLIB manual, section
-Format Specification.
+<p>Object Pascal format strings are described in the documentation of the
+Free Pascal runtime library, section Format,
+<a href="https://www.freepascal.org/docs-html/rtl/sysutils/format.html">https://www.freepascal.org/docs-html/rtl/sysutils/format.html</a>.
 </p>
 
 <a name="smalltalk_002dformat"></a>
-<a name="SEC266"></a>
-<h3 class="subsection"> <a href="gettext_toc.html#TOC260">15.3.9 Smalltalk Format Strings</a> </h3>
+<a name="SEC281"></a>
+<h3 class="subsection"> <a href="gettext_toc.html#TOC275">15.3.16 Smalltalk Format Strings</a> </h3>
 
 <p>Smalltalk format strings are described in the GNU Smalltalk documentation,
 class <code>CharArray</code>, methods &lsquo;<samp>bindWith:</samp>&rsquo; and
@@ -333,67 +460,75 @@ In summary, a directive starts with &lsquo;<samp>%</samp>&rsquo; and is followed
 or a nonzero digit (&lsquo;<samp>1</samp>&rsquo; to &lsquo;<samp>9</samp>&rsquo;).
 </p>
 
-<a name="java_002dformat"></a>
-<a name="SEC267"></a>
-<h3 class="subsection"> <a href="gettext_toc.html#TOC261">15.3.10 Java Format Strings</a> </h3>
+<a name="qt_002dformat"></a>
+<a name="SEC282"></a>
+<h3 class="subsection"> <a href="gettext_toc.html#TOC276">15.3.17 Qt Format Strings</a> </h3>
 
-<p>Java format strings are described in the JDK documentation for class
-<code>java.text.MessageFormat</code>,
-<a href="http://java.sun.com/j2se/1.4/docs/api/java/text/MessageFormat.html">http://java.sun.com/j2se/1.4/docs/api/java/text/MessageFormat.html</a>.
-See also the ICU documentation
-<a href="http://oss.software.ibm.com/icu/apiref/classMessageFormat.html">http://oss.software.ibm.com/icu/apiref/classMessageFormat.html</a>.
+<p>Qt format strings are described in the documentation of the QString class
+<a href="file:/usr/lib/qt-4.3.0/doc/html/qstring.html">file:/usr/lib/qt-4.3.0/doc/html/qstring.html</a>.
+In summary, a directive consists of a &lsquo;<samp>%</samp>&rsquo; followed by a digit. The same
+directive cannot occur more than once in a format string.
 </p>
 
-<a name="csharp_002dformat"></a>
-<a name="SEC268"></a>
-<h3 class="subsection"> <a href="gettext_toc.html#TOC262">15.3.11 C# Format Strings</a> </h3>
+<a name="qt_002dplural_002dformat"></a>
+<a name="SEC283"></a>
+<h3 class="subsection"> <a href="gettext_toc.html#TOC277">15.3.18 Qt Format Strings</a> </h3>
 
-<p>C# format strings are described in the .NET documentation for class
-<code>System.String</code> and in
-<a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/cpguide/html/cpConFormattingOverview.asp">http://msdn.microsoft.com/library/default.asp?url=/library/en-us/cpguide/html/cpConFormattingOverview.asp</a>.
+<p>Qt format strings are described in the documentation of the QObject::tr method
+<a href="file:/usr/lib/qt-4.3.0/doc/html/qobject.html">file:/usr/lib/qt-4.3.0/doc/html/qobject.html</a>.
+In summary, the only allowed directive is &lsquo;<samp>%n</samp>&rsquo;.
 </p>
 
-<a name="awk_002dformat"></a>
-<a name="SEC269"></a>
-<h3 class="subsection"> <a href="gettext_toc.html#TOC263">15.3.12 awk Format Strings</a> </h3>
+<a name="kde_002dformat"></a>
+<a name="SEC284"></a>
+<h3 class="subsection"> <a href="gettext_toc.html#TOC278">15.3.19 KDE Format Strings</a> </h3>
 
-<p>awk format strings are described in the gawk documentation, section
-Printf,
-<a href="https://www.gnu.org/manual/gawk/html_node/Printf.html#Printf">https://www.gnu.org/manual/gawk/html_node/Printf.html#Printf</a>.
+<p>KDE 4 format strings are defined as follows:
+A directive consists of a &lsquo;<samp>%</samp>&rsquo; followed by a non-zero decimal number.
+If a &lsquo;<samp>%n</samp>&rsquo; occurs in a format strings, all of &lsquo;<samp>%1</samp>&rsquo;, ..., &lsquo;<samp>%(n-1)</samp>&rsquo;
+must occur as well, except possibly one of them.
 </p>
 
-<a name="object_002dpascal_002dformat"></a>
-<a name="SEC270"></a>
-<h3 class="subsection"> <a href="gettext_toc.html#TOC264">15.3.13 Object Pascal Format Strings</a> </h3>
+<a name="kde_002dkuit_002dformat"></a>
+<a name="SEC285"></a>
+<h3 class="subsection"> <a href="gettext_toc.html#TOC279">15.3.20 KUIT Format Strings</a> </h3>
 
-<p>Object Pascal format strings are described in the documentation of the
-Free Pascal runtime library, section Format,
-<a href="https://www.freepascal.org/docs-html/rtl/sysutils/format.html">https://www.freepascal.org/docs-html/rtl/sysutils/format.html</a>.
+<p>KUIT (KDE User Interface Text) is compatible with KDE 4 format strings,
+while it also allows programmers to add semantic information to a format
+string, through XML markup tags.  For example, if the first format
+directive in a string is a filename, programmers could indicate that
+with a &lsquo;<samp>filename</samp>&rsquo; tag, like &lsquo;<samp>&lt;filename&gt;%1&lt;/filename&gt;</samp>&rsquo;.
+</p>
+<p>KUIT format strings are described in
+<a href="https://api.kde.org/frameworks/ki18n/html/prg_guide.html#kuit_markup">https://api.kde.org/frameworks/ki18n/html/prg_guide.html#kuit_markup</a>.
 </p>
 
-<a name="ycp_002dformat"></a>
-<a name="SEC271"></a>
-<h3 class="subsection"> <a href="gettext_toc.html#TOC265">15.3.14 YCP Format Strings</a> </h3>
+<a name="boost_002dformat"></a>
+<a name="SEC286"></a>
+<h3 class="subsection"> <a href="gettext_toc.html#TOC280">15.3.21 Boost Format Strings</a> </h3>
 
-<p>YCP sformat strings are described in the libycp documentation
-<a href="file:/usr/share/doc/packages/libycp/YCP-builtins.html">file:/usr/share/doc/packages/libycp/YCP-builtins.html</a>.
-In summary, a directive starts with &lsquo;<samp>%</samp>&rsquo; and is followed by &lsquo;<samp>%</samp>&rsquo;
-or a nonzero digit (&lsquo;<samp>1</samp>&rsquo; to &lsquo;<samp>9</samp>&rsquo;).
+<p>Boost format strings are described in the documentation of the
+<code>boost::format</code> class, at
+<a href="https://www.boost.org/libs/format/doc/format.html">https://www.boost.org/libs/format/doc/format.html</a>.
+In summary, a directive has either the same syntax as in a C format string,
+such as &lsquo;<samp>%1$+5d</samp>&rsquo;, or may be surrounded by vertical bars, such as
+&lsquo;<samp>%|1$+5d|</samp>&rsquo; or &lsquo;<samp>%|1$+5|</samp>&rsquo;, or consists of just an argument number
+between percent signs, such as &lsquo;<samp>%1%</samp>&rsquo;.
 </p>
 
 <a name="tcl_002dformat"></a>
-<a name="SEC272"></a>
-<h3 class="subsection"> <a href="gettext_toc.html#TOC266">15.3.15 Tcl Format Strings</a> </h3>
+<a name="SEC287"></a>
+<h3 class="subsection"> <a href="gettext_toc.html#TOC281">15.3.22 Tcl Format Strings</a> </h3>
 
 <p>Tcl format strings are described in the &lsquo;<tt>format.n</tt>&rsquo; manual page,
 <a href="http://www.scriptics.com/man/tcl8.3/TclCmd/format.htm">http://www.scriptics.com/man/tcl8.3/TclCmd/format.htm</a>.
 </p>
 
 <a name="perl_002dformat"></a>
-<a name="SEC273"></a>
-<h3 class="subsection"> <a href="gettext_toc.html#TOC267">15.3.16 Perl Format Strings</a> </h3>
+<a name="SEC288"></a>
+<h3 class="subsection"> <a href="gettext_toc.html#TOC282">15.3.23 Perl Format Strings</a> </h3>
 
-<p>There are two kinds format strings in Perl: those acceptable to the
+<p>There are two kinds of format strings in Perl: those acceptable to the
 Perl built-in function <code>printf</code>, labelled as &lsquo;<samp>perl-format</samp>&rsquo;,
 and those acceptable to the <code>libintl-perl</code> function <code>__x</code>,
 labelled as &lsquo;<samp>perl-brace-format</samp>&rsquo;.
@@ -409,8 +544,8 @@ of simple identifiers.
 </p>
 
 <a name="php_002dformat"></a>
-<a name="SEC274"></a>
-<h3 class="subsection"> <a href="gettext_toc.html#TOC268">15.3.17 PHP Format Strings</a> </h3>
+<a name="SEC289"></a>
+<h3 class="subsection"> <a href="gettext_toc.html#TOC283">15.3.24 PHP Format Strings</a> </h3>
 
 <p>PHP format strings are described in the documentation of the PHP function
 <code>sprintf</code>, in &lsquo;<tt>phpdoc/manual/function.sprintf.html</tt>&rsquo; or
@@ -418,8 +553,8 @@ of simple identifiers.
 </p>
 
 <a name="gcc_002dinternal_002dformat"></a>
-<a name="SEC275"></a>
-<h3 class="subsection"> <a href="gettext_toc.html#TOC269">15.3.18 GCC internal Format Strings</a> </h3>
+<a name="SEC290"></a>
+<h3 class="subsection"> <a href="gettext_toc.html#TOC284">15.3.25 GCC internal Format Strings</a> </h3>
 
 <p>These format strings are used inside the GCC sources.  In such a format
 string, a directive starts with &lsquo;<samp>%</samp>&rsquo;, is optionally followed by a
@@ -438,8 +573,8 @@ operator, &lsquo;<samp>V</samp>&rsquo; denotes a const/volatile qualifier.
 </p>
 
 <a name="gfc_002dinternal_002dformat"></a>
-<a name="SEC276"></a>
-<h3 class="subsection"> <a href="gettext_toc.html#TOC270">15.3.19 GFC internal Format Strings</a> </h3>
+<a name="SEC291"></a>
+<h3 class="subsection"> <a href="gettext_toc.html#TOC285">15.3.26 GFC internal Format Strings</a> </h3>
 
 <p>These format strings are used inside the GNU Fortran Compiler sources,
 that is, the Fortran frontend in the GCC sources.  In such a format
@@ -451,90 +586,20 @@ denote an integer, &lsquo;<samp>u</samp>&rsquo; denotes an unsigned integer.  &l
 &lsquo;<samp>d</samp>&rsquo;, and &lsquo;<samp>u</samp>&rsquo; may be preceded by a size specifier &lsquo;<samp>l</samp>&rsquo;.
 </p>
 
-<a name="qt_002dformat"></a>
-<a name="SEC277"></a>
-<h3 class="subsection"> <a href="gettext_toc.html#TOC271">15.3.20 Qt Format Strings</a> </h3>
+<a name="ycp_002dformat"></a>
+<a name="SEC292"></a>
+<h3 class="subsection"> <a href="gettext_toc.html#TOC286">15.3.27 YCP Format Strings</a> </h3>
 
-<p>Qt format strings are described in the documentation of the QString class
-<a href="file:/usr/lib/qt-4.3.0/doc/html/qstring.html">file:/usr/lib/qt-4.3.0/doc/html/qstring.html</a>.
-In summary, a directive consists of a &lsquo;<samp>%</samp>&rsquo; followed by a digit. The same
-directive cannot occur more than once in a format string.
-</p>
-
-<a name="qt_002dplural_002dformat"></a>
-<a name="SEC278"></a>
-<h3 class="subsection"> <a href="gettext_toc.html#TOC272">15.3.21 Qt Format Strings</a> </h3>
-
-<p>Qt format strings are described in the documentation of the QObject::tr method
-<a href="file:/usr/lib/qt-4.3.0/doc/html/qobject.html">file:/usr/lib/qt-4.3.0/doc/html/qobject.html</a>.
-In summary, the only allowed directive is &lsquo;<samp>%n</samp>&rsquo;.
-</p>
-
-<a name="kde_002dformat"></a>
-<a name="SEC279"></a>
-<h3 class="subsection"> <a href="gettext_toc.html#TOC273">15.3.22 KDE Format Strings</a> </h3>
-
-<p>KDE 4 format strings are defined as follows:
-A directive consists of a &lsquo;<samp>%</samp>&rsquo; followed by a non-zero decimal number.
-If a &lsquo;<samp>%n</samp>&rsquo; occurs in a format strings, all of &lsquo;<samp>%1</samp>&rsquo;, ..., &lsquo;<samp>%(n-1)</samp>&rsquo;
-must occur as well, except possibly one of them.
-</p>
-
-<a name="kde_002dkuit_002dformat"></a>
-<a name="SEC280"></a>
-<h3 class="subsection"> <a href="gettext_toc.html#TOC274">15.3.23 KUIT Format Strings</a> </h3>
-
-<p>KUIT (KDE User Interface Text) is compatible with KDE 4 format strings,
-while it also allows programmers to add semantic information to a format
-string, through XML markup tags.  For example, if the first format
-directive in a string is a filename, programmers could indicate that
-with a &lsquo;<samp>filename</samp>&rsquo; tag, like &lsquo;<samp>&lt;filename&gt;%1&lt;/filename&gt;</samp>&rsquo;.
-</p>
-<p>KUIT format strings are described in
-<a href="https://api.kde.org/frameworks/ki18n/html/prg_guide.html#kuit_markup">https://api.kde.org/frameworks/ki18n/html/prg_guide.html#kuit_markup</a>.
-</p>
-
-<a name="boost_002dformat"></a>
-<a name="SEC281"></a>
-<h3 class="subsection"> <a href="gettext_toc.html#TOC275">15.3.24 Boost Format Strings</a> </h3>
-
-<p>Boost format strings are described in the documentation of the
-<code>boost::format</code> class, at
-<a href="https://www.boost.org/libs/format/doc/format.html">https://www.boost.org/libs/format/doc/format.html</a>.
-In summary, a directive has either the same syntax as in a C format string,
-such as &lsquo;<samp>%1$+5d</samp>&rsquo;, or may be surrounded by vertical bars, such as
-&lsquo;<samp>%|1$+5d|</samp>&rsquo; or &lsquo;<samp>%|1$+5|</samp>&rsquo;, or consists of just an argument number
-between percent signs, such as &lsquo;<samp>%1%</samp>&rsquo;.
-</p>
-
-<a name="lua_002dformat"></a>
-<a name="SEC282"></a>
-<h3 class="subsection"> <a href="gettext_toc.html#TOC276">15.3.25 Lua Format Strings</a> </h3>
-
-<p>Lua format strings are described in the Lua reference manual, section String Manipulation,
-<a href="https://www.lua.org/manual/5.1/manual.html#pdf-string.format">https://www.lua.org/manual/5.1/manual.html#pdf-string.format</a>.
-</p>
-
-<a name="javascript_002dformat"></a>
-<a name="SEC283"></a>
-<h3 class="subsection"> <a href="gettext_toc.html#TOC277">15.3.26 JavaScript Format Strings</a> </h3>
-
-<p>Although JavaScript specification itself does not define any format
-strings, many JavaScript implementations provide printf-like
-functions.  <code>xgettext</code> understands a set of common format strings
-used in popular JavaScript implementations including Gjs, Seed, and
-Node.JS.  In such a format string, a directive starts with &lsquo;<samp>%</samp>&rsquo;
-and is finished by a specifier: &lsquo;<samp>%</samp>&rsquo; denotes a literal percent
-sign, &lsquo;<samp>c</samp>&rsquo; denotes a character, &lsquo;<samp>s</samp>&rsquo; denotes a string,
-&lsquo;<samp>b</samp>&rsquo;, &lsquo;<samp>d</samp>&rsquo;, &lsquo;<samp>o</samp>&rsquo;, &lsquo;<samp>x</samp>&rsquo;, &lsquo;<samp>X</samp>&rsquo; denote an integer,
-&lsquo;<samp>f</samp>&rsquo; denotes floating-point number, &lsquo;<samp>j</samp>&rsquo; denotes a JSON
-object.
+<p>YCP sformat strings are described in the libycp documentation
+<a href="file:/usr/share/doc/packages/libycp/YCP-builtins.html">file:/usr/share/doc/packages/libycp/YCP-builtins.html</a>.
+In summary, a directive starts with &lsquo;<samp>%</samp>&rsquo; and is followed by &lsquo;<samp>%</samp>&rsquo;
+or a nonzero digit (&lsquo;<samp>1</samp>&rsquo; to &lsquo;<samp>9</samp>&rsquo;).
 </p>
 
 
 <a name="Maintainers-for-other-Languages"></a>
-<a name="SEC284"></a>
-<h2 class="section"> <a href="gettext_toc.html#TOC278">15.4 The Maintainer's View</a> </h2>
+<a name="SEC293"></a>
+<h2 class="section"> <a href="gettext_toc.html#TOC287">15.4 The Maintainer's View</a> </h2>
 
 <p>For the maintainer, the general procedure differs from the C language
 case:
@@ -542,7 +607,7 @@ case:
 <ul>
 <li>
 If only a single programming language is used, the <code>XGETTEXT_OPTIONS</code>
-variable in &lsquo;<tt>po/Makevars</tt>&rsquo; (see section <a href="gettext_13.html#SEC228">&lsquo;<tt>Makevars</tt>&rsquo; in &lsquo;<tt>po/</tt>&rsquo;</a>) should be adjusted to
+variable in &lsquo;<tt>po/Makevars</tt>&rsquo; (see section <a href="gettext_13.html#SEC236">&lsquo;<tt>Makevars</tt>&rsquo; in &lsquo;<tt>po/</tt>&rsquo;</a>) should be adjusted to
 match the <code>xgettext</code> options for that particular programming language.
 If the package uses more than one programming language with <code>gettext</code>
 support, it becomes necessary to change the POT file construction rule
@@ -553,15 +618,16 @@ that language, and to combine the resulting files using <code>msgcat</code>.
 
 
 <a name="List-of-Programming-Languages"></a>
-<a name="SEC285"></a>
-<h2 class="section"> <a href="gettext_toc.html#TOC279">15.5 Individual Programming Languages</a> </h2>
+<a name="SEC294"></a>
+<h2 class="section"> <a href="gettext_toc.html#TOC288">15.5 Individual Programming Languages</a> </h2>
+
 
 
 
 
 <a name="C"></a>
-<a name="SEC286"></a>
-<h3 class="subsection"> <a href="gettext_toc.html#TOC280">15.5.1 C, C++, Objective C</a> </h3>
+<a name="SEC295"></a>
+<h3 class="subsection"> <a href="gettext_toc.html#TOC289">15.5.1 C, C++, Objective C</a> </h3>
 
 <dl compact="compact">
 <dt> RPMs</dt>
@@ -596,7 +662,7 @@ that language, and to combine the resulting files using <code>msgcat</code>.
 </p>
 </dd>
 <dt> bindtextdomain</dt>
-<dd><p><code>bindtextdomain</code> function
+<dd><p><code>bindtextdomain</code> and <code>wbindtextdomain</code> functions
 </p>
 </dd>
 <dt> setlocale</dt>
@@ -638,549 +704,9 @@ that language, and to combine the resulting files using <code>msgcat</code>.
 <code>hello-objc</code>, <code>hello-objc-gnustep</code>, <code>hello-objc-gnome</code>.
 </p>
 
-<a name="sh"></a>
-<a name="SEC287"></a>
-<h3 class="subsection"> <a href="gettext_toc.html#TOC281">15.5.2 sh - Shell Script</a> </h3>
-
-<dl compact="compact">
-<dt> RPMs</dt>
-<dd><p>bash, gettext
-</p>
-</dd>
-<dt> Ubuntu packages</dt>
-<dd><p>bash, gettext-base
-</p>
-</dd>
-<dt> File extension</dt>
-<dd><p><code>sh</code>
-</p>
-</dd>
-<dt> String syntax</dt>
-<dd><p><code>&quot;abc&quot;</code>, <code>'abc'</code>, <code>abc</code>
-</p>
-</dd>
-<dt> gettext shorthand</dt>
-<dd><p><code>&quot;`gettext \&quot;abc\&quot;`&quot;</code>
-</p>
-</dd>
-<dt> gettext/ngettext functions</dt>
-<dd><a name="IDX1063"></a>
-<a name="IDX1064"></a>
-<p><code>gettext</code>, <code>ngettext</code> programs
-<br><code>eval_gettext</code>, <code>eval_ngettext</code>, <code>eval_pgettext</code>,
-<code>eval_npgettext</code> shell functions
-</p>
-</dd>
-<dt> textdomain</dt>
-<dd><a name="IDX1065"></a>
-<p>environment variable <code>TEXTDOMAIN</code>
-</p>
-</dd>
-<dt> bindtextdomain</dt>
-<dd><a name="IDX1066"></a>
-<p>environment variable <code>TEXTDOMAINDIR</code>
-</p>
-</dd>
-<dt> setlocale</dt>
-<dd><p>automatic
-</p>
-</dd>
-<dt> Prerequisite</dt>
-<dd><p><code>. gettext.sh</code>
-</p>
-</dd>
-<dt> Use or emulate GNU gettext</dt>
-<dd><p>use
-</p>
-</dd>
-<dt> Extractor</dt>
-<dd><p><code>xgettext</code>
-</p>
-</dd>
-<dt> Formatting with positions</dt>
-<dd><p>&mdash;
-</p>
-</dd>
-<dt> Portability</dt>
-<dd><p>fully portable
-</p>
-</dd>
-<dt> po-mode marking</dt>
-<dd><p>&mdash;
-</p></dd>
-</dl>
-
-<p>An example is available in the &lsquo;<tt>examples</tt>&rsquo; directory: <code>hello-sh</code>.
-</p>
-
-
-<a name="Preparing-Shell-Scripts"></a>
-<a name="SEC288"></a>
-<h4 class="subsubsection"> <a href="gettext_toc.html#TOC282">15.5.2.1 Preparing Shell Scripts for Internationalization</a> </h4>
-
-<p>Preparing a shell script for internationalization is conceptually similar
-to the steps described in <a href="gettext_4.html#SEC17">Preparing Program Sources</a>.  The concrete steps for shell
-scripts are as follows.
-</p>
-<ol>
-<li>
-Insert the line
-
-<table><tr><td>&nbsp;</td><td><pre class="smallexample">. gettext.sh
-</pre></td></tr></table>
-
-<p>near the top of the script.  <code>gettext.sh</code> is a shell function library
-that provides the functions
-<code>eval_gettext</code> (see <a href="#SEC293">Invoking the <code>eval_gettext</code> function</a>),
-<code>eval_ngettext</code> (see <a href="#SEC294">Invoking the <code>eval_ngettext</code> function</a>),
-<code>eval_pgettext</code> (see <a href="#SEC295">Invoking the <code>eval_pgettext</code> function</a>), and
-<code>eval_npgettext</code> (see <a href="#SEC296">Invoking the <code>eval_npgettext</code> function</a>).
-You have to ensure that <code>gettext.sh</code> can be found in the <code>PATH</code>.
-</p>
-</li><li>
-Set and export the <code>TEXTDOMAIN</code> and <code>TEXTDOMAINDIR</code> environment
-variables.  Usually <code>TEXTDOMAIN</code> is the package or program name, and
-<code>TEXTDOMAINDIR</code> is the absolute pathname corresponding to
-<code>$prefix/share/locale</code>, where <code>$prefix</code> is the installation location.
-
-<table><tr><td>&nbsp;</td><td><pre class="smallexample">TEXTDOMAIN=@PACKAGE@
-export TEXTDOMAIN
-TEXTDOMAINDIR=@LOCALEDIR@
-export TEXTDOMAINDIR
-</pre></td></tr></table>
-
-</li><li>
-Prepare the strings for translation, as described in <a href="gettext_4.html#SEC20">Preparing Translatable Strings</a>.
-
-</li><li>
-Simplify translatable strings so that they don't contain command substitution
-(<code>&quot;`...`&quot;</code> or <code>&quot;$(...)&quot;</code>), variable access with defaulting (like
-<code>${<var>variable</var>-<var>default</var>}</code>), access to positional arguments
-(like <code>$0</code>, <code>$1</code>, ...) or highly volatile shell variables (like
-<code>$?</code>). This can always be done through simple local code restructuring.
-For example,
-
-<table><tr><td>&nbsp;</td><td><pre class="smallexample">echo &quot;Usage: $0 [OPTION] FILE...&quot;
-</pre></td></tr></table>
-
-<p>becomes
-</p>
-<table><tr><td>&nbsp;</td><td><pre class="smallexample">program_name=$0
-echo &quot;Usage: $program_name [OPTION] FILE...&quot;
-</pre></td></tr></table>
-
-<p>Similarly,
-</p>
-<table><tr><td>&nbsp;</td><td><pre class="smallexample">echo &quot;Remaining files: `ls | wc -l`&quot;
-</pre></td></tr></table>
-
-<p>becomes
-</p>
-<table><tr><td>&nbsp;</td><td><pre class="smallexample">filecount=&quot;`ls | wc -l`&quot;
-echo &quot;Remaining files: $filecount&quot;
-</pre></td></tr></table>
-
-</li><li>
-For each translatable string, change the output command &lsquo;<samp>echo</samp>&rsquo; or
-&lsquo;<samp>$echo</samp>&rsquo; to &lsquo;<samp>gettext</samp>&rsquo; (if the string contains no references to
-shell variables) or to &lsquo;<samp>eval_gettext</samp>&rsquo; (if it refers to shell variables),
-followed by a no-argument &lsquo;<samp>echo</samp>&rsquo; command (to account for the terminating
-newline). Similarly, for cases with plural handling, replace a conditional
-&lsquo;<samp>echo</samp>&rsquo; command with an invocation of &lsquo;<samp>ngettext</samp>&rsquo; or
-&lsquo;<samp>eval_ngettext</samp>&rsquo;, followed by a no-argument &lsquo;<samp>echo</samp>&rsquo; command.
-
-<p>When doing this, you also need to add an extra backslash before the dollar
-sign in references to shell variables, so that the &lsquo;<samp>eval_gettext</samp>&rsquo;
-function receives the translatable string before the variable values are
-substituted into it. For example,
-</p>
-<table><tr><td>&nbsp;</td><td><pre class="smallexample">echo &quot;Remaining files: $filecount&quot;
-</pre></td></tr></table>
-
-<p>becomes
-</p>
-<table><tr><td>&nbsp;</td><td><pre class="smallexample">eval_gettext &quot;Remaining files: \$filecount&quot;; echo
-</pre></td></tr></table>
-
-<p>If the output command is not &lsquo;<samp>echo</samp>&rsquo;, you can make it use &lsquo;<samp>echo</samp>&rsquo;
-nevertheless, through the use of backquotes. However, note that inside
-backquotes, backslashes must be doubled to be effective (because the
-backquoting eats one level of backslashes). For example, assuming that
-&lsquo;<samp>error</samp>&rsquo; is a shell function that signals an error,
-</p>
-<table><tr><td>&nbsp;</td><td><pre class="smallexample">error &quot;file not found: $filename&quot;
-</pre></td></tr></table>
-
-<p>is first transformed into
-</p>
-<table><tr><td>&nbsp;</td><td><pre class="smallexample">error &quot;`echo \&quot;file not found: \$filename\&quot;`&quot;
-</pre></td></tr></table>
-
-<p>which then becomes
-</p>
-<table><tr><td>&nbsp;</td><td><pre class="smallexample">error &quot;`eval_gettext \&quot;file not found: \\\$filename\&quot;`&quot;
-</pre></td></tr></table>
-</li></ol>
-
-
-<a name="gettext_002esh"></a>
-<a name="SEC289"></a>
-<h4 class="subsubsection"> <a href="gettext_toc.html#TOC283">15.5.2.2 Contents of <code>gettext.sh</code></a> </h4>
-
-<p><code>gettext.sh</code>, contained in the run-time package of GNU gettext, provides
-the following:
-</p>
-<ul>
-<li> $echo
-The variable <code>echo</code> is set to a command that outputs its first argument
-and a newline, without interpreting backslashes in the argument string.
-
-</li><li> eval_gettext
-See <a href="#SEC293">Invoking the <code>eval_gettext</code> function</a>.
-
-</li><li> eval_ngettext
-See <a href="#SEC294">Invoking the <code>eval_ngettext</code> function</a>.
-
-</li><li> eval_pgettext
-See <a href="#SEC295">Invoking the <code>eval_pgettext</code> function</a>.
-
-</li><li> eval_npgettext
-See <a href="#SEC296">Invoking the <code>eval_npgettext</code> function</a>.
-</li></ul>
-
-
-<a name="gettext-Invocation"></a>
-<a name="SEC290"></a>
-<h4 class="subsubsection"> <a href="gettext_toc.html#TOC284">15.5.2.3 Invoking the <code>gettext</code> program</a> </h4>
-
-
-<table><tr><td>&nbsp;</td><td><pre class="example">gettext [<var>option</var>] [[<var>textdomain</var>] <var>msgid</var>]
-gettext [<var>option</var>] -s [<var>msgid</var>]...
-</pre></td></tr></table>
-
-<a name="IDX1067"></a>
-<p>The <code>gettext</code> program displays the native language translation of a
-textual message.
-</p>
-<p><strong>Arguments</strong>
-</p>
-<dl compact="compact">
-<dt> &lsquo;<samp>-c <var>context</var></samp>&rsquo;</dt>
-<dt> &lsquo;<samp>--context=<var>context</var></samp>&rsquo;</dt>
-<dd><a name="IDX1068"></a>
-<a name="IDX1069"></a>
-<p>Specify the context for the messages to be translated.
-See <a href="gettext_11.html#SEC197">Using contexts for solving ambiguities</a> for details.
-</p>
-</dd>
-<dt> &lsquo;<samp>-d <var>textdomain</var></samp>&rsquo;</dt>
-<dt> &lsquo;<samp>--domain=<var>textdomain</var></samp>&rsquo;</dt>
-<dd><a name="IDX1070"></a>
-<a name="IDX1071"></a>
-<p>Retrieve translated messages from <var>textdomain</var>.  Usually a <var>textdomain</var>
-corresponds to a package, a program, or a module of a program.
-</p>
-</dd>
-<dt> &lsquo;<samp>-e</samp>&rsquo;</dt>
-<dd><a name="IDX1072"></a>
-<p>Enable expansion of some escape sequences.  This option is for compatibility
-with the &lsquo;<samp>echo</samp>&rsquo; program or shell built-in.  The escape sequences
-&lsquo;<samp>\a</samp>&rsquo;, &lsquo;<samp>\b</samp>&rsquo;, &lsquo;<samp>\c</samp>&rsquo;, &lsquo;<samp>\f</samp>&rsquo;, &lsquo;<samp>\n</samp>&rsquo;, &lsquo;<samp>\r</samp>&rsquo;, &lsquo;<samp>\t</samp>&rsquo;,
-&lsquo;<samp>\v</samp>&rsquo;, &lsquo;<samp>\\</samp>&rsquo;, and &lsquo;<samp>\</samp>&rsquo; followed by one to three octal digits, are
-interpreted like the System V &lsquo;<samp>echo</samp>&rsquo; program did.
-</p>
-</dd>
-<dt> &lsquo;<samp>-E</samp>&rsquo;</dt>
-<dd><a name="IDX1073"></a>
-<p>This option is only for compatibility with the &lsquo;<samp>echo</samp>&rsquo; program or shell
-built-in.  It has no effect.
-</p>
-</dd>
-<dt> &lsquo;<samp>-h</samp>&rsquo;</dt>
-<dt> &lsquo;<samp>--help</samp>&rsquo;</dt>
-<dd><a name="IDX1074"></a>
-<a name="IDX1075"></a>
-<p>Display this help and exit.
-</p>
-</dd>
-<dt> &lsquo;<samp>-n</samp>&rsquo;</dt>
-<dd><a name="IDX1076"></a>
-<p>Suppress trailing newline.  By default, <code>gettext</code> adds a newline to
-the output.
-</p>
-</dd>
-<dt> &lsquo;<samp>-V</samp>&rsquo;</dt>
-<dt> &lsquo;<samp>--version</samp>&rsquo;</dt>
-<dd><a name="IDX1077"></a>
-<a name="IDX1078"></a>
-<p>Output version information and exit.
-</p>
-</dd>
-<dt> &lsquo;<samp>[<var>textdomain</var>] <var>msgid</var></samp>&rsquo;</dt>
-<dd><p>Retrieve translated message corresponding to <var>msgid</var> from <var>textdomain</var>.
-</p>
-</dd>
-</dl>
-
-<p>If the <var>textdomain</var> parameter is not given, the domain is determined from
-the environment variable <code>TEXTDOMAIN</code>.  If the message catalog is not
-found in the regular directory, another location can be specified with the
-environment variable <code>TEXTDOMAINDIR</code>.
-</p>
-<p>When used with the <code>-s</code> option the program behaves like the &lsquo;<samp>echo</samp>&rsquo;
-command.  But it does not simply copy its arguments to stdout.  Instead those
-messages found in the selected catalog are translated.
-</p>
-<p>Note: <code>xgettext</code> supports only the one-argument form of the
-<code>gettext</code> invocation, where no options are present and the
-<var>textdomain</var> is implicit, from the environment.
-</p>
-
-<a name="ngettext-Invocation"></a>
-<a name="SEC291"></a>
-<h4 class="subsubsection"> <a href="gettext_toc.html#TOC285">15.5.2.4 Invoking the <code>ngettext</code> program</a> </h4>
-
-
-<table><tr><td>&nbsp;</td><td><pre class="example">ngettext [<var>option</var>] [<var>textdomain</var>] <var>msgid</var> <var>msgid-plural</var> <var>count</var>
-</pre></td></tr></table>
-
-<a name="IDX1079"></a>
-<p>The <code>ngettext</code> program displays the native language translation of a
-textual message whose grammatical form depends on a number.
-</p>
-<p><strong>Arguments</strong>
-</p>
-<dl compact="compact">
-<dt> &lsquo;<samp>-c <var>context</var></samp>&rsquo;</dt>
-<dt> &lsquo;<samp>--context=<var>context</var></samp>&rsquo;</dt>
-<dd><a name="IDX1080"></a>
-<a name="IDX1081"></a>
-<p>Specify the context for the messages to be translated.
-See <a href="gettext_11.html#SEC197">Using contexts for solving ambiguities</a> for details.
-</p>
-</dd>
-<dt> &lsquo;<samp>-d <var>textdomain</var></samp>&rsquo;</dt>
-<dt> &lsquo;<samp>--domain=<var>textdomain</var></samp>&rsquo;</dt>
-<dd><a name="IDX1082"></a>
-<a name="IDX1083"></a>
-<p>Retrieve translated messages from <var>textdomain</var>.  Usually a <var>textdomain</var>
-corresponds to a package, a program, or a module of a program.
-</p>
-</dd>
-<dt> &lsquo;<samp>-e</samp>&rsquo;</dt>
-<dd><a name="IDX1084"></a>
-<p>Enable expansion of some escape sequences.  This option is for compatibility
-with the &lsquo;<samp>gettext</samp>&rsquo; program.  The escape sequences
-&lsquo;<samp>\a</samp>&rsquo;, &lsquo;<samp>\b</samp>&rsquo;, &lsquo;<samp>\c</samp>&rsquo;, &lsquo;<samp>\f</samp>&rsquo;, &lsquo;<samp>\n</samp>&rsquo;, &lsquo;<samp>\r</samp>&rsquo;, &lsquo;<samp>\t</samp>&rsquo;,
-&lsquo;<samp>\v</samp>&rsquo;, &lsquo;<samp>\\</samp>&rsquo;, and &lsquo;<samp>\</samp>&rsquo; followed by one to three octal digits, are
-interpreted like the System V &lsquo;<samp>echo</samp>&rsquo; program did.
-</p>
-</dd>
-<dt> &lsquo;<samp>-E</samp>&rsquo;</dt>
-<dd><a name="IDX1085"></a>
-<p>This option is only for compatibility with the &lsquo;<samp>gettext</samp>&rsquo; program.  It has
-no effect.
-</p>
-</dd>
-<dt> &lsquo;<samp>-h</samp>&rsquo;</dt>
-<dt> &lsquo;<samp>--help</samp>&rsquo;</dt>
-<dd><a name="IDX1086"></a>
-<a name="IDX1087"></a>
-<p>Display this help and exit.
-</p>
-</dd>
-<dt> &lsquo;<samp>-V</samp>&rsquo;</dt>
-<dt> &lsquo;<samp>--version</samp>&rsquo;</dt>
-<dd><a name="IDX1088"></a>
-<a name="IDX1089"></a>
-<p>Output version information and exit.
-</p>
-</dd>
-<dt> &lsquo;<samp><var>textdomain</var></samp>&rsquo;</dt>
-<dd><p>Retrieve translated message from <var>textdomain</var>.
-</p>
-</dd>
-<dt> &lsquo;<samp><var>msgid</var> <var>msgid-plural</var></samp>&rsquo;</dt>
-<dd><p>Translate <var>msgid</var> (English singular) / <var>msgid-plural</var> (English plural).
-</p>
-</dd>
-<dt> &lsquo;<samp><var>count</var></samp>&rsquo;</dt>
-<dd><p>Choose singular/plural form based on this value.
-</p>
-</dd>
-</dl>
-
-<p>If the <var>textdomain</var> parameter is not given, the domain is determined from
-the environment variable <code>TEXTDOMAIN</code>.  If the message catalog is not
-found in the regular directory, another location can be specified with the
-environment variable <code>TEXTDOMAINDIR</code>.
-</p>
-<p>Note: <code>xgettext</code> supports only the three-arguments form of the
-<code>ngettext</code> invocation, where no options are present and the
-<var>textdomain</var> is implicit, from the environment.
-</p>
-
-<a name="envsubst-Invocation"></a>
-<a name="SEC292"></a>
-<h4 class="subsubsection"> <a href="gettext_toc.html#TOC286">15.5.2.5 Invoking the <code>envsubst</code> program</a> </h4>
-
-
-<table><tr><td>&nbsp;</td><td><pre class="example">envsubst [<var>option</var>] [<var>shell-format</var>]
-</pre></td></tr></table>
-
-<a name="IDX1090"></a>
-<a name="IDX1091"></a>
-<a name="IDX1092"></a>
-<p>The <code>envsubst</code> program substitutes the values of environment variables.
-</p>
-<p><strong>Operation mode</strong>
-</p>
-<dl compact="compact">
-<dt> &lsquo;<samp>-v</samp>&rsquo;</dt>
-<dt> &lsquo;<samp>--variables</samp>&rsquo;</dt>
-<dd><a name="IDX1093"></a>
-<a name="IDX1094"></a>
-<p>Output the variables occurring in <var>shell-format</var>.
-</p>
-</dd>
-</dl>
-
-<p><strong>Informative output</strong>
-</p>
-<dl compact="compact">
-<dt> &lsquo;<samp>-h</samp>&rsquo;</dt>
-<dt> &lsquo;<samp>--help</samp>&rsquo;</dt>
-<dd><a name="IDX1095"></a>
-<a name="IDX1096"></a>
-<p>Display this help and exit.
-</p>
-</dd>
-<dt> &lsquo;<samp>-V</samp>&rsquo;</dt>
-<dt> &lsquo;<samp>--version</samp>&rsquo;</dt>
-<dd><a name="IDX1097"></a>
-<a name="IDX1098"></a>
-<p>Output version information and exit.
-</p>
-</dd>
-</dl>
-
-<p>In normal operation mode, standard input is copied to standard output,
-with references to environment variables of the form <code>$VARIABLE</code> or
-<code>${VARIABLE}</code> being replaced with the corresponding values.  If a
-<var>shell-format</var> is given, only those environment variables that are
-referenced in <var>shell-format</var> are substituted; otherwise all environment
-variables references occurring in standard input are substituted.
-</p>
-<p>These substitutions are a subset of the substitutions that a shell performs
-on unquoted and double-quoted strings.  Other kinds of substitutions done
-by a shell, such as <code>${<var>variable</var>-<var>default</var>}</code> or
-<code>$(<var>command-list</var>)</code> or <code>`<var>command-list</var>`</code>, are not performed
-by the <code>envsubst</code> program, due to security reasons.
-</p>
-<p>When <code>--variables</code> is used, standard input is ignored, and the output
-consists of the environment variables that are referenced in
-<var>shell-format</var>, one per line.
-</p>
-
-<a name="eval_005fgettext-Invocation"></a>
-<a name="SEC293"></a>
-<h4 class="subsubsection"> <a href="gettext_toc.html#TOC287">15.5.2.6 Invoking the <code>eval_gettext</code> function</a> </h4>
-
-<table><tr><td>&nbsp;</td><td><pre class="example">eval_gettext <var>msgid</var>
-</pre></td></tr></table>
-
-<a name="IDX1099"></a>
-<p>This function outputs the native language translation of a textual message,
-performing dollar-substitution on the result.  Note that only shell variables
-mentioned in <var>msgid</var> will be dollar-substituted in the result.
-</p>
-
-<a name="eval_005fngettext-Invocation"></a>
-<a name="SEC294"></a>
-<h4 class="subsubsection"> <a href="gettext_toc.html#TOC288">15.5.2.7 Invoking the <code>eval_ngettext</code> function</a> </h4>
-
-<table><tr><td>&nbsp;</td><td><pre class="example">eval_ngettext <var>msgid</var> <var>msgid-plural</var> <var>count</var>
-</pre></td></tr></table>
-
-<a name="IDX1100"></a>
-<p>This function outputs the native language translation of a textual message
-whose grammatical form depends on a number, performing dollar-substitution
-on the result.  Note that only shell variables mentioned in <var>msgid</var> or
-<var>msgid-plural</var> will be dollar-substituted in the result.
-</p>
-
-<a name="eval_005fpgettext-Invocation"></a>
-<a name="SEC295"></a>
-<h4 class="subsubsection"> <a href="gettext_toc.html#TOC289">15.5.2.8 Invoking the <code>eval_pgettext</code> function</a> </h4>
-
-<table><tr><td>&nbsp;</td><td><pre class="example">eval_pgettext <var>msgctxt</var> <var>msgid</var>
-</pre></td></tr></table>
-
-<a name="IDX1101"></a>
-<p>This function outputs the native language translation of a textual message
-in the given context <var>msgctxt</var> (see <a href="gettext_11.html#SEC197">Using contexts for solving ambiguities</a>), performing
-dollar-substitution on the result.  Note that only shell variables mentioned
-in <var>msgid</var> will be dollar-substituted in the result.
-</p>
-
-<a name="eval_005fnpgettext-Invocation"></a>
-<a name="SEC296"></a>
-<h4 class="subsubsection"> <a href="gettext_toc.html#TOC290">15.5.2.9 Invoking the <code>eval_npgettext</code> function</a> </h4>
-
-<table><tr><td>&nbsp;</td><td><pre class="example">eval_npgettext <var>msgctxt</var> <var>msgid</var> <var>msgid-plural</var> <var>count</var>
-</pre></td></tr></table>
-
-<a name="IDX1102"></a>
-<p>This function outputs the native language translation of a textual message
-whose grammatical form depends on a number in the given context <var>msgctxt</var>
-(see <a href="gettext_11.html#SEC197">Using contexts for solving ambiguities</a>), performing dollar-substitution on the result.  Note
-that only shell variables mentioned in <var>msgid</var> or <var>msgid-plural</var>
-will be dollar-substituted in the result.
-</p>
-
-<a name="bash"></a>
-<a name="SEC297"></a>
-<h3 class="subsection"> <a href="gettext_toc.html#TOC291">15.5.3 bash - Bourne-Again Shell Script</a> </h3>
-
-<p>GNU <code>bash</code> 2.0 or newer has a special shorthand for translating a
-string and substituting variable values in it: <code>$&quot;msgid&quot;</code>.  But
-the use of this construct is <strong>discouraged</strong>, due to the security
-holes it opens and due to its portability problems.
-</p>
-<p>The security holes of <code>$&quot;...&quot;</code> come from the fact that after looking up
-the translation of the string, <code>bash</code> processes it like it processes
-any double-quoted string: dollar and backquote processing, like &lsquo;<samp>eval</samp>&rsquo;
-does.
-</p>
-<ol>
-<li>
-In a locale whose encoding is one of BIG5, BIG5-HKSCS, GBK, GB18030, SHIFT_JIS,
-JOHAB, some double-byte characters have a second byte whose value is
-<code>0x60</code>.  For example, the byte sequence <code>\xe0\x60</code> is a single
-character in these locales.  Many versions of <code>bash</code> (all versions
-up to bash-2.05, and newer versions on platforms without <code>mbsrtowcs()</code>
-function) don't know about character boundaries and see a backquote character
-where there is only a particular Chinese character.  Thus it can start
-executing part of the translation as a command list.  This situation can occur
-even without the translator being aware of it: if the translator provides
-translations in the UTF-8 encoding, it is the <code>gettext()</code> function which
-will, during its conversion from the translator's encoding to the user's
-locale's encoding, produce the dangerous <code>\x60</code> bytes.
-
-</li><li>
-A translator could - voluntarily or inadvertently - use backquotes
-<code>&quot;`...`&quot;</code> or dollar-parentheses <code>&quot;$(...)&quot;</code> in her translations.
-The enclosed strings would be executed as command lists by the shell.
-</li></ol>
-
-<p>The portability problem is that <code>bash</code> must be built with
-internationalization support; this is normally not the case on systems
-that don't have the <code>gettext()</code> function in libc.
-</p>
-
 <a name="Python"></a>
-<a name="SEC298"></a>
-<h3 class="subsection"> <a href="gettext_toc.html#TOC292">15.5.4 Python</a> </h3>
+<a name="SEC296"></a>
+<h3 class="subsection"> <a href="gettext_toc.html#TOC290">15.5.2 Python</a> </h3>
 
 <dl compact="compact">
 <dt> RPMs</dt>
@@ -1240,6 +766,7 @@ also <code>ugettext</code>, <code>ungettext</code>
 </dd>
 <dt> Formatting with positions</dt>
 <dd><p><code>'...%(ident)d...' % { 'ident': value }</code>
+<br><code>'...{ident}...'.format(ident=value)</code> (see PEP 3101)
 </p>
 </dd>
 <dt> Portability</dt>
@@ -1280,424 +807,9 @@ verifies that the format string uses all supplied arguments.)
 </li></ul>
 
 
-<a name="Common-Lisp"></a>
-<a name="SEC299"></a>
-<h3 class="subsection"> <a href="gettext_toc.html#TOC293">15.5.5 GNU clisp - Common Lisp</a> </h3>
-
-<dl compact="compact">
-<dt> RPMs</dt>
-<dd><p>clisp 2.28 or newer
-</p>
-</dd>
-<dt> Ubuntu packages</dt>
-<dd><p>clisp
-</p>
-</dd>
-<dt> File extension</dt>
-<dd><p><code>lisp</code>
-</p>
-</dd>
-<dt> String syntax</dt>
-<dd><p><code>&quot;abc&quot;</code>
-</p>
-</dd>
-<dt> gettext shorthand</dt>
-<dd><p><code>(_ &quot;abc&quot;)</code>, <code>(ENGLISH &quot;abc&quot;)</code>
-</p>
-</dd>
-<dt> gettext/ngettext functions</dt>
-<dd><p><code>i18n:gettext</code>, <code>i18n:ngettext</code>
-</p>
-</dd>
-<dt> textdomain</dt>
-<dd><p><code>i18n:textdomain</code>
-</p>
-</dd>
-<dt> bindtextdomain</dt>
-<dd><p><code>i18n:textdomaindir</code>
-</p>
-</dd>
-<dt> setlocale</dt>
-<dd><p>automatic
-</p>
-</dd>
-<dt> Prerequisite</dt>
-<dd><p>&mdash;
-</p>
-</dd>
-<dt> Use or emulate GNU gettext</dt>
-<dd><p>use
-</p>
-</dd>
-<dt> Extractor</dt>
-<dd><p><code>xgettext -k_ -kENGLISH</code>
-</p>
-</dd>
-<dt> Formatting with positions</dt>
-<dd><p><code>format &quot;~1@*~D ~0@*~D&quot;</code>
-</p>
-</dd>
-<dt> Portability</dt>
-<dd><p>On platforms without gettext, no translation.
-</p>
-</dd>
-<dt> po-mode marking</dt>
-<dd><p>&mdash;
-</p></dd>
-</dl>
-
-<p>An example is available in the &lsquo;<tt>examples</tt>&rsquo; directory: <code>hello-clisp</code>.
-</p>
-
-<a name="clisp-C"></a>
-<a name="SEC300"></a>
-<h3 class="subsection"> <a href="gettext_toc.html#TOC294">15.5.6 GNU clisp C sources</a> </h3>
-
-<dl compact="compact">
-<dt> RPMs</dt>
-<dd><p>clisp
-</p>
-</dd>
-<dt> Ubuntu packages</dt>
-<dd><p>clisp
-</p>
-</dd>
-<dt> File extension</dt>
-<dd><p><code>d</code>
-</p>
-</dd>
-<dt> String syntax</dt>
-<dd><p><code>&quot;abc&quot;</code>
-</p>
-</dd>
-<dt> gettext shorthand</dt>
-<dd><p><code>ENGLISH ? &quot;abc&quot; : &quot;&quot;</code>
-<br><code>GETTEXT(&quot;abc&quot;)</code>
-<br><code>GETTEXTL(&quot;abc&quot;)</code>
-</p>
-</dd>
-<dt> gettext/ngettext functions</dt>
-<dd><p><code>clgettext</code>, <code>clgettextl</code>
-</p>
-</dd>
-<dt> textdomain</dt>
-<dd><p>&mdash;
-</p>
-</dd>
-<dt> bindtextdomain</dt>
-<dd><p>&mdash;
-</p>
-</dd>
-<dt> setlocale</dt>
-<dd><p>automatic
-</p>
-</dd>
-<dt> Prerequisite</dt>
-<dd><p><code>#include &quot;lispbibl.c&quot;</code>
-</p>
-</dd>
-<dt> Use or emulate GNU gettext</dt>
-<dd><p>use
-</p>
-</dd>
-<dt> Extractor</dt>
-<dd><p><code>clisp-xgettext</code>
-</p>
-</dd>
-<dt> Formatting with positions</dt>
-<dd><p><code>fprintf &quot;%2$d %1$d&quot;</code>
-</p>
-</dd>
-<dt> Portability</dt>
-<dd><p>On platforms without gettext, no translation.
-</p>
-</dd>
-<dt> po-mode marking</dt>
-<dd><p>&mdash;
-</p></dd>
-</dl>
-
-
-<a name="Emacs-Lisp"></a>
-<a name="SEC301"></a>
-<h3 class="subsection"> <a href="gettext_toc.html#TOC295">15.5.7 Emacs Lisp</a> </h3>
-
-<dl compact="compact">
-<dt> RPMs</dt>
-<dd><p>emacs, xemacs
-</p>
-</dd>
-<dt> Ubuntu packages</dt>
-<dd><p>emacs, xemacs21
-</p>
-</dd>
-<dt> File extension</dt>
-<dd><p><code>el</code>
-</p>
-</dd>
-<dt> String syntax</dt>
-<dd><p><code>&quot;abc&quot;</code>
-</p>
-</dd>
-<dt> gettext shorthand</dt>
-<dd><p><code>(_&quot;abc&quot;)</code>
-</p>
-</dd>
-<dt> gettext/ngettext functions</dt>
-<dd><p><code>gettext</code>, <code>dgettext</code> (xemacs only)
-</p>
-</dd>
-<dt> textdomain</dt>
-<dd><p><code>domain</code> special form (xemacs only)
-</p>
-</dd>
-<dt> bindtextdomain</dt>
-<dd><p><code>bind-text-domain</code> function (xemacs only)
-</p>
-</dd>
-<dt> setlocale</dt>
-<dd><p>automatic
-</p>
-</dd>
-<dt> Prerequisite</dt>
-<dd><p>&mdash;
-</p>
-</dd>
-<dt> Use or emulate GNU gettext</dt>
-<dd><p>use
-</p>
-</dd>
-<dt> Extractor</dt>
-<dd><p><code>xgettext</code>
-</p>
-</dd>
-<dt> Formatting with positions</dt>
-<dd><p><code>format &quot;%2$d %1$d&quot;</code>
-</p>
-</dd>
-<dt> Portability</dt>
-<dd><p>Only XEmacs.  Without <code>I18N3</code> defined at build time, no translation.
-</p>
-</dd>
-<dt> po-mode marking</dt>
-<dd><p>&mdash;
-</p></dd>
-</dl>
-
-
-<a name="librep"></a>
-<a name="SEC302"></a>
-<h3 class="subsection"> <a href="gettext_toc.html#TOC296">15.5.8 librep</a> </h3>
-
-<dl compact="compact">
-<dt> RPMs</dt>
-<dd><p>librep 0.15.3 or newer
-</p>
-</dd>
-<dt> Ubuntu packages</dt>
-<dd><p>librep16
-</p>
-</dd>
-<dt> File extension</dt>
-<dd><p><code>jl</code>
-</p>
-</dd>
-<dt> String syntax</dt>
-<dd><p><code>&quot;abc&quot;</code>
-</p>
-</dd>
-<dt> gettext shorthand</dt>
-<dd><p><code>(_&quot;abc&quot;)</code>
-</p>
-</dd>
-<dt> gettext/ngettext functions</dt>
-<dd><p><code>gettext</code>
-</p>
-</dd>
-<dt> textdomain</dt>
-<dd><p><code>textdomain</code> function
-</p>
-</dd>
-<dt> bindtextdomain</dt>
-<dd><p><code>bindtextdomain</code> function
-</p>
-</dd>
-<dt> setlocale</dt>
-<dd><p>&mdash;
-</p>
-</dd>
-<dt> Prerequisite</dt>
-<dd><p><code>(require 'rep.i18n.gettext)</code>
-</p>
-</dd>
-<dt> Use or emulate GNU gettext</dt>
-<dd><p>use
-</p>
-</dd>
-<dt> Extractor</dt>
-<dd><p><code>xgettext</code>
-</p>
-</dd>
-<dt> Formatting with positions</dt>
-<dd><p><code>format &quot;%2$d %1$d&quot;</code>
-</p>
-</dd>
-<dt> Portability</dt>
-<dd><p>On platforms without gettext, no translation.
-</p>
-</dd>
-<dt> po-mode marking</dt>
-<dd><p>&mdash;
-</p></dd>
-</dl>
-
-<p>An example is available in the &lsquo;<tt>examples</tt>&rsquo; directory: <code>hello-librep</code>.
-</p>
-
-<a name="Scheme"></a>
-<a name="SEC303"></a>
-<h3 class="subsection"> <a href="gettext_toc.html#TOC297">15.5.9 GNU guile - Scheme</a> </h3>
-
-<dl compact="compact">
-<dt> RPMs</dt>
-<dd><p>guile
-</p>
-</dd>
-<dt> Ubuntu packages</dt>
-<dd><p>guile-2.0
-</p>
-</dd>
-<dt> File extension</dt>
-<dd><p><code>scm</code>
-</p>
-</dd>
-<dt> String syntax</dt>
-<dd><p><code>&quot;abc&quot;</code>
-</p>
-</dd>
-<dt> gettext shorthand</dt>
-<dd><p><code>(_ &quot;abc&quot;)</code>, <code>_&quot;abc&quot;</code> (GIMP script-fu extension)
-</p>
-</dd>
-<dt> gettext/ngettext functions</dt>
-<dd><p><code>gettext</code>, <code>ngettext</code>
-</p>
-</dd>
-<dt> textdomain</dt>
-<dd><p><code>textdomain</code>
-</p>
-</dd>
-<dt> bindtextdomain</dt>
-<dd><p><code>bindtextdomain</code>
-</p>
-</dd>
-<dt> setlocale</dt>
-<dd><p><code>(catch #t (lambda () (setlocale LC_ALL &quot;&quot;)) (lambda args #f))</code>
-</p>
-</dd>
-<dt> Prerequisite</dt>
-<dd><p><code>(use-modules (ice-9 format))</code>
-</p>
-</dd>
-<dt> Use or emulate GNU gettext</dt>
-<dd><p>use
-</p>
-</dd>
-<dt> Extractor</dt>
-<dd><p><code>xgettext -k_</code>
-</p>
-</dd>
-<dt> Formatting with positions</dt>
-<dd><p>&mdash;
-</p>
-</dd>
-<dt> Portability</dt>
-<dd><p>On platforms without gettext, no translation.
-</p>
-</dd>
-<dt> po-mode marking</dt>
-<dd><p>&mdash;
-</p></dd>
-</dl>
-
-<p>An example is available in the &lsquo;<tt>examples</tt>&rsquo; directory: <code>hello-guile</code>.
-</p>
-
-<a name="Smalltalk"></a>
-<a name="SEC304"></a>
-<h3 class="subsection"> <a href="gettext_toc.html#TOC298">15.5.10 GNU Smalltalk</a> </h3>
-
-<dl compact="compact">
-<dt> RPMs</dt>
-<dd><p>smalltalk
-</p>
-</dd>
-<dt> Ubuntu packages</dt>
-<dd><p>gnu-smalltalk
-</p>
-</dd>
-<dt> File extension</dt>
-<dd><p><code>st</code>
-</p>
-</dd>
-<dt> String syntax</dt>
-<dd><p><code>'abc'</code>
-</p>
-</dd>
-<dt> gettext shorthand</dt>
-<dd><p><code>NLS ? 'abc'</code>
-</p>
-</dd>
-<dt> gettext/ngettext functions</dt>
-<dd><p><code>LcMessagesDomain&gt;&gt;#at:</code>, <code>LcMessagesDomain&gt;&gt;#at:plural:with:</code>
-</p>
-</dd>
-<dt> textdomain</dt>
-<dd><p><code>LcMessages&gt;&gt;#domain:localeDirectory:</code> (returns a <code>LcMessagesDomain</code>
-object).<br>
-Example: <code>I18N Locale default messages domain: 'gettext' localeDirectory: /usr/local/share/locale'</code>
-</p>
-</dd>
-<dt> bindtextdomain</dt>
-<dd><p><code>LcMessages&gt;&gt;#domain:localeDirectory:</code>, see above.
-</p>
-</dd>
-<dt> setlocale</dt>
-<dd><p>Automatic if you use <code>I18N Locale default</code>.
-</p>
-</dd>
-<dt> Prerequisite</dt>
-<dd><p><code>PackageLoader fileInPackage: 'I18N'!</code>
-</p>
-</dd>
-<dt> Use or emulate GNU gettext</dt>
-<dd><p>emulate
-</p>
-</dd>
-<dt> Extractor</dt>
-<dd><p><code>xgettext</code>
-</p>
-</dd>
-<dt> Formatting with positions</dt>
-<dd><p><code>'%1 %2' bindWith: 'Hello' with: 'world'</code>
-</p>
-</dd>
-<dt> Portability</dt>
-<dd><p>fully portable
-</p>
-</dd>
-<dt> po-mode marking</dt>
-<dd><p>&mdash;
-</p></dd>
-</dl>
-
-<p>An example is available in the &lsquo;<tt>examples</tt>&rsquo; directory:
-<code>hello-smalltalk</code>.
-</p>
-
 <a name="Java"></a>
-<a name="SEC305"></a>
-<h3 class="subsection"> <a href="gettext_toc.html#TOC299">15.5.11 Java</a> </h3>
+<a name="SEC297"></a>
+<h3 class="subsection"> <a href="gettext_toc.html#TOC291">15.5.3 Java</a> </h3>
 
 <dl compact="compact">
 <dt> RPMs</dt>
@@ -1713,11 +825,11 @@ Example: <code>I18N Locale default messages domain: 'gettext' localeDirectory: /
 </p>
 </dd>
 <dt> String syntax</dt>
-<dd><p>&quot;abc&quot;
+<dd><p>&quot;abc&quot;, &quot;&quot;&quot;text block&quot;&quot;&quot;
 </p>
 </dd>
 <dt> gettext shorthand</dt>
-<dd><p>_(&quot;abc&quot;)
+<dd><p>i18n(&quot;abc&quot;)
 </p>
 </dd>
 <dt> gettext/ngettext functions</dt>
@@ -1746,11 +858,12 @@ Example: <code>I18N Locale default messages domain: 'gettext' localeDirectory: /
 </p>
 </dd>
 <dt> Extractor</dt>
-<dd><p><code>xgettext -k_</code>
+<dd><p><code>xgettext -ki18n</code>
 </p>
 </dd>
 <dt> Formatting with positions</dt>
 <dd><p><code>MessageFormat.format &quot;{1,number} {0,number}&quot;</code>
+or <code>String.format &quot;%2$d %1$d&quot;</code>
 </p>
 </dd>
 <dt> Portability</dt>
@@ -1820,7 +933,7 @@ a translation is missing, the <var>msgid</var> argument is returned unchanged.
 handling and the <code>pgettext</code> and <code>npgettext</code> for strings constraint
 to a particular context.
 </p>
-<a name="IDX1103"></a>
+<a name="IDX1111"></a>
 <p>To use this API, one needs the <code>libintl.jar</code> file which is part of
 the GNU gettext package and distributed under the LGPL.
 </p></li></ol>
@@ -1840,19 +953,19 @@ holding the <code>ResourceBundle</code> instance and the shorthand:
 
 <table><tr><td>&nbsp;</td><td><pre class="smallexample">private static ResourceBundle myResources =
   ResourceBundle.getBundle(&quot;domain-name&quot;);
-public static String _(String s) {
+public static String i18n(String s) {
   return myResources.getString(s);
 }
 </pre></td></tr></table>
 
 <p>All classes containing internationalized strings then contain
 </p>
-<table><tr><td>&nbsp;</td><td><pre class="smallexample">import static Util._;
+<table><tr><td>&nbsp;</td><td><pre class="smallexample">import static Util.i18n;
 </pre></td></tr></table>
 
 <p>and the shorthand is used like this:
 </p>
-<table><tr><td>&nbsp;</td><td><pre class="smallexample">System.out.println(_(&quot;Operation completed.&quot;));
+<table><tr><td>&nbsp;</td><td><pre class="smallexample">System.out.println(i18n(&quot;Operation completed.&quot;));
 </pre></td></tr></table>
 
 </li><li>
@@ -1866,12 +979,12 @@ holding the <code>ResourceBundle</code> instance:
 <p>All classes containing internationalized strings then contain
 </p>
 <table><tr><td>&nbsp;</td><td><pre class="smallexample">private static ResourceBundle res = Util.myResources;
-private static String _(String s) { return res.getString(s); }
+private static String i18n(String s) { return res.getString(s); }
 </pre></td></tr></table>
 
 <p>and the shorthand is used like this:
 </p>
-<table><tr><td>&nbsp;</td><td><pre class="smallexample">System.out.println(_(&quot;Operation completed.&quot;));
+<table><tr><td>&nbsp;</td><td><pre class="smallexample">System.out.println(i18n(&quot;Operation completed.&quot;));
 </pre></td></tr></table>
 
 </li><li>
@@ -1881,7 +994,7 @@ definition of the resource bundle and of the shorthand:
 <table><tr><td>&nbsp;</td><td><pre class="smallexample">public class S {
   public static ResourceBundle myResources =
     ResourceBundle.getBundle(&quot;domain-name&quot;);
-  public static String _(String s) {
+  public static String i18n(String s) {
     return myResources.getString(s);
   }
 }
@@ -1889,7 +1002,7 @@ definition of the resource bundle and of the shorthand:
 
 <p>and the shorthand is used like this:
 </p>
-<table><tr><td>&nbsp;</td><td><pre class="smallexample">System.out.println(S._(&quot;Operation completed.&quot;));
+<table><tr><td>&nbsp;</td><td><pre class="smallexample">System.out.println(S.i18n(&quot;Operation completed.&quot;));
 </pre></td></tr></table>
 </li></ul>
 
@@ -1900,8 +1013,8 @@ than a class with a single-letter name.
 </p>
 
 <a name="C_0023"></a>
-<a name="SEC306"></a>
-<h3 class="subsection"> <a href="gettext_toc.html#TOC300">15.5.12 C#</a> </h3>
+<a name="SEC298"></a>
+<h3 class="subsection"> <a href="gettext_toc.html#TOC292">15.5.4 C#</a> </h3>
 
 <dl compact="compact">
 <dt> RPMs</dt>
@@ -2107,7 +1220,7 @@ unchanged.
 specific to a particular context, with plural handling, like the
 <code>npgettext</code> function in C.
 </p>
-<a name="IDX1104"></a>
+<a name="IDX1112"></a>
 <p>To use this API, one needs the <code>GNU.Gettext.dll</code> file which is part of
 the GNU gettext package and distributed under the LGPL.
 </p></li></ol>
@@ -2169,9 +1282,1041 @@ of codes into every class is more acceptable in your project than a class
 with a single-letter name.
 </p>
 
-<a name="gawk"></a>
+<a name="JavaScript"></a>
+<a name="SEC299"></a>
+<h3 class="subsection"> <a href="gettext_toc.html#TOC293">15.5.5 JavaScript</a> </h3>
+
+<dl compact="compact">
+<dt> RPMs</dt>
+<dd><p>js
+</p>
+</dd>
+<dt> Ubuntu packages</dt>
+<dd><p>gjs
+</p>
+</dd>
+<dt> File extension</dt>
+<dd><p><code>js</code>
+</p>
+</dd>
+<dt> String syntax</dt>
+<dd><ul>
+<li> <code>&quot;abc&quot;</code>
+
+</li><li> <code>'abc'</code>
+
+</li><li> <code>`abc`</code>
+
+</li></ul>
+
+</dd>
+<dt> gettext shorthand</dt>
+<dd><p><code>_(&quot;abc&quot;)</code>
+</p>
+</dd>
+<dt> gettext/ngettext functions</dt>
+<dd><p><code>gettext</code>, <code>dgettext</code>, <code>dcgettext</code>, <code>ngettext</code>,
+<code>dngettext</code>
+</p>
+</dd>
+<dt> textdomain</dt>
+<dd><p><code>textdomain</code> function
+</p>
+</dd>
+<dt> bindtextdomain</dt>
+<dd><p><code>bindtextdomain</code> function
+</p>
+</dd>
+<dt> setlocale</dt>
+<dd><p>automatic
+</p>
+</dd>
+<dt> Prerequisite</dt>
+<dd><p>&mdash;
+</p>
+</dd>
+<dt> Use or emulate GNU gettext</dt>
+<dd><p>use, or emulate
+</p>
+</dd>
+<dt> Extractor</dt>
+<dd><p><code>xgettext</code>
+</p>
+</dd>
+<dt> Formatting with positions</dt>
+<dd><p>&mdash;
+</p>
+</dd>
+<dt> Portability</dt>
+<dd><p>On platforms without gettext, the functions are not available.
+</p>
+</dd>
+<dt> po-mode marking</dt>
+<dd><p>&mdash;
+</p></dd>
+</dl>
+
+
+<a name="Scheme"></a>
+<a name="SEC300"></a>
+<h3 class="subsection"> <a href="gettext_toc.html#TOC294">15.5.6 GNU guile - Scheme</a> </h3>
+
+<dl compact="compact">
+<dt> RPMs</dt>
+<dd><p>guile
+</p>
+</dd>
+<dt> Ubuntu packages</dt>
+<dd><p>guile-2.0
+</p>
+</dd>
+<dt> File extension</dt>
+<dd><p><code>scm</code>
+</p>
+</dd>
+<dt> String syntax</dt>
+<dd><p><code>&quot;abc&quot;</code>
+</p>
+</dd>
+<dt> gettext shorthand</dt>
+<dd><p><code>(_ &quot;abc&quot;)</code>, <code>_&quot;abc&quot;</code> (GIMP script-fu extension)
+</p>
+</dd>
+<dt> gettext/ngettext functions</dt>
+<dd><p><code>gettext</code>, <code>ngettext</code>
+</p>
+</dd>
+<dt> textdomain</dt>
+<dd><p><code>textdomain</code>
+</p>
+</dd>
+<dt> bindtextdomain</dt>
+<dd><p><code>bindtextdomain</code>
+</p>
+</dd>
+<dt> setlocale</dt>
+<dd><p><code>(catch #t (lambda () (setlocale LC_ALL &quot;&quot;)) (lambda args #f))</code>
+</p>
+</dd>
+<dt> Prerequisite</dt>
+<dd><p><code>(use-modules (ice-9 format))</code>
+</p>
+</dd>
+<dt> Use or emulate GNU gettext</dt>
+<dd><p>use
+</p>
+</dd>
+<dt> Extractor</dt>
+<dd><p><code>xgettext -k_</code>
+</p>
+</dd>
+<dt> Formatting with positions</dt>
+<dd><p>&mdash;
+</p>
+</dd>
+<dt> Portability</dt>
+<dd><p>On platforms without gettext, no translation.
+</p>
+</dd>
+<dt> po-mode marking</dt>
+<dd><p>&mdash;
+</p></dd>
+</dl>
+
+<p>An example is available in the &lsquo;<tt>examples</tt>&rsquo; directory: <code>hello-guile</code>.
+</p>
+
+<a name="Common-Lisp"></a>
+<a name="SEC301"></a>
+<h3 class="subsection"> <a href="gettext_toc.html#TOC295">15.5.7 GNU clisp - Common Lisp</a> </h3>
+
+<dl compact="compact">
+<dt> RPMs</dt>
+<dd><p>clisp 2.28 or newer
+</p>
+</dd>
+<dt> Ubuntu packages</dt>
+<dd><p>clisp
+</p>
+</dd>
+<dt> File extension</dt>
+<dd><p><code>lisp</code>
+</p>
+</dd>
+<dt> String syntax</dt>
+<dd><p><code>&quot;abc&quot;</code>
+</p>
+</dd>
+<dt> gettext shorthand</dt>
+<dd><p><code>(_ &quot;abc&quot;)</code>, <code>(ENGLISH &quot;abc&quot;)</code>
+</p>
+</dd>
+<dt> gettext/ngettext functions</dt>
+<dd><p><code>i18n:gettext</code>, <code>i18n:ngettext</code>
+</p>
+</dd>
+<dt> textdomain</dt>
+<dd><p><code>i18n:textdomain</code>
+</p>
+</dd>
+<dt> bindtextdomain</dt>
+<dd><p><code>i18n:textdomaindir</code>
+</p>
+</dd>
+<dt> setlocale</dt>
+<dd><p>automatic
+</p>
+</dd>
+<dt> Prerequisite</dt>
+<dd><p>&mdash;
+</p>
+</dd>
+<dt> Use or emulate GNU gettext</dt>
+<dd><p>use
+</p>
+</dd>
+<dt> Extractor</dt>
+<dd><p><code>xgettext -k_ -kENGLISH</code>
+</p>
+</dd>
+<dt> Formatting with positions</dt>
+<dd><p><code>format &quot;~1@*~D ~0@*~D&quot;</code>
+</p>
+</dd>
+<dt> Portability</dt>
+<dd><p>On platforms without gettext, no translation.
+</p>
+</dd>
+<dt> po-mode marking</dt>
+<dd><p>&mdash;
+</p></dd>
+</dl>
+
+<p>An example is available in the &lsquo;<tt>examples</tt>&rsquo; directory: <code>hello-clisp</code>.
+</p>
+
+<a name="clisp-C"></a>
+<a name="SEC302"></a>
+<h3 class="subsection"> <a href="gettext_toc.html#TOC296">15.5.8 GNU clisp C sources</a> </h3>
+
+<dl compact="compact">
+<dt> RPMs</dt>
+<dd><p>clisp
+</p>
+</dd>
+<dt> Ubuntu packages</dt>
+<dd><p>clisp
+</p>
+</dd>
+<dt> File extension</dt>
+<dd><p><code>d</code>
+</p>
+</dd>
+<dt> String syntax</dt>
+<dd><p><code>&quot;abc&quot;</code>
+</p>
+</dd>
+<dt> gettext shorthand</dt>
+<dd><p><code>ENGLISH ? &quot;abc&quot; : &quot;&quot;</code>
+<br><code>GETTEXT(&quot;abc&quot;)</code>
+<br><code>GETTEXTL(&quot;abc&quot;)</code>
+</p>
+</dd>
+<dt> gettext/ngettext functions</dt>
+<dd><p><code>clgettext</code>, <code>clgettextl</code>
+</p>
+</dd>
+<dt> textdomain</dt>
+<dd><p>&mdash;
+</p>
+</dd>
+<dt> bindtextdomain</dt>
+<dd><p>&mdash;
+</p>
+</dd>
+<dt> setlocale</dt>
+<dd><p>automatic
+</p>
+</dd>
+<dt> Prerequisite</dt>
+<dd><p><code>#include &quot;lispbibl.c&quot;</code>
+</p>
+</dd>
+<dt> Use or emulate GNU gettext</dt>
+<dd><p>use
+</p>
+</dd>
+<dt> Extractor</dt>
+<dd><p><code>clisp-xgettext</code>
+</p>
+</dd>
+<dt> Formatting with positions</dt>
+<dd><p><code>fprintf &quot;%2$d %1$d&quot;</code>
+</p>
+</dd>
+<dt> Portability</dt>
+<dd><p>On platforms without gettext, no translation.
+</p>
+</dd>
+<dt> po-mode marking</dt>
+<dd><p>&mdash;
+</p></dd>
+</dl>
+
+
+<a name="Emacs-Lisp"></a>
+<a name="SEC303"></a>
+<h3 class="subsection"> <a href="gettext_toc.html#TOC297">15.5.9 Emacs Lisp</a> </h3>
+
+<dl compact="compact">
+<dt> RPMs</dt>
+<dd><p>emacs, xemacs
+</p>
+</dd>
+<dt> Ubuntu packages</dt>
+<dd><p>emacs, xemacs21
+</p>
+</dd>
+<dt> File extension</dt>
+<dd><p><code>el</code>
+</p>
+</dd>
+<dt> String syntax</dt>
+<dd><p><code>&quot;abc&quot;</code>
+</p>
+</dd>
+<dt> gettext shorthand</dt>
+<dd><p><code>(_&quot;abc&quot;)</code>
+</p>
+</dd>
+<dt> gettext/ngettext functions</dt>
+<dd><p><code>gettext</code>, <code>dgettext</code> (xemacs only)
+</p>
+</dd>
+<dt> textdomain</dt>
+<dd><p><code>domain</code> special form (xemacs only)
+</p>
+</dd>
+<dt> bindtextdomain</dt>
+<dd><p><code>bind-text-domain</code> function (xemacs only)
+</p>
+</dd>
+<dt> setlocale</dt>
+<dd><p>automatic
+</p>
+</dd>
+<dt> Prerequisite</dt>
+<dd><p>&mdash;
+</p>
+</dd>
+<dt> Use or emulate GNU gettext</dt>
+<dd><p>use
+</p>
+</dd>
+<dt> Extractor</dt>
+<dd><p><code>xgettext</code>
+</p>
+</dd>
+<dt> Formatting with positions</dt>
+<dd><p><code>format &quot;%2$d %1$d&quot;</code>
+</p>
+</dd>
+<dt> Portability</dt>
+<dd><p>Only XEmacs.  Without <code>I18N3</code> defined at build time, no translation.
+</p>
+</dd>
+<dt> po-mode marking</dt>
+<dd><p>&mdash;
+</p></dd>
+</dl>
+
+
+<a name="librep"></a>
+<a name="SEC304"></a>
+<h3 class="subsection"> <a href="gettext_toc.html#TOC298">15.5.10 librep</a> </h3>
+
+<dl compact="compact">
+<dt> RPMs</dt>
+<dd><p>librep 0.15.3 or newer
+</p>
+</dd>
+<dt> Ubuntu packages</dt>
+<dd><p>librep16
+</p>
+</dd>
+<dt> File extension</dt>
+<dd><p><code>jl</code>
+</p>
+</dd>
+<dt> String syntax</dt>
+<dd><p><code>&quot;abc&quot;</code>
+</p>
+</dd>
+<dt> gettext shorthand</dt>
+<dd><p><code>(_&quot;abc&quot;)</code>
+</p>
+</dd>
+<dt> gettext/ngettext functions</dt>
+<dd><p><code>gettext</code>
+</p>
+</dd>
+<dt> textdomain</dt>
+<dd><p><code>textdomain</code> function
+</p>
+</dd>
+<dt> bindtextdomain</dt>
+<dd><p><code>bindtextdomain</code> function
+</p>
+</dd>
+<dt> setlocale</dt>
+<dd><p>&mdash;
+</p>
+</dd>
+<dt> Prerequisite</dt>
+<dd><p><code>(require 'rep.i18n.gettext)</code>
+</p>
+</dd>
+<dt> Use or emulate GNU gettext</dt>
+<dd><p>use
+</p>
+</dd>
+<dt> Extractor</dt>
+<dd><p><code>xgettext</code>
+</p>
+</dd>
+<dt> Formatting with positions</dt>
+<dd><p><code>format &quot;%2$d %1$d&quot;</code>
+</p>
+</dd>
+<dt> Portability</dt>
+<dd><p>On platforms without gettext, no translation.
+</p>
+</dd>
+<dt> po-mode marking</dt>
+<dd><p>&mdash;
+</p></dd>
+</dl>
+
+<p>An example is available in the &lsquo;<tt>examples</tt>&rsquo; directory: <code>hello-librep</code>.
+</p>
+
+<a name="Ruby"></a>
+<a name="SEC305"></a>
+<h3 class="subsection"> <a href="gettext_toc.html#TOC299">15.5.11 Ruby</a> </h3>
+
+<dl compact="compact">
+<dt> RPMs</dt>
+<dd><p>ruby, ruby-gettext
+</p>
+</dd>
+<dt> Ubuntu packages</dt>
+<dd><p>ruby, ruby-gettext
+</p>
+</dd>
+<dt> File extension</dt>
+<dd><p><code>rb</code>
+</p>
+</dd>
+<dt> String syntax</dt>
+<dd><p><code>&quot;abc&quot;</code>, <code>'abc'</code>, <code>%q/abc/</code> etc.,
+<code>%q(abc)</code>, <code>%q[abc]</code>, <code>%q{abc}</code>
+</p>
+</dd>
+<dt> gettext shorthand</dt>
+<dd><p><code>_(&quot;abc&quot;)</code>
+</p>
+</dd>
+<dt> gettext/ngettext functions</dt>
+<dd><p><code>gettext</code>, <code>ngettext</code>
+</p>
+</dd>
+<dt> textdomain</dt>
+<dd><p>&mdash;
+</p>
+</dd>
+<dt> bindtextdomain</dt>
+<dd><p><code>bindtextdomain</code> function
+</p>
+</dd>
+<dt> setlocale</dt>
+<dd><p>&mdash;
+</p>
+</dd>
+<dt> Prerequisite</dt>
+<dd><p><code>require 'gettext'</code>
+<code>include GetText</code>
+</p>
+</dd>
+<dt> Use or emulate GNU gettext</dt>
+<dd><p>emulate
+</p>
+</dd>
+<dt> Extractor</dt>
+<dd><p><code>xgettext</code>
+</p>
+</dd>
+<dt> Formatting with positions</dt>
+<dd><p><code>sprintf(&quot;%2$d %1$d&quot;, x, y)</code>
+<br><code>&quot;%{new} replaces %{old}&quot; % {:old =&gt; oldvalue, :new =&gt; newvalue}</code>
+</p>
+</dd>
+<dt> Portability</dt>
+<dd><p>fully portable
+</p>
+</dd>
+<dt> po-mode marking</dt>
+<dd><p>&mdash;
+</p></dd>
+</dl>
+
+
+
+<a name="sh"></a>
+<a name="SEC306"></a>
+<h3 class="subsection"> <a href="gettext_toc.html#TOC300">15.5.12 sh - Shell Script</a> </h3>
+
+<dl compact="compact">
+<dt> RPMs</dt>
+<dd><p>bash, gettext
+</p>
+</dd>
+<dt> Ubuntu packages</dt>
+<dd><p>bash, gettext-base
+</p>
+</dd>
+<dt> File extension</dt>
+<dd><p><code>sh</code>
+</p>
+</dd>
+<dt> String syntax</dt>
+<dd><p><code>&quot;abc&quot;</code>, <code>'abc'</code>, <code>abc</code>
+</p>
+</dd>
+<dt> gettext shorthand</dt>
+<dd><p><code>&quot;`gettext \&quot;abc\&quot;`&quot;</code>
+</p>
+</dd>
+<dt> gettext/ngettext functions</dt>
+<dd><a name="IDX1113"></a>
+<a name="IDX1114"></a>
+<p><code>gettext</code>, <code>ngettext</code> programs
+<br><code>eval_gettext</code>, <code>eval_ngettext</code>, <code>eval_pgettext</code>,
+<code>eval_npgettext</code> shell functions
+</p>
+</dd>
+<dt> textdomain</dt>
+<dd><a name="IDX1115"></a>
+<p>environment variable <code>TEXTDOMAIN</code>
+</p>
+</dd>
+<dt> bindtextdomain</dt>
+<dd><a name="IDX1116"></a>
+<p>environment variable <code>TEXTDOMAINDIR</code>
+</p>
+</dd>
+<dt> setlocale</dt>
+<dd><p>automatic
+</p>
+</dd>
+<dt> Prerequisite</dt>
+<dd><p><code>. gettext.sh</code>
+</p>
+</dd>
+<dt> Use or emulate GNU gettext</dt>
+<dd><p>use
+</p>
+</dd>
+<dt> Extractor</dt>
+<dd><p><code>xgettext</code>
+</p>
+</dd>
+<dt> Formatting with positions</dt>
+<dd><p>&mdash;
+</p>
+</dd>
+<dt> Portability</dt>
+<dd><p>fully portable
+</p>
+</dd>
+<dt> po-mode marking</dt>
+<dd><p>&mdash;
+</p></dd>
+</dl>
+
+<p>An example is available in the &lsquo;<tt>examples</tt>&rsquo; directory: <code>hello-sh</code>.
+</p>
+
+
+<a name="Preparing-Shell-Scripts"></a>
 <a name="SEC307"></a>
-<h3 class="subsection"> <a href="gettext_toc.html#TOC301">15.5.13 GNU awk</a> </h3>
+<h4 class="subsubsection"> <a href="gettext_toc.html#TOC301">15.5.12.1 Preparing Shell Scripts for Internationalization</a> </h4>
+
+<p>Preparing a shell script for internationalization is conceptually similar
+to the steps described in <a href="gettext_4.html#SEC17">Preparing Program Sources</a>.  The concrete steps for shell
+scripts are as follows.
+</p>
+<ol>
+<li>
+Insert the line
+
+<table><tr><td>&nbsp;</td><td><pre class="smallexample">. gettext.sh
+</pre></td></tr></table>
+
+<p>near the top of the script.  <code>gettext.sh</code> is a shell function library
+that provides the functions
+<code>eval_gettext</code> (see <a href="#SEC312">Invoking the <code>eval_gettext</code> function</a>),
+<code>eval_ngettext</code> (see <a href="#SEC313">Invoking the <code>eval_ngettext</code> function</a>),
+<code>eval_pgettext</code> (see <a href="#SEC314">Invoking the <code>eval_pgettext</code> function</a>), and
+<code>eval_npgettext</code> (see <a href="#SEC315">Invoking the <code>eval_npgettext</code> function</a>).
+You have to ensure that <code>gettext.sh</code> can be found in the <code>PATH</code>.
+</p>
+</li><li>
+Set and export the <code>TEXTDOMAIN</code> and <code>TEXTDOMAINDIR</code> environment
+variables.  Usually <code>TEXTDOMAIN</code> is the package or program name, and
+<code>TEXTDOMAINDIR</code> is the absolute pathname corresponding to
+<code>$prefix/share/locale</code>, where <code>$prefix</code> is the installation location.
+
+<table><tr><td>&nbsp;</td><td><pre class="smallexample">TEXTDOMAIN=@PACKAGE@
+export TEXTDOMAIN
+TEXTDOMAINDIR=@LOCALEDIR@
+export TEXTDOMAINDIR
+</pre></td></tr></table>
+
+</li><li>
+Prepare the strings for translation, as described in <a href="gettext_4.html#SEC20">Preparing Translatable Strings</a>.
+
+</li><li>
+Simplify translatable strings so that they don't contain command substitution
+(<code>&quot;`...`&quot;</code> or <code>&quot;$(...)&quot;</code>), variable access with defaulting (like
+<code>${<var>variable</var>-<var>default</var>}</code>), access to positional arguments
+(like <code>$0</code>, <code>$1</code>, ...) or highly volatile shell variables (like
+<code>$?</code>). This can always be done through simple local code restructuring.
+For example,
+
+<table><tr><td>&nbsp;</td><td><pre class="smallexample">echo &quot;Usage: $0 [OPTION] FILE...&quot;
+</pre></td></tr></table>
+
+<p>becomes
+</p>
+<table><tr><td>&nbsp;</td><td><pre class="smallexample">program_name=$0
+echo &quot;Usage: $program_name [OPTION] FILE...&quot;
+</pre></td></tr></table>
+
+<p>Similarly,
+</p>
+<table><tr><td>&nbsp;</td><td><pre class="smallexample">echo &quot;Remaining files: `ls | wc -l`&quot;
+</pre></td></tr></table>
+
+<p>becomes
+</p>
+<table><tr><td>&nbsp;</td><td><pre class="smallexample">filecount=&quot;`ls | wc -l`&quot;
+echo &quot;Remaining files: $filecount&quot;
+</pre></td></tr></table>
+
+</li><li>
+For each translatable string, change the output command &lsquo;<samp>echo</samp>&rsquo; or
+&lsquo;<samp>$echo</samp>&rsquo; to &lsquo;<samp>gettext</samp>&rsquo; (if the string contains no references to
+shell variables) or to &lsquo;<samp>eval_gettext</samp>&rsquo; (if it refers to shell variables),
+followed by a no-argument &lsquo;<samp>echo</samp>&rsquo; command (to account for the terminating
+newline). Similarly, for cases with plural handling, replace a conditional
+&lsquo;<samp>echo</samp>&rsquo; command with an invocation of &lsquo;<samp>ngettext</samp>&rsquo; or
+&lsquo;<samp>eval_ngettext</samp>&rsquo;, followed by a no-argument &lsquo;<samp>echo</samp>&rsquo; command.
+
+<p>When doing this, you also need to add an extra backslash before the dollar
+sign in references to shell variables, so that the &lsquo;<samp>eval_gettext</samp>&rsquo;
+function receives the translatable string before the variable values are
+substituted into it. For example,
+</p>
+<table><tr><td>&nbsp;</td><td><pre class="smallexample">echo &quot;Remaining files: $filecount&quot;
+</pre></td></tr></table>
+
+<p>becomes
+</p>
+<table><tr><td>&nbsp;</td><td><pre class="smallexample">eval_gettext &quot;Remaining files: \$filecount&quot;; echo
+</pre></td></tr></table>
+
+<p>If the output command is not &lsquo;<samp>echo</samp>&rsquo;, you can make it use &lsquo;<samp>echo</samp>&rsquo;
+nevertheless, through the use of backquotes. However, note that inside
+backquotes, backslashes must be doubled to be effective (because the
+backquoting eats one level of backslashes). For example, assuming that
+&lsquo;<samp>error</samp>&rsquo; is a shell function that signals an error,
+</p>
+<table><tr><td>&nbsp;</td><td><pre class="smallexample">error &quot;file not found: $filename&quot;
+</pre></td></tr></table>
+
+<p>is first transformed into
+</p>
+<table><tr><td>&nbsp;</td><td><pre class="smallexample">error &quot;`echo \&quot;file not found: \$filename\&quot;`&quot;
+</pre></td></tr></table>
+
+<p>which then becomes
+</p>
+<table><tr><td>&nbsp;</td><td><pre class="smallexample">error &quot;`eval_gettext \&quot;file not found: \\\$filename\&quot;`&quot;
+</pre></td></tr></table>
+</li></ol>
+
+
+<a name="gettext_002esh"></a>
+<a name="SEC308"></a>
+<h4 class="subsubsection"> <a href="gettext_toc.html#TOC302">15.5.12.2 Contents of <code>gettext.sh</code></a> </h4>
+
+<p><code>gettext.sh</code>, contained in the run-time package of GNU gettext, provides
+the following:
+</p>
+<ul>
+<li> $echo
+The variable <code>echo</code> is set to a command that outputs its first argument
+and a newline, without interpreting backslashes in the argument string.
+
+</li><li> eval_gettext
+See <a href="#SEC312">Invoking the <code>eval_gettext</code> function</a>.
+
+</li><li> eval_ngettext
+See <a href="#SEC313">Invoking the <code>eval_ngettext</code> function</a>.
+
+</li><li> eval_pgettext
+See <a href="#SEC314">Invoking the <code>eval_pgettext</code> function</a>.
+
+</li><li> eval_npgettext
+See <a href="#SEC315">Invoking the <code>eval_npgettext</code> function</a>.
+</li></ul>
+
+
+<a name="gettext-Invocation"></a>
+<a name="SEC309"></a>
+<h4 class="subsubsection"> <a href="gettext_toc.html#TOC303">15.5.12.3 Invoking the <code>gettext</code> program</a> </h4>
+
+
+<table><tr><td>&nbsp;</td><td><pre class="example">gettext [<var>option</var>] [[<var>textdomain</var>] <var>msgid</var>]
+gettext [<var>option</var>] -s [<var>msgid</var>]...
+</pre></td></tr></table>
+
+<a name="IDX1117"></a>
+<p>The <code>gettext</code> program displays the native language translation of a
+textual message.
+</p>
+<p><strong>Arguments</strong>
+</p>
+<dl compact="compact">
+<dt> &lsquo;<samp>-c <var>context</var></samp>&rsquo;</dt>
+<dt> &lsquo;<samp>--context=<var>context</var></samp>&rsquo;</dt>
+<dd><a name="IDX1118"></a>
+<a name="IDX1119"></a>
+<p>Specify the context for the messages to be translated.
+See <a href="gettext_11.html#SEC205">Using contexts for solving ambiguities</a> for details.
+</p>
+</dd>
+<dt> &lsquo;<samp>-d <var>textdomain</var></samp>&rsquo;</dt>
+<dt> &lsquo;<samp>--domain=<var>textdomain</var></samp>&rsquo;</dt>
+<dd><a name="IDX1120"></a>
+<a name="IDX1121"></a>
+<p>Retrieve translated messages from <var>textdomain</var>.  Usually a <var>textdomain</var>
+corresponds to a package, a program, or a module of a program.
+</p>
+</dd>
+<dt> &lsquo;<samp>-e</samp>&rsquo;</dt>
+<dd><a name="IDX1122"></a>
+<p>Enable expansion of some escape sequences.  This option is for compatibility
+with the &lsquo;<samp>echo</samp>&rsquo; program or shell built-in.  The escape sequences
+&lsquo;<samp>\a</samp>&rsquo;, &lsquo;<samp>\b</samp>&rsquo;, &lsquo;<samp>\c</samp>&rsquo;, &lsquo;<samp>\f</samp>&rsquo;, &lsquo;<samp>\n</samp>&rsquo;, &lsquo;<samp>\r</samp>&rsquo;, &lsquo;<samp>\t</samp>&rsquo;,
+&lsquo;<samp>\v</samp>&rsquo;, &lsquo;<samp>\\</samp>&rsquo;, and &lsquo;<samp>\</samp>&rsquo; followed by one to three octal digits, are
+interpreted like the System V &lsquo;<samp>echo</samp>&rsquo; program did.
+</p>
+</dd>
+<dt> &lsquo;<samp>-E</samp>&rsquo;</dt>
+<dd><a name="IDX1123"></a>
+<p>This option is only for compatibility with the &lsquo;<samp>echo</samp>&rsquo; program or shell
+built-in.  It has no effect.
+</p>
+</dd>
+<dt> &lsquo;<samp>-h</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>--help</samp>&rsquo;</dt>
+<dd><a name="IDX1124"></a>
+<a name="IDX1125"></a>
+<p>Display this help and exit.
+</p>
+</dd>
+<dt> &lsquo;<samp>-n</samp>&rsquo;</dt>
+<dd><a name="IDX1126"></a>
+<p>This option has only an effect if the <code>-s</code> option is given.  It
+suppresses the additional newline at the end.
+</p>
+</dd>
+<dt> &lsquo;<samp>-V</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>--version</samp>&rsquo;</dt>
+<dd><a name="IDX1127"></a>
+<a name="IDX1128"></a>
+<p>Output version information and exit.
+</p>
+</dd>
+<dt> &lsquo;<samp>[<var>textdomain</var>] <var>msgid</var></samp>&rsquo;</dt>
+<dd><p>Retrieve translated message corresponding to <var>msgid</var> from <var>textdomain</var>.
+</p>
+</dd>
+</dl>
+
+<p>If the <var>textdomain</var> parameter is not given, the domain is determined from
+the environment variable <code>TEXTDOMAIN</code>.  If the message catalog is not
+found in the regular directory, another location can be specified with the
+environment variable <code>TEXTDOMAINDIR</code>.
+</p>
+<p>When used with the <code>-s</code> option the program behaves like the &lsquo;<samp>echo</samp>&rsquo;
+command.  But it does not simply copy its arguments to stdout.  Instead those
+messages found in the selected catalog are translated.  Also, a newline is
+added at the end, unless either the option <code>-n</code> is specified or the
+option <code>-e</code> is specified and some of the argument strings contains a
+&lsquo;<samp>\c</samp>&rsquo; escape sequence.
+</p>
+<p>Note: <code>xgettext</code> supports only the one-argument form of the
+<code>gettext</code> invocation, where no options are present and the
+<var>textdomain</var> is implicit, from the environment.
+</p>
+
+<a name="ngettext-Invocation"></a>
+<a name="SEC310"></a>
+<h4 class="subsubsection"> <a href="gettext_toc.html#TOC304">15.5.12.4 Invoking the <code>ngettext</code> program</a> </h4>
+
+
+<table><tr><td>&nbsp;</td><td><pre class="example">ngettext [<var>option</var>] [<var>textdomain</var>] <var>msgid</var> <var>msgid-plural</var> <var>count</var>
+</pre></td></tr></table>
+
+<a name="IDX1129"></a>
+<p>The <code>ngettext</code> program displays the native language translation of a
+textual message whose grammatical form depends on a number.
+</p>
+<p><strong>Arguments</strong>
+</p>
+<dl compact="compact">
+<dt> &lsquo;<samp>-c <var>context</var></samp>&rsquo;</dt>
+<dt> &lsquo;<samp>--context=<var>context</var></samp>&rsquo;</dt>
+<dd><a name="IDX1130"></a>
+<a name="IDX1131"></a>
+<p>Specify the context for the messages to be translated.
+See <a href="gettext_11.html#SEC205">Using contexts for solving ambiguities</a> for details.
+</p>
+</dd>
+<dt> &lsquo;<samp>-d <var>textdomain</var></samp>&rsquo;</dt>
+<dt> &lsquo;<samp>--domain=<var>textdomain</var></samp>&rsquo;</dt>
+<dd><a name="IDX1132"></a>
+<a name="IDX1133"></a>
+<p>Retrieve translated messages from <var>textdomain</var>.  Usually a <var>textdomain</var>
+corresponds to a package, a program, or a module of a program.
+</p>
+</dd>
+<dt> &lsquo;<samp>-e</samp>&rsquo;</dt>
+<dd><a name="IDX1134"></a>
+<p>Enable expansion of some escape sequences.  This option is for compatibility
+with the &lsquo;<samp>gettext</samp>&rsquo; program.  The escape sequences
+&lsquo;<samp>\a</samp>&rsquo;, &lsquo;<samp>\b</samp>&rsquo;, &lsquo;<samp>\f</samp>&rsquo;, &lsquo;<samp>\n</samp>&rsquo;, &lsquo;<samp>\r</samp>&rsquo;, &lsquo;<samp>\t</samp>&rsquo;,
+&lsquo;<samp>\v</samp>&rsquo;, &lsquo;<samp>\\</samp>&rsquo;, and &lsquo;<samp>\</samp>&rsquo; followed by one to three octal digits, are
+interpreted like the System V &lsquo;<samp>echo</samp>&rsquo; program did.
+</p>
+</dd>
+<dt> &lsquo;<samp>-E</samp>&rsquo;</dt>
+<dd><a name="IDX1135"></a>
+<p>This option is only for compatibility with the &lsquo;<samp>gettext</samp>&rsquo; program.  It has
+no effect.
+</p>
+</dd>
+<dt> &lsquo;<samp>-h</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>--help</samp>&rsquo;</dt>
+<dd><a name="IDX1136"></a>
+<a name="IDX1137"></a>
+<p>Display this help and exit.
+</p>
+</dd>
+<dt> &lsquo;<samp>-V</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>--version</samp>&rsquo;</dt>
+<dd><a name="IDX1138"></a>
+<a name="IDX1139"></a>
+<p>Output version information and exit.
+</p>
+</dd>
+<dt> &lsquo;<samp><var>textdomain</var></samp>&rsquo;</dt>
+<dd><p>Retrieve translated message from <var>textdomain</var>.
+</p>
+</dd>
+<dt> &lsquo;<samp><var>msgid</var> <var>msgid-plural</var></samp>&rsquo;</dt>
+<dd><p>Translate <var>msgid</var> (English singular) / <var>msgid-plural</var> (English plural).
+</p>
+</dd>
+<dt> &lsquo;<samp><var>count</var></samp>&rsquo;</dt>
+<dd><p>Choose singular/plural form based on this value.
+</p>
+</dd>
+</dl>
+
+<p>If the <var>textdomain</var> parameter is not given, the domain is determined from
+the environment variable <code>TEXTDOMAIN</code>.  If the message catalog is not
+found in the regular directory, another location can be specified with the
+environment variable <code>TEXTDOMAINDIR</code>.
+</p>
+<p>Note: <code>xgettext</code> supports only the three-arguments form of the
+<code>ngettext</code> invocation, where no options are present and the
+<var>textdomain</var> is implicit, from the environment.
+</p>
+
+<a name="envsubst-Invocation"></a>
+<a name="SEC311"></a>
+<h4 class="subsubsection"> <a href="gettext_toc.html#TOC305">15.5.12.5 Invoking the <code>envsubst</code> program</a> </h4>
+
+
+<table><tr><td>&nbsp;</td><td><pre class="example">envsubst [<var>option</var>] [<var>shell-format</var>]
+</pre></td></tr></table>
+
+<a name="IDX1140"></a>
+<a name="IDX1141"></a>
+<a name="IDX1142"></a>
+<p>The <code>envsubst</code> program substitutes the values of environment variables.
+</p>
+<p><strong>Operation mode</strong>
+</p>
+<dl compact="compact">
+<dt> &lsquo;<samp>-v</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>--variables</samp>&rsquo;</dt>
+<dd><a name="IDX1143"></a>
+<a name="IDX1144"></a>
+<p>Output the variables occurring in <var>shell-format</var>.
+</p>
+</dd>
+</dl>
+
+<p><strong>Informative output</strong>
+</p>
+<dl compact="compact">
+<dt> &lsquo;<samp>-h</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>--help</samp>&rsquo;</dt>
+<dd><a name="IDX1145"></a>
+<a name="IDX1146"></a>
+<p>Display this help and exit.
+</p>
+</dd>
+<dt> &lsquo;<samp>-V</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>--version</samp>&rsquo;</dt>
+<dd><a name="IDX1147"></a>
+<a name="IDX1148"></a>
+<p>Output version information and exit.
+</p>
+</dd>
+</dl>
+
+<p>In normal operation mode, standard input is copied to standard output,
+with references to environment variables of the form <code>$VARIABLE</code> or
+<code>${VARIABLE}</code> being replaced with the corresponding values.  If a
+<var>shell-format</var> is given, only those environment variables that are
+referenced in <var>shell-format</var> are substituted; otherwise all environment
+variables references occurring in standard input are substituted.
+</p>
+<p>These substitutions are a subset of the substitutions that a shell performs
+on unquoted and double-quoted strings.  Other kinds of substitutions done
+by a shell, such as <code>${<var>variable</var>-<var>default</var>}</code> or
+<code>$(<var>command-list</var>)</code> or <code>`<var>command-list</var>`</code>, are not performed
+by the <code>envsubst</code> program, due to security reasons.
+</p>
+<p>When <code>--variables</code> is used, standard input is ignored, and the output
+consists of the environment variables that are referenced in
+<var>shell-format</var>, one per line.
+</p>
+
+<a name="eval_005fgettext-Invocation"></a>
+<a name="SEC312"></a>
+<h4 class="subsubsection"> <a href="gettext_toc.html#TOC306">15.5.12.6 Invoking the <code>eval_gettext</code> function</a> </h4>
+
+<table><tr><td>&nbsp;</td><td><pre class="example">eval_gettext <var>msgid</var>
+</pre></td></tr></table>
+
+<a name="IDX1149"></a>
+<p>This function outputs the native language translation of a textual message,
+performing dollar-substitution on the result.  Note that only shell variables
+mentioned in <var>msgid</var> will be dollar-substituted in the result.
+</p>
+
+<a name="eval_005fngettext-Invocation"></a>
+<a name="SEC313"></a>
+<h4 class="subsubsection"> <a href="gettext_toc.html#TOC307">15.5.12.7 Invoking the <code>eval_ngettext</code> function</a> </h4>
+
+<table><tr><td>&nbsp;</td><td><pre class="example">eval_ngettext <var>msgid</var> <var>msgid-plural</var> <var>count</var>
+</pre></td></tr></table>
+
+<a name="IDX1150"></a>
+<p>This function outputs the native language translation of a textual message
+whose grammatical form depends on a number, performing dollar-substitution
+on the result.  Note that only shell variables mentioned in <var>msgid</var> or
+<var>msgid-plural</var> will be dollar-substituted in the result.
+</p>
+
+<a name="eval_005fpgettext-Invocation"></a>
+<a name="SEC314"></a>
+<h4 class="subsubsection"> <a href="gettext_toc.html#TOC308">15.5.12.8 Invoking the <code>eval_pgettext</code> function</a> </h4>
+
+<table><tr><td>&nbsp;</td><td><pre class="example">eval_pgettext <var>msgctxt</var> <var>msgid</var>
+</pre></td></tr></table>
+
+<a name="IDX1151"></a>
+<p>This function outputs the native language translation of a textual message
+in the given context <var>msgctxt</var> (see <a href="gettext_11.html#SEC205">Using contexts for solving ambiguities</a>), performing
+dollar-substitution on the result.  Note that only shell variables mentioned
+in <var>msgid</var> will be dollar-substituted in the result.
+</p>
+
+<a name="eval_005fnpgettext-Invocation"></a>
+<a name="SEC315"></a>
+<h4 class="subsubsection"> <a href="gettext_toc.html#TOC309">15.5.12.9 Invoking the <code>eval_npgettext</code> function</a> </h4>
+
+<table><tr><td>&nbsp;</td><td><pre class="example">eval_npgettext <var>msgctxt</var> <var>msgid</var> <var>msgid-plural</var> <var>count</var>
+</pre></td></tr></table>
+
+<a name="IDX1152"></a>
+<p>This function outputs the native language translation of a textual message
+whose grammatical form depends on a number in the given context <var>msgctxt</var>
+(see <a href="gettext_11.html#SEC205">Using contexts for solving ambiguities</a>), performing dollar-substitution on the result.  Note
+that only shell variables mentioned in <var>msgid</var> or <var>msgid-plural</var>
+will be dollar-substituted in the result.
+</p>
+
+<a name="bash"></a>
+<a name="SEC316"></a>
+<h3 class="subsection"> <a href="gettext_toc.html#TOC310">15.5.13 bash - Bourne-Again Shell Script</a> </h3>
+
+<p>GNU <code>bash</code> 2.0 or newer has a special shorthand for translating a
+string and substituting variable values in it: <code>$&quot;msgid&quot;</code>.  But
+the use of this construct is <strong>discouraged</strong>, due to the security
+holes it opens and due to its portability problems.
+</p>
+<p>The security holes of <code>$&quot;...&quot;</code> come from the fact that after looking up
+the translation of the string, <code>bash</code> processes it like it processes
+any double-quoted string: dollar and backquote processing, like &lsquo;<samp>eval</samp>&rsquo;
+does.
+</p>
+<ol>
+<li>
+In a locale whose encoding is one of BIG5, BIG5-HKSCS, GBK, GB18030, SHIFT_JIS,
+JOHAB, some double-byte characters have a second byte whose value is
+<code>0x60</code>.  For example, the byte sequence <code>\xe0\x60</code> is a single
+character in these locales.  Many versions of <code>bash</code> (all versions
+up to bash-2.05, and newer versions on platforms without <code>mbsrtowcs()</code>
+function) don't know about character boundaries and see a backquote character
+where there is only a particular Chinese character.  Thus it can start
+executing part of the translation as a command list.  This situation can occur
+even without the translator being aware of it: if the translator provides
+translations in the UTF-8 encoding, it is the <code>gettext()</code> function which
+will, during its conversion from the translator's encoding to the user's
+locale's encoding, produce the dangerous <code>\x60</code> bytes.
+
+</li><li>
+A translator could - voluntarily or inadvertently - use backquotes
+<code>&quot;`...`&quot;</code> or dollar-parentheses <code>&quot;$(...)&quot;</code> in her translations.
+The enclosed strings would be executed as command lists by the shell.
+</li></ol>
+
+<p>The portability problem is that <code>bash</code> must be built with
+internationalization support; this is normally not the case on systems
+that don't have the <code>gettext()</code> function in libc.
+</p>
+
+<a name="gawk"></a>
+<a name="SEC317"></a>
+<h3 class="subsection"> <a href="gettext_toc.html#TOC311">15.5.14 GNU awk</a> </h3>
 
 <dl compact="compact">
 <dt> RPMs</dt>
@@ -2242,9 +2387,96 @@ yourself.
 <p>An example is available in the &lsquo;<tt>examples</tt>&rsquo; directory: <code>hello-gawk</code>.
 </p>
 
+<a name="Lua"></a>
+<a name="SEC318"></a>
+<h3 class="subsection"> <a href="gettext_toc.html#TOC312">15.5.15 Lua</a> </h3>
+
+<dl compact="compact">
+<dt> RPMs</dt>
+<dd><p>lua
+</p>
+</dd>
+<dt> Ubuntu packages</dt>
+<dd><p>lua, lua-gettext
+<br>
+You need to install the <code>lua-gettext</code> package from
+<a href="https://gitlab.com/sukhichev/lua-gettext/blob/master/README.us.md">https://gitlab.com/sukhichev/lua-gettext/blob/master/README.us.md</a>.
+Debian and Ubuntu packages of it are available.  Download the
+appropriate one, and install it through
+&lsquo;<samp>sudo dpkg -i lua-gettext_0.0_amd64.deb</samp>&rsquo;.
+</p>
+</dd>
+<dt> File extension</dt>
+<dd><p><code>lua</code>
+</p>
+</dd>
+<dt> String syntax</dt>
+<dd><ul>
+<li> <code>&quot;abc&quot;</code>
+
+</li><li> <code>'abc'</code>
+
+</li><li> <code>[[abc]]</code>
+
+</li><li> <code>[=[abc]=]</code>
+
+</li><li> <code>[==[abc]==]</code>
+
+</li><li> ...
+
+</li></ul>
+
+</dd>
+<dt> gettext shorthand</dt>
+<dd><p><code>_(&quot;abc&quot;)</code>
+</p>
+</dd>
+<dt> gettext/ngettext functions</dt>
+<dd><p><code>gettext.gettext</code>, <code>gettext.dgettext</code>, <code>gettext.dcgettext</code>,
+<code>gettext.ngettext</code>, <code>gettext.dngettext</code>, <code>gettext.dcngettext</code>
+</p>
+</dd>
+<dt> textdomain</dt>
+<dd><p><code>textdomain</code> function
+</p>
+</dd>
+<dt> bindtextdomain</dt>
+<dd><p><code>bindtextdomain</code> function
+</p>
+</dd>
+<dt> setlocale</dt>
+<dd><p>automatic
+</p>
+</dd>
+<dt> Prerequisite</dt>
+<dd><p><code>require 'gettext'</code> or running lua interpreter with <code>-l gettext</code> option
+</p>
+</dd>
+<dt> Use or emulate GNU gettext</dt>
+<dd><p>use
+</p>
+</dd>
+<dt> Extractor</dt>
+<dd><p><code>xgettext</code>
+</p>
+</dd>
+<dt> Formatting with positions</dt>
+<dd><p>&mdash;
+</p>
+</dd>
+<dt> Portability</dt>
+<dd><p>On platforms without gettext, the functions are not available.
+</p>
+</dd>
+<dt> po-mode marking</dt>
+<dd><p>&mdash;
+</p></dd>
+</dl>
+
+
 <a name="Pascal"></a>
-<a name="SEC308"></a>
-<h3 class="subsection"> <a href="gettext_toc.html#TOC302">15.5.14 Pascal - Free Pascal Compiler</a> </h3>
+<a name="SEC319"></a>
+<h3 class="subsection"> <a href="gettext_toc.html#TOC313">15.5.16 Pascal - Free Pascal Compiler</a> </h3>
 
 <dl compact="compact">
 <dt> RPMs</dt>
@@ -2318,9 +2550,154 @@ can be loaded using the <code>TranslateResourceStrings</code> function in the
 <p>An example is available in the &lsquo;<tt>examples</tt>&rsquo; directory: <code>hello-pascal</code>.
 </p>
 
+<a name="Smalltalk"></a>
+<a name="SEC320"></a>
+<h3 class="subsection"> <a href="gettext_toc.html#TOC314">15.5.17 GNU Smalltalk</a> </h3>
+
+<dl compact="compact">
+<dt> RPMs</dt>
+<dd><p>smalltalk
+</p>
+</dd>
+<dt> Ubuntu packages</dt>
+<dd><p>gnu-smalltalk
+</p>
+</dd>
+<dt> File extension</dt>
+<dd><p><code>st</code>
+</p>
+</dd>
+<dt> String syntax</dt>
+<dd><p><code>'abc'</code>
+</p>
+</dd>
+<dt> gettext shorthand</dt>
+<dd><p><code>NLS ? 'abc'</code>
+</p>
+</dd>
+<dt> gettext/ngettext functions</dt>
+<dd><p><code>LcMessagesDomain&gt;&gt;#at:</code>, <code>LcMessagesDomain&gt;&gt;#at:plural:with:</code>
+</p>
+</dd>
+<dt> textdomain</dt>
+<dd><p><code>LcMessages&gt;&gt;#domain:localeDirectory:</code> (returns a <code>LcMessagesDomain</code>
+object).<br>
+Example: <code>I18N Locale default messages domain: 'gettext' localeDirectory: /usr/local/share/locale'</code>
+</p>
+</dd>
+<dt> bindtextdomain</dt>
+<dd><p><code>LcMessages&gt;&gt;#domain:localeDirectory:</code>, see above.
+</p>
+</dd>
+<dt> setlocale</dt>
+<dd><p>Automatic if you use <code>I18N Locale default</code>.
+</p>
+</dd>
+<dt> Prerequisite</dt>
+<dd><p><code>PackageLoader fileInPackage: 'I18N'!</code>
+</p>
+</dd>
+<dt> Use or emulate GNU gettext</dt>
+<dd><p>emulate
+</p>
+</dd>
+<dt> Extractor</dt>
+<dd><p><code>xgettext</code>
+</p>
+</dd>
+<dt> Formatting with positions</dt>
+<dd><p><code>'%1 %2' bindWith: 'Hello' with: 'world'</code>
+</p>
+</dd>
+<dt> Portability</dt>
+<dd><p>fully portable
+</p>
+</dd>
+<dt> po-mode marking</dt>
+<dd><p>&mdash;
+</p></dd>
+</dl>
+
+<p>An example is available in the &lsquo;<tt>examples</tt>&rsquo; directory:
+<code>hello-smalltalk</code>.
+</p>
+
+<a name="Vala"></a>
+<a name="SEC321"></a>
+<h3 class="subsection"> <a href="gettext_toc.html#TOC315">15.5.18 Vala</a> </h3>
+
+<dl compact="compact">
+<dt> RPMs</dt>
+<dd><p>vala
+</p>
+</dd>
+<dt> Ubuntu packages</dt>
+<dd><p>valac
+</p>
+</dd>
+<dt> File extension</dt>
+<dd><p><code>vala</code>
+</p>
+</dd>
+<dt> String syntax</dt>
+<dd><ul>
+<li> <code>&quot;abc&quot;</code>
+
+</li><li> <code>&quot;&quot;&quot;abc&quot;&quot;&quot;</code>
+
+</li></ul>
+
+</dd>
+<dt> gettext shorthand</dt>
+<dd><p><code>_(&quot;abc&quot;)</code>
+</p>
+</dd>
+<dt> gettext/ngettext functions</dt>
+<dd><p><code>gettext</code>, <code>dgettext</code>, <code>dcgettext</code>, <code>ngettext</code>,
+<code>dngettext</code>, <code>dpgettext</code>, <code>dpgettext2</code>
+</p>
+</dd>
+<dt> textdomain</dt>
+<dd><p><code>textdomain</code> function, defined under the <code>Intl</code> namespace
+</p>
+</dd>
+<dt> bindtextdomain</dt>
+<dd><p><code>bindtextdomain</code> function, defined under the <code>Intl</code> namespace
+</p>
+</dd>
+<dt> setlocale</dt>
+<dd><p>Programmer must call <code>Intl.setlocale (LocaleCategory.ALL, &quot;&quot;)</code>
+</p>
+</dd>
+<dt> Prerequisite</dt>
+<dd><p>&mdash;
+</p>
+</dd>
+<dt> Use or emulate GNU gettext</dt>
+<dd><p>Use
+</p>
+</dd>
+<dt> Extractor</dt>
+<dd><p><code>xgettext</code>
+</p>
+</dd>
+<dt> Formatting with positions</dt>
+<dd><p>Same as for the C language.
+</p>
+</dd>
+<dt> Portability</dt>
+<dd><p>autoconf (gettext.m4) and #if ENABLE_NLS
+</p>
+</dd>
+<dt> po-mode marking</dt>
+<dd><p>yes
+</p></dd>
+</dl>
+
+
 <a name="wxWidgets"></a>
-<a name="SEC309"></a>
-<h3 class="subsection"> <a href="gettext_toc.html#TOC303">15.5.15 wxWidgets library</a> </h3>
+<a name="SEC322"></a>
+<h3 class="subsection"> <a href="gettext_toc.html#TOC316">15.5.19 wxWidgets library</a> </h3>
 
 <dl compact="compact">
 <dt> RPMs</dt>
@@ -2387,78 +2764,9 @@ according to POSIX.
 </dl>
 
 
-<a name="YCP"></a>
-<a name="SEC310"></a>
-<h3 class="subsection"> <a href="gettext_toc.html#TOC304">15.5.16 YCP - YaST2 scripting language</a> </h3>
-
-<dl compact="compact">
-<dt> RPMs</dt>
-<dd><p>libycp, libycp-devel, yast2-core, yast2-core-devel
-</p>
-</dd>
-<dt> Ubuntu packages</dt>
-<dd><p>&mdash;
-</p>
-</dd>
-<dt> File extension</dt>
-<dd><p><code>ycp</code>
-</p>
-</dd>
-<dt> String syntax</dt>
-<dd><p><code>&quot;abc&quot;</code>
-</p>
-</dd>
-<dt> gettext shorthand</dt>
-<dd><p><code>_(&quot;abc&quot;)</code>
-</p>
-</dd>
-<dt> gettext/ngettext functions</dt>
-<dd><p><code>_()</code> with 1 or 3 arguments
-</p>
-</dd>
-<dt> textdomain</dt>
-<dd><p><code>textdomain</code> statement
-</p>
-</dd>
-<dt> bindtextdomain</dt>
-<dd><p>&mdash;
-</p>
-</dd>
-<dt> setlocale</dt>
-<dd><p>&mdash;
-</p>
-</dd>
-<dt> Prerequisite</dt>
-<dd><p>&mdash;
-</p>
-</dd>
-<dt> Use or emulate GNU gettext</dt>
-<dd><p>use
-</p>
-</dd>
-<dt> Extractor</dt>
-<dd><p><code>xgettext</code>
-</p>
-</dd>
-<dt> Formatting with positions</dt>
-<dd><p><code>sformat &quot;%2 %1&quot;</code>
-</p>
-</dd>
-<dt> Portability</dt>
-<dd><p>fully portable
-</p>
-</dd>
-<dt> po-mode marking</dt>
-<dd><p>&mdash;
-</p></dd>
-</dl>
-
-<p>An example is available in the &lsquo;<tt>examples</tt>&rsquo; directory: <code>hello-ycp</code>.
-</p>
-
 <a name="Tcl"></a>
-<a name="SEC311"></a>
-<h3 class="subsection"> <a href="gettext_toc.html#TOC305">15.5.17 Tcl - Tk's scripting language</a> </h3>
+<a name="SEC323"></a>
+<h3 class="subsection"> <a href="gettext_toc.html#TOC317">15.5.20 Tcl - Tk's scripting language</a> </h3>
 
 <dl compact="compact">
 <dt> RPMs</dt>
@@ -2539,8 +2847,8 @@ argument is given.
 </p>
 
 <a name="Perl"></a>
-<a name="SEC312"></a>
-<h3 class="subsection"> <a href="gettext_toc.html#TOC306">15.5.18 Perl</a> </h3>
+<a name="SEC324"></a>
+<h3 class="subsection"> <a href="gettext_toc.html#TOC318">15.5.21 Perl</a> </h3>
 
 <dl compact="compact">
 <dt> RPMs</dt>
@@ -2653,7 +2961,7 @@ package is not installed on the target system.
 
 <p>An example is available in the &lsquo;<tt>examples</tt>&rsquo; directory: <code>hello-perl</code>.
 </p>
-<a name="IDX1105"></a>
+<a name="IDX1153"></a>
 
 <p>The <code>xgettext</code> parser backend for Perl differs significantly from
 the parser backends for other programming languages, just as Perl
@@ -2665,8 +2973,8 @@ worst probably being its imperfectness.
 
 
 <a name="General-Problems"></a>
-<a name="SEC313"></a>
-<h4 class="subsubsection"> <a href="gettext_toc.html#TOC307">15.5.18.1 General Problems Parsing Perl Code</a> </h4>
+<a name="SEC325"></a>
+<h4 class="subsubsection"> <a href="gettext_toc.html#TOC319">15.5.21.1 General Problems Parsing Perl Code</a> </h4>
 
 <p>It is often heard that only Perl can parse Perl.  This is not true.
 Perl cannot be <em>parsed</em> at all, it can only be <em>executed</em>.
@@ -2815,8 +3123,8 @@ about such constructs.
 </p>
 
 <a name="Default-Keywords"></a>
-<a name="SEC314"></a>
-<h4 class="subsubsection"> <a href="gettext_toc.html#TOC308">15.5.18.2 Which keywords will xgettext look for?</a> </h4>
+<a name="SEC326"></a>
+<h4 class="subsubsection"> <a href="gettext_toc.html#TOC320">15.5.21.2 Which keywords will xgettext look for?</a> </h4>
 
 <p>Unless you instruct <code>xgettext</code> otherwise by invoking it with one
 of the options <code>--keyword</code> or <code>-k</code>, it will recognize the
@@ -2889,8 +3197,8 @@ argument will be extracted.
 
 
 <a name="Special-Keywords"></a>
-<a name="SEC315"></a>
-<h4 class="subsubsection"> <a href="gettext_toc.html#TOC309">15.5.18.3 How to Extract Hash Keys</a> </h4>
+<a name="SEC327"></a>
+<h4 class="subsubsection"> <a href="gettext_toc.html#TOC321">15.5.21.3 How to Extract Hash Keys</a> </h4>
 
 <p>Translating messages at runtime is normally performed by looking up the
 original string in the translation database and returning the
@@ -2929,8 +3237,8 @@ are <em>not</em> allowed, regardless of the <code>use utf8</code> pragma.
 </p>
 
 <a name="Quote_002dlike-Expressions"></a>
-<a name="SEC316"></a>
-<h4 class="subsubsection"> <a href="gettext_toc.html#TOC310">15.5.18.4 What are Strings And Quote-like Expressions?</a> </h4>
+<a name="SEC328"></a>
+<h4 class="subsubsection"> <a href="gettext_toc.html#TOC322">15.5.21.4 What are Strings And Quote-like Expressions?</a> </h4>
 
 <p>Perl offers a plethora of different string constructs.  Those that can
 be used either as arguments to functions or inside braces for hash
@@ -3006,8 +3314,8 @@ quotes or has no quotes at all, the string is interpolated.
 
 
 <a name="Interpolation-I"></a>
-<a name="SEC317"></a>
-<h4 class="subsubsection"> <a href="gettext_toc.html#TOC311">15.5.18.5 Invalid Uses Of String Interpolation</a> </h4>
+<a name="SEC329"></a>
+<h4 class="subsubsection"> <a href="gettext_toc.html#TOC323">15.5.21.5 Invalid Uses Of String Interpolation</a> </h4>
 
 <p>Perl is capable of interpolating variables into strings.  This offers
 some nice features in localized programs but can also lead to
@@ -3110,8 +3418,8 @@ well write what you mean.
 </p>
 
 <a name="Interpolation-II"></a>
-<a name="SEC318"></a>
-<h4 class="subsubsection"> <a href="gettext_toc.html#TOC312">15.5.18.6 Valid Uses Of String Interpolation</a> </h4>
+<a name="SEC330"></a>
+<h4 class="subsubsection"> <a href="gettext_toc.html#TOC324">15.5.21.6 Valid Uses Of String Interpolation</a> </h4>
 
 <p>Perl is often used to generate sources for other programming languages
 or arbitrary file formats.  Web applications that output HTML code
@@ -3174,8 +3482,8 @@ s/$gettext{&quot;U. S. A.&quot;}/$gettext{&quot;U. S. A.&quot;} $gettext{&quot;(
 
 
 <a name="Parentheses"></a>
-<a name="SEC319"></a>
-<h4 class="subsubsection"> <a href="gettext_toc.html#TOC313">15.5.18.7 When To Use Parentheses</a> </h4>
+<a name="SEC331"></a>
+<h4 class="subsubsection"> <a href="gettext_toc.html#TOC325">15.5.21.7 When To Use Parentheses</a> </h4>
 
 <p>In Perl, parentheses around function arguments are mostly optional.
 <code>xgettext</code> will always assume that all
@@ -3214,8 +3522,8 @@ print dngettext 'package', (&quot;one cake&quot;, &quot;several cakes&quot;, $n)
 
 
 <a name="Long-Lines"></a>
-<a name="SEC320"></a>
-<h4 class="subsubsection"> <a href="gettext_toc.html#TOC314">15.5.18.8 How To Grok with Long Lines</a> </h4>
+<a name="SEC332"></a>
+<h4 class="subsubsection"> <a href="gettext_toc.html#TOC326">15.5.21.8 How To Grok with Long Lines</a> </h4>
 
 <p>The necessity of long messages can often lead to a cumbersome or
 unreadable coding style.  Perl has several options that may prevent
@@ -3268,8 +3576,8 @@ the resulting POT file.
 </p>
 
 <a name="Perl-Pitfalls"></a>
-<a name="SEC321"></a>
-<h4 class="subsubsection"> <a href="gettext_toc.html#TOC315">15.5.18.9 Bugs, Pitfalls, And Things That Do Not Work</a> </h4>
+<a name="SEC333"></a>
+<h4 class="subsubsection"> <a href="gettext_toc.html#TOC327">15.5.21.9 Bugs, Pitfalls, And Things That Do Not Work</a> </h4>
 
 <p>The foregoing sections should have proven that
 <code>xgettext</code> is quite smart in extracting translatable strings from
@@ -3374,8 +3682,8 @@ get executed.  Most of the time you will happily get along with
 </p>
 
 <a name="PHP"></a>
-<a name="SEC322"></a>
-<h3 class="subsection"> <a href="gettext_toc.html#TOC316">15.5.19 PHP Hypertext Preprocessor</a> </h3>
+<a name="SEC334"></a>
+<h3 class="subsection"> <a href="gettext_toc.html#TOC328">15.5.22 PHP Hypertext Preprocessor</a> </h3>
 
 <dl compact="compact">
 <dt> RPMs</dt>
@@ -3444,8 +3752,8 @@ also <code>ngettext</code>, <code>dngettext</code>, <code>dcngettext</code>
 </p>
 
 <a name="Pike"></a>
-<a name="SEC323"></a>
-<h3 class="subsection"> <a href="gettext_toc.html#TOC317">15.5.20 Pike</a> </h3>
+<a name="SEC335"></a>
+<h3 class="subsection"> <a href="gettext_toc.html#TOC329">15.5.23 Pike</a> </h3>
 
 <dl compact="compact">
 <dt> RPMs</dt>
@@ -3511,8 +3819,8 @@ also <code>ngettext</code>, <code>dngettext</code>, <code>dcngettext</code>
 
 
 <a name="GCC_002dsource"></a>
-<a name="SEC324"></a>
-<h3 class="subsection"> <a href="gettext_toc.html#TOC318">15.5.21 GNU Compiler Collection sources</a> </h3>
+<a name="SEC336"></a>
+<h3 class="subsection"> <a href="gettext_toc.html#TOC330">15.5.24 GNU Compiler Collection sources</a> </h3>
 
 <dl compact="compact">
 <dt> RPMs</dt>
@@ -3578,69 +3886,49 @@ also <code>ngettext</code>, <code>dngettext</code>, <code>dcngettext</code>
 </dl>
 
 
-<a name="Lua"></a>
-<a name="SEC325"></a>
-<h3 class="subsection"> <a href="gettext_toc.html#TOC319">15.5.22 Lua</a> </h3>
+<a name="YCP"></a>
+<a name="SEC337"></a>
+<h3 class="subsection"> <a href="gettext_toc.html#TOC331">15.5.25 YCP - YaST2 scripting language</a> </h3>
 
 <dl compact="compact">
 <dt> RPMs</dt>
-<dd><p>lua
+<dd><p>libycp, libycp-devel, yast2-core, yast2-core-devel
 </p>
 </dd>
 <dt> Ubuntu packages</dt>
-<dd><p>lua, lua-gettext
-<br>
-You need to install the <code>lua-gettext</code> package from
-<a href="https://gitlab.com/sukhichev/lua-gettext/blob/master/README.us.md">https://gitlab.com/sukhichev/lua-gettext/blob/master/README.us.md</a>.
-Debian and Ubuntu packages of it are available.  Download the
-appropriate one, and install it through
-&lsquo;<samp>sudo dpkg -i lua-gettext_0.0_amd64.deb</samp>&rsquo;.
+<dd><p>&mdash;
 </p>
 </dd>
 <dt> File extension</dt>
-<dd><p><code>lua</code>
+<dd><p><code>ycp</code>
 </p>
 </dd>
 <dt> String syntax</dt>
-<dd><ul>
-<li> <code>&quot;abc&quot;</code>
-
-</li><li> <code>'abc'</code>
-
-</li><li> <code>[[abc]]</code>
-
-</li><li> <code>[=[abc]=]</code>
-
-</li><li> <code>[==[abc]==]</code>
-
-</li><li> ...
-
-</li></ul>
-
+<dd><p><code>&quot;abc&quot;</code>
+</p>
 </dd>
 <dt> gettext shorthand</dt>
 <dd><p><code>_(&quot;abc&quot;)</code>
 </p>
 </dd>
 <dt> gettext/ngettext functions</dt>
-<dd><p><code>gettext.gettext</code>, <code>gettext.dgettext</code>, <code>gettext.dcgettext</code>,
-<code>gettext.ngettext</code>, <code>gettext.dngettext</code>, <code>gettext.dcngettext</code>
+<dd><p><code>_()</code> with 1 or 3 arguments
 </p>
 </dd>
 <dt> textdomain</dt>
-<dd><p><code>textdomain</code> function
+<dd><p><code>textdomain</code> statement
 </p>
 </dd>
 <dt> bindtextdomain</dt>
-<dd><p><code>bindtextdomain</code> function
+<dd><p>&mdash;
 </p>
 </dd>
 <dt> setlocale</dt>
-<dd><p>automatic
+<dd><p>&mdash;
 </p>
 </dd>
 <dt> Prerequisite</dt>
-<dd><p><code>require 'gettext'</code> or running lua interpreter with <code>-l gettext</code> option
+<dd><p>&mdash;
 </p>
 </dd>
 <dt> Use or emulate GNU gettext</dt>
@@ -3652,11 +3940,11 @@ appropriate one, and install it through
 </p>
 </dd>
 <dt> Formatting with positions</dt>
-<dd><p>&mdash;
+<dd><p><code>sformat &quot;%2 %1&quot;</code>
 </p>
 </dd>
 <dt> Portability</dt>
-<dd><p>On platforms without gettext, the functions are not available.
+<dd><p>fully portable
 </p>
 </dd>
 <dt> po-mode marking</dt>
@@ -3664,159 +3952,13 @@ appropriate one, and install it through
 </p></dd>
 </dl>
 
-
-<a name="JavaScript"></a>
-<a name="SEC326"></a>
-<h3 class="subsection"> <a href="gettext_toc.html#TOC320">15.5.23 JavaScript</a> </h3>
-
-<dl compact="compact">
-<dt> RPMs</dt>
-<dd><p>js
+<p>An example is available in the &lsquo;<tt>examples</tt>&rsquo; directory: <code>hello-ycp</code>.
 </p>
-</dd>
-<dt> Ubuntu packages</dt>
-<dd><p>gjs
-</p>
-</dd>
-<dt> File extension</dt>
-<dd><p><code>js</code>
-</p>
-</dd>
-<dt> String syntax</dt>
-<dd><ul>
-<li> <code>&quot;abc&quot;</code>
-
-</li><li> <code>'abc'</code>
-
-</li><li> <code>`abc`</code>
-
-</li></ul>
-
-</dd>
-<dt> gettext shorthand</dt>
-<dd><p><code>_(&quot;abc&quot;)</code>
-</p>
-</dd>
-<dt> gettext/ngettext functions</dt>
-<dd><p><code>gettext</code>, <code>dgettext</code>, <code>dcgettext</code>, <code>ngettext</code>,
-<code>dngettext</code>
-</p>
-</dd>
-<dt> textdomain</dt>
-<dd><p><code>textdomain</code> function
-</p>
-</dd>
-<dt> bindtextdomain</dt>
-<dd><p><code>bindtextdomain</code> function
-</p>
-</dd>
-<dt> setlocale</dt>
-<dd><p>automatic
-</p>
-</dd>
-<dt> Prerequisite</dt>
-<dd><p>&mdash;
-</p>
-</dd>
-<dt> Use or emulate GNU gettext</dt>
-<dd><p>use, or emulate
-</p>
-</dd>
-<dt> Extractor</dt>
-<dd><p><code>xgettext</code>
-</p>
-</dd>
-<dt> Formatting with positions</dt>
-<dd><p>&mdash;
-</p>
-</dd>
-<dt> Portability</dt>
-<dd><p>On platforms without gettext, the functions are not available.
-</p>
-</dd>
-<dt> po-mode marking</dt>
-<dd><p>&mdash;
-</p></dd>
-</dl>
-
-
-<a name="Vala"></a>
-<a name="SEC327"></a>
-<h3 class="subsection"> <a href="gettext_toc.html#TOC321">15.5.24 Vala</a> </h3>
-
-<dl compact="compact">
-<dt> RPMs</dt>
-<dd><p>vala
-</p>
-</dd>
-<dt> Ubuntu packages</dt>
-<dd><p>valac
-</p>
-</dd>
-<dt> File extension</dt>
-<dd><p><code>vala</code>
-</p>
-</dd>
-<dt> String syntax</dt>
-<dd><ul>
-<li> <code>&quot;abc&quot;</code>
-
-</li><li> <code>&quot;&quot;&quot;abc&quot;&quot;&quot;</code>
-
-</li></ul>
-
-</dd>
-<dt> gettext shorthand</dt>
-<dd><p><code>_(&quot;abc&quot;)</code>
-</p>
-</dd>
-<dt> gettext/ngettext functions</dt>
-<dd><p><code>gettext</code>, <code>dgettext</code>, <code>dcgettext</code>, <code>ngettext</code>,
-<code>dngettext</code>, <code>dpgettext</code>, <code>dpgettext2</code>
-</p>
-</dd>
-<dt> textdomain</dt>
-<dd><p><code>textdomain</code> function, defined under the <code>Intl</code> namespace
-</p>
-</dd>
-<dt> bindtextdomain</dt>
-<dd><p><code>bindtextdomain</code> function, defined under the <code>Intl</code> namespace
-</p>
-</dd>
-<dt> setlocale</dt>
-<dd><p>Programmer must call <code>Intl.setlocale (LocaleCategory.ALL, &quot;&quot;)</code>
-</p>
-</dd>
-<dt> Prerequisite</dt>
-<dd><p>&mdash;
-</p>
-</dd>
-<dt> Use or emulate GNU gettext</dt>
-<dd><p>Use
-</p>
-</dd>
-<dt> Extractor</dt>
-<dd><p><code>xgettext</code>
-</p>
-</dd>
-<dt> Formatting with positions</dt>
-<dd><p>Same as for the C language.
-</p>
-</dd>
-<dt> Portability</dt>
-<dd><p>autoconf (gettext.m4) and #if ENABLE_NLS
-</p>
-</dd>
-<dt> po-mode marking</dt>
-<dd><p>yes
-</p></dd>
-</dl>
-
 
 
 <table cellpadding="1" cellspacing="1" border="0">
-<tr><td valign="middle" align="left">[<a href="#SEC254" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="gettext_16.html#SEC328" title="Next chapter"> &gt;&gt; </a>]</td>
+<tr><td valign="middle" align="left">[<a href="#SEC262" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
+<td valign="middle" align="left">[<a href="gettext_16.html#SEC338" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
@@ -3824,12 +3966,12 @@ appropriate one, and install it through
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left">[<a href="gettext_toc.html#SEC_Top" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="gettext_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="gettext_21.html#SEC376" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="gettext_21.html#SEC387" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="gettext_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
 <p>
  <font size="-1">
-  This document was generated by <em>Bruno Haible</em> on <em>May, 12 2019</em> using <a href="https://www.nongnu.org/texi2html/"><em>texi2html 1.78a</em></a>.
+  This document was generated by <em>Bruno Haible</em> on <em>October, 9 2022</em> using <a href="https://www.nongnu.org/texi2html/"><em>texi2html 1.78a</em></a>.
  </font>
  <br>
 

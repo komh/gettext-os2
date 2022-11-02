@@ -1,8 +1,19 @@
+/* libcroco - Library for parsing and applying CSS
+ * Copyright (C) 2006-2019 Free Software Foundation, Inc.
+ *
+ * This file is not part of the GNU gettext program, but is used with
+ * GNU gettext.
+ *
+ * The original copyright notice is as follows:
+ */
+
 /*
  * This file is part of The Croco Library
  *
+ * Copyright (C) 2003-2004 Dodji Seketeli.  All Rights Reserved.
+ *
  * This program is free software; you can redistribute it and/or
- * modify it under the terms of version 3 of the GNU General Public
+ * modify it under the terms of version 2.1 of the GNU Lesser General Public
  * License as published by the Free Software Foundation.
  *
  * This program is distributed in the hope that it will be useful,
@@ -10,13 +21,12 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA
  *
  * Author: Dodji Seketeli
- * See COPYRIGHTS file for copyrights information.
  */
 
 #include <config.h>
@@ -72,7 +82,7 @@ cr_prop_list_allocate (void)
  *Appends a property list to the current one.
  *
  *Returns the resulting prop list, or NULL if an error
- *occured
+ *occurred
  */
 CRPropList *
 cr_prop_list_append (CRPropList * a_this, CRPropList * a_to_append)
@@ -101,6 +111,7 @@ cr_prop_list_append (CRPropList * a_this, CRPropList * a_to_append)
  *@a_this: the current instance of #CRPropList
  *@a_prop: the property to consider
  *@a_decl: the declaration to consider
+ *
  *Returns the resulting property list, or NULL in case
  *of an error.
  */
@@ -158,7 +169,7 @@ cr_prop_list_prepend (CRPropList * a_this, CRPropList * a_to_prepend)
  *
  *Prepends a propertie to a list of properties 
  *
- * Returns the new property list.
+ *Returns the new property list.
  */
 CRPropList *
 cr_prop_list_prepend2 (CRPropList * a_this,
@@ -207,7 +218,7 @@ cr_prop_list_set_prop (CRPropList * a_this, CRString * a_prop)
  *otherwise.
  */
 enum CRStatus
-cr_prop_list_get_prop (CRPropList * a_this, CRString ** a_prop)
+cr_prop_list_get_prop (CRPropList const * a_this, CRString ** a_prop)
 {
         g_return_val_if_fail (a_this && PRIVATE (a_this)
                               && a_prop, CR_BAD_PARAM_ERROR);
@@ -220,6 +231,7 @@ cr_prop_list_get_prop (CRPropList * a_this, CRString ** a_prop)
  * cr_prop_list_set_decl:
  * @a_this: the current instance of #CRPropList
  * @a_decl: the new property value.
+ *
  * Returns CR_OK upon successful completion, an error code otherwise.
  */
 enum CRStatus
@@ -236,10 +248,11 @@ cr_prop_list_set_decl (CRPropList * a_this, CRDeclaration * a_decl)
  * cr_prop_list_get_decl:
  * @a_this: the current instance of #CRPropList
  * @a_decl: out parameter. The property value
+ *
  * Returns CR_OK upon successful completion.
  */
 enum CRStatus
-cr_prop_list_get_decl (CRPropList * a_this, CRDeclaration ** a_decl)
+cr_prop_list_get_decl (CRPropList const * a_this, CRDeclaration ** a_decl)
 {
         g_return_val_if_fail (a_this && PRIVATE (a_this)
                               && a_decl, CR_BAD_PARAM_ERROR);
@@ -371,7 +384,7 @@ cr_prop_list_unlink (CRPropList * a_this, CRPropList * a_pair)
 }
 
 /**
- * cr_prop_list_detroy:
+ * cr_prop_list_destroy:
  * @a_this: the current instance of #CRPropList
  */
 void

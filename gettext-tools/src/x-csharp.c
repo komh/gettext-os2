@@ -1,5 +1,5 @@
 /* xgettext C# backend.
-   Copyright (C) 2003-2009, 2011, 2014, 2018-2019 Free Software Foundation, Inc.
+   Copyright (C) 2003-2009, 2011, 2014, 2018-2020 Free Software Foundation, Inc.
    Written by Bruno Haible <bruno@clisp.org>, 2003.
 
    This program is free software: you can redistribute it and/or modify
@@ -28,6 +28,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "attribute.h"
 #include "message.h"
 #include "rc-str-list.h"
 #include "xgettext.h"
@@ -44,7 +45,7 @@
 #include "xalloc.h"
 #include "xerror.h"
 #include "xvasprintf.h"
-#include "hash.h"
+#include "mem-hash-map.h"
 #include "po-charset.h"
 #include "unistr.h"
 #include "gettext.h"
@@ -620,7 +621,7 @@ phase4_getc ()
                   comment_line_end (2);
                   break;
                 }
-              /* FALLTHROUGH */
+              FALLTHROUGH;
 
             default:
               last_was_star = false;
@@ -1496,7 +1497,7 @@ phase6_get (token_ty *tp)
         case UNL:
           if (last_non_comment_line > last_comment_line)
             savable_comment_reset ();
-          /* FALLTHROUGH */
+          FALLTHROUGH;
         case ' ':
         case '\t':
         case '\f':
@@ -1536,7 +1537,7 @@ phase6_get (token_ty *tp)
               tp->type = token_type_dot;
               return;
             }
-          /* FALLTHROUGH */
+          FALLTHROUGH;
 
         case '0': case '1': case '2': case '3': case '4':
         case '5': case '6': case '7': case '8': case '9':
@@ -1651,7 +1652,7 @@ phase6_get (token_ty *tp)
               tp->type = token_type_string_literal;
               return;
             }
-          /* FALLTHROUGH, so that @identifier is recognized.  */
+          FALLTHROUGH; /* so that @identifier is recognized.  */
 
         default:
           if (c == '\\')
@@ -2009,8 +2010,9 @@ extract_parenthesized (message_list_ty *mlp, token_type_ty terminator,
               {
                 char *string = mixed_string_contents (token.mixed_string);
                 mixed_string_free (token.mixed_string);
-                remember_a_message (mlp, NULL, string, true, inner_context,
-                                    &pos, NULL, token.comment, true);
+                remember_a_message (mlp, NULL, string, true, false,
+                                    inner_context, &pos,
+                                    NULL, token.comment, true);
               }
             else
               arglist_parser_remember (argparser, arg, token.mixed_string,
@@ -2055,11 +2057,22 @@ extract_csharp (FILE *f,
   logical_file_name = xstrdup (logical_filename);
   line_number = 1;
 
+  phase1_pushback_length = 0;
+
   lexical_context = lc_outside;
 
+  phase2_pushback_length = 0;
+
   logical_line_number = 1;
+
+  phase3_pushback_length = 0;
+
   last_comment_line = -1;
   last_non_comment_line = -1;
+
+  phase5_pushback_length = 0;
+  phase6_pushback_length = 0;
+  phase7_pushback_length = 0;
 
   flag_context_list_table = flag_table;
 

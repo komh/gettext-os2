@@ -1,7 +1,18 @@
-/* -*- Mode: C; indent-tabs-mode: ni; c-basic-offset: 8 -*- */
+/* -*- Mode: C; indent-tabs-mode: nil; c-basic-offset: 8 -*- */
+
+/* libcroco - Library for parsing and applying CSS
+ * Copyright (C) 2006-2019 Free Software Foundation, Inc.
+ *
+ * This file is not part of the GNU gettext program, but is used with
+ * GNU gettext.
+ *
+ * The original copyright notice is as follows:
+ */
 
 /*
  * This file is part of The Croco Library
+ *
+ * Copyright (C) 2003-2004 Dodji Seketeli.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of version 2.1 of the GNU Lesser General Public
@@ -19,7 +30,6 @@
  *
  *
  * Author: Dodji Seketeli
- * See COPYRIGHTS file for copyright information.
  */
 
 #ifndef __CR_SELECTOR_H__
@@ -80,9 +90,9 @@ CRSelector* cr_selector_append_simple_sel (CRSelector *a_this,
 
 CRSelector* cr_selector_prepend (CRSelector *a_this, CRSelector *a_new) ;
 
-guchar * cr_selector_to_string (CRSelector *a_this) ;
+guchar * cr_selector_to_string (CRSelector const *a_this) ;
 
-void cr_selector_dump (CRSelector *a_this, FILE *a_fp) ;
+void cr_selector_dump (CRSelector const *a_this, FILE *a_fp) ;
 
 void cr_selector_ref (CRSelector *a_this) ;
 

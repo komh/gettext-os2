@@ -1,5 +1,5 @@
 ## Makefile for the gettext-tools/src subdirectory of GNU gettext
-## Copyright (C) 1995-1998, 2000-2019 Free Software Foundation, Inc.
+## Copyright (C) 1995-1998, 2000-2020 Free Software Foundation, Inc.
 ##
 ## This program is free software: you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -35,32 +35,52 @@ noinst_PROGRAMS = hostname urlget cldr-plurals
 
 lib_LTLIBRARIES = libgettextsrc.la
 
-noinst_HEADERS = pos.h message.h po-error.h po-xerror.h po-gram.h po-charset.h \
-po-lex.h open-catalog.h read-catalog-abstract.h read-catalog.h \
-read-po.h read-properties.h read-stringtable.h \
-str-list.h \
-write-catalog.h write-po.h write-properties.h write-stringtable.h \
-dir-list.h file-list.h po-gram-gen.h po-gram-gen2.h cldr-plural.h \
-cldr-plural-exp.h locating-rule.h its.h search-path.h \
-msgl-charset.h msgl-equal.h msgl-iconv.h msgl-ascii.h msgl-cat.h msgl-header.h \
-msgl-english.h msgl-check.h msgl-fsearch.h msgfmt.h msgunfmt.h \
-plural-count.h plural-eval.h plural-distrib.h \
-read-mo.h write-mo.h \
-read-java.h write-java.h \
-read-csharp.h write-csharp.h \
-read-resources.h write-resources.h \
-read-tcl.h write-tcl.h \
-write-qt.h \
-read-desktop.h write-desktop.h \
-write-xml.h \
-po-time.h plural-table.h lang-table.h format.h filters.h \
-xgettext.h \
-rc-str-list.h xg-pos.h xg-encoding.h xg-mixed-string.h xg-arglist-context.h \
-xg-arglist-callshape.h xg-arglist-parser.h xg-message.h \
-x-c.h x-po.h x-sh.h x-python.h x-lisp.h x-elisp.h x-librep.h \
-x-scheme.h x-smalltalk.h x-java.h x-properties.h x-csharp.h x-awk.h x-ycp.h \
-x-tcl.h x-perl.h x-php.h x-stringtable.h x-rst.h x-glade.h x-lua.h \
-x-javascript.h x-vala.h x-gsettings.h x-desktop.h x-appdata.h
+noinst_HEADERS = \
+  pos.h message.h po-error.h po-xerror.h po-gram.h po-charset.h \
+  po-lex.h open-catalog.h read-catalog-abstract.h read-catalog.h \
+  read-po.h read-properties.h read-stringtable.h \
+  str-list.h \
+  write-catalog.h write-po.h write-properties.h write-stringtable.h \
+  dir-list.h file-list.h po-gram-gen.h po-gram-gen2.h cldr-plural.h \
+  cldr-plural-exp.h locating-rule.h its.h search-path.h \
+  msgl-charset.h msgl-equal.h msgl-iconv.h msgl-ascii.h msgl-cat.h msgl-header.h \
+  msgl-english.h msgl-check.h msgl-fsearch.h msgfmt.h msgunfmt.h \
+  plural-count.h plural-eval.h plural-distrib.h \
+  read-mo.h write-mo.h \
+  read-java.h write-java.h \
+  read-csharp.h write-csharp.h \
+  read-resources.h write-resources.h \
+  read-tcl.h write-tcl.h \
+  write-qt.h \
+  read-desktop.h write-desktop.h \
+  write-xml.h \
+  po-time.h plural-table.h lang-table.h format.h filters.h \
+  xgettext.h \
+  rc-str-list.h xg-pos.h xg-encoding.h xg-mixed-string.h xg-arglist-context.h \
+  xg-arglist-callshape.h xg-arglist-parser.h xg-message.h \
+  x-po.h x-properties.h x-stringtable.h \
+  x-c.h \
+  x-python.h \
+  x-java.h \
+  x-csharp.h \
+  x-javascript.h \
+  x-scheme.h \
+  x-lisp.h \
+  x-elisp.h \
+  x-librep.h \
+  x-ruby.h \
+  x-sh.h \
+  x-awk.h \
+  x-lua.h \
+  x-smalltalk.h \
+  x-vala.h \
+  x-tcl.h \
+  x-perl.h \
+  x-php.h \
+  x-ycp.h \
+  x-rst.h \
+  x-desktop.h \
+  x-glade.h x-gsettings.h x-appdata.h
 
 EXTRA_DIST += FILES project-id
 
@@ -92,7 +112,7 @@ LDADD = ../gnulib-lib/libgettextlib.la $(LTLIBUNISTRING) @LTLIBINTL@ $(WOE32_LDA
 OTHERPROGDEPENDENCIES = ../gnulib-lib/libgettextlib.la $(WOE32_LDADD)
 
 SED = sed
-YACC = @YACC@ -d
+BISON = @TOOLS_BISON@
 JAR = @JAR@
 JAVACOMP = $(SHELL) ../javacomp.sh
 CSHARPCOMP = $(SHELL) ../csharpcomp.sh
@@ -121,31 +141,33 @@ endif
 FORMAT_SOURCE += \
   format-invalid.h \
   format-c.c format-c-parse.h \
-  format-sh.c \
   format-python.c \
   format-python-brace.c \
+  format-java.c \
+  format-java-printf.c \
+  format-csharp.c \
+  format-javascript.c \
+  format-scheme.c \
   format-lisp.c \
   format-elisp.c \
   format-librep.c \
-  format-scheme.c \
-  format-java.c \
-  format-csharp.c \
+  format-ruby.c \
+  format-sh.c \
   format-awk.c \
+  format-lua.c \
   format-pascal.c \
-  format-ycp.c \
-  format-tcl.c \
-  format-perl.c \
-  format-perl-brace.c \
-  format-php.c \
-  format-gcc-internal.c \
-  format-gfc-internal.c \
+  format-smalltalk.c \
   format-qt.c \
   format-qt-plural.c \
   format-kde.c \
   format-kde-kuit.c \
   format-boost.c \
-  format-lua.c \
-  format-javascript.c
+  format-tcl.c \
+  format-perl.c \
+  format-perl-brace.c \
+  format-php.c \
+  format-gcc-internal.c \
+  format-gfc-internal.c
 
 # libgettextsrc contains all code that is needed by at least two programs.
 libgettextsrc_la_SOURCES = \
@@ -176,7 +198,8 @@ endif
 msgmerge_SOURCES += msgl-fsearch.c lang-table.c plural-count.c
 msgunfmt_SOURCES = msgunfmt.c
 msgunfmt_SOURCES += \
-  read-mo.c read-java.c read-csharp.c read-resources.c read-tcl.c
+  read-mo.c read-java.c read-csharp.c read-resources.c read-tcl.c \
+  ../../gettext-runtime/intl/hash-string.c
 if !WOE32DLL
 xgettext_SOURCES = xgettext.c
 else
@@ -188,9 +211,27 @@ xgettext_SOURCES += \
   xg-mixed-string.c \
   xg-arglist-context.c xg-arglist-callshape.c xg-arglist-parser.c \
   xg-message.c \
-  x-c.c x-po.c x-sh.c x-python.c x-lisp.c x-elisp.c x-librep.c x-scheme.c \
-  x-smalltalk.c x-java.c x-csharp.c x-awk.c x-ycp.c x-tcl.c x-perl.c x-php.c \
-  x-rst.c x-lua.c x-javascript.c x-vala.c \
+  x-po.c \
+  x-c.c \
+  x-python.c \
+  x-java.c \
+  x-csharp.c \
+  x-javascript.c \
+  x-scheme.c \
+  x-lisp.c \
+  x-elisp.c \
+  x-librep.c \
+  x-ruby.c \
+  x-sh.c ../../gettext-runtime/src/escapes.h \
+  x-awk.c \
+  x-lua.c \
+  x-smalltalk.c \
+  x-vala.c \
+  x-tcl.c \
+  x-perl.c \
+  x-php.c \
+  x-ycp.c \
+  x-rst.c \
   x-desktop.c
 if !WOE32DLL
 msgattrib_SOURCES = msgattrib.c
@@ -250,6 +291,9 @@ cldr_plurals_SOURCES = cldr-plural.y cldr-plural-exp.c cldr-plurals.c
 cldr_plurals_CFLAGS = $(AM_CFLAGS) $(INCXML)
 cldr_plurals_LDADD = libgettextsrc.la $(LDADD)
 
+if USE_INSTALLED_LIBTEXTSTYLE
+LT_LIBTEXTSTYLE = @LTLIBTEXTSTYLE@
+else
 # How to get the include files of libtextstyle.
 textstyle.h textstyle/stdbool.h textstyle/version.h textstyle/woe32dll.h:
 	here=`pwd`; \
@@ -257,6 +301,9 @@ textstyle.h textstyle/stdbool.h textstyle/version.h textstyle/woe32dll.h:
 	  $(MAKE) install-nobase_includeHEADERS install-nobase_nodist_includeHEADERS includedir="$$here"
 BUILT_SOURCES    += textstyle.h textstyle/stdbool.h textstyle/version.h textstyle/woe32dll.h
 MOSTLYCLEANFILES += textstyle.h textstyle/stdbool.h textstyle/version.h textstyle/woe32dll.h
+# Where to find the built libtextstyle library.
+LT_LIBTEXTSTYLE = ../../libtextstyle/lib/libtextstyle.la
+endif
 
 # How to build libgettextsrc.la.
 # Need ../gnulib-lib/libgettextlib.la.
@@ -268,7 +315,7 @@ MOSTLYCLEANFILES += textstyle.h textstyle/stdbool.h textstyle/version.h textstyl
 # use iconv().
 libgettextsrc_la_LDFLAGS = \
   -release @VERSION@ \
-  ../gnulib-lib/libgettextlib.la $(LTLIBUNISTRING) ../../libtextstyle/lib/libtextstyle.la @LTLIBINTL@ @LTLIBICONV@ -lc -no-undefined
+  ../gnulib-lib/libgettextlib.la $(LTLIBUNISTRING) $(LT_LIBTEXTSTYLE) @LTLIBINTL@ @LTLIBICONV@ -lc -no-undefined
 
 # OS/2 does not support a DLL name longer than 8 characters.
 if OS2
@@ -489,26 +536,51 @@ endif
 #     has been moved from the build directory to the source directory. This
 #     leads to error if 'lcov' is used later.
 # Therefore we override this rule.
+#
+# Also, the ylwrap script is not usable when both a .c and a .h file are to be
+# generated from the .y file. The reason is that this script does nothing in a
+# situation where the .h file is older than the .y file and the .y file is older
+# than the .c file. (This is intentional, see the comment "Do not overwrite
+# unchanged header files to avoid useless recompilations.") The effect is that
+# during "make dist", a tarball is created where the .h file is older than the
+# .y file. This has two negative consequences:
+#   - For a user who builds an unmodified tarball, bison will be invoked.
+#   - During "make distcheck" the rule
+#       FILE.c FILE.h: FILE.y
+#     always fires and, since $(srcdir) is read-only, the commands which update
+#     (or at least touch) $(srcdir)/FILE.c and $(srcdir)/FILE.h fail.
+# Therefore we don't use ylwrap.
+#
+# Note: There is no point in using Bison's --output option, since we need to
+# postprocess the generated files and we don't want that unpostprocessed files
+# remain in place if the user interrupts the build through Ctrl-C.
 
 po-gram-gen.c po-gram-gen.h: po-gram-gen.y
-	$(AM_V_GEN)$(SHELL) $(YLWRAP) $(srcdir)/po-gram-gen.y \
-	                              y.tab.c po-gram-gen.c \
-	                              y.tab.h po-gram-gen.h \
-	                              y.output po-gram-gen.output \
-	                              -- $(YACC) $(YFLAGS) $(AM_YFLAGS) \
-	&& sed -e 's|".*/po-gram-gen.y"|"po-gram-gen.y"|' < po-gram-gen.c > po-gram-gen.c-tmp \
-	&& rm -f po-gram-gen.c \
-	&& mv po-gram-gen.c-tmp $(srcdir)/po-gram-gen.c \
-	&& { test '$(srcdir)' = . || mv po-gram-gen.h $(srcdir)/po-gram-gen.h; }
+	$(AM_V_YACC)$(BISON) -d $(YFLAGS) $(AM_YFLAGS) $(srcdir)/po-gram-gen.y \
+	&& test ':' = '$(BISON)' || { \
+	  sed -e 's|".*/po-gram-gen.y"|"po-gram-gen.y"|' \
+	      -e 's|"po-gram-gen\.tab\.c"|"po-gram-gen.c"|' \
+	      -e 's|"po-gram-gen\.tab\.h"|"po-gram-gen.h"|' \
+	      < po-gram-gen.tab.c > po-gram-gen.c-tmp \
+	  && sed -e 's|".*/po-gram-gen.y"|"po-gram-gen.y"|' \
+	         -e 's|"po-gram-gen\.tab\.h"|"po-gram-gen.h"|' \
+	         < po-gram-gen.tab.h > po-gram-gen.h-tmp \
+	  && rm -f po-gram-gen.tab.c po-gram-gen.tab.h \
+	  && mv po-gram-gen.c-tmp $(srcdir)/po-gram-gen.c \
+	  && mv po-gram-gen.h-tmp $(srcdir)/po-gram-gen.h; \
+	}
 BUILT_SOURCES += po-gram-gen.c po-gram-gen.h
-MOSTLYCLEANFILES += po-gram-gen.c-tmp
+MOSTLYCLEANFILES += po-gram-gen.tab.c po-gram-gen.tab.h po-gram-gen.c-tmp po-gram-gen.h-tmp
 MAINTAINERCLEANFILES += po-gram-gen.c po-gram-gen.h
 EXTRA_DIST += po-gram-gen.c po-gram-gen.h
+
 
 # po-gram-gen2.h is generated from po-gram-gen.h and is also distributed in the
 # tarballs (just for convenience).
 po-gram-gen2.h: po-gram-gen.h
-	$(SED) -e 's/yy/po_gram_/g' -e 's/extern /extern DLL_VARIABLE /' $(srcdir)/po-gram-gen.h > po-gram-gen2.h-tmp \
+	$(SED) -e 's/yy/po_gram_/g' -e 's/extern /extern DLL_VARIABLE /' \
+	       -e 's|"po-gram-gen\.h"|"po-gram-gen2.h"|' \
+	       < $(srcdir)/po-gram-gen.h > po-gram-gen2.h-tmp \
 	&& mv po-gram-gen2.h-tmp $(srcdir)/po-gram-gen2.h
 BUILT_SOURCES += po-gram-gen2.h
 MOSTLYCLEANFILES += po-gram-gen2.h-tmp
@@ -518,17 +590,21 @@ EXTRA_DIST += po-gram-gen2.h
 po-lex.o po-lex.lo: po-gram-gen2.h
 
 cldr-plural.c cldr-plural.h: cldr-plural.y
-	$(AM_V_GEN)$(SHELL) $(YLWRAP) $(srcdir)/cldr-plural.y \
-	                              y.tab.c cldr-plural.c \
-	                              y.tab.h cldr-plural.h \
-	                              y.output cldr-plural.output \
-	                              -- $(YACC) $(YFLAGS) $(AM_YFLAGS) \
-	&& sed -e 's|".*/cldr-plural.y"|"cldr-plural.y"|' < cldr-plural.c > cldr-plural.c-tmp \
-	&& rm -f cldr-plural.c \
-	&& mv cldr-plural.c-tmp $(srcdir)/cldr-plural.c \
-	&& { test '$(srcdir)' = . || mv cldr-plural.h $(srcdir)/cldr-plural.h; }
+	$(AM_V_YACC)$(BISON) -d $(YFLAGS) $(AM_YFLAGS) $(srcdir)/cldr-plural.y \
+	&& test ':' = '$(BISON)' || { \
+	  sed -e 's|".*/cldr-plural.y"|"cldr-plural.y"|' \
+	      -e 's|"cldr-plural\.tab\.c"|"cldr-plural.c"|' \
+	      -e 's|"cldr-plural\.tab\.h"|"cldr-plural.h"|' \
+	      < cldr-plural.tab.c > cldr-plural.c-tmp \
+	  && sed -e 's|".*/cldr-plural.y"|"cldr-plural.y"|' \
+	         -e 's|"cldr-plural\.tab\.h"|"cldr-plural.h"|' \
+	         < cldr-plural.tab.h > cldr-plural.h-tmp \
+	  && rm -f cldr-plural.tab.c cldr-plural.tab.h \
+	  && mv cldr-plural.c-tmp $(srcdir)/cldr-plural.c \
+	  && mv cldr-plural.h-tmp $(srcdir)/cldr-plural.h; \
+	}
 BUILT_SOURCES += cldr-plural.c cldr-plural.h
-MOSTLYCLEANFILES += cldr-plural.c-tmp
+MOSTLYCLEANFILES += cldr-plural.tab.c cldr-plural.tab.h cldr-plural.c-tmp cldr-plural.h-tmp
 MAINTAINERCLEANFILES += cldr-plural.c cldr-plural.h
 EXTRA_DIST += cldr-plural.c cldr-plural.h
 
@@ -610,8 +686,13 @@ all-csharp-no:
 msgfmt.net.exe: msgfmt.cs
 	$(CSHARPCOMP) $(CSHARPCOMPFLAGS) -o $@ $(srcdir)/msgfmt.cs
 
+if USE_INSTALLED_CSHARP_DLL
+CSHARP_DLL_DIR = $(libdir)
+else
+CSHARP_DLL_DIR = ../../gettext-runtime/intl-csharp
+endif
 msgunfmt.net.exe: msgunfmt.cs
-	$(CSHARPCOMP) $(CSHARPCOMPFLAGS) -o $@ -L ../../gettext-runtime/intl-csharp -l GNU.Gettext $(srcdir)/msgunfmt.cs
+	$(CSHARPCOMP) $(CSHARPCOMPFLAGS) -o $@ -L '$(CSHARP_DLL_DIR)' -l GNU.Gettext $(srcdir)/msgunfmt.cs
 
 install-exec-local: install-exec-csharp-@BUILDCSHARP@
 install-exec-csharp-yes: all-csharp-yes

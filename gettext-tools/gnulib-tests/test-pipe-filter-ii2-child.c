@@ -1,6 +1,6 @@
 /* Child program invoked by test-pipe-filter-ii2-main.
 
-   Copyright (C) 2009-2019 Free Software Foundation, Inc.
+   Copyright (C) 2009-2022 Free Software Foundation, Inc.
    Written by Paolo Bonzini <bonzini@gnu.org>, 2009.
 
    This program is free software: you can redistribute it and/or modify
@@ -20,10 +20,15 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
+
+#include "binary-io.h"
 
 int
 main ()
 {
+  set_binary_mode (STDOUT_FILENO, O_BINARY);
+
   /* Repeatedly: Read two integers i and j, then output all integers in the
      range i..j, one per line.  */
   for (;;)

@@ -1,5 +1,14 @@
 /* -*- Mode: C; indent-tabs-mode: nil; c-basic-offset: 8 -*- */
 
+/* libcroco - Library for parsing and applying CSS
+ * Copyright (C) 2006-2019 Free Software Foundation, Inc.
+ *
+ * This file is not part of the GNU gettext program, but is used with
+ * GNU gettext.
+ *
+ * The original copyright notice is as follows:
+ */
+
 /*
  * This file is part of The Croco Library
  *
@@ -21,7 +30,7 @@
  */
 
 /*
- *$Id: cr-enc-handler.h,v 1.6 2005/05/10 19:48:56 dodji Exp $
+ *$Id$
  */
 
 /**

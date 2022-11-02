@@ -1,5 +1,5 @@
 /* xgettext Perl backend.
-   Copyright (C) 2002-2010, 2013, 2016, 2018-2019 Free Software Foundation, Inc.
+   Copyright (C) 2002-2010, 2013, 2016, 2018-2020 Free Software Foundation, Inc.
 
    This file was written by Guido Flohr <guido@imperia.net>, 2002-2010.
 
@@ -29,6 +29,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "attribute.h"
 #include "message.h"
 #include "rc-str-list.h"
 #include "xgettext.h"
@@ -218,15 +219,14 @@ static FILE *fp;
 
 /* The current line buffer.  */
 static char *linebuf;
+/* The size of the input buffer.  */
+static size_t linebuf_size;
 
 /* The size of the current line.  */
 static int linesize;
 
 /* The position in the current line.  */
 static int linepos;
-
-/* The size of the input buffer.  */
-static size_t linebuf_size;
 
 /* Number of lines eaten for here documents.  */
 static int eaten_here;
@@ -985,7 +985,7 @@ extract_quotelike_pass3 (token_ty *tp, int error_level)
                   buffer[bufpos++] = '\\';
                   break;
                 }
-              /* FALLTHROUGH */
+              FALLTHROUGH;
             default:
               buffer[bufpos++] = *crs++;
               break;
@@ -1590,8 +1590,8 @@ extract_variable (message_list_ty *mlp, token_ty *tp, int first)
                         pos.file_name = logical_file_name;
 
                         remember_a_message (mlp, NULL, xstrdup (t1->string),
-                                            true, context, &pos, NULL,
-                                            savable_comment, true);
+                                            true, false, context, &pos,
+                                            NULL, savable_comment, true);
                         free_token (t2);
                         free_token (t1);
                       }
@@ -1667,7 +1667,7 @@ extract_variable (message_list_ty *mlp, token_ty *tp, int first)
                  treat incorrectly here, is a syntax error.  */
               phase1_ungetc (c2);
             }
-          /* FALLTHROUGH */
+          FALLTHROUGH;
 
         default:
 #if DEBUG_PERL
@@ -2008,7 +2008,7 @@ interpolate_keywords (message_list_ty *mlp, const char *string, int lineno)
               break;
             }
           /* Must be right brace.  */
-          /* FALLTHROUGH */
+          FALLTHROUGH;
         case wait_rbrace:
           switch (c)
             {
@@ -2018,9 +2018,9 @@ interpolate_keywords (message_list_ty *mlp, const char *string, int lineno)
               buffer[bufpos] = '\0';
               token.string = xstrdup (buffer);
               extract_quotelike_pass3 (&token, EXIT_FAILURE);
-              remember_a_message (mlp, NULL, token.string, true, context, &pos,
-                                  NULL, savable_comment, true);
-              /* FALLTHROUGH */
+              remember_a_message (mlp, NULL, token.string, true, false, context,
+                                  &pos, NULL, savable_comment, true);
+              FALLTHROUGH;
             default:
               context = null_context;
               state = initial;
@@ -2145,7 +2145,7 @@ x_perl_prelex (message_list_ty *mlp, token_ty *tp)
         case '\n':
           if (last_non_comment_line > last_comment_line)
             savable_comment_reset ();
-          /* FALLTHROUGH */
+          FALLTHROUGH;
         case '\t':
         case ' ':
           /* Ignore whitespace.  */
@@ -2182,7 +2182,7 @@ x_perl_prelex (message_list_ty *mlp, token_ty *tp)
                 return;
               }
           }
-          /* FALLTHROUGH */
+          FALLTHROUGH;
         case 'A': case 'B': case 'C': case 'D': case 'E': case 'F':
         case 'G': case 'H': case 'I': case 'J': case 'K': case 'L':
         case 'M': case 'N': case 'O': case 'P': case 'Q': case 'R':
@@ -2616,7 +2616,7 @@ x_perl_prelex (message_list_ty *mlp, token_ty *tp)
               if (c != '/')
                 phase1_ungetc (c);
             }
-          /* FALLTHROUGH */
+          FALLTHROUGH;
 
         default:
           /* We could carefully recognize each of the 2 and 3 character
@@ -3304,8 +3304,8 @@ extract_balanced (message_list_ty *mlp,
 
               pos.file_name = logical_file_name;
               pos.line_number = tp->line_number;
-              remember_a_message (mlp, NULL, string, true, inner_context, &pos,
-                                  NULL, tp->comment, true);
+              remember_a_message (mlp, NULL, string, true, false, inner_context,
+                                  &pos, NULL, tp->comment, true);
             }
           else if (!skip_until_comma)
             {
@@ -3553,23 +3553,24 @@ extract_perl (FILE *f, const char *real_filename, const char *logical_filename,
   logical_file_name = xstrdup (logical_filename);
   line_number = 0;
 
-  last_comment_line = -1;
-  last_non_comment_line = -1;
-
-  flag_context_list_table = flag_table;
-
-  init_keywords ();
-
-  token_stack.items = NULL;
-  token_stack.nitems = 0;
-  token_stack.nitems_max = 0;
   linesize = 0;
   linepos = 0;
   eaten_here = 0;
   end_of_file = false;
 
+  last_comment_line = -1;
+  last_non_comment_line = -1;
+
+  flag_context_list_table = flag_table;
+
   /* Safe assumption.  */
   last_token_type = token_type_semicolon;
+
+  token_stack.items = NULL;
+  token_stack.nitems = 0;
+  token_stack.nitems_max = 0;
+
+  init_keywords ();
 
   /* Eat tokens until eof is seen.  When extract_balanced returns
      due to an unbalanced closing brace, just restart it.  */

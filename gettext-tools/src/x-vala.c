@@ -1,5 +1,5 @@
 /* xgettext Vala backend.
-   Copyright (C) 2013-2014, 2018-2019 Free Software Foundation, Inc.
+   Copyright (C) 2013-2014, 2018-2020 Free Software Foundation, Inc.
 
    This file was written by Daiki Ueno <ueno@gnu.org>, 2013.
 
@@ -30,6 +30,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "attribute.h"
 #include "message.h"
 #include "rc-str-list.h"
 #include "xgettext.h"
@@ -44,7 +45,7 @@
 #include "error-progname.h"
 #include "xalloc.h"
 #include "xvasprintf.h"
-#include "hash.h"
+#include "mem-hash-map.h"
 #include "po-charset.h"
 #include "gettext.h"
 
@@ -296,7 +297,7 @@ phase2_getc ()
                   comment_line_end (2);
                   break;
                 }
-              /* FALLTHROUGH */
+              FALLTHROUGH;
 
             default:
               last_was_star = false;
@@ -591,7 +592,7 @@ static token_ty phase3_pushback[2];
 static int phase3_pushback_length;
 
 
-static token_type_ty last_token_type = token_type_other;
+static token_type_ty last_token_type;
 
 static void
 phase3_scan_regex ()
@@ -670,7 +671,7 @@ phase3_get (token_ty *tp)
         case '\n':
           if (last_non_comment_line > last_comment_line)
             savable_comment_reset ();
-          /* FALLTHROUGH */
+          FALLTHROUGH;
         case ' ':
         case '\f':
         case '\t':
@@ -748,7 +749,7 @@ phase3_get (token_ty *tp)
               c = '.';
               break;
             }
-          /* FALLTHROUGH */
+          FALLTHROUGH;
 
         case '0': case '1': case '2': case '3': case '4':
         case '5': case '6': case '7': case '8': case '9':
@@ -845,7 +846,7 @@ phase3_get (token_ty *tp)
               return;
             }
           template = true;
-          /* FALLTHROUGH */
+          FALLTHROUGH;
         case '"':
           {
             struct mixed_string_buffer msb;
@@ -1324,8 +1325,9 @@ extract_balanced (message_list_ty *mlp, token_type_ty delim,
               {
                 char *string = mixed_string_contents (token.mixed_string);
                 mixed_string_free (token.mixed_string);
-                remember_a_message (mlp, NULL, string, true, inner_context,
-                                    &pos, NULL, token.comment, false);
+                remember_a_message (mlp, NULL, string, true, false,
+                                    inner_context, &pos,
+                                    NULL, token.comment, false);
               }
             else
               {
@@ -1391,8 +1393,13 @@ extract_vala (FILE *f,
   logical_file_name = xstrdup (logical_filename);
   line_number = 1;
 
+  phase1_pushback_length = 0;
+
   last_comment_line = -1;
   last_non_comment_line = -1;
+
+  phase3_pushback_length = 0;
+  last_token_type = token_type_other;
 
   flag_context_list_table = flag_table;
 

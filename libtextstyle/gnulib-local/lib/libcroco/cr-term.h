@@ -1,7 +1,18 @@
 /* -*- Mode: C; indent-tabs-mode:nil; c-basic-offset: 8-*- */
 
+/* libcroco - Library for parsing and applying CSS
+ * Copyright (C) 2006-2019 Free Software Foundation, Inc.
+ *
+ * This file is not part of the GNU gettext program, but is used with
+ * GNU gettext.
+ *
+ * The original copyright notice is as follows:
+ */
+
 /*
  * This file is part of The Croco Library
+ *
+ * Copyright (C) 2003-2004 Dodji Seketeli.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of version 2.1 of the GNU Lesser General Public
@@ -18,7 +29,6 @@
  * USA
  * 
  * Author: Dodji Seketeli
- * See COPYRIGHTS file for copyright information.
  */
 
 #include <stdio.h>
@@ -169,13 +179,13 @@ CRTerm * cr_term_append_term (CRTerm *a_this, CRTerm *a_new_term) ;
 
 CRTerm * cr_term_prepend_term (CRTerm *a_this, CRTerm *a_new_term) ;
 
-guchar * cr_term_to_string (CRTerm *a_this) ;
+guchar * cr_term_to_string (CRTerm const *a_this) ;
 
-guchar * cr_term_one_to_string (CRTerm * a_this) ;
+guchar * cr_term_one_to_string (CRTerm const * a_this) ;
 
-void cr_term_dump (CRTerm *a_this, FILE *a_fp) ;
+void cr_term_dump (CRTerm const *a_this, FILE *a_fp) ;
 
-int cr_term_nr_values (CRTerm *a_this) ;
+int cr_term_nr_values (CRTerm const *a_this) ;
 
 CRTerm * cr_term_get_from_list (CRTerm *a_this, int itemnr) ;
 

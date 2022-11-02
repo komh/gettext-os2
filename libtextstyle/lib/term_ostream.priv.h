@@ -36,13 +36,23 @@ struct term_ostream_representation
   bool volatile supports_weight;
   bool volatile supports_posture;
   bool volatile supports_underline;
+  bool volatile supports_hyperlink;
    
   const char * volatile restore_colors;
   const char * volatile restore_weight;
   const char * volatile restore_posture;
   const char * volatile restore_underline;
+  const char * volatile restore_hyperlink;
    
   struct term_style_control_data control_data;
+   
+  uint32_t hostname_hash;
+  uint64_t start_time;
+  uint32_t id_serial;
+   
+  hyperlink_t **hyperlinks_array;
+  size_t hyperlinks_count;
+  size_t hyperlinks_allocated;
    
   #if HAVE_WINDOWS_CONSOLES
   WORD volatile default_console_attributes;
@@ -52,6 +62,7 @@ struct term_ostream_representation
   attributes_t volatile active_attr;  
   term_color_t volatile active_attr_color;    
   term_color_t volatile active_attr_bgcolor;  
+  hyperlink_t *volatile active_attr_hyperlink;  
    
   char *buffer;                       
   attributes_t *attrbuffer;           

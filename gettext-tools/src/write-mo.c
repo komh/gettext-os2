@@ -1,5 +1,5 @@
 /* Writing binary .mo files.
-   Copyright (C) 1995-1998, 2000-2007, 2016 Free Software Foundation, Inc.
+   Copyright (C) 1995-1998, 2000-2007, 2016, 2020 Free Software Foundation, Inc.
    Written by Ulrich Drepper <drepper@gnu.ai.mit.edu>, April 1995.
 
    This program is free software: you can redistribute it and/or modify
@@ -39,7 +39,7 @@
 
 #include "byteswap.h"
 #include "error.h"
-#include "hash.h"
+#include "mem-hash-map.h"
 #include "message.h"
 #include "format.h"
 #include "xsize.h"
@@ -47,6 +47,7 @@
 #include "xmalloca.h"
 #include "msgl-header.h"
 #include "binary-io.h"
+#include "supersede.h"
 #include "fwriteerror.h"
 #include "gettext.h"
 
@@ -105,8 +106,8 @@ struct pre_message
 static int
 compare_id (const void *pval1, const void *pval2)
 {
-  return strcmp (((struct pre_message *) pval1)->str[M_ID].pointer,
-                 ((struct pre_message *) pval2)->str[M_ID].pointer);
+  return strcmp (((const struct pre_message *) pval1)->str[M_ID].pointer,
+                 ((const struct pre_message *) pval2)->str[M_ID].pointer);
 }
 
 
@@ -554,7 +555,7 @@ write_table (FILE *output_file, message_list_ty *mlp)
       hash_tab = XNMALLOC (hash_tab_size, nls_uint32);
       memset (hash_tab, '\0', hash_tab_size * sizeof (nls_uint32));
 
-      /* Insert all value in the hash table, following the algorithm described
+      /* Insert all values in the hash table, following the algorithm described
          above.  */
       for (j = 0; j < nstrings; j++)
         {
@@ -782,8 +783,6 @@ msgdomain_write_mo (message_list_ty *mlp,
                     const char *domain_name,
                     const char *file_name)
 {
-  FILE *output_file;
-
   /* If no entry for this domain don't even create the file.  */
   if (mlp->nitems != 0)
     {
@@ -793,26 +792,35 @@ msgdomain_write_mo (message_list_ty *mlp,
 
       if (strcmp (domain_name, "-") == 0)
         {
-          output_file = stdout;
+          FILE *output_file = stdout;
           SET_BINARY (fileno (output_file));
+
+          write_table (output_file, mlp);
+
+          /* Make sure nothing went wrong.  */
+          if (fwriteerror (output_file))
+            error (EXIT_FAILURE, errno, _("error while writing \"%s\" file"),
+                   file_name);
         }
       else
         {
-          output_file = fopen (file_name, "wb");
+          /* Supersede, don't overwrite, the output file.  Otherwise, processes
+             that are currently using (via mmap!) the output file could crash
+             (through SIGSEGV or SIGBUS).  */
+          struct supersede_final_action action;
+          FILE *output_file =
+            fopen_supersede (file_name, "wb", true, true, &action);
           if (output_file == NULL)
             {
               error (0, errno, _("error while opening \"%s\" for writing"),
                      file_name);
               return 1;
             }
-        }
 
-      if (output_file != NULL)
-        {
           write_table (output_file, mlp);
 
           /* Make sure nothing went wrong.  */
-          if (fwriteerror (output_file))
+          if (fwriteerror_supersede (output_file, &action))
             error (EXIT_FAILURE, errno, _("error while writing \"%s\" file"),
                    file_name);
         }

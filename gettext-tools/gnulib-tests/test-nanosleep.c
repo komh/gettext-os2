@@ -1,5 +1,5 @@
 /* Test of nanosleep() function.
-   Copyright (C) 2009-2019 Free Software Foundation, Inc.
+   Copyright (C) 2009-2022 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -43,16 +43,27 @@ main (void)
 {
   struct timespec ts;
 
+  /* Check that negative nanosecond values cause failure.  */
+  ts.tv_sec = 1;
+  ts.tv_nsec = -1;
+  errno = 0;
+  ASSERT (nanosleep (&ts, NULL) == -1);
+  ASSERT (errno == EINVAL);
+
   ts.tv_sec = 1000;
   ts.tv_nsec = -1;
   errno = 0;
   ASSERT (nanosleep (&ts, NULL) == -1);
   ASSERT (errno == EINVAL);
+
+  /* Check that too large nanosecond values cause failure.  */
+  ts.tv_sec = 1000;
   ts.tv_nsec = 1000000000;
   errno = 0;
   ASSERT (nanosleep (&ts, NULL) == -1);
   ASSERT (errno == EINVAL);
 
+  /* Check successful call.  */
   ts.tv_sec = 0;
   ts.tv_nsec = 1;
   ASSERT (nanosleep (&ts, &ts) == 0);

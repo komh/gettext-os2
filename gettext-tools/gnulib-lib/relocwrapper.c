@@ -1,5 +1,5 @@
 /* Relocating wrapper program.
-   Copyright (C) 2003, 2005-2007, 2009-2019 Free Software Foundation, Inc.
+   Copyright (C) 2003, 2005-2007, 2009-2022 Free Software Foundation, Inc.
    Written by Bruno Haible <bruno@clisp.org>, 2003.
 
    This program is free software: you can redistribute it and/or modify
@@ -19,18 +19,36 @@
    relocwrapper
     -> progname
     -> progreloc
+       -> stat
+          -> filename
+          -> pathmax
+          -> verify
        -> areadlink
           -> careadlinkat
              -> allocator
           -> readlink
              -> stat
-                -> dosname
-                -> pathmax
-                -> verify
        -> canonicalize-lgpl
-          -> malloca
-          -> lstat
+          -> libc-config
+          -> errno
+          -> fcntl-h
+          -> stdbool
+          -> sys_stat
+          -> unistd
+          -> eloop-threshold
+          -> filename
+          -> idx
+          -> intprops
+          -> scratch_buffer
+             -> malloc-posix
+             -> realloc-posix
+             -> free-posix
+          -> pathmax
+          -> mempcpy
+          -> rawmemchr
           -> readlink
+          -> stat
+          -> double-slash-root
     -> relocatable
     -> setenv
        -> malloca

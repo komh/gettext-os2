@@ -1,4 +1,4 @@
-/* Copyright (C) 1995-2016, 2018 Free Software Foundation, Inc.
+/* Copyright (C) 1995-2020 Free Software Foundation, Inc.
    Contributed by Ulrich Drepper <drepper@gnu.ai.mit.edu>, 1995.
 
    This program is free software: you can redistribute it and/or modify
@@ -27,12 +27,15 @@
 
 #include <string.h>
 
-#if defined _LIBC || defined HAVE_ARGZ_H
+#if defined _LIBC
 # include <argz.h>
 #endif
 #include <ctype.h>
 #include <sys/types.h>
 #include <stdlib.h>
+#if defined _WIN32 && !defined __CYGWIN__
+# include <wchar.h>
+#endif
 
 #include "loadinfo.h"
 
@@ -60,94 +63,12 @@ static char *stpcpy (char *dest, const char *src);
 # endif
 #endif
 
-/* Pathname support.
-   ISSLASH(C)           tests whether C is a directory separator character.
-   IS_ABSOLUTE_PATH(P)  tests whether P is an absolute path.  If it is not,
-                        it may be concatenated to a directory pathname.
- */
-#if defined _WIN32 || defined __CYGWIN__ || defined __EMX__ || defined __DJGPP__
-  /* Win32, Cygwin, OS/2, DOS */
-# define ISSLASH(C) ((C) == '/' || (C) == '\\')
-# define HAS_DEVICE(P) \
-    ((((P)[0] >= 'A' && (P)[0] <= 'Z') || ((P)[0] >= 'a' && (P)[0] <= 'z')) \
-     && (P)[1] == ':')
-# define IS_ABSOLUTE_PATH(P) (ISSLASH ((P)[0]) || HAS_DEVICE (P))
-#else
-  /* Unix */
-# define ISSLASH(C) ((C) == '/')
-# define IS_ABSOLUTE_PATH(P) ISSLASH ((P)[0])
-#endif
-
-/* Define function which are usually not available.  */
-
-#if defined HAVE_ARGZ_COUNT
-# undef __argz_count
-# define __argz_count argz_count
-#else
-/* Returns the number of strings in ARGZ.  */
-static size_t
-argz_count__ (const char *argz, size_t len)
-{
-  size_t count = 0;
-  while (len > 0)
-    {
-      size_t part_len = strlen (argz);
-      argz += part_len + 1;
-      len -= part_len + 1;
-      count++;
-    }
-  return count;
-}
-# undef __argz_count
-# define __argz_count(argz, len) argz_count__ (argz, len)
-#endif	/* !_LIBC && !HAVE_ARGZ_COUNT */
-
-#if defined HAVE_ARGZ_STRINGIFY
-# undef __argz_stringify
-# define __argz_stringify argz_stringify
-#else
-/* Make '\0' separated arg vector ARGZ printable by converting all the '\0's
-   except the last into the character SEP.  */
-static void
-argz_stringify__ (char *argz, size_t len, int sep)
-{
-  while (len > 0)
-    {
-      size_t part_len = strlen (argz);
-      argz += part_len;
-      len -= part_len + 1;
-      if (len > 0)
-	*argz++ = sep;
-    }
-}
-# undef __argz_stringify
-# define __argz_stringify(argz, len, sep) argz_stringify__ (argz, len, sep)
-#endif	/* !_LIBC && !HAVE_ARGZ_STRINGIFY */
-
 #ifdef _LIBC
-#elif defined HAVE_ARGZ_NEXT
-# undef __argz_next
-# define __argz_next argz_next
+# define IS_ABSOLUTE_FILE_NAME(P) ((P)[0] == '/')
+# define IS_RELATIVE_FILE_NAME(P) (! IS_ABSOLUTE_FILE_NAME (P))
 #else
-static char *
-argz_next__ (char *argz, size_t argz_len, const char *entry)
-{
-  if (entry)
-    {
-      if (entry < argz + argz_len)
-        entry = strchr (entry, '\0') + 1;
-
-      return entry >= argz + argz_len ? NULL : (char *) entry;
-    }
-  else
-    if (argz_len > 0)
-      return argz;
-    else
-      return 0;
-}
-# undef __argz_next
-# define __argz_next(argz, len, entry) argz_next__ (argz, len, entry)
-#endif	/* !_LIBC && !HAVE_ARGZ_NEXT */
+# include "filename.h"
+#endif
 
 /* Return number of bits set in X.  */
 #ifndef ARCH_POP
@@ -168,23 +89,33 @@ pop (int x)
 struct loaded_l10nfile *
 _nl_make_l10nflist (struct loaded_l10nfile **l10nfile_list,
 		    const char *dirlist, size_t dirlist_len,
+#if defined _WIN32 && !defined __CYGWIN__
+		    const wchar_t *wdirlist, size_t wdirlist_len,
+#endif
 		    int mask, const char *language, const char *territory,
 		    const char *codeset, const char *normalized_codeset,
 		    const char *modifier,
 		    const char *filename, int do_allocate)
 {
   char *abs_filename;
+#if defined _WIN32 && !defined __CYGWIN__
+  wchar_t *abs_wfilename;
+#endif
   struct loaded_l10nfile **lastp;
   struct loaded_l10nfile *retval;
-  char *cp;
   size_t dirlist_count;
   size_t entries;
   int cnt;
 
   /* If LANGUAGE contains an absolute directory specification, we ignore
-     DIRLIST.  */
-  if (IS_ABSOLUTE_PATH (language))
-    dirlist_len = 0;
+     DIRLIST and WDIRLIST.  */
+  if (!IS_RELATIVE_FILE_NAME (language))
+    {
+      dirlist_len = 0;
+#if defined _WIN32 && !defined __CYGWIN__
+      wdirlist_len = 0;
+#endif
+    }
 
   /* Allocate room for the full file name.  */
   abs_filename = (char *) malloc (dirlist_len
@@ -203,48 +134,105 @@ _nl_make_l10nflist (struct loaded_l10nfile **l10nfile_list,
     return NULL;
 
   /* Construct file name.  */
-  cp = abs_filename;
-  if (dirlist_len > 0)
-    {
-      memcpy (cp, dirlist, dirlist_len);
-      __argz_stringify (cp, dirlist_len, PATH_SEPARATOR);
-      cp += dirlist_len;
-      cp[-1] = '/';
-    }
+  {
+    char *cp;
 
-  cp = stpcpy (cp, language);
+    cp = abs_filename;
+    if (dirlist_len > 0)
+      {
+	memcpy (cp, dirlist, dirlist_len);
+#ifdef _LIBC
+	__argz_stringify (cp, dirlist_len, PATH_SEPARATOR);
+#endif
+	cp += dirlist_len;
+	cp[-1] = '/';
+      }
 
-  if ((mask & XPG_TERRITORY) != 0)
-    {
-      *cp++ = '_';
-      cp = stpcpy (cp, territory);
-    }
-  if ((mask & XPG_CODESET) != 0)
-    {
-      *cp++ = '.';
-      cp = stpcpy (cp, codeset);
-    }
-  if ((mask & XPG_NORM_CODESET) != 0)
-    {
-      *cp++ = '.';
-      cp = stpcpy (cp, normalized_codeset);
-    }
-  if ((mask & XPG_MODIFIER) != 0)
-    {
-      *cp++ = '@';
-      cp = stpcpy (cp, modifier);
-    }
+    cp = stpcpy (cp, language);
 
-  *cp++ = '/';
-  stpcpy (cp, filename);
+    if ((mask & XPG_TERRITORY) != 0)
+      {
+	*cp++ = '_';
+	cp = stpcpy (cp, territory);
+      }
+    if ((mask & XPG_CODESET) != 0)
+      {
+	*cp++ = '.';
+	cp = stpcpy (cp, codeset);
+      }
+    if ((mask & XPG_NORM_CODESET) != 0)
+      {
+	*cp++ = '.';
+	cp = stpcpy (cp, normalized_codeset);
+      }
+    if ((mask & XPG_MODIFIER) != 0)
+      {
+	*cp++ = '@';
+	cp = stpcpy (cp, modifier);
+      }
+
+    *cp++ = '/';
+    stpcpy (cp, filename);
+  }
+
+#if defined _WIN32 && !defined __CYGWIN__
+  /* Construct wide-char file name.  */
+  if (wdirlist_len > 0)
+    {
+      /* Since dirlist_len == 0, just concatenate wdirlist and abs_filename.  */
+      /* An upper bound for wcslen (mbstowcs (abs_filename)).  */
+      size_t abs_filename_bound = mbstowcs (NULL, abs_filename, 0);
+      if (abs_filename_bound == (size_t)-1)
+	{
+	  free (abs_filename);
+	  return NULL;
+	}
+
+      /* Allocate and fill abs_wfilename.  */
+      abs_wfilename =
+	(wchar_t *)
+	malloc ((wdirlist_len + abs_filename_bound + 1) * sizeof (wchar_t));
+      if (abs_wfilename == NULL)
+	{
+	  free (abs_filename);
+	  return NULL;
+	}
+      wmemcpy (abs_wfilename, wdirlist, wdirlist_len - 1);
+      abs_wfilename[wdirlist_len - 1] = L'/';
+      if (mbstowcs (abs_wfilename + wdirlist_len, abs_filename,
+		    abs_filename_bound + 1)
+	  > abs_filename_bound)
+	{
+	  free (abs_filename);
+	  free (abs_wfilename);
+	  return NULL;
+	}
+
+      free (abs_filename);
+      abs_filename = NULL;
+    }
+  else
+    abs_wfilename = NULL;
+#endif
 
   /* Look in list of already loaded domains whether it is already
      available.  */
   lastp = l10nfile_list;
   for (retval = *l10nfile_list; retval != NULL; retval = retval->next)
-    if (retval->filename != NULL)
+    if (retval->filename != NULL
+#if defined _WIN32 && !defined __CYGWIN__
+        || retval->wfilename != NULL
+#endif
+       )
       {
-	int compare = strcmp (retval->filename, abs_filename);
+	int compare =
+#if defined _WIN32 && !defined __CYGWIN__
+	  abs_wfilename != NULL
+	  ? retval->wfilename != NULL && wcscmp (retval->wfilename, abs_wfilename)
+	  : retval->filename != NULL && strcmp (retval->filename, abs_filename);
+#else
+	  strcmp (retval->filename, abs_filename);
+#endif
 	if (compare == 0)
 	  /* We found it!  */
 	  break;
@@ -261,10 +249,17 @@ _nl_make_l10nflist (struct loaded_l10nfile **l10nfile_list,
   if (retval != NULL || do_allocate == 0)
     {
       free (abs_filename);
+#if defined _WIN32 && !defined __CYGWIN__
+      free (abs_wfilename);
+#endif
       return retval;
     }
 
+#ifdef _LIBC
   dirlist_count = (dirlist_len > 0 ? __argz_count (dirlist, dirlist_len) : 1);
+#else
+  dirlist_count = 1;
+#endif
 
   /* Allocate a new loaded_l10nfile.  */
   retval =
@@ -275,10 +270,16 @@ _nl_make_l10nflist (struct loaded_l10nfile **l10nfile_list,
   if (retval == NULL)
     {
       free (abs_filename);
+#if defined _WIN32 && !defined __CYGWIN__
+      free (abs_wfilename);
+#endif
       return NULL;
     }
 
   retval->filename = abs_filename;
+#if defined _WIN32 && !defined __CYGWIN__
+  retval->wfilename = abs_wfilename;
+#endif
 
   /* We set retval->data to NULL here; it is filled in later.
      Setting retval->decided to 1 here means that retval does not
@@ -309,6 +310,7 @@ _nl_make_l10nflist (struct loaded_l10nfile **l10nfile_list,
     if ((cnt & ~mask) == 0
 	&& !((cnt & XPG_CODESET) != 0 && (cnt & XPG_NORM_CODESET) != 0))
       {
+#ifdef _LIBC
 	if (dirlist_count > 1)
 	  {
 	    /* Iterate over all elements of the DIRLIST.  */
@@ -323,8 +325,13 @@ _nl_make_l10nflist (struct loaded_l10nfile **l10nfile_list,
 				      1);
 	  }
 	else
+#endif
 	  retval->successor[entries++]
-	    = _nl_make_l10nflist (l10nfile_list, dirlist, dirlist_len,
+	    = _nl_make_l10nflist (l10nfile_list,
+				  dirlist, dirlist_len,
+#if defined _WIN32 && !defined __CYGWIN__
+				  wdirlist, wdirlist_len,
+#endif
 				  cnt, language, territory, codeset,
 				  normalized_codeset, modifier, filename, 1);
       }

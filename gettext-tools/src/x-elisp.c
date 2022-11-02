@@ -1,5 +1,5 @@
 /* xgettext Emacs Lisp backend.
-   Copyright (C) 2001-2003, 2005-2009, 2018-2019 Free Software Foundation, Inc.
+   Copyright (C) 2001-2003, 2005-2009, 2018-2020 Free Software Foundation, Inc.
 
    This file was written by Bruno Haible <haible@clisp.cons.org>, 2001-2002.
 
@@ -29,6 +29,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "attribute.h"
 #include "message.h"
 #include "xgettext.h"
 #include "xg-pos.h"
@@ -39,7 +40,7 @@
 #include "xg-message.h"
 #include "error.h"
 #include "xalloc.h"
-#include "hash.h"
+#include "mem-hash-map.h"
 #include "c-ctype.h"
 #include "gettext.h"
 
@@ -527,7 +528,7 @@ do_getc_escaped (int c, bool in_string)
       if (c != '-')
         /* Invalid input.  But be tolerant.  */
         return c;
-      /*FALLTHROUGH*/
+      FALLTHROUGH;
     case '^':
       c = do_getc ();
       if (c == EOF)
@@ -904,8 +905,8 @@ read_object (struct object *op, bool first_in_list, bool new_backquote_flag,
                 pos.file_name = logical_file_name;
                 pos.line_number = op->line_number_at_start;
                 remember_a_message (mlp, NULL, string_of_object (op), false,
-                                    null_context, &pos, NULL, savable_comment,
-                                    false);
+                                    false, null_context, &pos,
+                                    NULL, savable_comment, false);
               }
             last_non_comment_line = line_number;
             return;
@@ -1188,7 +1189,7 @@ read_object (struct object *op, bool first_in_list, bool new_backquote_flag,
                 }
             }
           c = '.';
-          /*FALLTHROUGH*/
+          FALLTHROUGH;
         default:
         default_label:
           if (c <= ' ') /* FIXME: Assumes ASCII compatible encoding */

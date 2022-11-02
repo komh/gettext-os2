@@ -1,5 +1,5 @@
 /* Test whether two files have the same ACLs.
-   Copyright (C) 2008-2019 Free Software Foundation, Inc.
+   Copyright (C) 2008-2022 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -55,14 +55,14 @@ main (int argc, char *argv[])
     size_t size2;
     char *contents2;
 
-    contents1 = read_file (file1, &size1);
+    contents1 = read_file (file1, 0, &size1);
     if (contents1 == NULL)
       {
         fprintf (stderr, "error reading file %s: errno = %d\n", file1, errno);
         fflush (stderr);
         abort ();
       }
-    contents2 = read_file (file2, &size2);
+    contents2 = read_file (file2, 0, &size2);
     if (contents2 == NULL)
       {
         fprintf (stderr, "error reading file %s: errno = %d\n", file2, errno);

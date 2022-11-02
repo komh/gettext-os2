@@ -1,6 +1,6 @@
 /* argmatch.c -- find a match for a string in an array
 
-   Copyright (C) 1990, 1998-1999, 2001-2007, 2009-2019 Free Software
+   Copyright (C) 1990, 1998-1999, 2001-2007, 2009-2022 Free Software
    Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
@@ -29,12 +29,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "gettext.h"
 #define _(msgid) gettext (msgid)
 
 #include "error.h"
 #include "quotearg.h"
-#include "quote.h"
 #include "getprogname.h"
 
 #if USE_UNLOCKED_IO
@@ -64,7 +62,7 @@ __argmatch_die (void)
   ARGMATCH_DIE;
 }
 
-/* Used by XARGMATCH and XARGCASEMATCH.  See description in argmatch.h.
+/* Used by XARGMATCH.  See description in argmatch.h.
    Default to __argmatch_die, but allow caller to change this at run-time. */
 argmatch_exit_fn argmatch_die = __argmatch_die;
 
@@ -268,7 +266,7 @@ main (int argc, const char *const *argv)
                              backup_args, backup_vals);
 
   printf ("The version control is '%s'\n",
-          ARGMATCH_TO_ARGUMENT (backup_type, backup_args, backup_vals));
+          ARGMATCH_TO_ARGUMENT (&backup_type, backup_args, backup_vals));
 
   return 0;
 }

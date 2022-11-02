@@ -1,5 +1,5 @@
 /* Message list charset and locale charset handling.
-   Copyright (C) 2001-2003, 2005-2009, 2019 Free Software Foundation, Inc.
+   Copyright (C) 2001-2003, 2005-2009, 2019-2020 Free Software Foundation, Inc.
    Written by Bruno Haible <haible@clisp.cons.org>, 2001.
 
    This program is free software: you can redistribute it and/or modify
@@ -32,8 +32,9 @@
 # include <iconv.h>
 #endif
 
+#include "noreturn.h"
 #include "progname.h"
-#include "basename.h"
+#include "basename-lgpl.h"
 #include "message.h"
 #include "po-charset.h"
 #include "xstriconv.h"
@@ -51,11 +52,7 @@
 
 #if HAVE_ICONV
 
-static void conversion_error (const struct conversion_context* context)
-#if defined __GNUC__ && ((__GNUC__ == 2 && __GNUC_MINOR__ >= 5) || __GNUC__ > 2)
-     __attribute__ ((noreturn))
-#endif
-;
+_GL_NORETURN_FUNC static void conversion_error (const struct conversion_context* context);
 static void
 conversion_error (const struct conversion_context* context)
 {
@@ -301,7 +298,7 @@ iconv_message_list_internal (message_list_ty *mlp,
         po_xerror (PO_SEVERITY_FATAL_ERROR, NULL, NULL, 0, 0, false,
                    xasprintf (_("Cannot convert from \"%s\" to \"%s\". %s relies on iconv(), and iconv() does not support this conversion."),
                               canon_from_code, canon_to_code,
-                              basename (program_name)));
+                              last_component (program_name)));
 
       context.from_code = canon_from_code;
       context.to_code = canon_to_code;
@@ -333,7 +330,7 @@ iconv_message_list_internal (message_list_ty *mlp,
           po_xerror (PO_SEVERITY_FATAL_ERROR, NULL, NULL, 0, 0, false,
                      xasprintf (_("Cannot convert from \"%s\" to \"%s\". %s relies on iconv(). This version was built without iconv()."),
                                 canon_from_code, canon_to_code,
-                                basename (program_name)));
+                                last_component (program_name)));
 #endif
     }
 

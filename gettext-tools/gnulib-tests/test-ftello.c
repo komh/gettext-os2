@@ -1,5 +1,5 @@
 /* Test of ftello() function.
-   Copyright (C) 2007-2019 Free Software Foundation, Inc.
+   Copyright (C) 2007-2022 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -34,7 +34,7 @@ SIGNATURE_CHECK (ftello, off_t, (FILE *));
 #endif
 
 int
-main (int argc, char **argv _GL_UNUSED)
+main (int argc, _GL_UNUSED char **argv)
 {
   int ch;
   /* Assume stdin is seekable iff argc > 1.  */

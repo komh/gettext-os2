@@ -2,7 +2,7 @@
 
 #line 1 "styled-ostream.oo.h"
 /* Abstract output stream for CSS styled text.
-   Copyright (C) 2006 Free Software Foundation, Inc.
+   Copyright (C) 2006, 2019 Free Software Foundation, Inc.
    Written by Bruno Haible <bruno@clisp.org>, 2006.
 
    This program is free software: you can redistribute it and/or modify
@@ -64,6 +64,9 @@ extern         void styled_ostream_flush (styled_ostream_t first_arg, ostream_fl
 extern         void styled_ostream_free (styled_ostream_t first_arg);
 extern          void styled_ostream_begin_use_class (styled_ostream_t first_arg, const char *classname);
 extern          void styled_ostream_end_use_class (styled_ostream_t first_arg, const char *classname);
+extern         const char * styled_ostream_get_hyperlink_ref (styled_ostream_t first_arg);
+extern    const char * styled_ostream_get_hyperlink_id (styled_ostream_t first_arg);
+extern    void         styled_ostream_set_hyperlink (styled_ostream_t first_arg,                               const char *ref, const char *id);
 extern              void styled_ostream_flush_to_current_style (styled_ostream_t first_arg);
 #ifdef __cplusplus
 }
@@ -137,6 +140,33 @@ styled_ostream_end_use_class (styled_ostream_t first_arg, const char *classname)
   vtable->end_use_class (first_arg,classname);
 }
 
+# define styled_ostream_get_hyperlink_ref styled_ostream_get_hyperlink_ref_inline
+static inline const char *
+styled_ostream_get_hyperlink_ref (styled_ostream_t first_arg)
+{
+  const struct styled_ostream_implementation *vtable =
+    ((struct styled_ostream_representation_header *) (struct styled_ostream_representation *) first_arg)->vtable;
+  return vtable->get_hyperlink_ref (first_arg);
+}
+
+# define styled_ostream_get_hyperlink_id styled_ostream_get_hyperlink_id_inline
+static inline const char *
+styled_ostream_get_hyperlink_id (styled_ostream_t first_arg)
+{
+  const struct styled_ostream_implementation *vtable =
+    ((struct styled_ostream_representation_header *) (struct styled_ostream_representation *) first_arg)->vtable;
+  return vtable->get_hyperlink_id (first_arg);
+}
+
+# define styled_ostream_set_hyperlink styled_ostream_set_hyperlink_inline
+static inline void
+styled_ostream_set_hyperlink (styled_ostream_t first_arg,                               const char *ref, const char *id)
+{
+  const struct styled_ostream_implementation *vtable =
+    ((struct styled_ostream_representation_header *) (struct styled_ostream_representation *) first_arg)->vtable;
+  vtable->set_hyperlink (first_arg,ref,id);
+}
+
 # define styled_ostream_flush_to_current_style styled_ostream_flush_to_current_style_inline
 static inline void
 styled_ostream_flush_to_current_style (styled_ostream_t first_arg)
@@ -154,7 +184,7 @@ extern const typeinfo_t styled_ostream_typeinfo;
 
 extern const struct styled_ostream_implementation styled_ostream_vtable;
 
-#line 50 "styled-ostream.oo.h"
+#line 56 "styled-ostream.oo.h"
 
 
 #endif /* _STYLED_OSTREAM_H */

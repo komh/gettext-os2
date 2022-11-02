@@ -1,6 +1,6 @@
 /* quotearg.h - quote arguments for output
 
-   Copyright (C) 1998-2002, 2004, 2006, 2008-2019 Free Software Foundation,
+   Copyright (C) 1998-2002, 2004, 2006, 2008-2022 Free Software Foundation,
    Inc.
 
    This program is free software: you can redistribute it and/or modify
@@ -21,7 +21,7 @@
 #ifndef QUOTEARG_H_
 # define QUOTEARG_H_ 1
 
-# include <stddef.h>
+# include <stdlib.h>
 
 /* Basic quoting styles.  For each style, an example is given on the
    input strings "simple", "\0 \t\n'\"\033?""?/\\", and "a:b", using
@@ -275,7 +275,9 @@ struct quoting_options;
 /* Allocate a new set of quoting options, with contents initially identical
    to O if O is not null, or to the default if O is null.
    It is the caller's responsibility to free the result.  */
-struct quoting_options *clone_quoting_options (struct quoting_options *o);
+struct quoting_options *clone_quoting_options (struct quoting_options *o)
+  _GL_ATTRIBUTE_MALLOC _GL_ATTRIBUTE_DEALLOC_FREE
+  _GL_ATTRIBUTE_RETURNS_NONNULL;
 
 /* Get the value of O's quoting style.  If O is null, use the default.  */
 enum quoting_style get_quoting_style (struct quoting_options const *o);
@@ -323,7 +325,7 @@ void set_custom_quoting (struct quoting_options *o,
    On output, BUFFER might contain embedded null bytes if ARGSIZE was
    not -1, the style of O does not use backslash escapes, and the
    flags of O do not request elision of null bytes.*/
-size_t quotearg_buffer (char *buffer, size_t buffersize,
+size_t quotearg_buffer (char *restrict buffer, size_t buffersize,
                         char const *arg, size_t argsize,
                         struct quoting_options const *o);
 
@@ -331,7 +333,9 @@ size_t quotearg_buffer (char *buffer, size_t buffersize,
    buffer.  It is the caller's responsibility to free the result.  The
    result will not contain embedded null bytes.  */
 char *quotearg_alloc (char const *arg, size_t argsize,
-                      struct quoting_options const *o);
+                      struct quoting_options const *o)
+  _GL_ATTRIBUTE_MALLOC _GL_ATTRIBUTE_DEALLOC_FREE
+  _GL_ATTRIBUTE_RETURNS_NONNULL;
 
 /* Like quotearg_alloc, except that the length of the result,
    excluding the terminating null byte, is stored into SIZE if it is
@@ -340,7 +344,9 @@ char *quotearg_alloc (char const *arg, size_t argsize,
    backslash escapes, and the flags of O do not request elision of
    null bytes.*/
 char *quotearg_alloc_mem (char const *arg, size_t argsize,
-                          size_t *size, struct quoting_options const *o);
+                          size_t *size, struct quoting_options const *o)
+  _GL_ATTRIBUTE_MALLOC _GL_ATTRIBUTE_DEALLOC_FREE
+  _GL_ATTRIBUTE_RETURNS_NONNULL;
 
 /* Use storage slot N to return a quoted version of the string ARG.
    Use the default quoting options.

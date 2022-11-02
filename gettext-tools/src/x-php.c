@@ -1,5 +1,5 @@
 /* xgettext PHP backend.
-   Copyright (C) 2001-2003, 2005-2010, 2014, 2018 Free Software Foundation, Inc.
+   Copyright (C) 2001-2003, 2005-2010, 2014, 2018-2020 Free Software Foundation, Inc.
 
    This file was written by Bruno Haible <bruno@clisp.org>, 2002.
 
@@ -28,6 +28,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "attribute.h"
 #include "message.h"
 #include "rc-str-list.h"
 #include "xgettext.h"
@@ -667,7 +668,7 @@ phase3_getc ()
                         comment_line_end (2);
                         break;
                       }
-                    /* FALLTHROUGH */
+                    FALLTHROUGH;
 
                   default:
                     last_was_star = false;
@@ -802,7 +803,7 @@ phase4_get (token_ty *tp)
         case '\n':
           if (last_non_comment_line > last_comment_line)
             savable_comment_reset ();
-          /* FALLTHROUGH */
+          FALLTHROUGH;
         case ' ':
         case '\t':
         case '\r':
@@ -1532,8 +1533,9 @@ extract_balanced (message_list_ty *mlp,
             pos.line_number = token.line_number;
 
             if (extract_all)
-              remember_a_message (mlp, NULL, token.string, false, inner_context,
-                                  &pos, NULL, token.comment, false);
+              remember_a_message (mlp, NULL, token.string, false, false,
+                                  inner_context, &pos,
+                                  NULL, token.comment, false);
             else
               {
                 mixed_string_ty *ms =
@@ -1582,8 +1584,16 @@ extract_php (FILE *f,
   logical_file_name = xstrdup (logical_filename);
   line_number = 1;
 
+  phase1_pushback_length = 0;
+#if 0
+  phase2_pushback_length = 0;
+#endif
+
   last_comment_line = -1;
   last_non_comment_line = -1;
+
+  phase3_pushback_length = 0;
+  phase4_pushback_length = 0;
 
   phase5_last = token_type_eof;
 

@@ -1,5 +1,5 @@
 /* xgettext awk backend.
-   Copyright (C) 2002-2003, 2005-2009, 2018 Free Software Foundation, Inc.
+   Copyright (C) 2002-2003, 2005-2009, 2018-2020 Free Software Foundation, Inc.
 
    This file was written by Bruno Haible <haible@clisp.cons.org>, 2002.
 
@@ -29,6 +29,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "attribute.h"
 #include "message.h"
 #include "xgettext.h"
 #include "xg-pos.h"
@@ -401,7 +402,7 @@ x_awk_lex (token_ty *tp)
              FIXME: Newlines after any of ',' '{' '?' ':' '||' '&&' 'do' 'else'
              does *not* introduce a fresh statement.  */
           prefer_division_over_regexp = false;
-          /* FALLTHROUGH */
+          FALLTHROUGH;
         case '\t':
         case ' ':
           /* Ignore whitespace and comments.  */
@@ -428,7 +429,7 @@ x_awk_lex (token_ty *tp)
                 return;
               }
           }
-          /* FALLTHROUGH */
+          FALLTHROUGH;
         case 'A': case 'B': case 'C': case 'D': case 'E': case 'F':
         case 'G': case 'H': case 'I': case 'J': case 'K': case 'L':
         case 'M': case 'N': case 'O': case 'P': case 'Q': case 'R':
@@ -645,7 +646,7 @@ x_awk_lex (token_ty *tp)
               prefer_division_over_regexp = false;
               return;
             }
-          /* FALLTHROUGH */
+          FALLTHROUGH;
 
         default:
           /* We could carefully recognize each of the 2 and 3 character
@@ -789,8 +790,9 @@ extract_parenthesized (message_list_ty *mlp,
             pos.line_number = token.line_number;
 
             if (extract_all)
-              remember_a_message (mlp, NULL, token.string, false, inner_context,
-                                  &pos, NULL, savable_comment, false);
+              remember_a_message (mlp, NULL, token.string, false, false,
+                                  inner_context, &pos,
+                                  NULL, savable_comment, false);
             else
               {
                 mixed_string_ty *ms =
@@ -814,8 +816,9 @@ extract_parenthesized (message_list_ty *mlp,
             pos.file_name = logical_file_name;
             pos.line_number = token.line_number;
 
-            remember_a_message (mlp, NULL, token.string, false, inner_context,
-                                &pos, NULL, savable_comment, false);
+            remember_a_message (mlp, NULL, token.string, false, false,
+                                inner_context, &pos,
+                                NULL, savable_comment, false);
           }
           next_is_argument = false;
           next_context_iter = null_context_list_iterator;

@@ -1,17 +1,17 @@
 /* A GNU-like <sched.h>.
-   Copyright (C) 2008-2019 Free Software Foundation, Inc.
+   Copyright (C) 2008-2022 Free Software Foundation, Inc.
 
-   This program is free software: you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 3 of the License, or
-   (at your option) any later version.
+   This file is free software: you can redistribute it and/or modify
+   it under the terms of the GNU Lesser General Public License as
+   published by the Free Software Foundation; either version 2.1 of the
+   License, or (at your option) any later version.
 
-   This program is distributed in the hope that it will be useful,
+   This file is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
+   GNU Lesser General Public License for more details.
 
-   You should have received a copy of the GNU General Public License
+   You should have received a copy of the GNU Lesser General Public License
    along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 #ifndef _@GUARD_PREFIX@_SCHED_H
@@ -48,6 +48,10 @@
 # include <pthread.h>
 #endif
 
+/* The definitions of _GL_FUNCDECL_RPL etc. are copied here.  */
+
+/* The definition of _GL_WARN_ON_USE is copied here.  */
+
 #if !@HAVE_STRUCT_SCHED_PARAM@
 
 # if !GNULIB_defined_struct_sched_param
@@ -64,6 +68,31 @@ struct sched_param
 # define SCHED_FIFO   1
 # define SCHED_RR     2
 # define SCHED_OTHER  0
+#endif
+
+#if @GNULIB_SCHED_YIELD@
+# if @REPLACE_SCHED_YIELD@
+#  if !(defined __cplusplus && defined GNULIB_NAMESPACE)
+#   undef sched_yield
+#   define sched_yield rpl_sched_yield
+#  endif
+_GL_FUNCDECL_RPL (sched_yield, int, (void));
+_GL_CXXALIAS_RPL (sched_yield, int, (void));
+# else
+#  if !@HAVE_SCHED_YIELD@
+_GL_FUNCDECL_SYS (sched_yield, int, (void));
+#  endif
+_GL_CXXALIAS_SYS (sched_yield, int, (void));
+# endif
+# if __GLIBC__ >= 2
+_GL_CXXALIASWARN (sched_yield);
+# endif
+#elif defined GNULIB_POSIXCHECK
+# undef sched_yield
+# if HAVE_RAW_DECL_SCHED_YIELD
+_GL_WARN_ON_USE (sched_yield, "sched_yield is not portable - "
+                 "use gnulib module sched_yield for portability");
+# endif
 #endif
 
 #endif /* _@GUARD_PREFIX@_SCHED_H */

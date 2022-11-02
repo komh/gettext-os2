@@ -1,5 +1,5 @@
 /* xgettext Scheme backend.
-   Copyright (C) 2004-2009, 2011, 2014, 2018-2019 Free Software Foundation, Inc.
+   Copyright (C) 2004-2009, 2011, 2014, 2018-2020 Free Software Foundation, Inc.
 
    This file was written by Bruno Haible <bruno@clisp.org>, 2004-2005.
 
@@ -29,6 +29,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "attribute.h"
 #include "message.h"
 #include "xgettext.h"
 #include "xg-pos.h"
@@ -39,7 +40,7 @@
 #include "xg-message.h"
 #include "error.h"
 #include "xalloc.h"
-#include "hash.h"
+#include "mem-hash-map.h"
 #include "gettext.h"
 
 #define _(s) gettext(s)
@@ -721,8 +722,8 @@ read_object (struct object *op, flag_context_ty outer_context)
 
         case '(':
           {
-             int arg = 0;               /* Current argument number.  */
-             flag_context_list_iterator_ty context_iter;
+            int arg = 0;                /* Current argument number.  */
+            flag_context_list_iterator_ty context_iter;
             const struct callshapes *shapes = NULL;
             struct arglist_parser *argparser = NULL;
 
@@ -830,7 +831,7 @@ read_object (struct object *op, flag_context_ty outer_context)
             if (c != EOF && c != '@')
               do_ungetc (c);
           }
-          /*FALLTHROUGH*/
+          FALLTHROUGH;
         case '\'':
         case '`':
           {
@@ -1220,7 +1221,7 @@ read_object (struct object *op, flag_context_ty outer_context)
                 while (c >= '0' && c <= '9');
                 /* c should be one of {'a'|'b'|'c'|'e'|'i'|'s'|'u'}.
                    But be tolerant.  */
-                /*FALLTHROUGH*/
+                FALLTHROUGH;
               case '\'': /* boot-9.scm */
               case '.': /* boot-9.scm */
               case ',': /* srfi-10.scm */
@@ -1270,7 +1271,7 @@ read_object (struct object *op, flag_context_ty outer_context)
               }
             seen_underscore_prefix = true;
           }
-          /*FALLTHROUGH*/
+          FALLTHROUGH;
 
         case '"':
           {
@@ -1332,8 +1333,8 @@ read_object (struct object *op, flag_context_ty outer_context)
                 pos.file_name = logical_file_name;
                 pos.line_number = op->line_number_at_start;
                 remember_a_message (mlp, NULL, string_of_object (op), false,
-                                    null_context, &pos, NULL, savable_comment,
-                                    false);
+                                    false, null_context, &pos,
+                                    NULL, savable_comment, false);
               }
             last_non_comment_line = line_number;
             return;

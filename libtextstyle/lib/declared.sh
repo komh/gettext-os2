@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# Copyright (C) 2006-2019 Free Software Foundation, Inc.
+# Copyright (C) 2006-2022 Free Software Foundation, Inc.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -47,7 +47,7 @@ Report bugs to <bruno@clisp.org>."
 func_version ()
 {
   echo "declared.sh (GNU gnulib)"
-  echo "Copyright (C) 2006-2019 Free Software Foundation, Inc.
+  echo "Copyright (C) 2022 Free Software Foundation, Inc.
 License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>
 This is free software: you are free to change and redistribute it.
 There is NO WARRANTY, to the extent permitted by law."
@@ -72,7 +72,7 @@ while test $# -gt 0; do
    --version | --versio | --versi | --vers | --ver | --ve | --v )
       func_version
       exit 0 ;;
-    -- )      # Stop option prcessing
+    -- )      # Stop option processing
       shift; break ;;
     -* )
       func_fatal_error "unrecognized option: $option"
@@ -120,11 +120,11 @@ test "$sed_result" = 'aaa' \
 # A sed expression that joins 'extern' declarations that are broken over
 # several lines.
 sed_join_multiline_externs='
-/^extern [^;]*$/{
+/^extern [^;"]*$/{
   :a
   N
   s/\n/ /g
-  /^extern [^;]*$/{
+  /^extern [^;"]*$/{
     ba
   }
 }'

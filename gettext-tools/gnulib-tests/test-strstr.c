@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004, 2007-2019 Free Software Foundation, Inc.
+ * Copyright (C) 2004, 2007-2022 Free Software Foundation, Inc.
  * Written by Bruno Haible and Eric Blake
  *
  * This program is free software: you can redistribute it and/or modify
@@ -60,7 +60,7 @@ main (int argc, char *argv[])
        read access for strstr().
        See <https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=521737>.
        This is a bug in memchr(), see the Austin Group's clarification
-       <http://www.opengroup.org/austin/docs/austin_454.txt>.  */
+       <https://www.opengroup.org/austin/docs/austin_454.txt>.  */
     const char *fix = "aBaaaaaaaaaaax";
     char *page_boundary = (char *) zerosize_ptr ();
     size_t len = strlen (fix) + 1;

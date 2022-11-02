@@ -1,17 +1,17 @@
 /* Thread-local storage in multithreaded situations.
-   Copyright (C) 2005, 2007-2019 Free Software Foundation, Inc.
+   Copyright (C) 2005, 2007-2022 Free Software Foundation, Inc.
 
-   This program is free software: you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 3 of the License, or
-   (at your option) any later version.
+   This file is free software: you can redistribute it and/or modify
+   it under the terms of the GNU Lesser General Public License as
+   published by the Free Software Foundation; either version 2.1 of the
+   License, or (at your option) any later version.
 
-   This program is distributed in the hope that it will be useful,
+   This file is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
+   GNU Lesser General Public License for more details.
 
-   You should have received a copy of the GNU General Public License
+   You should have received a copy of the GNU Lesser General Public License
    along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 /* Written by Bruno Haible <bruno@clisp.org>, 2005.  */
@@ -46,6 +46,40 @@
 #include <errno.h>
 #include <stdlib.h>
 
+#if !defined c11_threads_in_use
+# if HAVE_THREADS_H && USE_POSIX_THREADS_FROM_LIBC
+#  define c11_threads_in_use() 1
+# elif HAVE_THREADS_H && USE_POSIX_THREADS_WEAK
+#  include <threads.h>
+#  pragma weak thrd_exit
+#  define c11_threads_in_use() (thrd_exit != NULL)
+# else
+#  define c11_threads_in_use() 0
+# endif
+#endif
+
+/* ========================================================================= */
+
+#if USE_ISOC_THREADS || USE_ISOC_AND_POSIX_THREADS
+
+/* Use the ISO C threads library.  */
+
+# include <threads.h>
+
+/* ------------------------- gl_tls_key_t datatype ------------------------- */
+
+typedef tss_t gl_tls_key_t;
+# define glthread_tls_key_init(KEY, DESTRUCTOR) \
+    (tss_create (KEY, DESTRUCTOR) != thrd_success ? EAGAIN : 0)
+# define gl_tls_get(NAME) \
+    tss_get (NAME)
+# define glthread_tls_set(KEY, POINTER) \
+    (tss_set (*(KEY), (POINTER)) != thrd_success ? ENOMEM : 0)
+# define glthread_tls_key_destroy(KEY) \
+    (tss_delete (*(KEY)), 0)
+
+#endif
+
 /* ========================================================================= */
 
 #if USE_POSIX_THREADS
@@ -77,7 +111,8 @@ extern int glthread_in_use (void);
 
 #  if !PTHREAD_IN_USE_DETECTION_HARD
 #   pragma weak pthread_mutexattr_gettype
-#   define pthread_in_use() (pthread_mutexattr_gettype != NULL)
+#   define pthread_in_use() \
+      (pthread_mutexattr_gettype != NULL || c11_threads_in_use ())
 #  endif
 
 # else
@@ -115,134 +150,30 @@ typedef union
 
 /* ========================================================================= */
 
-#if USE_PTH_THREADS
-
-/* Use the GNU Pth threads library.  */
-
-# include <pth.h>
-
-# if USE_PTH_THREADS_WEAK
-
-/* Use weak references to the GNU Pth threads library.  */
-
-#  pragma weak pth_key_create
-#  pragma weak pth_key_getdata
-#  pragma weak pth_key_setdata
-#  pragma weak pth_key_delete
-
-#  pragma weak pth_cancel
-#  define pth_in_use() (pth_cancel != NULL)
-
-# else
-
-#  define pth_in_use() 1
-
-# endif
-
-/* ------------------------- gl_tls_key_t datatype ------------------------- */
-
-typedef union
-        {
-          void *singlethread_value;
-          pth_key_t key;
-        }
-        gl_tls_key_t;
-# define glthread_tls_key_init(KEY, DESTRUCTOR) \
-    (pth_in_use ()                                             \
-     ? (!pth_key_create (&(KEY)->key, DESTRUCTOR) ? errno : 0) \
-     : ((KEY)->singlethread_value = NULL, 0))
-# define gl_tls_get(NAME) \
-    (pth_in_use ()                  \
-     ? pth_key_getdata ((NAME).key) \
-     : (NAME).singlethread_value)
-# define glthread_tls_set(KEY, POINTER) \
-    (pth_in_use ()                                            \
-     ? (!pth_key_setdata ((KEY)->key, (POINTER)) ? errno : 0) \
-     : ((KEY)->singlethread_value = (POINTER), 0))
-# define glthread_tls_key_destroy(KEY) \
-    (pth_in_use ()                                \
-     ? (!pth_key_delete ((KEY)->key) ? errno : 0) \
-     : 0)
-
-#endif
-
-/* ========================================================================= */
-
-#if USE_SOLARIS_THREADS
-
-/* Use the old Solaris threads library.  */
-
-# include <thread.h>
-
-# if USE_SOLARIS_THREADS_WEAK
-
-/* Use weak references to the old Solaris threads library.  */
-
-#  pragma weak thr_keycreate
-#  pragma weak thr_getspecific
-#  pragma weak thr_setspecific
-
-#  pragma weak thr_suspend
-#  define thread_in_use() (thr_suspend != NULL)
-
-# else
-
-#  define thread_in_use() 1
-
-# endif
-
-/* ------------------------- gl_tls_key_t datatype ------------------------- */
-
-typedef union
-        {
-          void *singlethread_value;
-          thread_key_t key;
-        }
-        gl_tls_key_t;
-# define glthread_tls_key_init(KEY, DESTRUCTOR) \
-    (thread_in_use ()                          \
-     ? thr_keycreate (&(KEY)->key, DESTRUCTOR) \
-     : ((KEY)->singlethread_value = NULL, 0))
-# define gl_tls_get(NAME) \
-    (thread_in_use ()                \
-     ? glthread_tls_get_multithreaded ((NAME).key) \
-     : (NAME).singlethread_value)
-extern void *glthread_tls_get_multithreaded (thread_key_t key);
-# define glthread_tls_set(KEY, POINTER) \
-    (thread_in_use ()                              \
-     ? thr_setspecific ((KEY)->key, (POINTER))     \
-     : ((KEY)->singlethread_value = (POINTER), 0))
-# define glthread_tls_key_destroy(KEY) \
-    /* Unsupported.  */ \
-    0
-
-#endif
-
-/* ========================================================================= */
-
 #if USE_WINDOWS_THREADS
 
 # define WIN32_LEAN_AND_MEAN  /* avoid including junk */
 # include <windows.h>
 
+# include "windows-tls.h"
+
 /* ------------------------- gl_tls_key_t datatype ------------------------- */
 
-typedef DWORD gl_tls_key_t;
+typedef glwthread_tls_key_t gl_tls_key_t;
 # define glthread_tls_key_init(KEY, DESTRUCTOR) \
-    /* The destructor is unsupported.  */    \
-    ((*(KEY) = TlsAlloc ()) == (DWORD)-1 ? EAGAIN : ((void) (DESTRUCTOR), 0))
+    glwthread_tls_key_create (KEY, DESTRUCTOR)
 # define gl_tls_get(NAME) \
     TlsGetValue (NAME)
 # define glthread_tls_set(KEY, POINTER) \
     (!TlsSetValue (*(KEY), POINTER) ? EINVAL : 0)
 # define glthread_tls_key_destroy(KEY) \
-    (!TlsFree (*(KEY)) ? EINVAL : 0)
+    glwthread_tls_key_delete (*(KEY))
 
 #endif
 
 /* ========================================================================= */
 
-#if !(USE_POSIX_THREADS || USE_PTH_THREADS || USE_SOLARIS_THREADS || USE_WINDOWS_THREADS)
+#if !(USE_ISOC_THREADS || USE_POSIX_THREADS || USE_ISOC_AND_POSIX_THREADS || USE_WINDOWS_THREADS)
 
 /* Provide dummy implementation if threads are not supported.  */
 

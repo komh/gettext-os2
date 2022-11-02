@@ -1,5 +1,5 @@
 /* xgettext Python backend.
-   Copyright (C) 2002-2003, 2005-2011, 2013-2014, 2018-2019 Free Software Foundation, Inc.
+   Copyright (C) 2002-2003, 2005-2011, 2013-2014, 2018-2020 Free Software Foundation, Inc.
 
    This file was written by Bruno Haible <haible@clisp.cons.org>, 2002.
 
@@ -30,6 +30,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "attribute.h"
 #include "message.h"
 #include "rc-str-list.h"
 #include "xgettext.h"
@@ -43,7 +44,7 @@
 #include "error.h"
 #include "error-progname.h"
 #include "progname.h"
-#include "basename.h"
+#include "basename-lgpl.h"
 #include "xerror.h"
 #include "xvasprintf.h"
 #include "xalloc.h"
@@ -56,6 +57,7 @@
 
 #define _(s) gettext(s)
 
+#undef max /* clean up after MSVC's <stdlib.h> */
 #define max(a,b) ((a) > (b) ? (a) : (b))
 
 #define SIZEOF(a) (sizeof(a) / sizeof(a[0]))
@@ -321,13 +323,7 @@ as specified in https://www.python.org/peps/pep-0263.html.\n")));
               if (errno == EILSEQ)
                 {
                   /* An invalid multibyte sequence was encountered.  */
-                  multiline_error (xstrdup (""),
-                                   xasprintf (_("\
-%s:%d: Invalid multibyte sequence.\n\
-Please specify the correct source encoding through --from-code or through a\n\
-comment as specified in https://www.python.org/peps/pep-0263.html.\n"),
-                                   real_file_name, line_number));
-                  exit (EXIT_FAILURE);
+                  goto invalid;
                 }
               else if (errno == EINVAL)
                 {
@@ -350,25 +346,9 @@ comment as specified in https://www.python.org/peps/pep-0263.html.\n"),
                   /* Read one more byte and retry iconv.  */
                   c = phase1_getc ();
                   if (c == EOF)
-                    {
-                      multiline_error (xstrdup (""),
-                                       xasprintf (_("\
-%s:%d: Incomplete multibyte sequence at end of file.\n\
-Please specify the correct source encoding through --from-code or through a\n\
-comment as specified in https://www.python.org/peps/pep-0263.html.\n"),
-                                       real_file_name, line_number));
-                      exit (EXIT_FAILURE);
-                    }
+                    goto incomplete_at_eof;
                   if (c == '\n')
-                    {
-                      multiline_error (xstrdup (""),
-                                       xasprintf (_("\
-%s:%d: Incomplete multibyte sequence at end of line.\n\
-Please specify the correct source encoding through --from-code or through a\n\
-comment as specified in https://www.python.org/peps/pep-0263.html.\n"),
-                                       real_file_name, line_number - 1));
-                      exit (EXIT_FAILURE);
-                    }
+                    goto incomplete_at_eol;
                   buf[bufcount++] = (unsigned char) c;
                 }
               else
@@ -394,13 +374,7 @@ comment as specified in https://www.python.org/peps/pep-0263.html.\n"),
                 {
                   /* scratchbuf contains an out-of-range Unicode character
                      (> 0x10ffff).  */
-                  multiline_error (xstrdup (""),
-                                   xasprintf (_("\
-%s:%d: Invalid multibyte sequence.\n\
-Please specify the source encoding through --from-code or through a comment\n\
-as specified in https://www.python.org/peps/pep-0263.html.\n"),
-                                   real_file_name, line_number));
-                  exit (EXIT_FAILURE);
+                  goto invalid;
                 }
               return uc;
             }
@@ -414,76 +388,129 @@ as specified in https://www.python.org/peps/pep-0263.html.\n"),
     }
   else
     {
-      /* Read an UTF-8 encoded character.  */
-      unsigned char buf[6];
-      unsigned int count;
+      /* Read an UTF-8 encoded character.
+         Reject invalid input, like u8_mbtouc does.  */
       int c;
       ucs4_t uc;
 
       c = phase1_getc ();
       if (c == EOF)
         return UEOF;
-      buf[0] = c;
-      count = 1;
-
-      if (buf[0] >= 0xc0)
+      if (c < 0x80)
         {
-          c = phase1_getc ();
-          if (c == EOF)
-            return UEOF;
-          buf[1] = c;
-          count = 2;
+          uc = c;
         }
-
-      if (buf[0] >= 0xe0
-          && ((buf[1] ^ 0x80) < 0x40))
+      else if (c < 0xc2)
+        goto invalid;
+      else if (c < 0xe0)
         {
-          c = phase1_getc ();
-          if (c == EOF)
-            return UEOF;
-          buf[2] = c;
-          count = 3;
+          int c1 = phase1_getc ();
+          if (c1 == EOF)
+            goto incomplete_at_eof;
+          if (c1 == '\n')
+            goto incomplete_at_eol;
+          if ((c1 ^ 0x80) < 0x40)
+            uc = ((unsigned int) (c & 0x1f) << 6)
+                 | (unsigned int) (c1 ^ 0x80);
+          else
+            goto invalid;
         }
-
-      if (buf[0] >= 0xf0
-          && ((buf[1] ^ 0x80) < 0x40)
-          && ((buf[2] ^ 0x80) < 0x40))
+      else if (c < 0xf0)
         {
-          c = phase1_getc ();
-          if (c == EOF)
-            return UEOF;
-          buf[3] = c;
-          count = 4;
+          int c1 = phase1_getc ();
+          if (c1 == EOF)
+            goto incomplete_at_eof;
+          if (c1 == '\n')
+            goto incomplete_at_eol;
+          if ((c1 ^ 0x80) < 0x40
+              && (c >= 0xe1 || c1 >= 0xa0)
+              && (c != 0xed || c1 < 0xa0))
+            {
+              int c2 = phase1_getc ();
+              if (c2 == EOF)
+                goto incomplete_at_eof;
+              if (c2 == '\n')
+                goto incomplete_at_eol;
+              if ((c2 ^ 0x80) < 0x40)
+                uc = ((unsigned int) (c & 0x0f) << 12)
+                     | ((unsigned int) (c1 ^ 0x80) << 6)
+                     | (unsigned int) (c2 ^ 0x80);
+              else
+                goto invalid;
+            }
+          else
+            goto invalid;
         }
-
-      if (buf[0] >= 0xf8
-          && ((buf[1] ^ 0x80) < 0x40)
-          && ((buf[2] ^ 0x80) < 0x40)
-          && ((buf[3] ^ 0x80) < 0x40))
+      else if (c < 0xf8)
         {
-          c = phase1_getc ();
-          if (c == EOF)
-            return UEOF;
-          buf[4] = c;
-          count = 5;
+          int c1 = phase1_getc ();
+          if (c1 == EOF)
+            goto incomplete_at_eof;
+          if (c1 == '\n')
+            goto incomplete_at_eol;
+          if ((c1 ^ 0x80) < 0x40
+              && (c >= 0xf1 || c1 >= 0x90)
+              && (c < 0xf4 || (c == 0xf4 && c1 < 0x90)))
+            {
+              int c2 = phase1_getc ();
+              if (c2 == EOF)
+                goto incomplete_at_eof;
+              if (c2 == '\n')
+                goto incomplete_at_eol;
+              if ((c2 ^ 0x80) < 0x40)
+                {
+                  int c3 = phase1_getc ();
+                  if (c3 == EOF)
+                    goto incomplete_at_eof;
+                  if (c3 == '\n')
+                    goto incomplete_at_eol;
+                  if ((c3 ^ 0x80) < 0x40)
+                    uc = ((unsigned int) (c & 0x07) << 18)
+                         | ((unsigned int) (c1 ^ 0x80) << 12)
+                         | ((unsigned int) (c2 ^ 0x80) << 6)
+                         | (unsigned int) (c3 ^ 0x80);
+                  else
+                    goto invalid;
+                }
+              else
+                goto invalid;
+            }
+          else
+            goto invalid;
         }
+      else
+        goto invalid;
 
-      if (buf[0] >= 0xfc
-          && ((buf[1] ^ 0x80) < 0x40)
-          && ((buf[2] ^ 0x80) < 0x40)
-          && ((buf[3] ^ 0x80) < 0x40)
-          && ((buf[4] ^ 0x80) < 0x40))
-        {
-          c = phase1_getc ();
-          if (c == EOF)
-            return UEOF;
-          buf[5] = c;
-          count = 6;
-        }
-
-      u8_mbtouc (&uc, buf, count);
       return uc;
     }
+
+ invalid:
+  /* An invalid multibyte sequence was encountered.  */
+  multiline_error (xstrdup (""),
+                   xasprintf (_("\
+%s:%d: Invalid multibyte sequence.\n\
+Please specify the correct source encoding through --from-code or through a\n\
+comment as specified in https://www.python.org/peps/pep-0263.html.\n"),
+                   real_file_name, line_number));
+  exit (EXIT_FAILURE);
+
+ incomplete_at_eof:
+  multiline_error (xstrdup (""),
+                   xasprintf (_("\
+%s:%d: Incomplete multibyte sequence at end of file.\n\
+Please specify the correct source encoding through --from-code or through a\n\
+comment as specified in https://www.python.org/peps/pep-0263.html.\n"),
+                   real_file_name, line_number));
+  exit (EXIT_FAILURE);
+
+ incomplete_at_eol:
+  multiline_error (xstrdup (""),
+                   xasprintf (_("\
+%s:%d: Incomplete multibyte sequence at end of line.\n\
+Please specify the correct source encoding through --from-code or through a\n\
+comment as specified in https://www.python.org/peps/pep-0263.html.\n"),
+                   real_file_name, line_number - 1));
+  exit (EXIT_FAILURE);
 }
 
 /* Supports max (9, UNINAME_MAX + 3) pushback characters.  */
@@ -598,13 +625,13 @@ set_current_file_source_encoding (const char *canon_encoding)
         error_at_line (EXIT_FAILURE, 0, logical_file_name, line_number - 1,
                        _("Cannot convert from \"%s\" to \"%s\". %s relies on iconv(), and iconv() does not support this conversion."),
                        xgettext_current_file_source_encoding, po_charset_utf8,
-                       basename (program_name));
+                       last_component (program_name));
       xgettext_current_file_source_iconv = cd;
 #else
       error_at_line (EXIT_FAILURE, 0, logical_file_name, line_number - 1,
                      _("Cannot convert from \"%s\" to \"%s\". %s relies on iconv(). This version was built without iconv()."),
-                     xgettext_global_source_encoding, po_charset_utf8,
-                     basename (program_name));
+                     xgettext_current_file_source_encoding, po_charset_utf8,
+                     last_component (program_name));
 #endif
     }
 
@@ -670,7 +697,7 @@ try_to_extract_coding (const char *comment)
 
 /* Tracking whether the current line is a continuation line or contains a
    non-blank character.  */
-static bool continuation_or_nonblank_line = false;
+static bool continuation_or_nonblank_line;
 
 
 /* Phase 3: Outside strings, replace backslash-newline with nothing and a
@@ -1198,7 +1225,7 @@ phase5_get (token_ty *tp)
                 return;
               }
           }
-          /* FALLTHROUGH */
+          FALLTHROUGH;
         case 'A': case 'B': case 'C': case 'D': case 'E': case 'F':
         case 'G': case 'H': case 'I': case 'J': case 'K': case 'L':
         case 'M': case 'N': case 'O': case 'P': case 'Q':
@@ -1623,8 +1650,9 @@ extract_balanced (message_list_ty *mlp,
               {
                 char *string = mixed_string_contents (token.mixed_string);
                 mixed_string_free (token.mixed_string);
-                remember_a_message (mlp, NULL, string, true, inner_context,
-                                    &pos, NULL, token.comment, true);
+                remember_a_message (mlp, NULL, string, true, false,
+                                    inner_context, &pos,
+                                    NULL, token.comment, true);
               }
             else
               arglist_parser_remember (argparser, arg, token.mixed_string,
@@ -1667,12 +1695,20 @@ extract_python (FILE *f,
   logical_file_name = xstrdup (logical_filename);
   line_number = 1;
 
+  phase1_pushback_length = 0;
+
   lexical_context = lc_outside;
+
+  phase2_pushback_length = 0;
 
   last_comment_line = -1;
   last_non_comment_line = -1;
 
-  xgettext_current_file_source_encoding = xgettext_global_source_encoding;
+  /* For Python, the default source file encoding is UTF-8.  This is specified
+     in PEP 3120.  */
+  xgettext_current_file_source_encoding =
+   (xgettext_global_source_encoding != NULL ? xgettext_global_source_encoding :
+    po_charset_utf8);
 #if HAVE_ICONV
   xgettext_current_file_source_iconv = xgettext_global_source_iconv;
 #endif
@@ -1685,6 +1721,8 @@ extract_python (FILE *f,
   continuation_or_nonblank_line = false;
 
   open_pbb = 0;
+
+  phase5_pushback_length = 0;
 
   flag_context_list_table = flag_table;
 

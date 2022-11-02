@@ -1,7 +1,18 @@
-/* -*- Mode: C; indent-tabs-mode: ni; c-basic-offset: 8 -*- */
+/* -*- Mode: C; indent-tabs-mode: nil; c-basic-offset: 8 -*- */
+
+/* libcroco - Library for parsing and applying CSS
+ * Copyright (C) 2006-2019 Free Software Foundation, Inc.
+ *
+ * This file is not part of the GNU gettext program, but is used with
+ * GNU gettext.
+ *
+ * The original copyright notice is as follows:
+ */
 
 /*
  * This file is part of The Croco Library
+ *
+ * Copyright (C) 2003-2004 Dodji Seketeli.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of version 2.1 of the GNU Lesser General Public
@@ -18,7 +29,6 @@
  * USA
  *
  * Author: Dodji Seketeli.
- * See the COPYRIGHTS file for copyright information.
  */
 
 #ifndef __CR_PARSING_LOCATION_H__
@@ -54,11 +64,11 @@ CRParsingLocation * cr_parsing_location_new (void) ;
 enum CRStatus cr_parsing_location_init (CRParsingLocation *a_this) ;
 
 enum CRStatus cr_parsing_location_copy (CRParsingLocation *a_to,
-					CRParsingLocation *a_from) ;
+					CRParsingLocation const *a_from) ;
 
-gchar * cr_parsing_location_to_string (CRParsingLocation *a_this,
+gchar * cr_parsing_location_to_string (CRParsingLocation const *a_this,
 				       enum CRParsingLocationSerialisationMask a_mask) ;
-void cr_parsing_location_dump (CRParsingLocation *a_this,
+void cr_parsing_location_dump (CRParsingLocation const *a_this,
 			       enum CRParsingLocationSerialisationMask a_mask,
 			       FILE *a_fp) ;
 

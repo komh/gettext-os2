@@ -1,6 +1,6 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html401/loose.dtd">
 <html>
-<!-- Created on May, 7 2019 by texi2html 1.78a -->
+<!-- Created on October, 9 2022 by texi2html 1.78a -->
 <!--
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -43,7 +43,7 @@ ul.toc {list-style: none}
 
 <table cellpadding="1" cellspacing="1" border="0">
 <tr><td valign="middle" align="left">[<a href="libtextstyle_1.html#SEC1" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="libtextstyle_3.html#SEC13" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left">[<a href="libtextstyle_3.html#SEC15" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
@@ -51,7 +51,7 @@ ul.toc {list-style: none}
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left">[<a href="libtextstyle_toc.html#SEC_Top" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="libtextstyle_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="libtextstyle_5.html#SEC42" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="libtextstyle_5.html#SEC45" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="libtextstyle_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
 
@@ -76,8 +76,8 @@ ul.toc {list-style: none}
 </p></dd>
 </dl>
 
-<p>For more details, see the sections <a href="#SEC9">The <code>--color</code> option</a> and
-<a href="#SEC10">The <code>--style</code> option</a> below.
+<p>For more details, see the sections <a href="#SEC11">The <code>--color</code> option</a> and
+<a href="#SEC12">The <code>--style</code> option</a> below.
 </p>
 <p>If the output does not fit on a screen, you can use &lsquo;<samp>less -R</samp>&rsquo; to
 scroll around in the styled output.  For example:
@@ -196,9 +196,34 @@ default <code>TERM=vt100</code>.
 <p>On Windows consoles, no <code>TERM</code> setting is needed.
 </p>
 
-<a name="Emacs"></a>
+<a name="The-NO_005fCOLOR-variable"></a>
 <a name="SEC8"></a>
-<h2 class="section"> <a href="libtextstyle_toc.html#TOC8">2.2 Emacs as a terminal emulator</a> </h2>
+<h2 class="section"> <a href="libtextstyle_toc.html#TOC8">2.2 The environment variable <code>NO_COLOR</code></a> </h2>
+
+<p>The environment variable <code>NO_COLOR</code> can be used to suppress styling
+in the textual output.  When this environment variable is set (to any value),
+<code>libtextstyle</code>-enabled programs will not emit colors and other text
+styling.
+</p>
+<p>This environment variable can be overridden by passing the command-line option
+&lsquo;<samp>--color=always</samp>&rsquo; (see <a href="#SEC11">The <code>--color</code> option</a>).
+</p>
+
+<a name="The-NO_005fTERM_005fHYPERLINKS-variable"></a>
+<a name="SEC9"></a>
+<h2 class="section"> <a href="libtextstyle_toc.html#TOC9">2.3 The environment variable <code>NO_TERM_HYPERLINKS</code></a> </h2>
+
+<p>The environment variable <code>NO_TERM_HYPERLINKS</code> can be used to suppress
+hyperlinks in the textual output.  When this environment variable is set
+(to any value), <code>libtextstyle</code>-enabled programs will not emit
+hyperlinks.  This may be useful for terminal emulators which produce
+garbage output when they receive the escape sequence for a hyperlink.
+Currently (as of 2019), this affects some versions of
+<code>konsole</code>,    <code>emacs</code>,      <code>lxterminal</code>, <code>guake</code>,      <code>yakuake</code>,    <code>rxvt</code>.       </p>
+
+<a name="Emacs"></a>
+<a name="SEC10"></a>
+<h2 class="section"> <a href="libtextstyle_toc.html#TOC10">2.4 Emacs as a terminal emulator</a> </h2>
 
 <p>Emacs has several terminal emulators: <code>M-x shell</code> and
 <code>M-x term</code>.  <code>M-x term</code> has good support for styling, whereas
@@ -206,8 +231,8 @@ in <code>M-x shell</code> most of the styling gets lost.
 </p>
 
 <a name="The-_002d_002dcolor-option"></a>
-<a name="SEC9"></a>
-<h2 class="section"> <a href="libtextstyle_toc.html#TOC9">2.3 The <code>--color</code> option</a> </h2>
+<a name="SEC11"></a>
+<h2 class="section"> <a href="libtextstyle_toc.html#TOC11">2.5 The <code>--color</code> option</a> </h2>
 
 <p>The &lsquo;<samp>--color=<var>when</var></samp>&rsquo; option specifies under which conditions
 styled (colorized) output should be generated.  The <var>when</var> part can
@@ -266,8 +291,8 @@ file.
 </p>
 
 <a name="The-_002d_002dstyle-option"></a>
-<a name="SEC10"></a>
-<h2 class="section"> <a href="libtextstyle_toc.html#TOC10">2.4 The <code>--style</code> option</a> </h2>
+<a name="SEC12"></a>
+<h2 class="section"> <a href="libtextstyle_toc.html#TOC12">2.6 The <code>--style</code> option</a> </h2>
 
 <p>The &lsquo;<samp>--style=<var>style_file</var></samp>&rsquo; option specifies the style file to
 use when colorizing.  It has an effect only when the <code>--color</code>
@@ -285,8 +310,8 @@ section.
 
 
 <a name="Style-rules"></a>
-<a name="SEC11"></a>
-<h3 class="subsection"> <a href="libtextstyle_toc.html#TOC11">2.4.1 Creating your own style files</a> </h3>
+<a name="SEC13"></a>
+<h3 class="subsection"> <a href="libtextstyle_toc.html#TOC13">2.6.1 Creating your own style files</a> </h3>
 
 <p>The same style file can be used for styling a certain type of output, for
 terminal output and for HTML output.  It is written in CSS
@@ -362,8 +387,8 @@ are rendered the same way.
 
 
 <a name="Debugging-style-files"></a>
-<a name="SEC12"></a>
-<h3 class="subsection"> <a href="libtextstyle_toc.html#TOC12">2.4.2 Debugging style files</a> </h3>
+<a name="SEC14"></a>
+<h3 class="subsection"> <a href="libtextstyle_toc.html#TOC14">2.6.2 Debugging style files</a> </h3>
 
 <p>If you want to understand why the style rules in a style file produce
 the output that you see, you can do so in three steps:
@@ -394,7 +419,7 @@ override which other CSS declarations from other CSS rules.
 
 <table cellpadding="1" cellspacing="1" border="0">
 <tr><td valign="middle" align="left">[<a href="#SEC4" title="Beginning of this chapter or previous chapter"> &lt;&lt; </a>]</td>
-<td valign="middle" align="left">[<a href="libtextstyle_3.html#SEC13" title="Next chapter"> &gt;&gt; </a>]</td>
+<td valign="middle" align="left">[<a href="libtextstyle_3.html#SEC15" title="Next chapter"> &gt;&gt; </a>]</td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left"> &nbsp; </td>
@@ -402,12 +427,12 @@ override which other CSS declarations from other CSS rules.
 <td valign="middle" align="left"> &nbsp; </td>
 <td valign="middle" align="left">[<a href="libtextstyle_toc.html#SEC_Top" title="Cover (top) of document">Top</a>]</td>
 <td valign="middle" align="left">[<a href="libtextstyle_toc.html#SEC_Contents" title="Table of contents">Contents</a>]</td>
-<td valign="middle" align="left">[<a href="libtextstyle_5.html#SEC42" title="Index">Index</a>]</td>
+<td valign="middle" align="left">[<a href="libtextstyle_5.html#SEC45" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="libtextstyle_abt.html#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
 <p>
  <font size="-1">
-  This document was generated by <em>Bruno Haible</em> on <em>May, 7 2019</em> using <a href="https://www.nongnu.org/texi2html/"><em>texi2html 1.78a</em></a>.
+  This document was generated by <em>Bruno Haible</em> on <em>October, 9 2022</em> using <a href="https://www.nongnu.org/texi2html/"><em>texi2html 1.78a</em></a>.
  </font>
  <br>
 

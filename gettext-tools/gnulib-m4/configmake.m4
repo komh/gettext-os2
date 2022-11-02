@@ -1,5 +1,5 @@
-# configmake.m4 serial 3
-dnl Copyright (C) 2010-2019 Free Software Foundation, Inc.
+# configmake.m4 serial 4
+dnl Copyright (C) 2010-2022 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
@@ -9,7 +9,7 @@ AC_PREREQ([2.60])
 # gl_CONFIGMAKE_PREP
 # ------------------
 # Guarantee all of the standard directory variables, even when used with
-# autoconf 2.63 (runstatedir wasn't supported before 2.70) or
+# autoconf 2.64 (runstatedir wasn't supported before 2.70) or
 # automake 1.11 (runstatedir isn't supported even in 1.16.1).
 AC_DEFUN([gl_CONFIGMAKE_PREP],
 [

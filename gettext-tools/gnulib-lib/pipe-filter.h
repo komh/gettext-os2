@@ -1,5 +1,5 @@
 /* Filtering of data through a subprocess.  -*- coding: utf-8 -*-
-   Copyright (C) 2009-2019 Free Software Foundation, Inc.
+   Copyright (C) 2009-2022 Free Software Foundation, Inc.
    Written by Bruno Haible <haible@clisp.cons.org>, 2009,
    and Paolo Bonzini <bonzini@gnu.org>, 2009.
 
@@ -133,7 +133,8 @@ typedef void (*done_read_fn) (void *data_read, size_t num_bytes_read,
    - the positive exit code of the subprocess if that failed.  */
 extern int
        pipe_filter_ii_execute (const char *progname,
-                               const char *prog_path, const char **prog_argv,
+                               const char *prog_path,
+                               const char * const *prog_argv,
                                bool null_stderr, bool exit_on_error,
                                prepare_write_fn prepare_write,
                                done_write_fn done_write,
@@ -150,6 +151,23 @@ struct pipe_filter_ig;
 /* ============================ pipe_filter_gi ============================ */
 
 struct pipe_filter_gi;
+
+/* Finish reading the output via the prepare_read/done_read functions
+   specified to pipe_filter_gi_create.
+
+   Note that the prepare_read/done_read functions may be called in a
+   different thread than the current thread (depending on the platform).
+   However, they will always be called before pipe_filter_gi_close has
+   returned.
+
+   The write side of the pipe is closed as soon as pipe_filter_gi_close
+   starts, while the read side will be closed just before it finishes.
+
+   Return 0 upon success, or (only if exit_on_error is false):
+   - -1 with errno set upon failure,
+   - the positive exit code of the subprocess if that failed.  */
+extern int
+       pipe_filter_gi_close (struct pipe_filter_gi *filter);
 
 /* Create a subprocess and pipe some data through it.
    Arguments:
@@ -179,11 +197,13 @@ struct pipe_filter_gi;
    Return the freshly created 'struct pipe_filter_gi'.  */
 extern struct pipe_filter_gi *
        pipe_filter_gi_create (const char *progname,
-                              const char *prog_path, const char **prog_argv,
+                              const char *prog_path,
+                              const char * const *prog_argv,
                               bool null_stderr, bool exit_on_error,
                               prepare_read_fn prepare_read,
                               done_read_fn done_read,
-                              void *private_data);
+                              void *private_data)
+  _GL_ATTRIBUTE_DEALLOC (pipe_filter_gi_close, 1);
 
 /* Write size bytes starting at buf into the pipe and in the meanwhile
    possibly call the prepare_read and done_read functions specified to
@@ -204,23 +224,6 @@ extern struct pipe_filter_gi *
 extern int
        pipe_filter_gi_write (struct pipe_filter_gi *filter,
                              const void *buf, size_t size);
-
-/* Finish reading the output via the prepare_read/done_read functions
-   specified to pipe_filter_gi_create.
-
-   Note that the prepare_read/done_read functions may be called in a
-   different thread than the current thread (depending on the platform).
-   However, they will always be called before pipe_filter_gi_close has
-   returned.
-
-   The write side of the pipe is closed as soon as pipe_filter_gi_close
-   starts, while the read side will be closed just before it finishes.
-
-   Return 0 upon success, or (only if exit_on_error is false):
-   - -1 with errno set upon failure,
-   - the positive exit code of the subprocess if that failed.  */
-extern int
-       pipe_filter_gi_close (struct pipe_filter_gi *filter);
 
 
 /* ============================ pipe_filter_gg ============================ */

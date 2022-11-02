@@ -1,7 +1,18 @@
-/* -*- Mode: C; indent-tabs-mode: ni; c-basic-offset: 8 -*- */
+/* -*- Mode: C; indent-tabs-mode: nil; c-basic-offset: 8 -*- */
+
+/* libcroco - Library for parsing and applying CSS
+ * Copyright (C) 2006-2019 Free Software Foundation, Inc.
+ *
+ * This file is not part of the GNU gettext program, but is used with
+ * GNU gettext.
+ *
+ * The original copyright notice is as follows:
+ */
 
 /*
  * This file is part of The Croco Library
+ *
+ * Copyright (C) 2003-2004 Dodji Seketeli.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of version 2.1 of the GNU Lesser General Public
@@ -16,8 +27,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA
- *
- * See the COPYRIGHTS file for copyright information.
  */
 
 #ifndef __CR_DOC_HANDLER_H__
@@ -92,7 +101,7 @@ struct _CRDocHandler
 	 *destination media for style information.
 	 *@param a_uri the uri of the imported style sheet.
 	 *@param a_uri_default_ns the default namespace of URI
-	 *@param a_location the parsing location of the '@import' 
+	 *@param a_location the parsing location of the '\@import' 
 	 *keyword.
 	 *of the imported style sheet.
 	 */
@@ -175,7 +184,7 @@ struct _CRDocHandler
 	 *
 	 *@param a_this a pointer to the current instance of
 	 *#CRDocHandler.
-	 *@param a_location the parsing location of the "@font-face"
+	 *@param a_location the parsing location of the "\@font-face"
 	 *keyword.
 	 */
 	void (*start_font_face) (CRDocHandler *a_this,
@@ -227,7 +236,7 @@ struct _CRDocHandler
 	 *#CRDocHandler.
 	 *@param a_name the name of the page (if any, null otherwise).
 	 *@param a_pseudo_page the pseudo page (if any, null otherwise).
-	 *@param a_location the parsing location of the "@page" keyword.
+	 *@param a_location the parsing location of the "\@page" keyword.
 	 */
 	void (*start_page) (CRDocHandler *a_this,
 			    CRString *a_name, 
@@ -239,7 +248,7 @@ struct _CRDocHandler
 	 *@param a_this a pointer to the current instance of
 	 *#CRDocHandler.
 	 *@param a_name the name of the page (if any, null otherwise).
-	 *@parap a_pseudo_page the pseudo page (if any, null otherwise).
+	 *@param a_pseudo_page the pseudo page (if any, null otherwise).
 	 */
 	void (*end_page) (CRDocHandler *a_this,
 			  CRString *a_name,
@@ -276,11 +285,11 @@ CRDocHandler * cr_doc_handler_new (void) ;
 
 enum CRStatus cr_doc_handler_set_result (CRDocHandler *a_this, gpointer a_result) ;
 
-enum CRStatus cr_doc_handler_get_result (CRDocHandler *a_this, gpointer * a_result) ;
+enum CRStatus cr_doc_handler_get_result (CRDocHandler const *a_this, gpointer * a_result) ;
 
 enum CRStatus cr_doc_handler_set_ctxt (CRDocHandler *a_this, gpointer a_ctxt) ;
 
-enum CRStatus cr_doc_handler_get_ctxt (CRDocHandler *a_this, gpointer * a_ctxt) ;
+enum CRStatus cr_doc_handler_get_ctxt (CRDocHandler const *a_this, gpointer * a_ctxt) ;
 
 enum CRStatus cr_doc_handler_set_default_sac_handler (CRDocHandler *a_this) ;
 

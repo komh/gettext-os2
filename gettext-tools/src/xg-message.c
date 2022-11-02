@@ -1,5 +1,5 @@
 /* Extracting a message.  Accumulating the message list.
-   Copyright (C) 2001-2018 Free Software Foundation, Inc.
+   Copyright (C) 2001-2020 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -107,6 +107,109 @@ set_format_flags_from_context (enum is_format is_format[NFORMATS],
 }
 
 
+void
+decide_is_format (message_ty *mp)
+{
+  size_t i;
+
+  /* If it is not already decided, through programmer comments, whether the
+     msgid is a format string, examine the msgid.  This is a heuristic.  */
+  for (i = 0; i < NFORMATS; i++)
+    {
+      if (mp->is_format[i] == undecided
+          && (formatstring_parsers[i] == current_formatstring_parser1
+              || formatstring_parsers[i] == current_formatstring_parser2
+              || formatstring_parsers[i] == current_formatstring_parser3)
+          /* But avoid redundancy: objc-format is stronger than c-format.  */
+          && !(i == format_c && possible_format_p (mp->is_format[format_objc]))
+          && !(i == format_objc && possible_format_p (mp->is_format[format_c]))
+          /* Avoid flagging a string as c-format when it's known to be a
+             qt-format or qt-plural-format or kde-format or boost-format
+             string.  */
+          && !(i == format_c
+               && (possible_format_p (mp->is_format[format_qt])
+                   || possible_format_p (mp->is_format[format_qt_plural])
+                   || possible_format_p (mp->is_format[format_kde])
+                   || possible_format_p (mp->is_format[format_kde_kuit])
+                   || possible_format_p (mp->is_format[format_boost])))
+          /* Avoid flagging a string as kde-format when it's known to
+             be a kde-kuit-format string.  */
+          && !(i == format_kde
+               && possible_format_p (mp->is_format[format_kde_kuit]))
+          /* Avoid flagging a string as kde-kuit-format when it's
+             known to be a kde-format string.  Note that this relies
+             on the fact that format_kde < format_kde_kuit, so a
+             string will be marked as kde-format if both are
+             undecided.  */
+          && !(i == format_kde_kuit
+               && possible_format_p (mp->is_format[format_kde])))
+        {
+          struct formatstring_parser *parser = formatstring_parsers[i];
+          char *invalid_reason = NULL;
+          void *descr = parser->parse (mp->msgid, false, NULL, &invalid_reason);
+
+          if (descr != NULL)
+            {
+              /* msgid is a valid format string.  We mark only those msgids
+                 as format strings which contain at least one format directive
+                 and thus are format strings with a high probability.  We
+                 don't mark strings without directives as format strings,
+                 because that would force the programmer to add
+                 "xgettext: no-c-format" anywhere where a translator wishes
+                 to use a percent sign.  So, the msgfmt checking will not be
+                 perfect.  Oh well.  */
+              if (parser->get_number_of_directives (descr) > 0
+                  && !(parser->is_unlikely_intentional != NULL
+                       && parser->is_unlikely_intentional (descr)))
+                mp->is_format[i] = possible;
+
+              parser->free (descr);
+            }
+          else
+            {
+              /* msgid is not a valid format string.  */
+              mp->is_format[i] = impossible;
+              free (invalid_reason);
+            }
+        }
+    }
+}
+
+void
+intersect_range (message_ty *mp, const struct argument_range *range)
+{
+  if (has_range_p (*range))
+    {
+      if (has_range_p (mp->range))
+        {
+          if (range->min < mp->range.min)
+            mp->range.min = range->min;
+          if (range->max > mp->range.max)
+            mp->range.max = range->max;
+        }
+      else
+        mp->range = *range;
+    }
+}
+
+void
+decide_do_wrap (message_ty *mp)
+{
+  /* By default we wrap.  */
+  mp->do_wrap = (mp->do_wrap == no ? no : yes);
+}
+
+void
+decide_syntax_check (message_ty *mp)
+{
+  size_t i;
+
+  for (i = 0; i < NSYNTAXCHECKS; i++)
+    if (mp->do_syntax_check[i] == undecided)
+      mp->do_syntax_check[i] = default_syntax_check[i] == yes ? yes : no;
+}
+
+
 static void
 warn_format_string (enum is_format is_format[NFORMATS], const char *string,
                     lex_pos_ty *pos, const char *pretty_msgstr)
@@ -136,7 +239,8 @@ and a mapping instead of a tuple for the arguments.\n"),
 
 message_ty *
 remember_a_message (message_list_ty *mlp, char *msgctxt, char *msgid,
-                    bool is_utf8, flag_context_ty context, lex_pos_ty *pos,
+                    bool is_utf8, bool pluralp, flag_context_ty context,
+                    lex_pos_ty *pos,
                     const char *extracted_comment,
                     refcounted_string_list_ty *comment, bool comment_is_utf8)
 {
@@ -202,6 +306,43 @@ meta information, not the empty string.\n")));
   mp = message_list_search (mlp, msgctxt, msgid);
   if (mp != NULL)
     {
+      if (pluralp != (mp->msgid_plural != NULL))
+        {
+          lex_pos_ty pos1;
+          lex_pos_ty pos2;
+          char buffer1[21];
+          char buffer2[21];
+
+          if (pluralp)
+            {
+              pos1 = mp->pos;
+              pos2 = *pos;
+            }
+          else
+            {
+              pos1 = *pos;
+              pos2 = mp->pos;
+            }
+
+          if (pos1.line_number == (size_t)(-1))
+            buffer1[0] = '\0';
+          else
+            sprintf (buffer1, ":%ld", (long) pos1.line_number);
+          if (pos2.line_number == (size_t)(-1))
+            buffer2[0] = '\0';
+          else
+            sprintf (buffer2, ":%ld", (long) pos2.line_number);
+          multiline_warning (xstrdup (_("warning: ")),
+                             xasprintf ("%s\n%s\n%s\n%s\n",
+                                        xasprintf (_("msgid '%s' is used without plural and with plural."),
+                                                   msgid),
+                                        xasprintf (_("%s%s: Here is the occurrence without plural."),
+                                                   pos1.file_name, buffer1),
+                                        xasprintf (_("%s%s: Here is the occurrence with plural."),
+                                                   pos2.file_name, buffer2),
+                                        xstrdup (_("Workaround: If the msgid is a sentence, change the wording of the sentence; otherwise, use contexts for disambiguation."))));
+        }
+
       if (msgctxt != NULL)
         free (msgctxt);
       free (msgid);
@@ -380,91 +521,18 @@ meta information, not the empty string.\n")));
       }
   }
 
-  /* If it is not already decided, through programmer comments, whether the
-     msgid is a format string, examine the msgid.  This is a heuristic.  */
   for (i = 0; i < NFORMATS; i++)
-    {
-      if (is_format[i] == undecided
-          && (formatstring_parsers[i] == current_formatstring_parser1
-              || formatstring_parsers[i] == current_formatstring_parser2
-              || formatstring_parsers[i] == current_formatstring_parser3)
-          /* But avoid redundancy: objc-format is stronger than c-format.  */
-          && !(i == format_c && possible_format_p (is_format[format_objc]))
-          && !(i == format_objc && possible_format_p (is_format[format_c]))
-          /* Avoid flagging a string as c-format when it's known to be a
-             qt-format or qt-plural-format or kde-format or boost-format
-             string.  */
-          && !(i == format_c
-               && (possible_format_p (is_format[format_qt])
-                   || possible_format_p (is_format[format_qt_plural])
-                   || possible_format_p (is_format[format_kde])
-                   || possible_format_p (is_format[format_kde_kuit])
-                   || possible_format_p (is_format[format_boost])))
-          /* Avoid flagging a string as kde-format when it's known to
-             be a kde-kuit-format string.  */
-          && !(i == format_kde
-               && possible_format_p (is_format[format_kde_kuit]))
-          /* Avoid flagging a string as kde-kuit-format when it's
-             known to be a kde-format string.  Note that this relies
-             on the fact that format_kde < format_kde_kuit, so a
-             string will be marked as kde-format if both are
-             undecided.  */
-          && !(i == format_kde_kuit
-               && possible_format_p (is_format[format_kde])))
-        {
-          struct formatstring_parser *parser = formatstring_parsers[i];
-          char *invalid_reason = NULL;
-          void *descr = parser->parse (mp->msgid, false, NULL, &invalid_reason);
+    mp->is_format[i] = is_format[i];
+  decide_is_format (mp);
 
-          if (descr != NULL)
-            {
-              /* msgid is a valid format string.  We mark only those msgids
-                 as format strings which contain at least one format directive
-                 and thus are format strings with a high probability.  We
-                 don't mark strings without directives as format strings,
-                 because that would force the programmer to add
-                 "xgettext: no-c-format" anywhere where a translator wishes
-                 to use a percent sign.  So, the msgfmt checking will not be
-                 perfect.  Oh well.  */
-              if (parser->get_number_of_directives (descr) > 0
-                  && !(parser->is_unlikely_intentional != NULL
-                       && parser->is_unlikely_intentional (descr)))
-                is_format[i] = possible;
+  intersect_range (mp, &range);
 
-              parser->free (descr);
-            }
-          else
-            {
-              /* msgid is not a valid format string.  */
-              is_format[i] = impossible;
-              free (invalid_reason);
-            }
-        }
-      mp->is_format[i] = is_format[i];
-    }
-
-  if (has_range_p (range))
-    {
-      if (has_range_p (mp->range))
-        {
-          if (range.min < mp->range.min)
-            mp->range.min = range.min;
-          if (range.max > mp->range.max)
-            mp->range.max = range.max;
-        }
-      else
-        mp->range = range;
-    }
-
-  mp->do_wrap = do_wrap == no ? no : yes;       /* By default we wrap.  */
+  mp->do_wrap = do_wrap;
+  decide_do_wrap (mp);
 
   for (i = 0; i < NSYNTAXCHECKS; i++)
-    {
-      if (do_syntax_check[i] == undecided)
-        do_syntax_check[i] = default_syntax_check[i] == yes ? yes : no;
-
-      mp->do_syntax_check[i] = do_syntax_check[i];
-    }
+    mp->do_syntax_check[i] = do_syntax_check[i];
+  decide_syntax_check (mp);
 
   /* Warn about the use of non-reorderable format strings when the programming
      language also provides reorderable format strings.  */

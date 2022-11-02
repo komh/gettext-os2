@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 Free Software Foundation, Inc.
+# Copyright (C) 2002-2022 Free Software Foundation, Inc.
 #
 # This file is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -38,7 +38,7 @@
 #  --no-conditional-dependencies \
 #  --libtool \
 #  --macro-prefix=lts \
-#  --avoid=hash-tests \
+#  attribute \
 #  fd-ostream \
 #  file-ostream \
 #  filename \
@@ -46,19 +46,23 @@
 #  html-styled-ostream \
 #  iconv-ostream \
 #  isatty \
+#  largefile \
 #  memory-ostream \
+#  memory-ostream-tests \
 #  noop-styled-ostream \
 #  ostream \
 #  styled-ostream \
 #  term-ostream \
 #  term-ostream-tests \
 #  term-styled-ostream \
+#  vasprintf-posix \
 #  xalloc \
 #  xconcat-filename
 
 # Specification in the form of a few gnulib-tool.m4 macro invocations:
 gl_LOCAL_DIR([gnulib-local:../gnulib-local])
 gl_MODULES([
+  attribute
   fd-ostream
   file-ostream
   filename
@@ -66,17 +70,20 @@ gl_MODULES([
   html-styled-ostream
   iconv-ostream
   isatty
+  largefile
   memory-ostream
+  memory-ostream-tests
   noop-styled-ostream
   ostream
   styled-ostream
   term-ostream
   term-ostream-tests
   term-styled-ostream
+  vasprintf-posix
   xalloc
   xconcat-filename
 ])
-gl_AVOID([ hash-tests])
+gl_AVOID([])
 gl_SOURCE_BASE([lib])
 gl_M4_BASE([gnulib-m4])
 gl_PO_BASE([])

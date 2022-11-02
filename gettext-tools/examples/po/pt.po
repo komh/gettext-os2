@@ -1,15 +1,15 @@
 # Portuguese (Portugal) translation of 'gettext-examples' package.
 # Copyright (C) 2018 Yoyodyne, Inc. (msgids)
 # This file is distributed under the same license as the gettext package.
-# Pedro Albuquerque <palbuquerque73@gmail.com>, 2019.
+# Pedro Albuquerque <pmra@protonmail.com>, 2019, 2020.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: gettext-examples-0.20-rc1\n"
+"Project-Id-Version: gettext-examples 0.20.2\n"
 "Report-Msgid-Bugs-To: bug-gettext@gnu.org\n"
-"POT-Creation-Date: 2019-05-12 16:43+0200\n"
-"PO-Revision-Date: 2019-04-15 16:07+0200\n"
-"Last-Translator: Pedro Albuquerque <palbuquerque73@gmail.com>\n"
+"POT-Creation-Date: 2022-09-11 13:09+0200\n"
+"PO-Revision-Date: 2020-04-17 07:38+0100\n"
+"Last-Translator: Pedro Albuquerque <pmra@protonmail.com>\n"
 "Language-Team: Portuguese <translation-team-pt@lists.sourceforge.net>\n"
 "Language: pt\n"
 "MIME-Version: 1.0\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Bugs: Report translation errors to the Language-Team address.\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\\n\n"
-"X-Generator: Gtranslator 2.91.7\n"
+"X-Generator: Geany / PoHelper 1.36\n"
 
 #: hello-c/hello.c:30 hello-c-gnome/hello.c:46
 #: hello-c-gnome3/hello.desktop.in.in:5 hello-c++/hello.cc:39

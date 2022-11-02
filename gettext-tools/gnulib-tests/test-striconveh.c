@@ -1,5 +1,5 @@
 /* Test of character set conversion with error handling.
-   Copyright (C) 2007-2019 Free Software Foundation, Inc.
+   Copyright (C) 2007-2022 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -1106,8 +1106,6 @@ main ()
       free (result);
     }
 
-#endif
-
   /* -------------------------------- Done. -------------------------------- */
 
   if (cd_ascii_to_88591 != (iconv_t)(-1))
@@ -1115,6 +1113,8 @@ main ()
   iconv_close (cd_ascii_to_utf8);
   if (cd_utf7_to_utf8 != (iconv_t)(-1))
     iconv_close (cd_utf7_to_utf8);
+
+#endif
 
   return 0;
 }

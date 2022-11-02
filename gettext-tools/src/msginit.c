@@ -1,5 +1,5 @@
 /* Initializes a new PO file.
-   Copyright (C) 2001-2019 Free Software Foundation, Inc.
+   Copyright (C) 2001-2022 Free Software Foundation, Inc.
    Written by Bruno Haible <haible@clisp.cons.org>, 2001.
 
    This program is free software: you can redistribute it and/or modify
@@ -54,12 +54,13 @@
 /* Get BINDIR.  */
 #include "configmake.h"
 
+#include "noreturn.h"
 #include "closeout.h"
 #include "error.h"
 #include "error-progname.h"
 #include "progname.h"
 #include "relocatable.h"
-#include "basename.h"
+#include "basename-lgpl.h"
 #include "c-strstr.h"
 #include "c-strcase.h"
 #include "message.h"
@@ -136,11 +137,7 @@ static const struct option long_options[] =
 };
 
 /* Forward declaration of local functions.  */
-static void usage (int status)
-#if defined __GNUC__ && ((__GNUC__ == 2 && __GNUC_MINOR__ >= 5) || __GNUC__ > 2)
-     __attribute__ ((noreturn))
-#endif
-;
+_GL_NORETURN_FUNC static void usage (int status);
 static const char *find_pot (void);
 static const char *catalogname_for_locale (const char *locale);
 static const char *language_of_locale (const char *locale);
@@ -266,14 +263,15 @@ main (int argc, char **argv)
   /* Version information is requested.  */
   if (do_version)
     {
-      printf ("%s (GNU %s) %s\n", basename (program_name), PACKAGE, VERSION);
+      printf ("%s (GNU %s) %s\n", last_component (program_name),
+              PACKAGE, VERSION);
       /* xgettext: no-wrap */
       printf (_("Copyright (C) %s Free Software Foundation, Inc.\n\
 License GPLv3+: GNU GPL version 3 or later <%s>\n\
 This is free software: you are free to change and redistribute it.\n\
 There is NO WARRANTY, to the extent permitted by law.\n\
 "),
-              "2001-2019", "https://gnu.org/licenses/gpl.html");
+              "2001-2022", "https://gnu.org/licenses/gpl.html");
       printf (_("Written by %s.\n"), proper_name ("Bruno Haible"));
       exit (EXIT_SUCCESS);
     }
@@ -577,6 +575,7 @@ catalogname_for_locale (const char *locale)
     "bem_ZM",   /* Bemba        Zambia */
     "bg_BG",    /* Bulgarian    Bulgaria */
     "bho_IN",   /* Bhojpuri     India */
+    "bi_VU",    /* Bislama      Vanuatu */
     "bik_PH",   /* Bikol        Philippines */
     "bin_NG",   /* Bini         Nigeria */
     "bm_ML",    /* Bambara      Mali */
@@ -655,6 +654,7 @@ catalogname_for_locale (const char *locale)
     "kok_IN",   /* Konkani      India */
     "kr_NG",    /* Kanuri       Nigeria */
     "kru_IN",   /* Kurukh       India */
+    "ky_KG",    /* Kyrgyz       Kyrgyzstan */
     "lg_UG",    /* Ganda        Uganda */
     "li_BE",    /* Limburgish   Belgium */
     "lo_LA",    /* Laotian      Laos */
@@ -669,10 +669,11 @@ catalogname_for_locale (const char *locale)
     "mak_ID",   /* Makasar      Indonesia */
     "man_ML",   /* Mandingo     Mali */
     "men_SL",   /* Mende        Sierra Leone */
+    "mfe_MU",   /* Mauritian Creole     Mauritius */
     "mg_MG",    /* Malagasy     Madagascar */
     "mi_NZ",    /* Maori        New Zealand */
     "min_ID",   /* Minangkabau  Indonesia */
-    "mk_MK",    /* Macedonian   Macedonia */
+    "mk_MK",    /* Macedonian   North Macedonia */
     "ml_IN",    /* Malayalam    India */
     "mn_MN",    /* Mongolian    Mongolia */
     "mni_IN",   /* Manipuri     India */
@@ -693,6 +694,7 @@ catalogname_for_locale (const char *locale)
     "no_NO",    /* Norwegian    Norway */
     "nr_ZA",    /* South Ndebele        South Africa */
     "nso_ZA",   /* Northern Sotho       South Africa */
+    "ny_MW",    /* Chichewa     Malawi */
     "nym_TZ",   /* Nyamwezi     Tanzania */
     "nyn_UG",   /* Nyankole     Uganda */
     "oc_FR",    /* Occitan      France */
@@ -711,6 +713,7 @@ catalogname_for_locale (const char *locale)
     "rn_BI",    /* Kirundi      Burundi */
     "ro_RO",    /* Romanian     Romania */
     "ru_RU",    /* Russian      Russia */
+    "rw_RW",    /* Kinyarwanda  Rwanda */
     "sa_IN",    /* Sanskrit     India */
     "sah_RU",   /* Yakut        Russia */
     "sas_ID",   /* Sasak        Indonesia */
@@ -741,6 +744,7 @@ catalogname_for_locale (const char *locale)
     "tk_TM",    /* Turkmen      Turkmenistan */
     "tl_PH",    /* Tagalog      Philippines */
     "to_TO",    /* Tonga        Tonga */
+    "tpi_PG",   /* Tok Pisin    Papua New Guinea */
     "tr_TR",    /* Turkish      Turkey */
     "tum_MW",   /* Tumbuka      Malawi */
     "ug_CN",    /* Uighur       China */
@@ -920,7 +924,7 @@ project_id (const char *header)
   {
     const char *gettextlibdir;
     char *prog;
-    char *argv[3];
+    const char *argv[3];
     pid_t child;
     int fd[1];
     FILE *fp;
@@ -939,8 +943,8 @@ project_id (const char *header)
     argv[0] = BOURNE_SHELL;
     argv[1] = prog;
     argv[2] = NULL;
-    child = create_pipe_in (prog, BOURNE_SHELL, argv, DEV_NULL, false, true,
-                            false, fd);
+    child = create_pipe_in (prog, BOURNE_SHELL, argv, NULL,
+                            DEV_NULL, false, true, false, fd);
     if (child == -1)
       goto failed;
 
@@ -1002,7 +1006,7 @@ project_id_version (const char *header)
   {
     const char *gettextlibdir;
     char *prog;
-    char *argv[4];
+    const char *argv[4];
     pid_t child;
     int fd[1];
     FILE *fp;
@@ -1022,8 +1026,8 @@ project_id_version (const char *header)
     argv[1] = prog;
     argv[2] = "yes";
     argv[3] = NULL;
-    child = create_pipe_in (prog, BOURNE_SHELL, argv, DEV_NULL, false, true,
-                            false, fd);
+    child = create_pipe_in (prog, BOURNE_SHELL, argv, NULL,
+                            DEV_NULL, false, true, false, fd);
     if (child == -1)
       goto failed;
 
@@ -1174,7 +1178,7 @@ get_user_email ()
 #if !(defined _WIN32 && ! defined __CYGWIN__)
   {
     const char *prog = relocate (LIBDIR "/gettext/user-email");
-    char *argv[4];
+    const char *argv[4];
     pid_t child;
     int fd[1];
     FILE *fp;
@@ -1185,14 +1189,14 @@ get_user_email ()
 
     /* Ask the user for his email address.  */
     argv[0] = BOURNE_SHELL;
-    argv[1] = (char *) prog;
-    argv[2] = (char *) _("\
+    argv[1] = prog;
+    argv[2] = _("\
 The new message catalog should contain your email address, so that users can\n\
 give you feedback about the translations, and so that maintainers can contact\n\
 you in case of unexpected technical problems.\n");
     argv[3] = NULL;
-    child = create_pipe_in (prog, BOURNE_SHELL, argv, DEV_NULL, false, true,
-                            false, fd);
+    child = create_pipe_in (prog, BOURNE_SHELL, argv, NULL,
+                            DEV_NULL, false, true, false, fd);
     if (child == -1)
       goto failed;
 
@@ -1280,7 +1284,7 @@ language_team_address ()
 #if !(defined _WIN32 && ! defined __CYGWIN__)
   {
     const char *prog = relocate (PROJECTSDIR "/team-address");
-    char *argv[7];
+    const char *argv[7];
     pid_t child;
     int fd[1];
     FILE *fp;
@@ -1291,14 +1295,14 @@ language_team_address ()
 
     /* Call the team-address shell script.  */
     argv[0] = BOURNE_SHELL;
-    argv[1] = (char *) prog;
-    argv[2] = (char *) relocate (PROJECTSDIR);
-    argv[3] = (char *) relocate (LIBDIR "/gettext");
-    argv[4] = (char *) catalogname;
-    argv[5] = (char *) language;
+    argv[1] = prog;
+    argv[2] = relocate (PROJECTSDIR);
+    argv[3] = relocate (LIBDIR "/gettext");
+    argv[4] = catalogname;
+    argv[5] = language;
     argv[6] = NULL;
-    child = create_pipe_in (prog, BOURNE_SHELL, argv, DEV_NULL, false, true,
-                            false, fd);
+    child = create_pipe_in (prog, BOURNE_SHELL, argv, NULL,
+                            DEV_NULL, false, true, false, fd);
     if (child == -1)
       goto failed;
 
@@ -1431,7 +1435,7 @@ plural_forms ()
     {
       const char *gettextlibdir;
       char *dirs[3], *last_dir;
-      char *argv[4];
+      const char *argv[4];
       pid_t child;
       int fd[1];
       FILE *fp;
@@ -1462,12 +1466,11 @@ plural_forms ()
          because on Cygwin in a build with --enable-shared, the libtool
          wrapper of cldr-plurals.exe apparently needs this.  */
       argv[0] = prog;
-      argv[1] = (char *) language;
+      argv[1] = language;
       argv[2] = last_dir;
       argv[3] = NULL;
-      child = create_pipe_in (prog, prog, argv, DEV_NULL,
-                              false, true, false,
-                              fd);
+      child = create_pipe_in (prog, prog, argv, NULL,
+                              DEV_NULL, false, true, false, fd);
       free (last_dir);
       if (child == -1)
         goto failed;

@@ -1,5 +1,5 @@
 /* xgettext Lua backend.
-   Copyright (C) 2012-2013, 2016, 2018 Free Software Foundation, Inc.
+   Copyright (C) 2012-2013, 2016, 2018-2020 Free Software Foundation, Inc.
 
    This file was written by Ľubomír Remák <lubomirr@lubomirr.eu>, 2012.
 
@@ -46,8 +46,9 @@
 
 #define SIZEOF(a) (sizeof(a) / sizeof(a[0]))
 
-/* The Lua syntax is defined in the Lua manual section 9,
+/* The Lua syntax is defined in the Lua manual sections 3.1 and 9,
    which can be found at
+   https://www.lua.org/manual/5.2/manual.html#3.1
    https://www.lua.org/manual/5.2/manual.html#9  */
 
 /* If true extract all strings.  */
@@ -137,7 +138,7 @@ static FILE *fp;
 static unsigned char phase1_pushback[2];
 static int phase1_pushback_length;
 
-static int first_character = 1;
+static bool first_character;
 
 static int
 phase1_getc ()
@@ -152,7 +153,7 @@ phase1_getc ()
 
       if (first_character)
         {
-          first_character = 0;
+          first_character = false;
 
           /* Ignore shebang line.  No pushback required in this case.  */
           if (c == '#')
@@ -307,42 +308,42 @@ phase2_getc ()
                         break;
 
                       /* Ignore leading spaces and tabs.  */
-                      if (buflen == 0 && (c == ' ' || c == '\t'))
-                        continue;
-
-                      comment_add (c);
-
-                      switch (c)
+                      if (!(buflen == 0 && (c == ' ' || c == '\t')))
                         {
-                        case ']':
-                          if (!right_bracket)
+                          comment_add (c);
+
+                          switch (c)
                             {
-                              right_bracket = true;
-                              esigns2 = 0;
-                            }
-                          else
-                            {
-                              if (esigns2 == esigns)
+                            case ']':
+                              if (!right_bracket)
                                 {
-                                  comment_line_end (2 + esigns);
-                                  end = true;
+                                  right_bracket = true;
+                                  esigns2 = 0;
                                 }
+                              else
+                                {
+                                  if (esigns2 == esigns)
+                                    {
+                                      comment_line_end (2 + esigns);
+                                      end = true;
+                                    }
+                                }
+                              break;
+
+                            case '=':
+                              if (right_bracket)
+                                esigns2++;
+                              break;
+
+                            case '\n':
+                              comment_line_end (1);
+                              comment_start ();
+                              lineno = line_number;
+                              /* Intentionally not breaking.  */
+
+                            default:
+                              right_bracket = false;
                             }
-                          break;
-
-                        case '=':
-                          if (right_bracket)
-                            esigns2++;
-                          break;
-
-                        case '\n':
-                          comment_line_end (1);
-                          comment_start ();
-                          lineno = line_number;
-                          /* Intentionally not breaking.  */
-
-                        default:
-                          right_bracket = false;
                         }
                     }
                   last_comment_line = lineno;
@@ -599,6 +600,16 @@ phase3_get (token_ty *tp)
               /* We need unprocessed characters from phase 1.  */
               c = phase1_getc ();
 
+              if (c == EOF || c == c_start || c == '\n')
+                {
+                  /* End of string.  */
+                  string_end ();
+                  tp->string = xstrdup (string_buf);
+                  tp->comment = add_reference (savable_comment);
+                  tp->type = token_type_string;
+                  return;
+                }
+
               /* We got '\', this is probably an escape sequence.  */
               if (c == '\\')
                 {
@@ -696,15 +707,6 @@ phase3_get (token_ty *tp)
                         string_add (c);
                     }
                 }
-              else if (c == c_start || c == EOF || c == '\n')
-                {
-                  /* End of string.  */
-                  string_end ();
-                  tp->string = xstrdup (string_buf);
-                  tp->comment = add_reference (savable_comment);
-                  tp->type = token_type_string;
-                  return;
-                }
               else
                 string_add (c);
             }
@@ -738,12 +740,26 @@ phase3_get (token_ty *tp)
                 continue;
             }
 
+          /* Found an opening long bracket.  */
           string_start ();
+
+          /* See if it is immediately followed by a newline.  */
+          c = phase1_getc ();
+          if (c != '\n')
+            phase1_ungetc (c);
 
           for (;;)
             {
               c = phase1_getc ();
 
+              if (c == EOF)
+                {
+                  string_end ();
+                  tp->string = xstrdup (string_buf);
+                  tp->comment = add_reference (savable_comment);
+                  tp->type = token_type_string;
+                  return;
+                }
               if (c == ']')
                 {
                   c = phase1_getc ();
@@ -785,18 +801,7 @@ phase3_get (token_ty *tp)
                     }
                 }
               else
-                {
-                  if (c == EOF)
-                    {
-                      string_end ();
-                      tp->string = xstrdup (string_buf);
-                      tp->comment = add_reference (savable_comment);
-                      tp->type = token_type_string;
-                      return;
-                    }
-                  else
-                    string_add (c);
-                }
+                string_add (c);
             }
           break;
 
@@ -1146,8 +1151,9 @@ extract_balanced (message_list_ty *mlp, token_type_ty delim,
             pos.line_number = token.line_number;
 
             if (extract_all)
-              remember_a_message (mlp, NULL, token.string, false, inner_context,
-                                  &pos, NULL, token.comment, false);
+              remember_a_message (mlp, NULL, token.string, false, false,
+                                  inner_context, &pos,
+                                  NULL, token.comment, false);
             else
               {
                 mixed_string_ty *ms =
@@ -1207,8 +1213,16 @@ extract_lua (FILE *f,
   logical_file_name = xstrdup (logical_filename);
   line_number = 1;
 
+  phase1_pushback_length = 0;
+  first_character = true;
+
   last_comment_line = -1;
   last_non_comment_line = -1;
+
+  phase3_pushback_length = 0;
+
+  phase4_last = token_type_eof;
+  phase4_pushback_length = 0;
 
   flag_context_list_table = flag_table;
 

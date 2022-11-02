@@ -1,5 +1,5 @@
 dnl Configuration for the gettext-tools directory of GNU gettext
-dnl Copyright (C) 1995-2019 Free Software Foundation, Inc.
+dnl Copyright (C) 1995-2022 Free Software Foundation, Inc.
 dnl
 dnl This program is free software: you can redistribute it and/or modify
 dnl it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@ dnl along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 dnl Process this file with autoconf to produce a configure script.
 
-AC_PREREQ([2.63])
+AC_PREREQ([2.64])
 AC_INIT([gettext-tools],
 	m4_esyscmd([../build-aux/git-version-gen ../.tarball-version]),
 	[bug-gettext@gnu.org])
@@ -31,18 +31,23 @@ test "$docdir" != '${datarootdir}/doc/${PACKAGE_TARNAME}' || docdir='${datarootd
 dnl Checks for programs.
 AC_PROG_CC
 AC_PROG_INSTALL
-AC_PROG_YACC
 
 gt_JAVA_CHOICE
-
-gt_JAVAEXEC
-gt_JAVACOMP([1.5])
-AC_CHECK_PROG([JAR], [jar], [jar])
-if test -n "$HAVE_JAVACOMP" && test -n "$JAR" && test "$JAVA_CHOICE" != no; then
-  BUILDJAVA=yes
-else
+AS_IF([test "$JAVA_CHOICE" != no], [
+  gt_JAVAEXEC
+  gt_JAVACOMP([1.5])
+  AC_CHECK_PROG([JAR], [jar], [jar])
+  if test -n "$HAVE_JAVACOMP" && test -n "$JAR" && test "$JAVA_CHOICE" != no; then
+    BUILDJAVA=yes
+  else
+    BUILDJAVA=no
+  fi
+], [
+  gt_JAVAEXEC_DISABLED
+  gt_JAVACOMP_DISABLED
+  JAR=
   BUILDJAVA=no
-fi
+])
 AC_SUBST([BUILDJAVA])
 if test -n "$HAVE_JAVAEXEC" && test $BUILDJAVA = yes; then
   TESTJAVA=yes
@@ -77,6 +82,9 @@ AC_EXEEXT
 dnl For a 64-bit build on AIX, AC_PROG_RANLIB is not sufficient.
 gl_PROG_AR_RANLIB
 
+dnl Set preferences for the gnulib module 'threadlib'.
+gl_AVOID_WINPTHREAD
+
 dnl Make sure we see all GNU and Solaris extensions.
 gl_EARLY
 grgl_EARLY
@@ -102,6 +110,13 @@ esac
 AM_CONDITIONAL([WOE32], [test $special_makefile_rules = woe32])
 AM_CONDITIONAL([OS2], [test $special_makefile_rules = os2])
 
+dnl Some code is only meant to be compiled on native Windows.
+case "$host_os" in
+  mingw*) is_windows_native=yes ;;
+  *) is_windows_native=no ;;
+esac
+AM_CONDITIONAL([WINDOWS_NATIVE], [test $is_windows_native = yes])
+
 dnl On Cygwin 1.7.10-1 or later, error_* variables are defined in the
 dnl Cygwin DLL.  To avoid any conflict with gettext DLLs, always link
 dnl to gnulib's error.c.  See GETTEXTLIB_EXPORTS_FLAGS setting below.
@@ -119,8 +134,41 @@ AM_CONDITIONAL([USE_INCLUDED_LIBINTL], [test $USE_INCLUDED_LIBINTL = yes])
 AM_CONDITIONAL([BUILD_INCLUDED_LIBINTL], [test $BUILD_INCLUDED_LIBINTL = yes])
 AM_CONDITIONAL([PACKAGE_IS_GETTEXT_TOOLS], [true])
 AM_CONDITIONAL([PRELOADABLE_LIBINTL],
-  [test $USE_INCLUDED_LIBINTL = no && test $GLIBC2 = yes])
+  [test $USE_INCLUDED_LIBINTL = no && test $GLIBC2 = yes && test "$enable_shared" = yes])
 
+dnl This option allows to build gettext-tools without (re)building libtextstyle.
+AC_ARG_WITH([installed-libtextstyle],
+  [AS_HELP_STRING([--with-installed-libtextstyle],
+     [Use an already installed libtextstyle.])],
+  [gt_use_installed_libtextstyle=$withval],
+  [gt_use_installed_libtextstyle=no])
+if test "$gt_use_installed_libtextstyle" != no; then
+  gl_LIBTEXTSTYLE
+else
+  test -f ../libtextstyle/Makefile || {
+    AC_MSG_WARN([When building the gettext-tools package without building the entire gettext package, you need to pass the --with-installed-libtextstyle option to configure.])
+  }
+fi
+AM_CONDITIONAL([USE_INSTALLED_LIBTEXTSTYLE],
+  [test "$gt_use_installed_libtextstyle" != no])
+
+dnl This option allows to build gettext-tools without (re)building GNU.Gettext.dll.
+AC_ARG_WITH([installed-csharp-dll],
+  [AS_HELP_STRING([--with-installed-csharp-dll],
+     [Use an already installed C# DLL.])],
+  [gt_use_installed_csharp_dll=$withval],
+  [gt_use_installed_csharp_dll=no])
+if test "$gt_use_installed_csharp_dll" = no; then
+  test -f ../gettext-runtime/intl-csharp/Makefile || {
+    AC_MSG_WARN([When building the gettext-tools package without building the entire gettext package, you need to pass the --with-installed-csharp-dll option to configure.])
+  }
+fi
+AM_CONDITIONAL([USE_INSTALLED_CSHARP_DLL],
+  [test "$gt_use_installed_csharp_dll" != no])
+
+dnl Check for bison. (cldr-plural.y requires bison >= 3.0.)
+gl_PROG_BISON([TOOLS_BISON], [3.0])
+gl_BISON
 dnl This line internationalizes the bison generated parsers.
 BISON_I18N
 
@@ -128,24 +176,28 @@ dnl Test whether msgmerge must be linked against libm. This is the case on
 dnl most systems; but BeOS has all <math.h> functions in libc and doesn't have
 dnl a libm.
 MSGMERGE_LIBM=?
-AC_TRY_LINK([
-   #ifndef __NO_MATH_INLINES
-   # define __NO_MATH_INLINES 1 /* for glibc */
-   #endif
-   #include <math.h>
-   double x;],
-  [x = ceil(x); x = sqrt(x);],
-  [MSGMERGE_LIBM=])
-if test "$MSGMERGE_LIBM" = "?"; then
-  save_LIBS="$LIBS" 
-  LIBS="$LIBS -lm"
-  AC_TRY_LINK([
+AC_LINK_IFELSE(
+  [AC_LANG_PROGRAM([[
      #ifndef __NO_MATH_INLINES
      # define __NO_MATH_INLINES 1 /* for glibc */
      #endif
      #include <math.h>
-     double x;],
-    [x = ceil(x); x = sqrt(x);],
+     double x;
+     ]],
+     [[x = ceil(x); x = sqrt(x);]])],
+  [MSGMERGE_LIBM=])
+if test "$MSGMERGE_LIBM" = "?"; then
+  save_LIBS="$LIBS"
+  LIBS="$LIBS -lm"
+  AC_LINK_IFELSE(
+    [AC_LANG_PROGRAM([[
+       #ifndef __NO_MATH_INLINES
+       # define __NO_MATH_INLINES 1 /* for glibc */
+       #endif
+       #include <math.h>
+       double x;
+       ]],
+       [[x = ceil(x); x = sqrt(x);]])],
     [MSGMERGE_LIBM="-lm"])
   LIBS="$save_LIBS"
 fi
@@ -162,6 +214,18 @@ gl_INIT
 grgl_INIT
 gtpo_INIT
 
+dnl Allow libgrep/locale.h to use setlocale_null.h from gnulib-lib/.
+GL_GRGL_GNULIB_SETLOCALE_NULL=1
+
+dnl In libgettextpo/, we don't use the modules putc, fputc, fputs, fwrite,
+dnl fprintf, vfprintf.
+GL_GTPO_GNULIB_PUTC=0
+GL_GTPO_GNULIB_FPUTC=0
+GL_GTPO_GNULIB_FPUTS=0
+GL_GTPO_GNULIB_FWRITE=0
+GL_GTPO_GNULIB_FPRINTF=0
+GL_GTPO_GNULIB_VFPRINTF=0
+
 dnl Checks for header files.
 AC_CHECK_HEADERS([pwd.h])
 
@@ -172,13 +236,10 @@ AC_TYPE_SIZE_T
 AC_CHECK_TYPES([ptrdiff_t])
 gt_TYPE_SSIZE_T
 AC_TYPE_PID_T
-gl_GLIBC21
 
 dnl Checks for library functions.
 AC_CHECK_FUNCS([select])
-AC_FUNC_VFORK
 gt_SIGINFO
-gt_SETLOCALE
 
 AC_C_BIGENDIAN([endianness=1], [endianness=0],
   [echo "AC-C-BIGENDIAN fails to work on your system." | sed -e 's,-,_,g' 1>&2
@@ -246,12 +307,6 @@ dnl gl_ERROR, inside gl_INIT.
 if test "$ac_cv_lib_error_at_line" = no; then
   GETTEXTLIB_EXPORTS_FLAGS="-DGNULIB_DEFINED_ERROR $GETTEXTLIB_EXPORTS_FLAGS"
 fi
-
-dnl 64-bit mingw does not prepend an underscore to C symbols.
-dnl USER_LABEL_PREFIX is set by gl_ASM_SYMBOL_PREFIX, inside gl_INIT.
-if test "$USER_LABEL_PREFIX" = _; then
-  GETTEXTLIB_EXPORTS_FLAGS="-DUSER_LABEL_PREFIX_UNDERSCORE $GETTEXTLIB_EXPORTS_FLAGS"
-fi
 AC_SUBST([GETTEXTLIB_EXPORTS_FLAGS])
 
 dnl Tell the source files that the error facility is replaced by
@@ -290,7 +345,7 @@ AH_BOTTOM([
 #define PAGE_WIDTH 79
 
 /* On Windows, variables that may be in a DLL must be marked specially.  */
-#if ((defined _MSC_VER && defined _DLL) || defined WOE32DLL) && !defined IN_RELOCWRAPPER
+#if defined WOE32DLL && !defined IN_RELOCWRAPPER
 # define DLL_VARIABLE __declspec (dllimport)
 #else
 # define DLL_VARIABLE
@@ -450,7 +505,7 @@ changequote([,])dnl
 fi
 AC_SUBST([ARCHIVE_FORMAT])
 
-ARCHIVE_VERSION=0.20
+ARCHIVE_VERSION=0.21.1
 AC_SUBST([ARCHIVE_VERSION])
 
 PACKAGE_SUFFIX="-$ARCHIVE_VERSION"

@@ -1,4 +1,13 @@
-/* -*- Mode: C; indent-tabs-mode: ni; c-basic-offset: 8 -*- */
+/* -*- Mode: C; indent-tabs-mode: nil; c-basic-offset: 8 -*- */
+
+/* libcroco - Library for parsing and applying CSS
+ * Copyright (C) 2006-2019 Free Software Foundation, Inc.
+ *
+ * This file is not part of the GNU gettext program, but is used with
+ * GNU gettext.
+ *
+ * The original copyright notice is as follows:
+ */
 
 /*
  * This file is part of The Croco Library
@@ -58,11 +67,11 @@ cr_stylesheet_new (CRStatement * a_stmts)
  *@return the serialized stylesheet.
  */
 gchar *
-cr_stylesheet_to_string (CRStyleSheet *a_this)
+cr_stylesheet_to_string (CRStyleSheet const *a_this)
 {
 	gchar *str = NULL;
 	GString *stringue = NULL;
-	CRStatement *cur_stmt = NULL;
+	CRStatement const *cur_stmt = NULL;
 
         g_return_val_if_fail (a_this, NULL);
 
@@ -96,7 +105,7 @@ cr_stylesheet_to_string (CRStyleSheet *a_this)
  *@param a_fp the destination file
  */
 void
-cr_stylesheet_dump (CRStyleSheet * a_this, FILE * a_fp)
+cr_stylesheet_dump (CRStyleSheet const * a_this, FILE * a_fp)
 {
 	gchar *str = NULL ;
 
@@ -116,7 +125,7 @@ cr_stylesheet_dump (CRStyleSheet * a_this, FILE * a_fp)
  *@return number of rules in the stylesheet.
  */
 gint
-cr_stylesheet_nr_rules (CRStyleSheet * a_this)
+cr_stylesheet_nr_rules (CRStyleSheet const * a_this)
 {
         g_return_val_if_fail (a_this, -1);
 

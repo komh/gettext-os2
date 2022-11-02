@@ -1,5 +1,5 @@
 /* Determine the Java version supported by javaexec.
-   Copyright (C) 2006-2019 Free Software Foundation, Inc.
+   Copyright (C) 2006-2022 Free Software Foundation, Inc.
    Written by Bruno Haible <bruno@clisp.org>, 2006.
 
    This program is free software: you can redistribute it and/or modify
@@ -52,7 +52,7 @@ struct locals
 
 static bool
 execute_and_read_line (const char *progname,
-                       const char *prog_path, char **prog_argv,
+                       const char *prog_path, const char * const *prog_argv,
                        void *private_data)
 {
   struct locals *l = (struct locals *) private_data;
@@ -65,8 +65,8 @@ execute_and_read_line (const char *progname,
   int exitstatus;
 
   /* Open a pipe to the JVM.  */
-  child = create_pipe_in (progname, prog_path, prog_argv, DEV_NULL, false,
-                          true, false, fd);
+  child = create_pipe_in (progname, prog_path, prog_argv, NULL,
+                          DEV_NULL, false, true, false, fd);
 
   if (child == -1)
     return false;

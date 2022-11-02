@@ -1,5 +1,5 @@
 /* Boost format strings.
-   Copyright (C) 2001-2004, 2006-2007, 2009 Free Software Foundation, Inc.
+   Copyright (C) 2001-2004, 2006-2007, 2009, 2019-2020 Free Software Foundation, Inc.
    Written by Bruno Haible <haible@clisp.cons.org>, 2006.
 
    This program is free software: you can redistribute it and/or modify
@@ -22,6 +22,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
+#include "attribute.h"
 #include "format.h"
 #include "c-ctype.h"
 #include "xalloc.h"
@@ -92,7 +93,6 @@ struct spec
 {
   unsigned int directives;
   unsigned int numbered_arg_count;
-  unsigned int allocated;
   struct numbered_arg *numbered;
 };
 
@@ -118,13 +118,14 @@ format_parse (const char *format, bool translated, char *fdi,
 {
   const char *const format_start = format;
   struct spec spec;
+  unsigned int numbered_allocated;
   unsigned int unnumbered_arg_count;
   struct spec *result;
 
   spec.directives = 0;
   spec.numbered_arg_count = 0;
-  spec.allocated = 0;
   spec.numbered = NULL;
+  numbered_allocated = 0;
   unnumbered_arg_count = 0;
 
   for (; *format != '\0';)
@@ -240,10 +241,10 @@ format_parse (const char *format, bool translated, char *fdi,
                             goto bad_format;
                           }
 
-                        if (spec.allocated == spec.numbered_arg_count)
+                        if (numbered_allocated == spec.numbered_arg_count)
                           {
-                            spec.allocated = 2 * spec.allocated + 1;
-                            spec.numbered = (struct numbered_arg *) xrealloc (spec.numbered, spec.allocated * sizeof (struct numbered_arg));
+                            numbered_allocated = 2 * numbered_allocated + 1;
+                            spec.numbered = (struct numbered_arg *) xrealloc (spec.numbered, numbered_allocated * sizeof (struct numbered_arg));
                           }
                         spec.numbered[spec.numbered_arg_count].number = width_number;
                         spec.numbered[spec.numbered_arg_count].type = FAT_INTEGER;
@@ -263,10 +264,10 @@ format_parse (const char *format, bool translated, char *fdi,
                             goto bad_format;
                           }
 
-                        if (spec.allocated == unnumbered_arg_count)
+                        if (numbered_allocated == unnumbered_arg_count)
                           {
-                            spec.allocated = 2 * spec.allocated + 1;
-                            spec.numbered = (struct numbered_arg *) xrealloc (spec.numbered, spec.allocated * sizeof (struct numbered_arg));
+                            numbered_allocated = 2 * numbered_allocated + 1;
+                            spec.numbered = (struct numbered_arg *) xrealloc (spec.numbered, numbered_allocated * sizeof (struct numbered_arg));
                           }
                         spec.numbered[unnumbered_arg_count].number = unnumbered_arg_count + 1;
                         spec.numbered[unnumbered_arg_count].type = FAT_INTEGER;
@@ -329,10 +330,10 @@ format_parse (const char *format, bool translated, char *fdi,
                                 goto bad_format;
                               }
 
-                            if (spec.allocated == spec.numbered_arg_count)
+                            if (numbered_allocated == spec.numbered_arg_count)
                               {
-                                spec.allocated = 2 * spec.allocated + 1;
-                                spec.numbered = (struct numbered_arg *) xrealloc (spec.numbered, spec.allocated * sizeof (struct numbered_arg));
+                                numbered_allocated = 2 * numbered_allocated + 1;
+                                spec.numbered = (struct numbered_arg *) xrealloc (spec.numbered, numbered_allocated * sizeof (struct numbered_arg));
                               }
                             spec.numbered[spec.numbered_arg_count].number = precision_number;
                             spec.numbered[spec.numbered_arg_count].type = FAT_INTEGER;
@@ -352,10 +353,10 @@ format_parse (const char *format, bool translated, char *fdi,
                                 goto bad_format;
                               }
 
-                            if (spec.allocated == unnumbered_arg_count)
+                            if (numbered_allocated == unnumbered_arg_count)
                               {
-                                spec.allocated = 2 * spec.allocated + 1;
-                                spec.numbered = (struct numbered_arg *) xrealloc (spec.numbered, spec.allocated  * sizeof (struct numbered_arg));
+                                numbered_allocated = 2 * numbered_allocated + 1;
+                                spec.numbered = (struct numbered_arg *) xrealloc (spec.numbered, numbered_allocated  * sizeof (struct numbered_arg));
                               }
                             spec.numbered[unnumbered_arg_count].number = unnumbered_arg_count + 1;
                             spec.numbered[unnumbered_arg_count].type = FAT_INTEGER;
@@ -417,7 +418,7 @@ format_parse (const char *format, bool translated, char *fdi,
                         type = FAT_ANY;
                         break;
                       }
-                    /*FALLTHROUGH*/
+                    FALLTHROUGH;
                   default:
                     --format;
                     if (*format == '\0')
@@ -470,10 +471,10 @@ format_parse (const char *format, bool translated, char *fdi,
                         goto bad_format;
                       }
 
-                    if (spec.allocated == spec.numbered_arg_count)
+                    if (numbered_allocated == spec.numbered_arg_count)
                       {
-                        spec.allocated = 2 * spec.allocated + 1;
-                        spec.numbered = (struct numbered_arg *) xrealloc (spec.numbered, spec.allocated * sizeof (struct numbered_arg));
+                        numbered_allocated = 2 * numbered_allocated + 1;
+                        spec.numbered = (struct numbered_arg *) xrealloc (spec.numbered, numbered_allocated * sizeof (struct numbered_arg));
                       }
                     spec.numbered[spec.numbered_arg_count].number = number;
                     spec.numbered[spec.numbered_arg_count].type = type;
@@ -491,10 +492,10 @@ format_parse (const char *format, bool translated, char *fdi,
                         goto bad_format;
                       }
 
-                    if (spec.allocated == unnumbered_arg_count)
+                    if (numbered_allocated == unnumbered_arg_count)
                       {
-                        spec.allocated = 2 * spec.allocated + 1;
-                        spec.numbered = (struct numbered_arg *) xrealloc (spec.numbered, spec.allocated * sizeof (struct numbered_arg));
+                        numbered_allocated = 2 * numbered_allocated + 1;
+                        spec.numbered = (struct numbered_arg *) xrealloc (spec.numbered, numbered_allocated * sizeof (struct numbered_arg));
                       }
                     spec.numbered[unnumbered_arg_count].number = unnumbered_arg_count + 1;
                     spec.numbered[unnumbered_arg_count].type = type;
@@ -764,7 +765,7 @@ main ()
 /*
  * For Emacs M-x compile
  * Local Variables:
- * compile-command: "/bin/sh ../libtool --tag=CC --mode=link gcc -o a.out -static -O -g -Wall -I.. -I../gnulib-lib -I../intl -DHAVE_CONFIG_H -DTEST format-boost.c ../gnulib-lib/libgettextlib.la"
+ * compile-command: "/bin/sh ../libtool --tag=CC --mode=link gcc -o a.out -static -O -g -Wall -I.. -I../gnulib-lib -I../../gettext-runtime/intl -DHAVE_CONFIG_H -DTEST format-boost.c ../gnulib-lib/libgettextlib.la"
  * End:
  */
 

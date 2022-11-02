@@ -1,7 +1,18 @@
-/* -*- Mode: C; indent-tabs-mode: ni; c-basic-offset: 8 -*- */
+/* -*- Mode: C; indent-tabs-mode: nil; c-basic-offset: 8 -*- */
+
+/* libcroco - Library for parsing and applying CSS
+ * Copyright (C) 2006-2019 Free Software Foundation, Inc.
+ *
+ * This file is not part of the GNU gettext program, but is used with
+ * GNU gettext.
+ *
+ * The original copyright notice is as follows:
+ */
 
 /*
  * This file is part of The Croco Library
+ *
+ * Copyright (C) 2003-2004 Dodji Seketeli.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of version 2.1 of the GNU Lesser General Public
@@ -16,8 +27,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA
- *
- * See COPYRIGHTS file for copyright information.
  */
 
 #include <config.h>
@@ -58,7 +67,7 @@ cr_selector_parse_from_buf (const guchar * a_char_buf, enum CREncoding a_enc)
 
         g_return_val_if_fail (a_char_buf, NULL);
 
-        parser = cr_parser_new_from_buf ((guchar*)a_char_buf, strlen (a_char_buf),
+        parser = cr_parser_new_from_buf ((guchar*)a_char_buf, strlen ((const char *) a_char_buf),
                                          a_enc, FALSE);
         g_return_val_if_fail (parser, NULL);
 
@@ -139,7 +148,7 @@ cr_selector_append_simple_sel (CRSelector * a_this,
 }
 
 guchar *
-cr_selector_to_string (CRSelector * a_this)
+cr_selector_to_string (CRSelector const * a_this)
 {
         guchar *result = NULL;
         GString *str_buf = NULL;
@@ -148,7 +157,7 @@ cr_selector_to_string (CRSelector * a_this)
         g_return_val_if_fail (str_buf, NULL);
 
         if (a_this) {
-                CRSelector *cur = NULL;
+                CRSelector const *cur = NULL;
 
                 for (cur = a_this; cur; cur = cur->next) {
                         if (cur->simple_sel) {
@@ -162,7 +171,7 @@ cr_selector_to_string (CRSelector * a_this)
                                                 g_string_append (str_buf, 
 								 ", ");
 
-                                        g_string_append (str_buf, tmp_str);
+                                        g_string_append (str_buf, (const gchar *) tmp_str);
 
                                         g_free (tmp_str);
                                         tmp_str = NULL;
@@ -172,7 +181,7 @@ cr_selector_to_string (CRSelector * a_this)
         }
 
         if (str_buf) {
-                result = str_buf->str;
+                result = (guchar *) str_buf->str;
                 g_string_free (str_buf, FALSE);
                 str_buf = NULL;
         }
@@ -189,7 +198,7 @@ cr_selector_to_string (CRSelector * a_this)
  *Serializes the current instance of #CRSelector to a file.
  */
 void
-cr_selector_dump (CRSelector * a_this, FILE * a_fp)
+cr_selector_dump (CRSelector const * a_this, FILE * a_fp)
 {
         guchar *tmp_buf = NULL;
 

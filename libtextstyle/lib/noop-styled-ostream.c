@@ -39,7 +39,7 @@ static const typeinfo_t * const noop_styled_ostream_superclasses[] =
 
 #define super styled_ostream_vtable
 
-#line 33 "noop-styled-ostream.oo.c"
+#line 36 "noop-styled-ostream.oo.c"
 
 /* Implementation of ostream_t methods.  */
 
@@ -62,6 +62,8 @@ noop_styled_ostream__free (noop_styled_ostream_t stream)
 {
   if (stream->own_destination)
     ostream_free (stream->destination);
+  free (stream->hyperlink_ref);
+  free (stream->hyperlink_id);
   free (stream);
 }
 
@@ -77,6 +79,31 @@ static void
 noop_styled_ostream__end_use_class (noop_styled_ostream_t stream,
                                     const char *classname)
 {
+}
+
+static const char *
+noop_styled_ostream__get_hyperlink_ref (noop_styled_ostream_t stream)
+{
+  return stream->hyperlink_ref;
+}
+
+static const char *
+noop_styled_ostream__get_hyperlink_id (noop_styled_ostream_t stream)
+{
+  return stream->hyperlink_id;
+}
+
+static void
+noop_styled_ostream__set_hyperlink (noop_styled_ostream_t stream,
+                                    const char *ref, const char *id)
+{
+  char *ref_copy = (ref != NULL ? xstrdup (ref) : NULL);
+  char *id_copy = (id != NULL ? xstrdup (id) : NULL);
+
+  free (stream->hyperlink_ref);
+  stream->hyperlink_ref = ref_copy;
+  free (stream->hyperlink_id);
+  stream->hyperlink_id = id_copy;
 }
 
 static void
@@ -96,11 +123,13 @@ noop_styled_ostream_create (ostream_t destination, bool pass_ownership)
   stream->base.base.vtable = &noop_styled_ostream_vtable;
   stream->destination = destination;
   stream->own_destination = pass_ownership;
+  stream->hyperlink_ref = NULL;
+  stream->hyperlink_id = NULL;
 
   return stream;
 }
 
-#line 104 "noop-styled-ostream.c"
+#line 133 "noop-styled-ostream.c"
 
 const struct noop_styled_ostream_implementation noop_styled_ostream_vtable =
 {
@@ -112,6 +141,9 @@ const struct noop_styled_ostream_implementation noop_styled_ostream_vtable =
   noop_styled_ostream__free,
   noop_styled_ostream__begin_use_class,
   noop_styled_ostream__end_use_class,
+  noop_styled_ostream__get_hyperlink_ref,
+  noop_styled_ostream__get_hyperlink_id,
+  noop_styled_ostream__set_hyperlink,
   noop_styled_ostream__flush_to_current_style,
 };
 
@@ -157,6 +189,30 @@ noop_styled_ostream_end_use_class (noop_styled_ostream_t first_arg, const char *
   const struct noop_styled_ostream_implementation *vtable =
     ((struct noop_styled_ostream_representation_header *) (struct noop_styled_ostream_representation *) first_arg)->vtable;
   vtable->end_use_class (first_arg,classname);
+}
+
+const char *
+noop_styled_ostream_get_hyperlink_ref (noop_styled_ostream_t first_arg)
+{
+  const struct noop_styled_ostream_implementation *vtable =
+    ((struct noop_styled_ostream_representation_header *) (struct noop_styled_ostream_representation *) first_arg)->vtable;
+  return vtable->get_hyperlink_ref (first_arg);
+}
+
+const char *
+noop_styled_ostream_get_hyperlink_id (noop_styled_ostream_t first_arg)
+{
+  const struct noop_styled_ostream_implementation *vtable =
+    ((struct noop_styled_ostream_representation_header *) (struct noop_styled_ostream_representation *) first_arg)->vtable;
+  return vtable->get_hyperlink_id (first_arg);
+}
+
+void
+noop_styled_ostream_set_hyperlink (noop_styled_ostream_t first_arg,                               const char *ref, const char *id)
+{
+  const struct noop_styled_ostream_implementation *vtable =
+    ((struct noop_styled_ostream_representation_header *) (struct noop_styled_ostream_representation *) first_arg)->vtable;
+  vtable->set_hyperlink (first_arg,ref,id);
 }
 
 void

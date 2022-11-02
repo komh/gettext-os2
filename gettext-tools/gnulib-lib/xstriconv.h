@@ -1,5 +1,5 @@
 /* Charset conversion with out-of-memory checking.
-   Copyright (C) 2001-2004, 2006-2007, 2009-2019 Free Software Foundation, Inc.
+   Copyright (C) 2001-2004, 2006-2007, 2009-2022 Free Software Foundation, Inc.
    Written by Bruno Haible and Simon Josefsson.
 
    This program is free software: you can redistribute it and/or modify
@@ -18,7 +18,7 @@
 #ifndef _XSTRICONV_H
 #define _XSTRICONV_H
 
-#include <stddef.h>
+#include <stdlib.h>
 #if HAVE_ICONV
 #include <iconv.h>
 #endif
@@ -54,7 +54,8 @@ extern int xmem_cd_iconv (const char *src, size_t srclen, iconv_t cd,
    Upon memory allocation failure, report the error and exit.
    Return value: the freshly allocated resulting NUL-terminated string if
    successful, otherwise NULL and errno set.  */
-extern char * xstr_cd_iconv (const char *src, iconv_t cd);
+extern char * xstr_cd_iconv (const char *src, iconv_t cd)
+  _GL_ATTRIBUTE_MALLOC _GL_ATTRIBUTE_DEALLOC_FREE;
 
 #endif
 
@@ -67,7 +68,8 @@ extern char * xstr_cd_iconv (const char *src, iconv_t cd);
    Return value: the freshly allocated resulting NUL-terminated string if
    successful, otherwise NULL and errno set.  */
 extern char * xstr_iconv (const char *src,
-                          const char *from_codeset, const char *to_codeset);
+                          const char *from_codeset, const char *to_codeset)
+  _GL_ATTRIBUTE_MALLOC _GL_ATTRIBUTE_DEALLOC_FREE;
 
 
 #ifdef __cplusplus

@@ -1,8 +1,18 @@
 /* -*- Mode: C; indent-tabs-mode:nil; c-basic-offset: 8-*- */
 
+/* libcroco - Library for parsing and applying CSS
+ * Copyright (C) 2006-2019 Free Software Foundation, Inc.
+ *
+ * This file is not part of the GNU gettext program, but is used with
+ * GNU gettext.
+ *
+ * The original copyright notice is as follows:
+ */
+
 /*
  * This file is part of The Croco Library
  *
+ * Copyright (C) 2003-2004 Dodji Seketeli.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of version 2.1 of the GNU Lesser General Public
@@ -19,7 +29,6 @@
  * USA
  *
  * Author: Dodji Seketeli
- * See COPYRIGHTS file for copyrights information.
  */
 
 /**
@@ -93,7 +102,7 @@ cr_num_new_with_val (gdouble a_val, enum CRNumType a_type)
  *free the returned string.
  */
 guchar *
-cr_num_to_string (CRNum * a_this)
+cr_num_to_string (CRNum const * a_this)
 {
         gdouble test_val = 0.0;
 
@@ -106,9 +115,11 @@ cr_num_to_string (CRNum * a_this)
         test_val = a_this->val - (glong) a_this->val;
 
         if (!test_val) {
-                tmp_char1 = g_strdup_printf ("%ld", (glong) a_this->val);
+                tmp_char1 = (guchar *) g_strdup_printf ("%ld", (glong) a_this->val);
         } else {
-                tmp_char1 = g_strdup_printf ("%.3f", a_this->val);
+                tmp_char1 = (guchar *) g_new0 (char, G_ASCII_DTOSTR_BUF_SIZE + 1);
+                if (tmp_char1 != NULL)
+                        g_ascii_dtostr ((gchar *) tmp_char1, G_ASCII_DTOSTR_BUF_SIZE, a_this->val);
         }
 
         g_return_val_if_fail (tmp_char1, NULL);
@@ -192,7 +203,7 @@ cr_num_to_string (CRNum * a_this)
         }
 
         if (tmp_char2) {
-                result = g_strconcat (tmp_char1, tmp_char2, NULL);
+                result = (guchar *)  g_strconcat ((gchar *) tmp_char1, tmp_char2, NULL);
                 g_free (tmp_char1);
         } else {
                 result = tmp_char1;
@@ -214,7 +225,7 @@ cr_num_to_string (CRNum * a_this)
  *error code otherwise.
  */
 enum CRStatus
-cr_num_copy (CRNum * a_dest, CRNum * a_src)
+cr_num_copy (CRNum * a_dest, CRNum const * a_src)
 {
         g_return_val_if_fail (a_dest && a_src, CR_BAD_PARAM_ERROR);
 
@@ -233,7 +244,7 @@ cr_num_copy (CRNum * a_dest, CRNum * a_src)
  *Must be freed by cr_num_destroy().
  */
 CRNum *
-cr_num_dup (CRNum * a_this)
+cr_num_dup (CRNum const * a_this)
 {
         CRNum *result = NULL;
         enum CRStatus status = CR_OK;
@@ -283,7 +294,7 @@ cr_num_set (CRNum * a_this, gdouble a_val, enum CRNumType a_type)
  *FALSE otherwise.
  */
 gboolean
-cr_num_is_fixed_length (CRNum * a_this)
+cr_num_is_fixed_length (CRNum const * a_this)
 {
         gboolean result = FALSE;
 

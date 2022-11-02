@@ -1,5 +1,5 @@
 /* Waiting for a subprocess to finish.
-   Copyright (C) 2001-2003, 2005-2019 Free Software Foundation, Inc.
+   Copyright (C) 2001-2003, 2005-2022 Free Software Foundation, Inc.
    Written by Bruno Haible <haible@clisp.cons.org>, 2001.
 
    This program is free software: you can redistribute it and/or modify
@@ -44,7 +44,7 @@
 # define WIN32_LEAN_AND_MEAN
 # include <windows.h>
 
-/* The return value of spawnvp() is really a process handle as returned
+/* The return value of _spawnvp() is really a process handle as returned
    by CreateProcess().  Therefore we can kill it using TerminateProcess.  */
 # define kill(pid,sig) TerminateProcess ((HANDLE) (pid), sig)
 
@@ -105,7 +105,7 @@ cleanup_slaves (void)
 /* The cleanup action, taking a signal argument.
    It gets called asynchronously.  */
 static _GL_ASYNC_SAFE void
-cleanup_slaves_action (int sig _GL_UNUSED)
+cleanup_slaves_action (_GL_UNUSED int sig)
 {
   cleanup_slaves ();
 }
@@ -121,7 +121,8 @@ register_slave_subprocess (pid_t child)
   if (!cleanup_slaves_registered)
     {
       atexit (cleanup_slaves);
-      at_fatal_signal (cleanup_slaves_action);
+      if (at_fatal_signal (cleanup_slaves_action) < 0)
+        xalloc_die ();
       cleanup_slaves_registered = true;
     }
 

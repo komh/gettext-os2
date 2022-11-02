@@ -1,3 +1,79 @@
+Version 0.21.1 - October 2022
+
+* Runtime behaviour:
+  - On AIX, locale names with a script or with an uppercase language are now
+    supported.
+    For example, sr_Cyrl_RS.UTF-8 is treated like sr_RS.UTF-8@cyrillic, and
+    EN_US.UTF-8 is treated like en_US.UTF-8.
+
+* The base Unicode standard is now updated to 14.0.0.
+
+* Portability:
+  - Building on macOS 11/arm64 is now supported.
+  - Building on Linux/powerpc64le with glibc ≥ 2.35 is now supported.
+
+Version 0.21 - July 2020
+
+* Programming languages support:
+  - Shell:
+    o xgettext now recognizes and ignores 'env' invocations and environment
+      variable assignments in front of commands.
+  - Java:
+    o xgettext now recognizes format strings in the Formatter syntax.  They
+      are marked as 'java-printf-format' in POT and PO files.
+    o xgettext now recognizes text blocks as string literals.
+  - JavaScript:
+    xgettext parses JSX expressions more reliably.
+  - Ruby:
+    o xgettext now supports Ruby.
+    o 'msgfmt -c' now verifies the syntax of translations of Ruby format
+      strings.
+
+* Runtime behaviour:
+  - On native Windows platforms, the directory that contains the message
+    catalogs may now contain arbitrary Unicode characters. To make use of
+    this feature, use the new function 'wbindtextdomain' instead of
+    'bindtextdomain'. It allows to pass a directory name in wchar_t[] encoding.
+    Note: 'wbindtextdomain' exists only on native Windows platforms.
+
+* Improvements for translators:
+  - When msgfmt writes a MO file, it now does so in such a way that processes
+    that are currently using an older copy of the MO file will not crash.
+
+* Libtextstyle:
+  - Added support for emitting hyperlinks.
+  - New API for doing formatted output.
+  - The example programs support the NO_COLOR environment variable.
+
+Version 0.20.2 - April 2020
+
+* Improvements for maintainers:
+  - A dependency bug in po/Makefile.in.in has been fixed.
+
+* Programming languages support:
+  - Shell:
+    o The programs 'gettext', 'ngettext', when invoked with option -e, now
+      expand '\\' and octal escape sequences, instead of swallowing them.
+      (Bug present since the beginning.)
+    o xgettext now recognizes 'gettext' program invocations with the '-e'
+      option, such as
+        gettext -e 'some\nstring\n'
+  - Python:
+    xgettext now assumes a Python source file is in UTF-8 encoding by default,
+    as stated in PEP 3120.
+  - Desktop Entry:
+    The value of the 'Icon' property is no longer extracted into the POT file
+    by xgettext.  The documentation explains how to localize icons.
+
+* Runtime behaviour:
+  - The interpretation of the language preferences on macOS has been improved,
+    especially in the case where a system locale does not exist for the
+    combination of the selected primary language and the selected territory.
+  - Fixed a multithread-safety bug on Cygwin and native Windows.
+
+* Libtextstyle:
+  - Fixed a number of bugs (by upgrading libcroco to version 0.6.13).
+
 Version 0.20.1 - May 2019
 
 * Important bug fix:

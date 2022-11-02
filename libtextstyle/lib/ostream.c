@@ -5,7 +5,7 @@
 #endif
 #line 1 "ostream.oo.c"
 /* Abstract output stream data type.
-   Copyright (C) 2006 Free Software Foundation, Inc.
+   Copyright (C) 2006, 2019 Free Software Foundation, Inc.
    Written by Bruno Haible <bruno@clisp.org>, 2006.
 
    This program is free software: you can redistribute it and/or modify
@@ -26,7 +26,9 @@
 /* Specification.  */
 #include "ostream.h"
 
-#line 30 "ostream.c"
+#include <stdio.h>
+
+#line 32 "ostream.c"
 #include "ostream.priv.h"
 
 const typeinfo_t ostream_typeinfo = { "ostream" };
@@ -34,7 +36,7 @@ const typeinfo_t ostream_typeinfo = { "ostream" };
 static const typeinfo_t * const ostream_superclasses[] =
   { ostream_SUPERCLASSES };
 
-#line 27 "ostream.oo.c"
+#line 29 "ostream.oo.c"
 
 #if !HAVE_INLINE
 
@@ -46,7 +48,40 @@ ostream_write_str (ostream_t stream, const char *string)
 
 #endif
 
-#line 50 "ostream.c"
+ptrdiff_t
+ostream_printf (ostream_t stream, const char *format, ...)
+{
+  va_list args;
+  char *temp_string;
+  ptrdiff_t ret;
+
+  va_start (args, format);
+  ret = vasprintf (&temp_string, format, args);
+  va_end (args);
+  if (ret >= 0)
+    {
+      if (ret > 0)
+        ostream_write_str (stream, temp_string);
+      free (temp_string);
+    }
+  return ret;
+}
+
+ptrdiff_t
+ostream_vprintf (ostream_t stream, const char *format, va_list args)
+{
+  char *temp_string;
+  ptrdiff_t ret = vasprintf (&temp_string, format, args);
+  if (ret >= 0)
+    {
+      if (ret > 0)
+        ostream_write_str (stream, temp_string);
+      free (temp_string);
+    }
+  return ret;
+}
+
+#line 85 "ostream.c"
 void ostream__write_mem (ostream_t first_arg, const void *data, size_t len);
 void
 ostream__write_mem (ostream_t first_arg, const void *data, size_t len)

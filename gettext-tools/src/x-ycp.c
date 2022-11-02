@@ -1,5 +1,5 @@
 /* xgettext YCP backend.
-   Copyright (C) 2001-2003, 2005-2009, 2011, 2018 Free Software Foundation, Inc.
+   Copyright (C) 2001-2003, 2005-2009, 2011, 2018-2020 Free Software Foundation, Inc.
 
    This file was written by Bruno Haible <haible@clisp.cons.org>, 2001.
 
@@ -29,6 +29,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "attribute.h"
 #include "message.h"
 #include "rc-str-list.h"
 #include "xgettext.h"
@@ -245,7 +246,7 @@ phase2_getc ()
                       savable_comment_add (buffer);
                       break;
                     }
-                  /* FALLTHROUGH */
+                  FALLTHROUGH;
 
                 default:
                   last_was_star = false;
@@ -445,7 +446,7 @@ phase5_get (token_ty *tp)
         case '\n':
           if (last_non_comment_line > last_comment_line)
             savable_comment_reset ();
-          /* FALLTHROUGH */
+          FALLTHROUGH;
         case '\r':
         case '\t':
         case ' ':
@@ -581,9 +582,17 @@ phase5_unget (token_ty *tp)
 /* Concatenate adjacent string literals to form single string literals.
    (See libycp/src/parser.yy, rule 'string' vs. terminal 'STRING'.)  */
 
+static token_ty phase8_pushback[1];
+static int phase8_pushback_length;
+
 static void
 phase8_get (token_ty *tp)
 {
+  if (phase8_pushback_length)
+    {
+      *tp = phase8_pushback[--phase8_pushback_length];
+      return;
+    }
   phase5_get (tp);
   if (tp->type != token_type_string_literal)
     return;
@@ -602,6 +611,18 @@ phase8_get (token_ty *tp)
       tp->string = xrealloc (tp->string, len + strlen (tmp.string) + 1);
       strcpy (tp->string + len, tmp.string);
       free_token (&tmp);
+    }
+}
+
+/* Supports only one pushback token.  */
+static void
+phase8_unget (token_ty *tp)
+{
+  if (tp->type != token_type_eof)
+    {
+      if (phase8_pushback_length == SIZEOF (phase8_pushback))
+        abort ();
+      phase8_pushback[phase8_pushback_length++] = *tp;
     }
 }
 
@@ -680,9 +701,24 @@ extract_parenthesized (message_list_ty *mlp,
               if (plural_state == 0)
                 {
                   /* Seen an msgid.  */
-                  plural_mp = remember_a_message (mlp, NULL, token.string,
-                                                  false, inner_context, &pos,
-                                                  NULL, token.comment, false);
+                  token_ty token2;
+
+                  if (in_i18n)
+                    phase8_get (&token2);
+                  else
+                    phase5_get (&token2);
+
+                  plural_mp =
+                    remember_a_message (mlp, NULL, token.string, false,
+                                        token2.type == token_type_comma,
+                                        inner_context, &pos,
+                                        NULL, token.comment, false);
+
+                  if (in_i18n)
+                    phase8_unget (&token2);
+                  else
+                    phase5_unget (&token2);
+
                   plural_state = 1;
                   state = 2;
                 }
@@ -769,6 +805,10 @@ extract_ycp (FILE *f,
 
   last_comment_line = -1;
   last_non_comment_line = -1;
+
+  phase2_pushback_length = 0;
+  phase5_pushback_length = 0;
+  phase8_pushback_length = 0;
 
   flag_context_list_table = flag_table;
 

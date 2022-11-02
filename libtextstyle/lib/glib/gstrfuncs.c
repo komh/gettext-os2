@@ -1,17 +1,26 @@
 /* GLIB - Library of useful routines for C programming
+ * Copyright (C) 2006-2019 Free Software Foundation, Inc.
+ *
+ * This file is not part of the GNU gettext program, but is used with
+ * GNU gettext.
+ *
+ * The original copyright notice is as follows:
+ */
+
+/* GLIB - Library of useful routines for C programming
  * Copyright (C) 1995-1997  Peter Mattis, Spencer Kimball and Josh MacDonald
  *
  * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public
+ * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
- * version 3 of the License, or (at your option) any later version.
+ * version 2 of the License, or (at your option) any later version.
  *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the GNU
- * General Public License for more details.
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public
+ * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
@@ -52,8 +61,10 @@
 #include "glib.h"
 #if 0
 #include "gprintf.h"
+#endif
 #include "gprintfint.h"
 
+#if 0
 #include "galias.h"
 
 #ifdef G_OS_WIN32
@@ -493,6 +504,7 @@ g_ascii_strtod (const gchar *nptr,
   return val;
 }
 
+#endif
 
 /**
  * g_ascii_dtostr:
@@ -612,17 +624,6 @@ g_ascii_formatd (gchar       *buffer,
   return buffer;
 }
 
-static guint64
-g_parse_long_long (const gchar *nptr,
-		   gchar      **endptr,
-		   guint        base,
-		   gboolean    *negative)
-{
-  /* this code is based on on the strtol(3) code from GNU libc released under
-   * the GNU General Public License.
-   *
-   * Copyright (C) 1991-1992, 1994-2002 Free Software Foundation, Inc.
-   */
 #define ISSPACE(c)		((c) == ' ' || (c) == '\f' || (c) == '\n' || \
 				 (c) == '\r' || (c) == '\t' || (c) == '\v')
 #define ISUPPER(c)		((c) >= 'A' && (c) <= 'Z')
@@ -630,6 +631,20 @@ g_parse_long_long (const gchar *nptr,
 #define ISALPHA(c)		(ISUPPER (c) || ISLOWER (c))
 #define	TOUPPER(c)		(ISLOWER (c) ? (c) - 'a' + 'A' : (c))
 #define	TOLOWER(c)		(ISUPPER (c) ? (c) - 'A' + 'a' : (c))
+
+#if 0
+
+static guint64
+g_parse_long_long (const gchar *nptr,
+		   gchar      **endptr,
+		   guint        base,
+		   gboolean    *negative)
+{
+  /* this code is based on on the strtol(3) code from GNU libc released under
+   * the GNU Lesser General Public License.
+   *
+   * Copyright (C) 1991-1992, 1994-2002 Free Software Foundation, Inc.
+   */
   gboolean overflow;
   guint64 cutoff;
   guint64 cutlim;
@@ -1823,6 +1838,8 @@ g_ascii_xdigit_value (gchar c)
   return g_ascii_digit_value (c);
 }
 
+#endif
+
 /**
  * g_ascii_strcasecmp:
  * @s1: string to compare with @s2.
@@ -1865,6 +1882,8 @@ g_ascii_strcasecmp (const gchar *s1,
 
   return (((gint)(guchar) *s1) - ((gint)(guchar) *s2));
 }
+
+#if 0
 
 /**
  * g_ascii_strncasecmp:

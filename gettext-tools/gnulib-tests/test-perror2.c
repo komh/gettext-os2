@@ -1,5 +1,5 @@
 /* Test of perror() function.
-   Copyright (C) 2011-2019 Free Software Foundation, Inc.
+   Copyright (C) 2011-2022 Free Software Foundation, Inc.
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -79,9 +79,6 @@ main (void)
     errno = -5;
     perror ("");
     ASSERT (!ferror (stderr));
-    ASSERT (msg1 == msg2 || msg1 == msg4 || STREQ (msg1, str1));
-    ASSERT (msg2 == msg4 || STREQ (msg2, str2));
-    ASSERT (msg3 == msg4 || STREQ (msg3, str3));
     ASSERT (STREQ (msg4, str4));
 
     free (str1);
@@ -97,7 +94,7 @@ main (void)
     for (i = 0; i < SIZEOF (errs); i++)
       {
         char buf[256];
-        char *err = strerror (errs[i]);
+        const char *err = strerror (errs[i]);
 
         ASSERT (err);
         ASSERT (strlen (err) < sizeof buf);

@@ -10,4 +10,7 @@ struct noop_styled_ostream_representation
    
   ostream_t destination;
   bool own_destination;
+   
+  char *hyperlink_ref;
+  char *hyperlink_id;
 };

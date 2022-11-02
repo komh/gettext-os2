@@ -5,7 +5,7 @@
 #endif
 #line 1 "term-styled-ostream.oo.c"
 /* Output stream for CSS styled text, producing ANSI escape sequences.
-   Copyright (C) 2006-2007, 2019 Free Software Foundation, Inc.
+   Copyright (C) 2006-2007, 2019-2020 Free Software Foundation, Inc.
    Written by Bruno Haible <bruno@clisp.org>, 2006.
 
    This program is free software: you can redistribute it and/or modify
@@ -39,7 +39,7 @@
 #include <cr-string.h>
 
 #include "term-ostream.h"
-#include "hash.h"
+#include "mem-hash-map.h"
 #include "xalloc.h"
 
 
@@ -592,6 +592,25 @@ term_styled_ostream__end_use_class (term_styled_ostream_t stream,
   stream->curr_attr = (attributes_t *) found;
 }
 
+static const char *
+term_styled_ostream__get_hyperlink_ref (term_styled_ostream_t stream)
+{
+  return term_ostream_get_hyperlink_ref (stream->destination);
+}
+
+static const char *
+term_styled_ostream__get_hyperlink_id (term_styled_ostream_t stream)
+{
+  return term_ostream_get_hyperlink_id (stream->destination);
+}
+
+static void
+term_styled_ostream__set_hyperlink (term_styled_ostream_t stream,
+                                    const char *ref, const char *id)
+{
+  term_ostream_set_hyperlink (stream->destination, ref, id);
+}
+
 static void
 term_styled_ostream__flush_to_current_style (term_styled_ostream_t stream)
 {
@@ -646,7 +665,7 @@ term_styled_ostream_create (int fd, const char *filename, ttyctl_t tty_control,
   return stream;
 }
 
-#line 650 "term-styled-ostream.c"
+#line 669 "term-styled-ostream.c"
 
 const struct term_styled_ostream_implementation term_styled_ostream_vtable =
 {
@@ -658,6 +677,9 @@ const struct term_styled_ostream_implementation term_styled_ostream_vtable =
   term_styled_ostream__free,
   term_styled_ostream__begin_use_class,
   term_styled_ostream__end_use_class,
+  term_styled_ostream__get_hyperlink_ref,
+  term_styled_ostream__get_hyperlink_id,
+  term_styled_ostream__set_hyperlink,
   term_styled_ostream__flush_to_current_style,
 };
 
@@ -703,6 +725,30 @@ term_styled_ostream_end_use_class (term_styled_ostream_t first_arg, const char *
   const struct term_styled_ostream_implementation *vtable =
     ((struct term_styled_ostream_representation_header *) (struct term_styled_ostream_representation *) first_arg)->vtable;
   vtable->end_use_class (first_arg,classname);
+}
+
+const char *
+term_styled_ostream_get_hyperlink_ref (term_styled_ostream_t first_arg)
+{
+  const struct term_styled_ostream_implementation *vtable =
+    ((struct term_styled_ostream_representation_header *) (struct term_styled_ostream_representation *) first_arg)->vtable;
+  return vtable->get_hyperlink_ref (first_arg);
+}
+
+const char *
+term_styled_ostream_get_hyperlink_id (term_styled_ostream_t first_arg)
+{
+  const struct term_styled_ostream_implementation *vtable =
+    ((struct term_styled_ostream_representation_header *) (struct term_styled_ostream_representation *) first_arg)->vtable;
+  return vtable->get_hyperlink_id (first_arg);
+}
+
+void
+term_styled_ostream_set_hyperlink (term_styled_ostream_t first_arg,                               const char *ref, const char *id)
+{
+  const struct term_styled_ostream_implementation *vtable =
+    ((struct term_styled_ostream_representation_header *) (struct term_styled_ostream_representation *) first_arg)->vtable;
+  vtable->set_hyperlink (first_arg,ref,id);
 }
 
 void

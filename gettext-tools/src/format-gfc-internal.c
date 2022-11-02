@@ -1,5 +1,5 @@
 /* GFC (GNU Fortran Compiler) internal format strings.
-   Copyright (C) 2003-2009 Free Software Foundation, Inc.
+   Copyright (C) 2003-2009, 2019-2020, 2022 Free Software Foundation, Inc.
    Written by Bruno Haible <bruno@clisp.org>, 2009.
 
    This program is free software: you can redistribute it and/or modify
@@ -123,14 +123,14 @@ format_parse (const char *format, bool translated, char *fdi,
   const char *const format_start = format;
   struct spec spec;
   unsigned int numbered_arg_count;
-  unsigned int allocated;
+  unsigned int numbered_allocated;
   struct numbered_arg *numbered;
   struct spec *result;
   unsigned int number;
 
   spec.directives = 0;
   numbered_arg_count = 0;
-  allocated = 0;
+  numbered_allocated = 0;
   numbered = NULL;
   spec.uses_currentloc = false;
   number = 1;
@@ -213,10 +213,10 @@ format_parse (const char *format, bool translated, char *fdi,
                   }
               }
 
-            if (allocated == numbered_arg_count)
+            if (numbered_allocated == numbered_arg_count)
               {
-                allocated = 2 * allocated + 1;
-                numbered = (struct numbered_arg *) xrealloc (numbered, allocated * sizeof (struct numbered_arg));
+                numbered_allocated = 2 * numbered_allocated + 1;
+                numbered = (struct numbered_arg *) xrealloc (numbered, numbered_allocated * sizeof (struct numbered_arg));
               }
             numbered[numbered_arg_count].number = number;
             numbered[numbered_arg_count].type = type;
@@ -277,7 +277,7 @@ format_parse (const char *format, bool translated, char *fdi,
         goto bad_format;
     }
 
-  /* Verify that the format strings uses all arguments up to the highest
+  /* Verify that the format string uses all arguments up to the highest
      numbered one.  */
   {
     unsigned int i;
@@ -497,7 +497,7 @@ main ()
 /*
  * For Emacs M-x compile
  * Local Variables:
- * compile-command: "/bin/sh ../libtool --tag=CC --mode=link gcc -o a.out -static -O -g -Wall -I.. -I../gnulib-lib -I../intl -DHAVE_CONFIG_H -DTEST format-gfc-internal.c ../gnulib-lib/libgettextlib.la"
+ * compile-command: "/bin/sh ../libtool --tag=CC --mode=link gcc -o a.out -static -O -g -Wall -I.. -I../gnulib-lib -I../../gettext-runtime/intl -DHAVE_CONFIG_H -DTEST format-gfc-internal.c ../gnulib-lib/libgettextlib.la"
  * End:
  */
 

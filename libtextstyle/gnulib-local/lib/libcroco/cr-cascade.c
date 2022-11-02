@@ -1,5 +1,14 @@
 /* -*- Mode: C; indent-tabs-mode:nil; c-basic-offset: 8-*- */
 
+/* libcroco - Library for parsing and applying CSS
+ * Copyright (C) 2006-2019 Free Software Foundation, Inc.
+ *
+ * This file is not part of the GNU gettext program, but is used with
+ * GNU gettext.
+ *
+ * The original copyright notice is as follows:
+ */
+
 /*
  * This file is part of The Croco Library
  *
@@ -23,7 +32,7 @@
  */
 
 /*
- *$Id: cr-cascade.c,v 1.7 2005/05/10 19:48:56 dodji Exp $
+ *$Id$
  */
 
 #include <config.h>
@@ -77,6 +86,7 @@ cr_cascade_new (CRStyleSheet * a_author_sheet,
         PRIVATE (result) = g_try_malloc (sizeof (CRCascadePriv));
         if (!PRIVATE (result)) {
                 cr_utils_trace_info ("Out of memory");
+                g_free (result);
                 return NULL;
         }
         memset (PRIVATE (result), 0, sizeof (CRCascadePriv));

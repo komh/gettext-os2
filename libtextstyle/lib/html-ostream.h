@@ -59,6 +59,8 @@ extern         void html_ostream_flush (html_ostream_t first_arg, ostream_flush_
 extern         void html_ostream_free (html_ostream_t first_arg);
 extern          void html_ostream_begin_span (html_ostream_t first_arg, const char *classname);
 extern          void html_ostream_end_span (html_ostream_t first_arg, const char *classname);
+extern         const char * html_ostream_get_hyperlink_ref (html_ostream_t first_arg);
+extern    void html_ostream_set_hyperlink_ref (html_ostream_t first_arg, const char *ref);
 extern              void html_ostream_flush_to_current_style (html_ostream_t first_arg);
 #ifdef __cplusplus
 }
@@ -132,6 +134,24 @@ html_ostream_end_span (html_ostream_t first_arg, const char *classname)
   vtable->end_span (first_arg,classname);
 }
 
+# define html_ostream_get_hyperlink_ref html_ostream_get_hyperlink_ref_inline
+static inline const char *
+html_ostream_get_hyperlink_ref (html_ostream_t first_arg)
+{
+  const struct html_ostream_implementation *vtable =
+    ((struct html_ostream_representation_header *) (struct html_ostream_representation *) first_arg)->vtable;
+  return vtable->get_hyperlink_ref (first_arg);
+}
+
+# define html_ostream_set_hyperlink_ref html_ostream_set_hyperlink_ref_inline
+static inline void
+html_ostream_set_hyperlink_ref (html_ostream_t first_arg, const char *ref)
+{
+  const struct html_ostream_implementation *vtable =
+    ((struct html_ostream_representation_header *) (struct html_ostream_representation *) first_arg)->vtable;
+  vtable->set_hyperlink_ref (first_arg,ref);
+}
+
 # define html_ostream_flush_to_current_style html_ostream_flush_to_current_style_inline
 static inline void
 html_ostream_flush_to_current_style (html_ostream_t first_arg)
@@ -149,7 +169,7 @@ extern const typeinfo_t html_ostream_typeinfo;
 
 extern const struct html_ostream_implementation html_ostream_vtable;
 
-#line 45 "html-ostream.oo.h"
+#line 49 "html-ostream.oo.h"
 
 
 #ifdef __cplusplus

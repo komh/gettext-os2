@@ -1,5 +1,5 @@
 /* Extracts strings from C source file to Uniforum style .po file.
-   Copyright (C) 1995-1998, 2000-2016, 2018-2019 Free Software Foundation, Inc.
+   Copyright (C) 1995-1998, 2000-2016, 2018-2022 Free Software Foundation, Inc.
    Written by Ulrich Drepper <drepper@gnu.ai.mit.edu>, April 1995.
 
    This program is free software: you can redistribute it and/or modify
@@ -41,6 +41,7 @@
 
 #include <textstyle.h>
 
+#include "noreturn.h"
 #include "rc-str-list.h"
 #include "xg-encoding.h"
 #include "xg-arglist-context.h"
@@ -53,7 +54,7 @@
 #include "error-progname.h"
 #include "progname.h"
 #include "relocatable.h"
-#include "basename.h"
+#include "basename-lgpl.h"
 #include "xerror.h"
 #include "xvasprintf.h"
 #include "xalloc.h"
@@ -88,32 +89,33 @@
 #define _(str) gettext (str)
 
 
-#include "x-c.h"
 #include "x-po.h"
-#include "x-sh.h"
+#include "x-properties.h"
+#include "x-stringtable.h"
+#include "x-c.h"
 #include "x-python.h"
+#include "x-java.h"
+#include "x-csharp.h"
+#include "x-javascript.h"
+#include "x-scheme.h"
 #include "x-lisp.h"
 #include "x-elisp.h"
 #include "x-librep.h"
-#include "x-scheme.h"
-#include "x-smalltalk.h"
-#include "x-java.h"
-#include "x-properties.h"
-#include "x-csharp.h"
-#include "x-appdata.h"
+#include "x-ruby.h"
+#include "x-sh.h"
 #include "x-awk.h"
-#include "x-ycp.h"
+#include "x-lua.h"
+#include "x-smalltalk.h"
+#include "x-vala.h"
 #include "x-tcl.h"
 #include "x-perl.h"
 #include "x-php.h"
-#include "x-stringtable.h"
+#include "x-ycp.h"
 #include "x-rst.h"
-#include "x-glade.h"
-#include "x-lua.h"
-#include "x-javascript.h"
-#include "x-vala.h"
-#include "x-gsettings.h"
 #include "x-desktop.h"
+#include "x-glade.h"
+#include "x-gsettings.h"
+#include "x-appdata.h"
 
 
 #define SIZEOF(a) (sizeof(a) / sizeof(a[0]))
@@ -166,6 +168,9 @@ static catalog_output_format_ty output_syntax = &output_format_po;
 /* If nonzero omit header with information about this run.  */
 int xgettext_omit_header;
 
+/* Be more verbose.  */
+int verbose = 0;
+
 /* Table of flag_context_list_ty tables.  */
 static flag_context_list_table_ty flag_table_c;
 static flag_context_list_table_ty flag_table_cxx_qt;
@@ -173,22 +178,23 @@ static flag_context_list_table_ty flag_table_cxx_kde;
 static flag_context_list_table_ty flag_table_cxx_boost;
 static flag_context_list_table_ty flag_table_objc;
 static flag_context_list_table_ty flag_table_gcc_internal;
-static flag_context_list_table_ty flag_table_sh;
 static flag_context_list_table_ty flag_table_python;
+static flag_context_list_table_ty flag_table_java;
+static flag_context_list_table_ty flag_table_csharp;
+static flag_context_list_table_ty flag_table_javascript;
+static flag_context_list_table_ty flag_table_scheme;
 static flag_context_list_table_ty flag_table_lisp;
 static flag_context_list_table_ty flag_table_elisp;
 static flag_context_list_table_ty flag_table_librep;
-static flag_context_list_table_ty flag_table_scheme;
-static flag_context_list_table_ty flag_table_java;
-static flag_context_list_table_ty flag_table_csharp;
+static flag_context_list_table_ty flag_table_ruby;
+static flag_context_list_table_ty flag_table_sh;
 static flag_context_list_table_ty flag_table_awk;
-static flag_context_list_table_ty flag_table_ycp;
+static flag_context_list_table_ty flag_table_lua;
+static flag_context_list_table_ty flag_table_vala;
 static flag_context_list_table_ty flag_table_tcl;
 static flag_context_list_table_ty flag_table_perl;
 static flag_context_list_table_ty flag_table_php;
-static flag_context_list_table_ty flag_table_lua;
-static flag_context_list_table_ty flag_table_javascript;
-static flag_context_list_table_ty flag_table_vala;
+static flag_context_list_table_ty flag_table_ycp;
 
 /* If true, recognize Qt format strings.  */
 static bool recognize_format_qt;
@@ -210,7 +216,7 @@ static locating_rule_list_ty *its_locating_rules;
   "  <its:translateRule selector=\"/*\" translate=\"no\"/>" \
   "</its:rules>"
 
-/* If nonzero add comments used by itstool. */
+/* If nonzero add comments used by itstool.  */
 static bool add_itstool_comments = false;
 
 /* Long options.  */
@@ -263,24 +269,34 @@ static const struct option long_options[] =
   { "stringtable-output", no_argument, NULL, CHAR_MAX + 7 },
   { "style", required_argument, NULL, CHAR_MAX + 15 },
   { "trigraphs", no_argument, NULL, 'T' },
+  { "verbose", no_argument, NULL, 'v' },
   { "version", no_argument, NULL, 'V' },
   { "width", required_argument, NULL, 'w' },
   { NULL, 0, NULL, 0 }
 };
 
 
-/* The extractors must all be functions returning void and taking three
-   arguments designating the input stream and one message domain list argument
-   in which to add the messages.  */
-typedef void (*extractor_func) (FILE *fp, const char *real_filename,
-                                const char *logical_filename,
-                                flag_context_list_table_ty *flag_table,
-                                msgdomain_list_ty *mdlp);
+/* The extractors must all be functions returning void and taking as arguments
+   - the file name or file stream,
+   - the flag table,
+   - a message domain list argument in which to add the messages.
+   An extract_from_stream_func is preferred, because it supports extracting from
+   stdin.  */
+typedef void (*extract_from_stream_func) (FILE *fp, const char *real_filename,
+                                          const char *logical_filename,
+                                          flag_context_list_table_ty *flag_table,
+                                          msgdomain_list_ty *mdlp);
+typedef void (*extract_from_file_func) (const char *found_in_dir,
+                                        const char *real_filename,
+                                        const char *logical_filename,
+                                        flag_context_list_table_ty *flag_table,
+                                        msgdomain_list_ty *mdlp);
 
 typedef struct extractor_ty extractor_ty;
 struct extractor_ty
 {
-  extractor_func func;
+  extract_from_stream_func extract_from_stream;
+  extract_from_file_func extract_from_file;
   flag_context_list_table_ty *flag_table;
   struct formatstring_parser *formatstring_parser1;
   struct formatstring_parser *formatstring_parser2;
@@ -289,11 +305,7 @@ struct extractor_ty
 
 
 /* Forward declaration of local functions.  */
-static void usage (int status)
-#if defined __GNUC__ && ((__GNUC__ == 2 && __GNUC_MINOR__ > 4) || __GNUC__ > 2)
-        __attribute__ ((noreturn))
-#endif
-;
+_GL_NORETURN_FUNC static void usage (int status);
 static void read_exclusion_file (char *file_name);
 static void extract_from_file (const char *file_name, extractor_ty extractor,
                                msgdomain_list_ty *mdlp);
@@ -347,30 +359,31 @@ main (int argc, char *argv[])
 
   /* Set initial value of variables.  */
   default_domain = MESSAGE_DOMAIN_DEFAULT;
-  xgettext_global_source_encoding = po_charset_ascii;
+  xgettext_global_source_encoding = NULL;
   init_flag_table_c ();
   init_flag_table_objc ();
-  init_flag_table_gcc_internal ();
   init_flag_table_kde ();
-  init_flag_table_sh ();
   init_flag_table_python ();
+  init_flag_table_java ();
+  init_flag_table_csharp ();
+  init_flag_table_javascript ();
+  init_flag_table_scheme ();
   init_flag_table_lisp ();
   init_flag_table_elisp ();
   init_flag_table_librep ();
-  init_flag_table_scheme ();
-  init_flag_table_java ();
-  init_flag_table_csharp ();
+  init_flag_table_ruby ();
+  init_flag_table_sh ();
   init_flag_table_awk ();
-  init_flag_table_ycp ();
+  init_flag_table_lua ();
+  init_flag_table_vala ();
   init_flag_table_tcl ();
   init_flag_table_perl ();
   init_flag_table_php ();
-  init_flag_table_lua ();
-  init_flag_table_javascript ();
-  init_flag_table_vala ();
+  init_flag_table_gcc_internal ();
+  init_flag_table_ycp ();
 
   while ((optchar = getopt_long (argc, argv,
-                                 "ac::Cd:D:eEf:Fhijk::l:L:m::M::no:p:sTVw:W:x:",
+                                 "ac::Cd:D:eEf:Fhijk::l:L:m::M::no:p:sTvVw:W:x:",
                                  long_options, NULL)) != EOF)
     switch (optchar)
       {
@@ -391,6 +404,7 @@ main (int argc, char *argv[])
         x_tcl_extract_all ();
         x_perl_extract_all ();
         x_php_extract_all ();
+        x_ruby_extract_all ();
         x_lua_extract_all ();
         x_javascript_extract_all ();
         x_vala_extract_all ();
@@ -470,6 +484,7 @@ main (int argc, char *argv[])
         x_tcl_keyword (optarg);
         x_perl_keyword (optarg);
         x_php_keyword (optarg);
+        x_ruby_keyword (optarg);
         x_lua_keyword (optarg);
         x_javascript_keyword (optarg);
         x_vala_keyword (optarg);
@@ -531,6 +546,10 @@ main (int argc, char *argv[])
 
       case 'T':
         x_c_trigraphs ();
+        break;
+
+      case 'v':
+        verbose++;
         break;
 
       case 'V':
@@ -662,14 +681,15 @@ main (int argc, char *argv[])
   /* Version information requested.  */
   if (do_version)
     {
-      printf ("%s (GNU %s) %s\n", basename (program_name), PACKAGE, VERSION);
+      printf ("%s (GNU %s) %s\n", last_component (program_name),
+              PACKAGE, VERSION);
       /* xgettext: no-wrap */
       printf (_("Copyright (C) %s Free Software Foundation, Inc.\n\
 License GPLv3+: GNU GPL version 3 or later <%s>\n\
 This is free software: you are free to change and redistribute it.\n\
 There is NO WARRANTY, to the extent permitted by law.\n\
 "),
-              "1995-2019", "https://gnu.org/licenses/gpl.html");
+              "1995-2022", "https://gnu.org/licenses/gpl.html");
       printf (_("Written by %s.\n"), proper_name ("Ulrich Drepper"));
       exit (EXIT_SUCCESS);
     }
@@ -746,11 +766,11 @@ xgettext cannot work without keywords to look for"));
      the special name "-" we write to stdout.  */
   if (output_file)
     {
-      if (IS_ABSOLUTE_PATH (output_file) || strcmp (output_file, "-") == 0)
-        file_name = xstrdup (output_file);
-      else
+      if (IS_RELATIVE_FILE_NAME (output_file) && strcmp (output_file, "-") != 0)
         /* Please do NOT add a .po suffix! */
         file_name = xconcatenated_filename (output_dir, output_file, NULL);
+      else
+        file_name = xstrdup (output_file);
     }
   else if (strcmp (default_domain, "-") == 0)
     file_name = "-";
@@ -768,7 +788,8 @@ xgettext cannot work without keywords to look for"));
 
   /* Allocate converter from xgettext_global_source_encoding to UTF-8 (except
      from ASCII or UTF-8, when this conversion is a no-op).  */
-  if (xgettext_global_source_encoding != po_charset_ascii
+  if (xgettext_global_source_encoding != NULL
+      && xgettext_global_source_encoding != po_charset_ascii
       && xgettext_global_source_encoding != po_charset_utf8)
     {
 #if HAVE_ICONV
@@ -786,13 +807,13 @@ xgettext cannot work without keywords to look for"));
         error (EXIT_FAILURE, 0,
                _("Cannot convert from \"%s\" to \"%s\". %s relies on iconv(), and iconv() does not support this conversion."),
                xgettext_global_source_encoding, po_charset_utf8,
-               basename (program_name));
+               last_component (program_name));
       xgettext_global_source_iconv = cd;
 #else
       error (EXIT_FAILURE, 0,
              _("Cannot convert from \"%s\" to \"%s\". %s relies on iconv(). This version was built without iconv()."),
              xgettext_global_source_encoding, po_charset_utf8,
-             basename (program_name));
+             last_component (program_name));
 #endif
     }
 
@@ -828,7 +849,7 @@ xgettext cannot work without keywords to look for"));
 
       filename = file_list->item[i];
 
-      if (extractor.func)
+      if (extractor.extract_from_stream || extractor.extract_from_file)
         this_file_extractor = extractor;
       else if (explicit_its_filename != NULL)
         {
@@ -905,14 +926,21 @@ xgettext cannot work without keywords to look for"));
                         xconcatenated_filename (its_dirs[j], its_basename,
                                                 NULL);
                       struct stat statbuf;
-                      bool ok = false;
 
-                      if (stat (its_filename, &statbuf) == 0)
-                        ok = its_rule_list_add_from_file (its_rules,
-                                                          its_filename);
-                      free (its_filename);
-                      if (ok)
-                        break;
+                      if (stat (its_filename, &statbuf) == 0
+                          && its_rule_list_add_from_file (its_rules,
+                                                          its_filename))
+                        {
+                          /* The last element in its_dirs always points to
+                             the fallback directory.  */
+                          if (its_dirs[j + 1] == NULL)
+                            error (0, 0,
+                                   _("warning: a fallback ITS rule file '%s' is used; "
+                                     "it may not be in sync with the upstream"),
+                                   its_filename);
+                          free (its_filename);
+                          break;
+                        }
                     }
                   if (its_dirs[j] == NULL)
                     {
@@ -965,7 +993,8 @@ xgettext cannot work without keywords to look for"));
 
   /* Free the allocated converter.  */
 #if HAVE_ICONV
-  if (xgettext_global_source_encoding != po_charset_ascii
+  if (xgettext_global_source_encoding != NULL
+      && xgettext_global_source_encoding != po_charset_ascii
       && xgettext_global_source_encoding != po_charset_utf8)
     iconv_close (xgettext_global_source_iconv);
 #endif
@@ -1063,8 +1092,8 @@ Choice of input file language:\n"));
                                 (C, C++, ObjectiveC, PO, Shell, Python, Lisp,\n\
                                 EmacsLisp, librep, Scheme, Smalltalk, Java,\n\
                                 JavaProperties, C#, awk, YCP, Tcl, Perl, PHP,\n\
-                                GCC-source, NXStringTable, RST, RSJ, Glade,\n\
-                                Lua, JavaScript, Vala, Desktop)\n"));
+                                Ruby, GCC-source, NXStringTable, RST, RSJ,\n\
+                                Glade, Lua, JavaScript, Vala, Desktop)\n"));
       printf (_("\
   -C, --c++                   shorthand for --language=C++\n"));
       printf (_("\
@@ -1208,6 +1237,8 @@ Informative output:\n"));
   -h, --help                  display this help and exit\n"));
       printf (_("\
   -V, --version               output version information and exit\n"));
+      printf (_("\
+  -v, --verbose               increase verbosity level\n"));
       printf ("\n");
       /* TRANSLATORS: The first placeholder is the web address of the Savannah
          project of this package.  The second placeholder is the bug-reporting
@@ -1461,11 +1492,6 @@ xgettext_record_flag (const char *optionstring)
                                                     name_start, name_end,
                                                     argnum, value, pass);
                     break;
-                  case format_sh:
-                    flag_context_list_table_insert (&flag_table_sh, 0,
-                                                    name_start, name_end,
-                                                    argnum, value, pass);
-                    break;
                   case format_python:
                     flag_context_list_table_insert (&flag_table_python, 0,
                                                     name_start, name_end,
@@ -1473,6 +1499,31 @@ xgettext_record_flag (const char *optionstring)
                     break;
                   case format_python_brace:
                     flag_context_list_table_insert (&flag_table_python, 0,
+                                                    name_start, name_end,
+                                                    argnum, value, pass);
+                    break;
+                  case format_java:
+                    flag_context_list_table_insert (&flag_table_java, 0,
+                                                    name_start, name_end,
+                                                    argnum, value, pass);
+                    break;
+                  case format_java_printf:
+                    flag_context_list_table_insert (&flag_table_java, 1,
+                                                    name_start, name_end,
+                                                    argnum, value, pass);
+                    break;
+                  case format_csharp:
+                    flag_context_list_table_insert (&flag_table_csharp, 0,
+                                                    name_start, name_end,
+                                                    argnum, value, pass);
+                    break;
+                  case format_javascript:
+                    flag_context_list_table_insert (&flag_table_javascript, 0,
+                                                    name_start, name_end,
+                                                    argnum, value, pass);
+                    break;
+                  case format_scheme:
+                    flag_context_list_table_insert (&flag_table_scheme, 0,
                                                     name_start, name_end,
                                                     argnum, value, pass);
                     break;
@@ -1491,20 +1542,13 @@ xgettext_record_flag (const char *optionstring)
                                                     name_start, name_end,
                                                     argnum, value, pass);
                     break;
-                  case format_scheme:
-                    flag_context_list_table_insert (&flag_table_scheme, 0,
+                  case format_ruby:
+                    flag_context_list_table_insert (&flag_table_ruby, 0,
                                                     name_start, name_end,
                                                     argnum, value, pass);
                     break;
-                  case format_smalltalk:
-                    break;
-                  case format_java:
-                    flag_context_list_table_insert (&flag_table_java, 0,
-                                                    name_start, name_end,
-                                                    argnum, value, pass);
-                    break;
-                  case format_csharp:
-                    flag_context_list_table_insert (&flag_table_csharp, 0,
+                  case format_sh:
+                    flag_context_list_table_insert (&flag_table_sh, 0,
                                                     name_start, name_end,
                                                     argnum, value, pass);
                     break;
@@ -1513,10 +1557,37 @@ xgettext_record_flag (const char *optionstring)
                                                     name_start, name_end,
                                                     argnum, value, pass);
                     break;
+                  case format_lua:
+                    flag_context_list_table_insert (&flag_table_lua, 0,
+                                                    name_start, name_end,
+                                                    argnum, value, pass);
+                    break;
                   case format_pascal:
                     break;
-                  case format_ycp:
-                    flag_context_list_table_insert (&flag_table_ycp, 0,
+                  case format_smalltalk:
+                    break;
+                  case format_qt:
+                    flag_context_list_table_insert (&flag_table_cxx_qt, 1,
+                                                    name_start, name_end,
+                                                    argnum, value, pass);
+                    break;
+                  case format_qt_plural:
+                    flag_context_list_table_insert (&flag_table_cxx_qt, 2,
+                                                    name_start, name_end,
+                                                    argnum, value, pass);
+                    break;
+                  case format_kde:
+                    flag_context_list_table_insert (&flag_table_cxx_kde, 1,
+                                                    name_start, name_end,
+                                                    argnum, value, pass);
+                    break;
+                  case format_kde_kuit:
+                    flag_context_list_table_insert (&flag_table_cxx_kde, 2,
+                                                    name_start, name_end,
+                                                    argnum, value, pass);
+                    break;
+                  case format_boost:
+                    flag_context_list_table_insert (&flag_table_cxx_boost, 1,
                                                     name_start, name_end,
                                                     argnum, value, pass);
                     break;
@@ -1550,38 +1621,8 @@ xgettext_record_flag (const char *optionstring)
                                                     name_start, name_end,
                                                     argnum, value, pass);
                     break;
-                  case format_qt:
-                    flag_context_list_table_insert (&flag_table_cxx_qt, 1,
-                                                    name_start, name_end,
-                                                    argnum, value, pass);
-                    break;
-                  case format_qt_plural:
-                    flag_context_list_table_insert (&flag_table_cxx_qt, 2,
-                                                    name_start, name_end,
-                                                    argnum, value, pass);
-                    break;
-                  case format_kde:
-                    flag_context_list_table_insert (&flag_table_cxx_kde, 1,
-                                                    name_start, name_end,
-                                                    argnum, value, pass);
-                    break;
-                  case format_kde_kuit:
-                    flag_context_list_table_insert (&flag_table_cxx_kde, 2,
-                                                    name_start, name_end,
-                                                    argnum, value, pass);
-                    break;
-                  case format_boost:
-                    flag_context_list_table_insert (&flag_table_cxx_boost, 1,
-                                                    name_start, name_end,
-                                                    argnum, value, pass);
-                    break;
-                  case format_lua:
-                    flag_context_list_table_insert (&flag_table_lua, 0,
-                                                    name_start, name_end,
-                                                    argnum, value, pass);
-                    break;
-                  case format_javascript:
-                    flag_context_list_table_insert (&flag_table_javascript, 0,
+                  case format_ycp:
+                    flag_context_list_table_insert (&flag_table_ycp, 0,
                                                     name_start, name_end,
                                                     argnum, value, pass);
                     break;
@@ -1685,6 +1726,75 @@ savable_comment_to_xgettext_comment (refcounted_string_list_ty *rslp)
 }
 
 
+/* xgettext_find_file and xgettext_open look up a file, taking into account
+   the --directory options.
+   xgettext_find_file merely returns the file name and the directory in which
+   it was found.  This function is useful for parsers implemented as separate
+   programs.
+   xgettext_open returns the open file stream.  This function is useful for
+   built-in parsers.  */
+
+static void
+xgettext_find_file (const char *fn,
+                    char **logical_file_name_p,
+                    const char **found_in_dir_p,
+                    char **real_file_name_p)
+{
+  char *new_name;
+  const char *found_in_dir;
+  char *logical_file_name;
+  struct stat statbuf;
+
+  found_in_dir = NULL;
+
+  /* We cannot handle "-" here.  "/dev/fd/0" is not portable, and it cannot
+     be opened multiple times.  */
+  if (IS_RELATIVE_FILE_NAME (fn))
+    {
+      int j;
+
+      for (j = 0; ; ++j)
+        {
+          const char *dir = dir_list_nth (j);
+
+          if (dir == NULL)
+            error (EXIT_FAILURE, ENOENT,
+                   _("error while opening \"%s\" for reading"), fn);
+
+          new_name = xconcatenated_filename (dir, fn, NULL);
+
+          if (stat (new_name, &statbuf) == 0)
+            {
+              found_in_dir = dir;
+              break;
+            }
+
+          if (errno != ENOENT)
+            error (EXIT_FAILURE, errno,
+                   _("error while opening \"%s\" for reading"), new_name);
+          free (new_name);
+        }
+
+      /* Note that the NEW_NAME variable contains the actual file name
+         and the logical file name is what is reported by xgettext.  In
+         this case NEW_NAME is set to the file which was found along the
+         directory search path, and LOGICAL_FILE_NAME is is set to the
+         file name which was searched for.  */
+      logical_file_name = xstrdup (fn);
+    }
+  else
+    {
+      new_name = xstrdup (fn);
+      if (stat (fn, &statbuf) != 0)
+        error (EXIT_FAILURE, errno,
+               _("error while opening \"%s\" for reading"), fn);
+      logical_file_name = xstrdup (new_name);
+    }
+
+  *logical_file_name_p = logical_file_name;
+  *found_in_dir_p = found_in_dir;
+  *real_file_name_p = new_name;
+}
 
 static FILE *
 xgettext_open (const char *fn,
@@ -1700,16 +1810,7 @@ xgettext_open (const char *fn,
       logical_file_name = xstrdup (new_name);
       fp = stdin;
     }
-  else if (IS_ABSOLUTE_PATH (fn))
-    {
-      new_name = xstrdup (fn);
-      fp = fopen (fn, "r");
-      if (fp == NULL)
-        error (EXIT_FAILURE, errno,
-               _("error while opening \"%s\" for reading"), fn);
-      logical_file_name = xstrdup (new_name);
-    }
-  else
+  else if (IS_RELATIVE_FILE_NAME (fn))
     {
       int j;
 
@@ -1740,6 +1841,15 @@ xgettext_open (const char *fn,
          file name which was searched for.  */
       logical_file_name = xstrdup (fn);
     }
+  else
+    {
+      new_name = xstrdup (fn);
+      fp = fopen (fn, "r");
+      if (fp == NULL)
+        error (EXIT_FAILURE, errno,
+               _("error while opening \"%s\" for reading"), fn);
+      logical_file_name = xstrdup (new_name);
+    }
 
   *logical_file_name_p = logical_file_name;
   *real_file_name_p = new_name;
@@ -1760,25 +1870,46 @@ extract_from_file (const char *file_name, extractor_ty extractor,
 {
   char *logical_file_name;
   char *real_file_name;
-  FILE *fp = xgettext_open (file_name, &logical_file_name, &real_file_name);
-
-  /* Set the default for the source file encoding.  May be overridden by
-     the extractor function.  */
-  xgettext_current_source_encoding = xgettext_global_source_encoding;
-#if HAVE_ICONV
-  xgettext_current_source_iconv = xgettext_global_source_iconv;
-#endif
 
   current_formatstring_parser1 = extractor.formatstring_parser1;
   current_formatstring_parser2 = extractor.formatstring_parser2;
   current_formatstring_parser3 = extractor.formatstring_parser3;
-  extractor.func (fp, real_file_name, logical_file_name, extractor.flag_table,
-                  mdlp);
 
-  if (fp != stdin)
-    fclose (fp);
+  if (extractor.extract_from_stream)
+    {
+      FILE *fp = xgettext_open (file_name, &logical_file_name, &real_file_name);
+
+      /* Set the default for the source file encoding.  May be overridden by
+         the extractor function.  */
+      xgettext_current_source_encoding =
+        (xgettext_global_source_encoding != NULL ? xgettext_global_source_encoding :
+         po_charset_ascii);
+#if HAVE_ICONV
+      xgettext_current_source_iconv = xgettext_global_source_iconv;
+#endif
+
+      extractor.extract_from_stream (fp, real_file_name, logical_file_name,
+                                     extractor.flag_table, mdlp);
+
+      if (fp != stdin)
+        fclose (fp);
+    }
+  else
+    {
+      const char *found_in_dir;
+      xgettext_find_file (file_name, &logical_file_name,
+                          &found_in_dir, &real_file_name);
+
+      extractor.extract_from_file (found_in_dir, real_file_name,
+                                   logical_file_name,
+                                   extractor.flag_table, mdlp);
+    }
   free (logical_file_name);
   free (real_file_name);
+
+  current_formatstring_parser1 = NULL;
+  current_formatstring_parser2 = NULL;
+  current_formatstring_parser3 = NULL;
 }
 
 static message_ty *
@@ -1795,7 +1926,7 @@ xgettext_its_extract_callback (message_list_ty *mlp,
   message = remember_a_message (mlp,
                                 msgctxt == NULL ? NULL : xstrdup (msgctxt),
                                 xstrdup (msgid),
-                                false,
+                                false, false,
                                 null_context, pos,
                                 extracted_comment, NULL, false);
 
@@ -2011,7 +2142,8 @@ language_to_extractor (const char *name)
   struct table_ty
   {
     const char *name;
-    extractor_func func;
+    extract_from_stream_func extract_from_stream;
+    extract_from_file_func extract_from_file;
     flag_context_list_table_ty *flag_table;
     struct formatstring_parser *formatstring_parser1;
     struct formatstring_parser *formatstring_parser2;
@@ -2020,31 +2152,32 @@ language_to_extractor (const char *name)
 
   static table_ty table[] =
   {
-    SCANNERS_C
     SCANNERS_PO
-    SCANNERS_SH
+    SCANNERS_PROPERTIES
+    SCANNERS_STRINGTABLE
+    SCANNERS_C
     SCANNERS_PYTHON
+    SCANNERS_JAVA
+    SCANNERS_CSHARP
+    SCANNERS_JAVASCRIPT
+    SCANNERS_SCHEME
     SCANNERS_LISP
     SCANNERS_ELISP
     SCANNERS_LIBREP
-    SCANNERS_SCHEME
-    SCANNERS_SMALLTALK
-    SCANNERS_JAVA
-    SCANNERS_PROPERTIES
-    SCANNERS_CSHARP
+    SCANNERS_RUBY
+    SCANNERS_SH
     SCANNERS_AWK
-    SCANNERS_YCP
+    SCANNERS_LUA
+    SCANNERS_SMALLTALK
+    SCANNERS_VALA
     SCANNERS_TCL
     SCANNERS_PERL
     SCANNERS_PHP
-    SCANNERS_STRINGTABLE
+    SCANNERS_YCP
     SCANNERS_RST
-    SCANNERS_GLADE
-    SCANNERS_LUA
-    SCANNERS_JAVASCRIPT
-    SCANNERS_VALA
-    SCANNERS_GSETTINGS
     SCANNERS_DESKTOP
+    SCANNERS_GLADE
+    SCANNERS_GSETTINGS
     SCANNERS_APPDATA
     /* Here may follow more languages and their scanners: pike, etc...
        Make sure new scanners honor the --exclude-file option.  */
@@ -2057,7 +2190,8 @@ language_to_extractor (const char *name)
       {
         extractor_ty result;
 
-        result.func = tp->func;
+        result.extract_from_stream = tp->extract_from_stream;
+        result.extract_from_file = tp->extract_from_file;
         result.flag_table = tp->flag_table;
         result.formatstring_parser1 = tp->formatstring_parser1;
         result.formatstring_parser2 = tp->formatstring_parser2;
@@ -2110,31 +2244,32 @@ extension_to_language (const char *extension)
 
   static table_ty table[] =
   {
-    EXTENSIONS_C
     EXTENSIONS_PO
-    EXTENSIONS_SH
+    EXTENSIONS_PROPERTIES
+    EXTENSIONS_STRINGTABLE
+    EXTENSIONS_C
     EXTENSIONS_PYTHON
+    EXTENSIONS_JAVA
+    EXTENSIONS_CSHARP
+    EXTENSIONS_JAVASCRIPT
+    EXTENSIONS_SCHEME
     EXTENSIONS_LISP
     EXTENSIONS_ELISP
     EXTENSIONS_LIBREP
-    EXTENSIONS_SCHEME
-    EXTENSIONS_SMALLTALK
-    EXTENSIONS_JAVA
-    EXTENSIONS_PROPERTIES
-    EXTENSIONS_CSHARP
+    EXTENSIONS_RUBY
+    EXTENSIONS_SH
     EXTENSIONS_AWK
-    EXTENSIONS_YCP
+    EXTENSIONS_LUA
+    EXTENSIONS_SMALLTALK
+    EXTENSIONS_VALA
     EXTENSIONS_TCL
     EXTENSIONS_PERL
     EXTENSIONS_PHP
-    EXTENSIONS_STRINGTABLE
+    EXTENSIONS_YCP
     EXTENSIONS_RST
-    EXTENSIONS_GLADE
-    EXTENSIONS_LUA
-    EXTENSIONS_JAVASCRIPT
-    EXTENSIONS_VALA
-    EXTENSIONS_GSETTINGS
     EXTENSIONS_DESKTOP
+    EXTENSIONS_GLADE
+    EXTENSIONS_GSETTINGS
     EXTENSIONS_APPDATA
     /* Here may follow more file extensions... */
   };

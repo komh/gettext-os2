@@ -79,7 +79,7 @@ This file provides documentation for GNU @code{gettext} utilities.
 It also serves as a reference for the free Translation Project.
 
 @copying
-Copyright (C) 1995-1998, 2001-2019 Free Software Foundation, Inc.
+Copyright (C) 1995-1998, 2001-2020 Free Software Foundation, Inc.
 
 This manual is free documentation.  It is dually licensed under the
 GNU FDL and the GNU GPL.  This means that you can redistribute this
@@ -114,7 +114,7 @@ A copy of the license is included in @ref{GNU GPL}.
 @page
 @vskip 0pt plus 1filll
 @c @insertcopying
-Copyright (C) 1995-1998, 2001-2019 Free Software Foundation, Inc.
+Copyright (C) 1995-1998, 2001-2020 Free Software Foundation, Inc.
 
 This manual is free documentation.  It is dually licensed under the
 GNU FDL and the GNU GPL.  This means that you can redistribute this
@@ -390,56 +390,59 @@ The Translator's View
 
 * c-format::                    C Format Strings
 * objc-format::                 Objective C Format Strings
-* sh-format::                   Shell Format Strings
 * python-format::               Python Format Strings
+* java-format::                 Java Format Strings
+* csharp-format::               C# Format Strings
+* javascript-format::           JavaScript Format Strings
+* scheme-format::               Scheme Format Strings
 * lisp-format::                 Lisp Format Strings
 * elisp-format::                Emacs Lisp Format Strings
 * librep-format::               librep Format Strings
-* scheme-format::               Scheme Format Strings
-* smalltalk-format::            Smalltalk Format Strings
-* java-format::                 Java Format Strings
-* csharp-format::               C# Format Strings
+* ruby-format::                 Ruby Format Strings
+* sh-format::                   Shell Format Strings
 * awk-format::                  awk Format Strings
+* lua-format::                  Lua Format Strings
 * object-pascal-format::        Object Pascal Format Strings
-* ycp-format::                  YCP Format Strings
+* smalltalk-format::            Smalltalk Format Strings
+* qt-format::                   Qt Format Strings
+* qt-plural-format::            Qt Plural Format Strings
+* kde-format::                  KDE Format Strings
+* kde-kuit-format::             KUIT Format Strings
+* boost-format::                Boost Format Strings
 * tcl-format::                  Tcl Format Strings
 * perl-format::                 Perl Format Strings
 * php-format::                  PHP Format Strings
 * gcc-internal-format::         GCC internal Format Strings
 * gfc-internal-format::         GFC internal Format Strings
-* qt-format::                   Qt Format Strings
-* qt-plural-format::            Qt Plural Format Strings
-* kde-format::                  KDE Format Strings
-* boost-format::                Boost Format Strings
-* lua-format::                  Lua Format Strings
-* javascript-format::           JavaScript Format Strings
+* ycp-format::                  YCP Format Strings
 
 Individual Programming Languages
 
 * C::                           C, C++, Objective C
-* sh::                          sh - Shell Script
-* bash::                        bash - Bourne-Again Shell Script
 * Python::                      Python
+* Java::                        Java
+* C#::                          C#
+* JavaScript::                  JavaScript
+* Scheme::                      GNU guile - Scheme
 * Common Lisp::                 GNU clisp - Common Lisp
 * clisp C::                     GNU clisp C sources
 * Emacs Lisp::                  Emacs Lisp
 * librep::                      librep
-* Scheme::                      GNU guile - Scheme
-* Smalltalk::                   GNU Smalltalk
-* Java::                        Java
-* C#::                          C#
+* Ruby::                        Ruby
+* sh::                          sh - Shell Script
+* bash::                        bash - Bourne-Again Shell Script
 * gawk::                        GNU awk
+* Lua::                         Lua
 * Pascal::                      Pascal - Free Pascal Compiler
+* Smalltalk::                   GNU Smalltalk
+* Vala::                        Vala
 * wxWidgets::                   wxWidgets library
-* YCP::                         YCP - YaST2 scripting language
 * Tcl::                         Tcl - Tk's scripting language
 * Perl::                        Perl
 * PHP::                         PHP Hypertext Preprocessor
 * Pike::                        Pike
 * GCC-source::                  GNU Compiler Collection sources
-* Lua::                         Lua
-* JavaScript::                  JavaScript
-* Vala::                        Vala
+* YCP::                         YCP - YaST2 scripting language
 
 sh - Shell Script
 
@@ -1173,8 +1176,8 @@ installers only ask for the language once.
 This determines the system-wide default language for all users.  But the
 installers often give the possibility to install extra localizations for
 additional languages.  For example, the localizations of KDE (the K
-Desktop Environment) and OpenOffice.org are often bundled separately,
-as one installable package per language.
+Desktop Environment) and LibreOffice are often bundled separately, as one
+installable package per language.
 
 At this point it is good to consider the intended use of the machine: If
 it is a machine designated for personal use, additional localizations are
@@ -1563,12 +1566,6 @@ program does some more tests to check the validity of the translation.
 @kwindex no-objc-format@r{ flag}
 Likewise for Objective C, see @ref{objc-format}.
 
-@item sh-format
-@kwindex sh-format@r{ flag}
-@itemx no-sh-format
-@kwindex no-sh-format@r{ flag}
-Likewise for Shell, see @ref{sh-format}.
-
 @item python-format
 @kwindex python-format@r{ flag}
 @itemx no-python-format
@@ -1580,6 +1577,36 @@ Likewise for Python, see @ref{python-format}.
 @itemx no-python-brace-format
 @kwindex no-python-brace-format@r{ flag}
 Likewise for Python brace, see @ref{python-format}.
+
+@item java-format
+@kwindex java-format@r{ flag}
+@itemx no-java-format
+@kwindex no-java-format@r{ flag}
+Likewise for Java @code{MessageFormat} format strings, see @ref{java-format}.
+
+@item java-printf-format
+@kwindex java-printf-format@r{ flag}
+@itemx no-java-printf-format
+@kwindex no-java-printf-format@r{ flag}
+Likewise for Java @code{printf} format strings, see @ref{java-format}.
+
+@item csharp-format
+@kwindex csharp-format@r{ flag}
+@itemx no-csharp-format
+@kwindex no-csharp-format@r{ flag}
+Likewise for C#, see @ref{csharp-format}.
+
+@item javascript-format
+@kwindex javascript-format@r{ flag}
+@itemx no-javascript-format
+@kwindex no-javascript-format@r{ flag}
+Likewise for JavaScript, see @ref{javascript-format}.
+
+@item scheme-format
+@kwindex scheme-format@r{ flag}
+@itemx no-scheme-format
+@kwindex no-scheme-format@r{ flag}
+Likewise for Scheme, see @ref{scheme-format}.
 
 @item lisp-format
 @kwindex lisp-format@r{ flag}
@@ -1599,29 +1626,17 @@ Likewise for Emacs Lisp, see @ref{elisp-format}.
 @kwindex no-librep-format@r{ flag}
 Likewise for librep, see @ref{librep-format}.
 
-@item scheme-format
-@kwindex scheme-format@r{ flag}
-@itemx no-scheme-format
-@kwindex no-scheme-format@r{ flag}
-Likewise for Scheme, see @ref{scheme-format}.
+@item ruby-format
+@kwindex ruby-format@r{ flag}
+@itemx no-ruby-format
+@kwindex no-ruby-format@r{ flag}
+Likewise for Ruby, see @ref{ruby-format}.
 
-@item smalltalk-format
-@kwindex smalltalk-format@r{ flag}
-@itemx no-smalltalk-format
-@kwindex no-smalltalk-format@r{ flag}
-Likewise for Smalltalk, see @ref{smalltalk-format}.
-
-@item java-format
-@kwindex java-format@r{ flag}
-@itemx no-java-format
-@kwindex no-java-format@r{ flag}
-Likewise for Java, see @ref{java-format}.
-
-@item csharp-format
-@kwindex csharp-format@r{ flag}
-@itemx no-csharp-format
-@kwindex no-csharp-format@r{ flag}
-Likewise for C#, see @ref{csharp-format}.
+@item sh-format
+@kwindex sh-format@r{ flag}
+@itemx no-sh-format
+@kwindex no-sh-format@r{ flag}
+Likewise for Shell, see @ref{sh-format}.
 
 @item awk-format
 @kwindex awk-format@r{ flag}
@@ -1629,17 +1644,47 @@ Likewise for C#, see @ref{csharp-format}.
 @kwindex no-awk-format@r{ flag}
 Likewise for awk, see @ref{awk-format}.
 
+@item lua-format
+@kwindex lua-format@r{ flag}
+@itemx no-lua-format
+@kwindex no-lua-format@r{ flag}
+Likewise for Lua, see @ref{lua-format}.
+
 @item object-pascal-format
 @kwindex object-pascal-format@r{ flag}
 @itemx no-object-pascal-format
 @kwindex no-object-pascal-format@r{ flag}
 Likewise for Object Pascal, see @ref{object-pascal-format}.
 
-@item ycp-format
-@kwindex ycp-format@r{ flag}
-@itemx no-ycp-format
-@kwindex no-ycp-format@r{ flag}
-Likewise for YCP, see @ref{ycp-format}.
+@item smalltalk-format
+@kwindex smalltalk-format@r{ flag}
+@itemx no-smalltalk-format
+@kwindex no-smalltalk-format@r{ flag}
+Likewise for Smalltalk, see @ref{smalltalk-format}.
+
+@item qt-format
+@kwindex qt-format@r{ flag}
+@itemx no-qt-format
+@kwindex no-qt-format@r{ flag}
+Likewise for Qt, see @ref{qt-format}.
+
+@item qt-plural-format
+@kwindex qt-plural-format@r{ flag}
+@itemx no-qt-plural-format
+@kwindex no-qt-plural-format@r{ flag}
+Likewise for Qt plural forms, see @ref{qt-plural-format}.
+
+@item kde-format
+@kwindex kde-format@r{ flag}
+@itemx no-kde-format
+@kwindex no-kde-format@r{ flag}
+Likewise for KDE, see @ref{kde-format}.
+
+@item boost-format
+@kwindex boost-format@r{ flag}
+@itemx no-boost-format
+@kwindex no-boost-format@r{ flag}
+Likewise for Boost, see @ref{boost-format}.
 
 @item tcl-format
 @kwindex tcl-format@r{ flag}
@@ -1677,41 +1722,11 @@ Likewise for the GCC sources, see @ref{gcc-internal-format}.
 @kwindex no-gfc-internal-format@r{ flag}
 Likewise for the GNU Fortran Compiler sources, see @ref{gfc-internal-format}.
 
-@item qt-format
-@kwindex qt-format@r{ flag}
-@itemx no-qt-format
-@kwindex no-qt-format@r{ flag}
-Likewise for Qt, see @ref{qt-format}.
-
-@item qt-plural-format
-@kwindex qt-plural-format@r{ flag}
-@itemx no-qt-plural-format
-@kwindex no-qt-plural-format@r{ flag}
-Likewise for Qt plural forms, see @ref{qt-plural-format}.
-
-@item kde-format
-@kwindex kde-format@r{ flag}
-@itemx no-kde-format
-@kwindex no-kde-format@r{ flag}
-Likewise for KDE, see @ref{kde-format}.
-
-@item boost-format
-@kwindex boost-format@r{ flag}
-@itemx no-boost-format
-@kwindex no-boost-format@r{ flag}
-Likewise for Boost, see @ref{boost-format}.
-
-@item lua-format
-@kwindex lua-format@r{ flag}
-@itemx no-lua-format
-@kwindex no-lua-format@r{ flag}
-Likewise for Lua, see @ref{lua-format}.
-
-@item javascript-format
-@kwindex javascript-format@r{ flag}
-@itemx no-javascript-format
-@kwindex no-javascript-format@r{ flag}
-Likewise for JavaScript, see @ref{javascript-format}.
+@item ycp-format
+@kwindex ycp-format@r{ flag}
+@itemx no-ycp-format
+@kwindex no-ycp-format@r{ flag}
+Likewise for YCP, see @ref{ycp-format}.
 
 @end table
 
@@ -1808,8 +1823,9 @@ not be used anywhere else.
 
 Each of @var{untranslated-string} and @var{translated-string} respects
 the C syntax for a character string, including the surrounding quotes
-and embedded backslashed escape sequences.  When the time comes
-to write multi-line strings, one should not use escaped newlines.
+and embedded backslashed escape sequences, except that universal character
+escape sequences (@code{\u} and @code{\U}) are not allowed.  When the time
+comes to write multi-line strings, one should not use escaped newlines.
 Instead, a closing quote should follow the last character on the
 line to be continued, and an opening quote should resume the string
 at the beginning of the following PO file line.  For example:
@@ -1853,6 +1869,11 @@ space.  If the @samp{#} is not immediately followed by white space,
 this comment is most likely generated and managed by specialized GNU
 tools, and might disappear or be replaced unexpectedly when the PO
 file is given to @code{msgmerge}.
+
+For a PO file to be valid, no two entries without @code{msgctxt} may have
+the same @var{untranslated-string} or @var{untranslated-string-singular}.
+Similarly, no two entries may have the same @code{msgctxt} and the same
+@var{untranslated-string} or @var{untranslated-string-singular}.
 
 @node Sources
 @chapter Preparing Program Sources
@@ -2926,11 +2947,14 @@ invocation.  However, you usually don't need to export and document this
 initialization function: It is sufficient that all entry points of the
 library call the initialization function if it hasn't been called before.
 The typical idiom used to achieve this is a static boolean variable that
-indicates whether the initialization function has been called. Like this:
+indicates whether the initialization function has been called.  If the
+library is meant to be used in multithreaded applications, this variable
+needs to be marked @code{volatile}, so that its value get propagated
+between threads. Like this:
 
 @example
 @group
-static bool libfoo_initialized;
+static volatile bool libfoo_initialized;
 
 static void
 libfoo_initialize (void)
@@ -2960,6 +2984,10 @@ foo_refcount (struct foo *argument)
 @}
 @end group
 @end example
+
+@noindent
+The more general solution for initialization functions, POSIX
+@code{pthread_once}, is not needed in this case.
 
 @item
 The usual declaration of the @samp{_} macro in each source file was
@@ -5310,39 +5338,166 @@ is not sufficient, a set of C functions is provided in a library, to make it
 possible to process PO files in your own programs.  When you use this library,
 you don't need to write routines to parse the PO file; instead, you retrieve
 a pointer in memory to each of messages contained in the PO file.  Functions
-for writing PO files are not provided at this time.
+for writing those memory structures to a file after working with them are
+provided too.
 
 The functions are declared in the header file @samp{<gettext-po.h>}, and are
 defined in a library called @samp{libgettextpo}.
+
+@menu
+* Error Handling::              Error handling functions
+* po_file_t API::               File management
+* po_message_iterator_t API::   Message iteration
+* po_message_t API::            The basic units of the file
+* PO Header Entry API::         Meta information of the file
+* po_filepos_t API::            References to the sources
+* Format Type API::             Supported format types
+* Checking API::                Enforcing constraints
+@end menu
+
+The following example shows code how these functions can be used.  Error
+handling code is omitted, as its implementation is delegated to the user
+provided functions.
+
+@example
+struct po_xerror_handler handler =
+  @{
+    .xerror = @dots{},
+    .xerror2 = @dots{}
+  @};
+const char *filename = @dots{};
+/* Read the file into memory.  */
+po_file_t file = po_file_read (filename, &handler);
+
+@{
+  const char * const *domains = po_file_domains (file);
+  const char * const *domainp;
+
+  /* Iterate the domains contained in the file.  */
+  for (domainp = domains; *domainp; domainp++)
+    @{
+      po_message_t *message;
+      const char *domain = *domainp;
+      po_message_iterator_t iterator = po_message_iterator (file, domain);
+
+      /* Iterate each message inside the domain.  */
+      while ((message = po_next_message (iterator)) != NULL)
+        @{
+          /* Read data from the message @dots{}  */
+          const char *msgid = po_message_msgid (message);
+          const char *msgstr = po_message_msgstr (message);
+
+          @dots{}
+
+          /* Modify its contents @dots{}  */
+          if (perform_some_tests (msgid, msgstr))
+            po_message_set_fuzzy (message, 1);
+
+          @dots{}
+        @}
+      /* Always release returned po_message_iterator_t.  */
+      po_message_iterator_free (iterator);
+    @}
+
+  /* Write back the result.  */
+  po_file_t result = po_file_write (file, filename, &handler);
+@}
+
+/* Always release the returned po_file_t.  */
+po_file_free (file);
+@end example
+
+@node Error Handling
+@subsection Error Handling
+
+Error management is performed through callbacks provided by the user of
+the library.  They are provided through a parameter with the following
+type:
+
+@deftp {Data Type} struct po_xerror_handler
+Its pointer is defined as @code{po_xerror_handler_t}.  Contains
+two fields, @code{xerror} and @code{xerror2}, with the following function
+signatures.
+@end deftp
+
+@deftypefun void xerror (int@tie{}@var{severity}, po_message_t@tie{}@var{message}, const@tie{}char@tie{}*@var{filename}, size_t@tie{}@var{lineno}, size_t@tie{}@var{column}, int@tie{}@var{multiline_p}, const@tie{}char@tie{}*@var{message_text})
+
+This function is called to signal a problem of the given @var{severity}.
+It @emph{must not return} if @var{severity} is
+@code{PO_SEVERITY_FATAL_ERROR}.
+
+@var{message_text} is the problem description.  When @var{multiline_p}
+is true, it can contain multiple lines of text, each terminated with a
+newline, otherwise a single line.
+
+@var{message} and/or @var{filename} and @var{lineno} indicate where the
+problem occurred:
+
+@itemize @bullet
+@item
+If @var{filename} is @code{NULL}, @var{filename} and @var{lineno} and
+@var{column} should be ignored.
+
+@item
+If @var{lineno} is @code{(size_t)(-1)}, @var{lineno} and @var{column}
+should be ignored.
+
+@item
+If @var{column} is @code{(size_t)(-1)}, it should be ignored.
+@end itemize
+@end deftypefun
+
+@deftypefun void xerror2 (int@tie{}@var{severity}, po_message_t@tie{}@var{message1}, const@tie{}char@tie{}*@var{filename1}, size_t@tie{}@var{lineno1}, size_t@tie{}@var{column1}, int@tie{}@var{multiline_p1}, const@tie{}char@tie{}*@var{message_text1}, po_message_t@tie{}@var{message2}, const@tie{}char@tie{}*@var{filename2}, size_t@tie{}@var{lineno2}, size_t@tie{}@var{column2}, int@tie{}@var{multiline_p2}, const@tie{}char@tie{}*@var{message_text2})
+
+This function is called to signal a problem of the given @var{severity}
+that refers to two messages.  It @emph{must not return} if
+@var{severity} is @code{PO_SEVERITY_FATAL_ERROR}.
+
+It is similar to two calls to xerror.  If possible, an ellipsis can be
+appended to @var{message_text1} and prepended to @var{message_text2}.
+@end deftypefun
+
+@node po_file_t API
+@subsection po_file_t API
 
 @deftp {Data Type} po_file_t
 This is a pointer type that refers to the contents of a PO file, after it has
 been read into memory.
 @end deftp
 
-@deftp {Data Type} po_message_iterator_t
-This is a pointer type that refers to an iterator that produces a sequence of
-messages.
-@end deftp
-
-@deftp {Data Type} po_message_t
-This is a pointer type that refers to a message of a PO file, including its
-translation.
-@end deftp
-
-@deftypefun po_file_t po_file_read (const char *@var{filename})
-The @code{po_file_read} function reads a PO file into memory.  The file name
-is given as argument.  The return value is a handle to the PO file's contents,
-valid until @code{po_file_free} is called on it.  In case of error, the return
-value is @code{NULL}, and @code{errno} is set.
+@deftypefun po_file_t po_file_create ()
+The @code{po_file_create} function creates an empty PO file representation in
+memory.
 @end deftypefun
 
-@deftypefun void po_file_free (po_file_t @var{file})
+@deftypefun po_file_t po_file_read (const@tie{}char@tie{}*@var{filename}, struct@tie{}po_xerror_handler@tie{}*@var{handler})
+The @code{po_file_read} function reads a PO file into memory.  The file name
+is given as argument.  The return value is a handle to the PO file's contents,
+valid until @code{po_file_free} is called on it.  In case of error, the
+functions from @var{handler} are called to signal it.
+
+This function is exported as @samp{po_file_read_v3} at ABI level, but is
+defined as @code{po_file_read} in C code after the inclusion of
+@samp{<gettext-po.h>}.
+@end deftypefun
+
+@deftypefun po_file_t po_file_write (po_file_t@tie{}@var{file}, const@tie{}char@tie{}*@var{filename}, struct@tie{}po_xerror_handler@tie{}*@var{handler})
+The @code{po_file_write} function writes the contents of the memory
+structure @var{file} the @var{filename} given.  The return value is
+@var{file} after a successful operation.  In case of error, the
+functions from @var{handler} are called to signal it.
+
+This function is exported as @samp{po_file_write_v2} at ABI level, but
+is defined as @code{po_file_write} in C code after the inclusion of
+@samp{<gettext-po.h>}.
+@end deftypefun
+
+@deftypefun void po_file_free (po_file_t@tie{}@var{file})
 The @code{po_file_free} function frees a PO file's contents from memory,
 including all messages that are only implicitly accessible through iterators.
 @end deftypefun
 
-@deftypefun {const char * const *} po_file_domains (po_file_t @var{file})
+@deftypefun {const char * const *} po_file_domains (po_file_t@tie{}@var{file})
 The @code{po_file_domains} function returns the domains for which the given
 PO file has messages.  The return value is a @code{NULL} terminated array
 which is valid as long as the @var{file} handle is valid.  For PO files which
@@ -5350,85 +5505,313 @@ contain no @samp{domain} directive, the return value contains only one domain,
 namely the default domain @code{"messages"}.
 @end deftypefun
 
-@deftypefun po_message_iterator_t po_message_iterator (po_file_t @var{file}, const char *@var{domain})
+@node po_message_iterator_t API
+@subsection po_message_iterator_t API
+
+@deftp {Data Type} po_message_iterator_t
+This is a pointer type that refers to an iterator that produces a sequence of
+messages.
+@end deftp
+
+@deftypefun po_message_iterator_t po_message_iterator (po_file_t@tie{}@var{file}, const@tie{}char@tie{}*@var{domain})
 The @code{po_message_iterator} returns an iterator that will produce the
 messages of @var{file} that belong to the given @var{domain}.  If @var{domain}
 is @code{NULL}, the default domain is used instead.  To list the messages,
 use the function @code{po_next_message} repeatedly.
 @end deftypefun
 
-@deftypefun void po_message_iterator_free (po_message_iterator_t @var{iterator})
+@deftypefun void po_message_iterator_free (po_message_iterator_t@tie{}@var{iterator})
 The @code{po_message_iterator_free} function frees an iterator previously
 allocated through the @code{po_message_iterator} function.
 @end deftypefun
 
-@deftypefun po_message_t po_next_message (po_message_iterator_t @var{iterator})
+@deftypefun po_message_t po_next_message (po_message_iterator_t@tie{}@var{iterator})
 The @code{po_next_message} function returns the next message from
 @var{iterator} and advances the iterator.  It returns @code{NULL} when the
 iterator has reached the end of its message list.
 @end deftypefun
 
-The following functions returns details of a @code{po_message_t}.  Recall
+@node po_message_t API
+@subsection po_message_t API
+
+@deftp {Data Type} po_message_t
+This is a pointer type that refers to a message of a PO file, including its
+translation.
+@end deftp
+
+@deftypefun {po_message_t} po_message_create (void)
+Returns a freshly constructed message.  To finish initializing the
+message, you must set the @code{msgid} and @code{msgstr}.  It @emph{must} be
+inserted into a file to manage its memory, as there is no
+@code{po_message_free} available to the user of the library.
+@end deftypefun
+
+The following functions access details of a @code{po_message_t}.  Recall
 that the results are valid as long as the @var{file} handle is valid.
 
-@deftypefun {const char *} po_message_msgid (po_message_t @var{message})
+@deftypefun {const char *} po_message_msgctxt (po_message_t@tie{}@var{message})
+The @code{po_message_msgctxt} function returns the @code{msgctxt}, the
+context of @var{message}.  Returns @code{NULL} for a message not restricted
+to a context.
+@end deftypefun
+
+@deftypefun {void} po_message_set_msgctxt (po_message_t@tie{}@var{message}, const@tie{}char@tie{}*@var{msgctxt})
+The @code{po_message_set_msgctxt} function changes the @code{msgctxt},
+the context of the message, to the value provided through
+@var{msgctxt}.  The value @code{NULL} removes the restriction.
+@end deftypefun
+
+@deftypefun {const char *} po_message_msgid (po_message_t@tie{}@var{message})
 The @code{po_message_msgid} function returns the @code{msgid} (untranslated
-English string) of a message.  This is guaranteed to be non-@code{NULL}.
+English string) of @var{message}.  This is guaranteed to be non-@code{NULL}.
 @end deftypefun
 
-@deftypefun {const char *} po_message_msgid_plural (po_message_t @var{message})
+@deftypefun {void} po_message_set_msgid (po_message_t@tie{}@var{message}, const@tie{}char@tie{}*@var{msgid})
+The @code{po_message_set_msgid} function changes the @code{msgid}
+(untranslated English string) of @var{message} to the value provided through
+@var{msgid}, a non-@code{NULL} string.
+@end deftypefun
+
+@deftypefun {const char *} po_message_msgid_plural (po_message_t@tie{}@var{message})
 The @code{po_message_msgid_plural} function returns the @code{msgid_plural}
-(untranslated English plural string) of a message with plurals, or @code{NULL}
-for a message without plural.
+(untranslated English plural string) of @var{message}, a message with plurals,
+or @code{NULL} for a message without plural.
 @end deftypefun
 
-@deftypefun {const char *} po_message_msgstr (po_message_t @var{message})
+@deftypefun {void} po_message_set_msgid_plural (po_message_t@tie{}@var{message}, const@tie{}char@tie{}*@var{msgid_plural})
+The @code{po_message_set_msgid_plural} function changes the
+@code{msgid_plural} (untranslated English plural string) of a message to
+the value provided through @var{msgid_plural}, or removes the plurals if
+@code{NULL} is provided as @var{msgid_plural}.
+@end deftypefun
+
+@deftypefun {const char *} po_message_msgstr (po_message_t@tie{}@var{message})
 The @code{po_message_msgstr} function returns the @code{msgstr} (translation)
-of a message.  For an untranslated message, the return value is an empty
+of @var{message}.  For an untranslated message, the return value is an empty
 string.
 @end deftypefun
 
-@deftypefun {const char *} po_message_msgstr_plural (po_message_t @var{message}, int @var{index})
-The @code{po_message_msgstr_plural} function returns the
-@code{msgstr[@var{index}]} of a message with plurals, or @code{NULL} when
-the @var{index} is out of range or for a message without plural.
+@deftypefun {void} po_message_set_msgstr (po_message_t@tie{}@var{message}, const@tie{}char@tie{}*@var{msgstr})
+The @code{po_message_set_msgstr} function changes the @code{msgstr}
+(translation) of @var{message} to the value provided through @var{msgstr}, a
+non-@code{NULL} string.
 @end deftypefun
 
-Here is an example code how these functions can be used.
+@deftypefun {const char *} po_message_msgstr_plural (po_message_t@tie{}@var{message}, int@tie{}@var{index})
+The @code{po_message_msgstr_plural} function returns the
+@code{msgstr[@var{index}]} of @var{message}, a message with plurals, or
+@code{NULL} when the @var{index} is out of range or for a message without
+plural.
+@end deftypefun
 
-@example
-const char *filename = @dots{};
-po_file_t file = po_file_read (filename);
+@deftypefun {void} po_message_set_msgstr_plural (po_message_t@tie{}@var{message}, int@tie{}@var{index}, const@tie{}char@tie{}*@var{msgstr_plural})
+The @code{po_message_set_msgstr_plural} function changes the
+@code{msgstr[@var{index}]} of @var{message}, a message with plurals, to
+the value provided through @var{msgstr_plural}. @var{message} must be a
+message with plurals.
+Use @code{NULL} as the value of @var{msgstr_plural} with
+@var{index} pointing to the last element to reduce the number of plural
+forms.
+@end deftypefun
 
-if (file == NULL)
-  error (EXIT_FAILURE, errno, "couldn't open the PO file %s", filename);
-@{
-  const char * const *domains = po_file_domains (file);
-  const char * const *domainp;
+@deftypefun {const char *} po_message_comments (po_message_t@tie{}@var{message})
+The @code{po_message_comments} function returns the comments of @var{message},
+a multiline string, ending in a newline, or a non-@code{NULL} empty string.
+@end deftypefun
 
-  for (domainp = domains; *domainp; domainp++)
-    @{
-      const char *domain = *domainp;
-      po_message_iterator_t iterator = po_message_iterator (file, domain);
+@deftypefun {void} po_message_set_comments (po_message_t@tie{}@var{message}, const@tie{}char@tie{}*@var{comments})
+The @code{po_message_set_comments} function changes the comments of
+@var{message} to the value @var{comments}, a multiline string, ending in a
+newline, or a non-@code{NULL} empty string.
+@end deftypefun
 
-      for (;;)
-        @{
-          po_message_t *message = po_next_message (iterator);
+@deftypefun {const char *} po_message_extracted_comments (po_message_t@tie{}@var{message})
+The @code{po_message_extracted_comments} function returns the extracted
+comments of @var{message}, a multiline string, ending in a newline, or a
+non-@code{NULL} empty string.
+@end deftypefun
 
-          if (message == NULL)
-            break;
-          @{
-            const char *msgid = po_message_msgid (message);
-            const char *msgstr = po_message_msgstr (message);
+@deftypefun {void} po_message_set_extracted_comments (po_message_t@tie{}@var{message}, const@tie{}char@tie{}*@var{extracted_comments})
+The @code{po_message_set_extracted_comments} function changes the
+comments of @var{message} to the value @var{extracted_comments}, a multiline
+string, ending in a newline, or a non-@code{NULL} empty string.
+@end deftypefun
 
-            @dots{}
-          @}
-        @}
-      po_message_iterator_free (iterator);
-    @}
-@}
-po_file_free (file);
-@end example
+@deftypefun {const char *} po_message_prev_msgctxt (po_message_t@tie{}@var{message})
+The @code{po_message_prev_msgctxt} function returns the previous
+@code{msgctxt}, the previous context of @var{message}.  Return
+@code{NULL} for a message that does not have a previous context.
+@end deftypefun
+
+@deftypefun {void} po_message_set_prev_msgctxt (po_message_t@tie{}@var{message}, const@tie{}char@tie{}*@var{prev_msgctxt})
+The @code{po_message_set_prev_msgctxt} function changes the previous
+@code{msgctxt}, the context of the message, to the value provided
+through @var{prev_msgctxt}.  The value @code{NULL} removes the stored
+previous msgctxt.
+@end deftypefun
+
+@deftypefun {const char *} po_message_prev_msgid (po_message_t@tie{}@var{message})
+The @code{po_message_prev_msgid} function returns the previous
+@code{msgid} (untranslated English string) of @var{message}, or
+@code{NULL} if there is no previous @code{msgid} stored.
+@end deftypefun
+
+@deftypefun {void} po_message_set_prev_msgid (po_message_t@tie{}@var{message}, const@tie{}char@tie{}*@var{prev_msgid})
+The @code{po_message_set_prev_msgid} function changes the previous
+@code{msgid} (untranslated English string) of @var{message} to the value
+provided through @var{prev_msgid}, or removes the message when it is
+@code{NULL}.
+@end deftypefun
+
+@deftypefun {const char *} po_message_prev_msgid_plural (po_message_t@tie{}@var{message})
+The @code{po_message_prev_msgid_plural} function returns the previous
+@code{msgid_plural} (untranslated English plural string) of
+@var{message}, a message with plurals, or @code{NULL} for a message
+without plural without any stored previous @code{msgid_plural}.
+@end deftypefun
+
+@deftypefun {void} po_message_set_prev_msgid_plural (po_message_t@tie{}@var{message}, const@tie{}char@tie{}*@var{prev_msgid_plural})
+The @code{po_message_set_prev_msgid_plural} function changes the
+previous @code{msgid_plural} (untranslated English plural string) of a
+message to the value provided through @var{prev_msgid_plural}, or
+removes the stored previous @code{msgid_plural} if @code{NULL} is
+provided as @var{prev_msgid_plural}.
+@end deftypefun
+
+@deftypefun {int} po_message_is_obsolete (po_message_t@tie{}@var{message})
+The @code{po_message_is_obsolete} function returns true when @var{message}
+is marked as obsolete.
+@end deftypefun
+
+@deftypefun {void} po_message_set_obsolete (po_message_t@tie{}@var{message}, int@tie{}@var{obsolete})
+The @code{po_message_set_obsolete} function changes the obsolete mark of
+@var{message}.
+@end deftypefun
+
+@deftypefun {int} po_message_is_fuzzy (po_message_t@tie{}@var{message})
+The @code{po_message_is_fuzzy} function returns true when @var{message}
+is marked as fuzzy.
+@end deftypefun
+
+@deftypefun {void} po_message_set_fuzzy (po_message_t@tie{}@var{message}, int@tie{}@var{fuzzy})
+The @code{po_message_set_fuzzy} function changes the fuzzy mark of
+@var{message}.
+@end deftypefun
+
+@deftypefun {int} po_message_is_format (po_message_t@tie{}@var{message}, const@tie{}char@tie{}*@var{format_type})
+The @code{po_message_is_format} function returns true when the message
+is marked as being a format string of @var{format_type}.
+@end deftypefun
+
+@deftypefun {void} po_message_set_format (po_message_t@tie{}@var{message}, const@tie{}char@tie{}*@var{format_type}, int@tie{}@var{value})
+The @code{po_message_set_fuzzy} function changes the format mark of
+the message for the @var{format_type} provided.
+@end deftypefun
+
+@deftypefun {int} po_message_is_range (po_message_t@tie{}@var{message}, int@tie{}*@var{minp}, int@tie{}*@var{maxp})
+The @code{po_message_is_range} function returns true when the message
+has a numeric range set, and stores the minimum and maximum value in the
+locations pointed by @var{minp} and @var{maxp} respectively.
+@end deftypefun
+
+@deftypefun {void} po_message_set_range (po_message_t@tie{}@var{message}, int@tie{}@var{min}, int@tie{}@var{max})
+The @code{po_message_set_range} function changes the numeric range of
+the message. @var{min} and @var{max} must be non-negative, with
+@var{min} < @var{max}.  Use @var{min} and @var{max} with value @code{-1}
+to remove the numeric range of @var{message}.
+@end deftypefun
+
+@node PO Header Entry API
+@subsection PO Header Entry API
+
+The following functions provide an interface to extract and manipulate
+the header entry (@pxref{Header Entry}) from a file loaded in memory.
+The meta information must be written back into the domain message with
+the empty string as @code{msgid}.
+
+@deftypefun {const char *} po_file_domain_header (po_file_t@tie{}@var{file}, const@tie{}char@tie{}*@var{domain})
+Returns the header entry of a domain from @var{file}, a PO file loaded in
+memory.  The value @code{NULL} provided as @var{domain} denotes the
+default domain.  Returns @code{NULL} if there is no header entry.
+@end deftypefun
+
+@deftypefun {char *} po_header_field (const@tie{}char@tie{}*@var{header}, const@tie{}char@tie{}*@var{field})
+Returns the value of @var{field} in the @var{header} entry.  The return
+value is either a freshly allocated string, to be freed by the caller,
+or @code{NULL}.
+@end deftypefun
+
+@deftypefun {char *} po_header_set_field (const@tie{}char@tie{}*@var{header}, const@tie{}char@tie{}*@var{field}, const@tie{}char@tie{}*@var{value})
+Returns a freshly allocated string which contains the entry from
+@var{header} with @var{field} set to @var{value}.  The field is added if
+necessary.
+@end deftypefun
+
+@node po_filepos_t API
+@subsection po_filepos_t API
+
+@deftp {Data Type} po_filepos_t
+This is a pointer type that refers to a string's position within a
+source file.
+@end deftp
+
+The following functions provide an interface to extract and manipulate
+these references.
+
+@deftypefun {po_filepos_t} po_message_filepos (po_message_t@tie{}@var{message}, int@tie{}@var{index})
+Returns the file reference in position @var{index} from the message.  If
+@var{index} is out of range, returns @code{NULL}.
+@end deftypefun
+
+@deftypefun {void} po_message_remove_filepos (po_message_t@tie{}@var{message}, int@tie{}@var{index})
+Removes the file reference in position @var{index} from the message.  It
+moves all references following @var{index} one position backwards.
+@end deftypefun
+
+@deftypefun {void} po_message_add_filepos (po_message_t@tie{}@var{message}, const@tie{}char@tie{}*@var{file}, size_t@tie{}@var{start_line})
+Adds a reference to the string from @var{file} starting at
+@var{start_line}, if it is not already present for the message.  The
+value @code{(size_t)(-1)} for @var{start_line} denotes that the line
+number is not available.
+@end deftypefun
+
+@node Format Type API
+@subsection Format Type API
+
+@deftypefun {const char * const *} po_format_list (void)
+Returns a @code{NULL} terminated array of the supported format types.
+@end deftypefun
+
+@deftypefun {const char *} po_format_pretty_name (const@tie{}char@tie{}*@var{format_type})
+Returns the pretty name associated with @var{format_type}.  For example,
+it returns ``C#'' when @var{format_type} is ``csharp_format''.
+Return @code{NULL} if @var{format_type} is not a supported format type.
+@end deftypefun
+
+@node Checking API
+@subsection Checking API
+
+@deftypefun {void} po_file_check_all (po_file_t@tie{}@var{file}, po_xerror_handler_t@tie{}@var{handler})
+Tests whether the entire @var{file} is valid, like @code{msgfmt} does it.  If it
+is invalid, passes the reasons to @var{handler}.
+@end deftypefun
+
+@deftypefun {void} po_message_check_all (po_message_t@tie{}@var{message}, po_message_iterator_t@tie{}@var{iterator}, po_xerror_handler_t@tie{}@var{handler})
+Tests @var{message}, to be inserted at @var{iterator} in a PO file in memory,
+like @code{msgfmt} does it.  If it is invalid, passes the reasons to
+@var{handler}.  @var{iterator} is not modified by this call; it only
+specifies the file and the domain.
+@end deftypefun
+
+@deftypefun {void} po_message_check_format (po_message_t@tie{}@var{message}, po_xerror_handler_t@tie{}@var{handler})
+Tests whether the message translation from @var{message} is a valid
+format string if the message is marked as being a format string.  If it
+is invalid, passes the reasons to @var{handler}.
+
+This function is exported as @samp{po_message_check_format_v2} at ABI
+level, but is defined as @code{po_message_check_format} in C code after
+the inclusion of @samp{<gettext-po.h>}.
+@end deftypefun
 
 @node Binaries
 @chapter Producing Binary MO Files
@@ -5653,7 +6036,7 @@ user can happily live with it.  But programmers hate it (at least I and
 some others do@dots{})
 
 But we must not forget one point: after all the trouble with transferring
-the rights on Unix(tm) they at last came to X/Open, the very same who
+the rights on Unix they at last came to X/Open, the very same who
 published this specification.  This leads me to making the prediction
 that this interface will be in future Unix standards (e.g.@: Spec1170) and
 therefore part of all Unix implementation (implementations, which are
@@ -5888,6 +6271,15 @@ achieved when the program executes a @code{chdir} command.  Relative
 paths should always be avoided to avoid dependencies and
 unreliabilities.
 
+@example
+wchar_t *wbindtextdomain (const char *domain_name,
+                          const wchar_t *dir_name);
+@end example
+
+This function is provided only on native Windows platforms.  It is like
+@code{bindtextdomain}, except that the @var{dir_name} parameter is a
+wide string (in UTF-16 encoding, as usual on Windows).
+
 @node Locating Catalogs
 @subsection Locating Message Catalog Files
 @cindex message catalog files location
@@ -5950,7 +6342,7 @@ translation for @var{msgid}, it returns @var{msgid} unchanged --
 independently of the current output character set.  It is therefore
 recommended that all @var{msgid}s be US-ASCII strings.
 
-@deftypefun {char *} bind_textdomain_codeset (const char *@var{domainname}, const char *@var{codeset})
+@deftypefun {char *} bind_textdomain_codeset (const@tie{}char@tie{}*@var{domainname}, const@tie{}char@tie{}*@var{codeset})
 The @code{bind_textdomain_codeset} function can be used to specify the
 output character set for message catalogs for domain @var{domainname}.
 The @var{codeset} argument must be a valid codeset name which can be used
@@ -6221,7 +6613,7 @@ GNU package and the coding standards for the GNU project require program
 being written in English, this solution nevertheless fulfills its
 purpose.
 
-@deftypefun {char *} ngettext (const char *@var{msgid1}, const char *@var{msgid2}, unsigned long int @var{n})
+@deftypefun {char *} ngettext (const@tie{}char@tie{}*@var{msgid1}, const@tie{}char@tie{}*@var{msgid2}, unsigned@tie{}long@tie{}int@tie{}@var{n})
 The @code{ngettext} function is similar to the @code{gettext} function
 as it finds the message catalogs in the same way.  But it takes two
 extra arguments.  The @var{msgid1} parameter must contain the singular
@@ -6304,14 +6696,14 @@ puts (ngettext ("Delete the selected file?",
 In this case the number @var{n} is only used to choose the plural form.
 @end deftypefun
 
-@deftypefun {char *} dngettext (const char *@var{domain}, const char *@var{msgid1}, const char *@var{msgid2}, unsigned long int @var{n})
+@deftypefun {char *} dngettext (const@tie{}char@tie{}*@var{domain}, const@tie{}char@tie{}*@var{msgid1}, const@tie{}char@tie{}*@var{msgid2}, unsigned@tie{}long@tie{}int@tie{}@var{n})
 The @code{dngettext} is similar to the @code{dgettext} function in the
 way the message catalog is selected.  The difference is that it takes
 two extra parameter to provide the correct plural form.  These two
 parameters are handled in the same way @code{ngettext} handles them.
 @end deftypefun
 
-@deftypefun {char *} dcngettext (const char *@var{domain}, const char *@var{msgid1}, const char *@var{msgid2}, unsigned long int @var{n}, int @var{category})
+@deftypefun {char *} dcngettext (const@tie{}char@tie{}*@var{domain}, const@tie{}char@tie{}*@var{msgid1}, const@tie{}char@tie{}*@var{msgid2}, unsigned@tie{}long@tie{}int@tie{}@var{n}, int@tie{}@var{category})
 The @code{dcngettext} is similar to the @code{dcgettext} function in the
 way the message catalog is selected.  The difference is that it takes
 two extra parameter to provide the correct plural form.  These two
@@ -7594,7 +7986,7 @@ In a second step, she uses the PO mode to translate precisely this set
 of messages.
 
 @vindex GETTEXT_LOG_UNTRANSLATED@r{, environment variable}
-Here a more details.  The GNU @code{libintl} library (but not the
+Here are more details.  The GNU @code{libintl} library (but not the
 corresponding functions in GNU @code{libc}) supports an environment variable
 @code{GETTEXT_LOG_UNTRANSLATED}.  The GNU @code{libintl} library will
 log into this file the messages for which @code{gettext()} and related
@@ -8289,6 +8681,9 @@ bindtextdomain (@var{PACKAGE}, LOCALEDIR);
 textdomain (@var{PACKAGE});
 @end example
 
+On native Windows platforms, the @code{main} function may call
+@code{wbindtextdomain} instead of @code{bindtextdomain}.
+
 To make LOCALEDIR known to the program, add the following lines to
 @file{Makefile.in}:
 
@@ -8965,6 +9360,7 @@ making the @code{textdomain} function available from within the
 language, or by introducing a magic variable called @code{TEXTDOMAIN}.
 Similarly, you should allow the programmer to designate where to search
 for message catalogs, by providing access to the @code{bindtextdomain}
+function or --- on native Windows platforms --- to the @code{wbindtextdomain}
 function.
 
 @item
@@ -8977,16 +9373,50 @@ Remember that gettext will act as a no-op if the @code{LC_MESSAGES} and
 A programmer should have a way to extract translatable strings from a
 program into a PO file.  The GNU @code{xgettext} program is being
 extended to support very different programming languages.  Please
-contact the GNU @code{gettext} maintainers to help them doing this.  If
-the string extractor is best integrated into your language's parser, GNU
-@code{xgettext} can function as a front end to your string extractor.
+contact the GNU @code{gettext} maintainers to help them doing this.
+The GNU @code{gettext} maintainers will need from you a formal
+description of the lexical structure of source files.  It should
+answer the questions:
+@itemize @bullet
+@item
+What does a token look like?
+@item
+What does a string literal look like? What escape characters exist
+inside a string?
+@item
+What escape characters exist outside of strings?  If Unicode escapes
+are supported, are they applied before or after tokenization?
+@item
+What is the syntax for function calls?  How are consecutive arguments
+in the same function call separated?
+@item
+What is the syntax for comments?
+@end itemize
+@noindent Based on this description, the GNU @code{gettext} maintainers
+can add support to @code{xgettext}.
+
+If the string extractor is best integrated into your language's parser,
+GNU @code{xgettext} can function as a front end to your string extractor.
 
 @item
-The language's library should have a string formatting facility where
-the arguments of a format string are denoted by a positional number or a
-name.  This is needed because for some languages and some messages with
-more than one substitutable argument, the translation will need to
-output the substituted arguments in different order.  @xref{c-format Flag}.
+The language's library should have a string formatting facility.
+Additionally:
+@enumerate
+@item
+There must be a way, in the format string, to denote the arguments by a
+positional number or a name.  This is needed because for some languages
+and some messages with more than one substitutable argument, the
+translation will need to output the substituted arguments in different
+order.  @xref{c-format Flag}.
+@item
+The syntax of format strings must be documented in a way that translators
+can understand.  The GNU @code{gettext} manual will be extended to
+include a pointer to this documentation.
+@end enumerate
+Based on this, the GNU @code{gettext} maintainers can add a format string
+equivalence checker to @code{msgfmt}, so that translators get told
+immediately when they have made a mistake during the translation of a
+format string.
 
 @item
 If the language has more than one implementation, and not all of the
@@ -9045,30 +9475,31 @@ strings.
 @menu
 * c-format::                    C Format Strings
 * objc-format::                 Objective C Format Strings
-* sh-format::                   Shell Format Strings
 * python-format::               Python Format Strings
+* java-format::                 Java Format Strings
+* csharp-format::               C# Format Strings
+* javascript-format::           JavaScript Format Strings
+* scheme-format::               Scheme Format Strings
 * lisp-format::                 Lisp Format Strings
 * elisp-format::                Emacs Lisp Format Strings
 * librep-format::               librep Format Strings
-* scheme-format::               Scheme Format Strings
-* smalltalk-format::            Smalltalk Format Strings
-* java-format::                 Java Format Strings
-* csharp-format::               C# Format Strings
+* ruby-format::                 Ruby Format Strings
+* sh-format::                   Shell Format Strings
 * awk-format::                  awk Format Strings
+* lua-format::                  Lua Format Strings
 * object-pascal-format::        Object Pascal Format Strings
-* ycp-format::                  YCP Format Strings
-* tcl-format::                  Tcl Format Strings
-* perl-format::                 Perl Format Strings
-* php-format::                  PHP Format Strings
-* gcc-internal-format::         GCC internal Format Strings
-* gfc-internal-format::         GFC internal Format Strings
+* smalltalk-format::            Smalltalk Format Strings
 * qt-format::                   Qt Format Strings
 * qt-plural-format::            Qt Plural Format Strings
 * kde-format::                  KDE Format Strings
 * kde-kuit-format::             KUIT Format Strings
 * boost-format::                Boost Format Strings
-* lua-format::                  Lua Format Strings
-* javascript-format::           JavaScript Format Strings
+* tcl-format::                  Tcl Format Strings
+* perl-format::                 Perl Format Strings
+* php-format::                  PHP Format Strings
+* gcc-internal-format::         GCC internal Format Strings
+* gfc-internal-format::         GFC internal Format Strings
+* ycp-format::                  YCP Format Strings
 @end menu
 
 @node c-format
@@ -9123,25 +9554,6 @@ Objective C format strings are like C format strings.  They support an
 additional format directive: "%@@", which when executed consumes an argument
 of type @code{Object *}.
 
-@node sh-format
-@subsection Shell Format Strings
-
-Shell format strings, as supported by GNU gettext and the @samp{envsubst}
-program, are strings with references to shell variables in the form
-@code{$@var{variable}} or @code{$@{@var{variable}@}}.  References of the form
-@code{$@{@var{variable}-@var{default}@}},
-@code{$@{@var{variable}:-@var{default}@}},
-@code{$@{@var{variable}=@var{default}@}},
-@code{$@{@var{variable}:=@var{default}@}},
-@code{$@{@var{variable}+@var{replacement}@}},
-@code{$@{@var{variable}:+@var{replacement}@}},
-@code{$@{@var{variable}?@var{ignored}@}},
-@code{$@{@var{variable}:?@var{ignored}@}},
-that would be valid inside shell scripts, are not supported.  The
-@var{variable} names must consist solely of alphanumeric or underscore
-ASCII characters, not start with a digit and be nonempty; otherwise such
-a variable reference is ignored.
-
 @node python-format
 @subsection Python Format Strings
 
@@ -9159,6 +9571,51 @@ Python @code{%} format strings are described in
 
 Python brace format strings are described in @w{PEP 3101 -- Advanced
 String Formatting}, @uref{https://www.python.org/dev/peps/pep-3101/}.
+
+@node java-format
+@subsection Java Format Strings
+
+There are two kinds of format strings in Java: those acceptable to the
+@code{MessageFormat.format} function, labelled as @samp{java-format},
+and those acceptable to the @code{String.format} and
+@code{PrintStream.printf} functions, labelled as @samp{java-printf-format}.
+
+Java format strings are described in the JDK documentation for class
+@code{java.text.MessageFormat},
+@uref{https://docs.oracle.com/javase/7/docs/api/java/text/MessageFormat.html}.
+See also the ICU documentation
+@uref{http://icu-project.org/apiref/icu4j/com/ibm/icu/text/MessageFormat.html}.
+
+Java @code{printf} format strings are described in the JDK documentation
+for class @code{java.util.Formatter},
+@uref{https://docs.oracle.com/javase/7/docs/api/java/util/Formatter.html}.
+
+@node csharp-format
+@subsection C# Format Strings
+
+C# format strings are described in the .NET documentation for class
+@code{System.String} and in
+@uref{http://msdn.microsoft.com/library/default.asp?url=/library/en-us/cpguide/html/cpConFormattingOverview.asp}.
+
+@node javascript-format
+@subsection JavaScript Format Strings
+
+Although JavaScript specification itself does not define any format
+strings, many JavaScript implementations provide printf-like
+functions.  @code{xgettext} understands a set of common format strings
+used in popular JavaScript implementations including Gjs, Seed, and
+Node.JS.  In such a format string, a directive starts with @samp{%}
+and is finished by a specifier: @samp{%} denotes a literal percent
+sign, @samp{c} denotes a character, @samp{s} denotes a string,
+@samp{b}, @samp{d}, @samp{o}, @samp{x}, @samp{X} denote an integer,
+@samp{f} denotes floating-point number, @samp{j} denotes a JSON
+object.
+
+@node scheme-format
+@subsection Scheme Format Strings
+
+Scheme format strings are documented in the SLIB manual, section
+@w{Format Specification}.
 
 @node lisp-format
 @subsection Lisp Format Strings
@@ -9184,11 +9641,63 @@ librep format strings are documented in the librep manual, section
 @url{http://librep.sourceforge.net/librep-manual.html#Formatted%20Output},
 @url{http://www.gwinnup.org/research/docs/librep.html#SEC122}.
 
-@node scheme-format
-@subsection Scheme Format Strings
+@node ruby-format
+@subsection Ruby Format Strings
 
-Scheme format strings are documented in the SLIB manual, section
-@w{Format Specification}.
+Ruby format strings are described in the documentation of the Ruby
+functions @code{format} and @code{sprintf}, in
+@uref{https://ruby-doc.org/core-2.7.1/Kernel.html#method-i-sprintf}.
+
+There are two kinds of format strings in Ruby:
+@itemize @bullet
+@item
+Those that take a list of arguments without names.  They support
+argument reordering by use of the @code{%@var{n}$} syntax.  Note
+that if one argument uses this syntax, all must use this syntax.
+@item
+Those that take a hash table, containing named arguments.  The
+syntax is @code{%<@var{name}>}.  Note that @code{%@{@var{name}@}} is
+equivalent to @code{%<@var{name}>s}.
+@end itemize
+
+@node sh-format
+@subsection Shell Format Strings
+
+Shell format strings, as supported by GNU gettext and the @samp{envsubst}
+program, are strings with references to shell variables in the form
+@code{$@var{variable}} or @code{$@{@var{variable}@}}.  References of the form
+@code{$@{@var{variable}-@var{default}@}},
+@code{$@{@var{variable}:-@var{default}@}},
+@code{$@{@var{variable}=@var{default}@}},
+@code{$@{@var{variable}:=@var{default}@}},
+@code{$@{@var{variable}+@var{replacement}@}},
+@code{$@{@var{variable}:+@var{replacement}@}},
+@code{$@{@var{variable}?@var{ignored}@}},
+@code{$@{@var{variable}:?@var{ignored}@}},
+that would be valid inside shell scripts, are not supported.  The
+@var{variable} names must consist solely of alphanumeric or underscore
+ASCII characters, not start with a digit and be nonempty; otherwise such
+a variable reference is ignored.
+
+@node awk-format
+@subsection awk Format Strings
+
+awk format strings are described in the gawk documentation, section
+@w{Printf},
+@uref{https://www.gnu.org/manual/gawk/html_node/Printf.html#Printf}.
+
+@node lua-format
+@subsection Lua Format Strings
+
+Lua format strings are described in the Lua reference manual, section @w{String Manipulation},
+@uref{https://www.lua.org/manual/5.1/manual.html#pdf-string.format}.
+
+@node object-pascal-format
+@subsection Object Pascal Format Strings
+
+Object Pascal format strings are described in the documentation of the
+Free Pascal runtime library, section Format,
+@uref{https://www.freepascal.org/docs-html/rtl/sysutils/format.html}.
 
 @node smalltalk-format
 @subsection Smalltalk Format Strings
@@ -9200,43 +9709,51 @@ class @code{CharArray}, methods @samp{bindWith:} and
 In summary, a directive starts with @samp{%} and is followed by @samp{%}
 or a nonzero digit (@samp{1} to @samp{9}).
 
-@node java-format
-@subsection Java Format Strings
+@node qt-format
+@subsection Qt Format Strings
 
-Java format strings are described in the JDK documentation for class
-@code{java.text.MessageFormat},
-@uref{http://java.sun.com/j2se/1.4/docs/api/java/text/MessageFormat.html}.
-See also the ICU documentation
-@uref{http://oss.software.ibm.com/icu/apiref/classMessageFormat.html}.
+Qt format strings are described in the documentation of the QString class
+@uref{file:/usr/lib/qt-4.3.0/doc/html/qstring.html}.
+In summary, a directive consists of a @samp{%} followed by a digit. The same
+directive cannot occur more than once in a format string.
 
-@node csharp-format
-@subsection C# Format Strings
+@node qt-plural-format
+@subsection Qt Format Strings
 
-C# format strings are described in the .NET documentation for class
-@code{System.String} and in
-@uref{http://msdn.microsoft.com/library/default.asp?url=/library/en-us/cpguide/html/cpConFormattingOverview.asp}.
+Qt format strings are described in the documentation of the QObject::tr method
+@uref{file:/usr/lib/qt-4.3.0/doc/html/qobject.html}.
+In summary, the only allowed directive is @samp{%n}.
 
-@node awk-format
-@subsection awk Format Strings
+@node kde-format
+@subsection KDE Format Strings
 
-awk format strings are described in the gawk documentation, section
-@w{Printf},
-@uref{https://www.gnu.org/manual/gawk/html_node/Printf.html#Printf}.
+KDE 4 format strings are defined as follows:
+A directive consists of a @samp{%} followed by a non-zero decimal number.
+If a @samp{%n} occurs in a format strings, all of @samp{%1}, ..., @samp{%(n-1)}
+must occur as well, except possibly one of them.
 
-@node object-pascal-format
-@subsection Object Pascal Format Strings
+@node kde-kuit-format
+@subsection KUIT Format Strings
 
-Object Pascal format strings are described in the documentation of the
-Free Pascal runtime library, section Format,
-@uref{https://www.freepascal.org/docs-html/rtl/sysutils/format.html}.
+KUIT (KDE User Interface Text) is compatible with KDE 4 format strings,
+while it also allows programmers to add semantic information to a format
+string, through XML markup tags.  For example, if the first format
+directive in a string is a filename, programmers could indicate that
+with a @samp{filename} tag, like @samp{<filename>%1</filename>}.
 
-@node ycp-format
-@subsection YCP Format Strings
+KUIT format strings are described in
+@uref{https://api.kde.org/frameworks/ki18n/html/prg_guide.html#kuit_markup}.
 
-YCP sformat strings are described in the libycp documentation
-@uref{file:/usr/share/doc/packages/libycp/YCP-builtins.html}.
-In summary, a directive starts with @samp{%} and is followed by @samp{%}
-or a nonzero digit (@samp{1} to @samp{9}).
+@node boost-format
+@subsection Boost Format Strings
+
+Boost format strings are described in the documentation of the
+@code{boost::format} class, at
+@uref{https://www.boost.org/libs/format/doc/format.html}.
+In summary, a directive has either the same syntax as in a C format string,
+such as @samp{%1$+5d}, or may be surrounded by vertical bars, such as
+@samp{%|1$+5d|} or @samp{%|1$+5|}, or consists of just an argument number
+between percent signs, such as @samp{%1%}.
 
 @node tcl-format
 @subsection Tcl Format Strings
@@ -9247,7 +9764,7 @@ Tcl format strings are described in the @file{format.n} manual page,
 @node perl-format
 @subsection Perl Format Strings
 
-There are two kinds format strings in Perl: those acceptable to the
+There are two kinds of format strings in Perl: those acceptable to the
 Perl built-in function @code{printf}, labelled as @samp{perl-format},
 and those acceptable to the @code{libintl-perl} function @code{__x},
 labelled as @samp{perl-brace-format}.
@@ -9298,71 +9815,13 @@ denotes a character, @samp{s} denotes a string, @samp{i} and @samp{d}
 denote an integer, @samp{u} denotes an unsigned integer.  @samp{i},
 @samp{d}, and @samp{u} may be preceded by a size specifier @samp{l}.
 
-@node qt-format
-@subsection Qt Format Strings
+@node ycp-format
+@subsection YCP Format Strings
 
-Qt format strings are described in the documentation of the QString class
-@uref{file:/usr/lib/qt-4.3.0/doc/html/qstring.html}.
-In summary, a directive consists of a @samp{%} followed by a digit. The same
-directive cannot occur more than once in a format string.
-
-@node qt-plural-format
-@subsection Qt Format Strings
-
-Qt format strings are described in the documentation of the QObject::tr method
-@uref{file:/usr/lib/qt-4.3.0/doc/html/qobject.html}.
-In summary, the only allowed directive is @samp{%n}.
-
-@node kde-format
-@subsection KDE Format Strings
-
-KDE 4 format strings are defined as follows:
-A directive consists of a @samp{%} followed by a non-zero decimal number.
-If a @samp{%n} occurs in a format strings, all of @samp{%1}, ..., @samp{%(n-1)}
-must occur as well, except possibly one of them.
-
-@node kde-kuit-format
-@subsection KUIT Format Strings
-
-KUIT (KDE User Interface Text) is compatible with KDE 4 format strings,
-while it also allows programmers to add semantic information to a format
-string, through XML markup tags.  For example, if the first format
-directive in a string is a filename, programmers could indicate that
-with a @samp{filename} tag, like @samp{<filename>%1</filename>}.
-
-KUIT format strings are described in
-@uref{https://api.kde.org/frameworks/ki18n/html/prg_guide.html#kuit_markup}.
-
-@node boost-format
-@subsection Boost Format Strings
-
-Boost format strings are described in the documentation of the
-@code{boost::format} class, at
-@uref{https://www.boost.org/libs/format/doc/format.html}.
-In summary, a directive has either the same syntax as in a C format string,
-such as @samp{%1$+5d}, or may be surrounded by vertical bars, such as
-@samp{%|1$+5d|} or @samp{%|1$+5|}, or consists of just an argument number
-between percent signs, such as @samp{%1%}.
-
-@node lua-format
-@subsection Lua Format Strings
-
-Lua format strings are described in the Lua reference manual, section @w{String Manipulation},
-@uref{https://www.lua.org/manual/5.1/manual.html#pdf-string.format}.
-
-@node javascript-format
-@subsection JavaScript Format Strings
-
-Although JavaScript specification itself does not define any format
-strings, many JavaScript implementations provide printf-like
-functions.  @code{xgettext} understands a set of common format strings
-used in popular JavaScript implementations including Gjs, Seed, and
-Node.JS.  In such a format string, a directive starts with @samp{%}
-and is finished by a specifier: @samp{%} denotes a literal percent
-sign, @samp{c} denotes a character, @samp{s} denotes a string,
-@samp{b}, @samp{d}, @samp{o}, @samp{x}, @samp{X} denote an integer,
-@samp{f} denotes floating-point number, @samp{j} denotes a JSON
-object.
+YCP sformat strings are described in the libycp documentation
+@uref{file:/usr/share/doc/packages/libycp/YCP-builtins.html}.
+In summary, a directive starts with @samp{%} and is followed by @samp{%}
+or a nonzero digit (@samp{1} to @samp{9}).
 
 
 @node Maintainers for other Languages
@@ -9441,2809 +9900,57 @@ that language, and to combine the resulting files using @code{msgcat}.
 
 @menu
 * C::                           C, C++, Objective C
-* sh::                          sh - Shell Script
-* bash::                        bash - Bourne-Again Shell Script
 * Python::                      Python
+* Java::                        Java
+* C#::                          C#
+* JavaScript::                  JavaScript
+* Scheme::                      GNU guile - Scheme
 * Common Lisp::                 GNU clisp - Common Lisp
 * clisp C::                     GNU clisp C sources
 * Emacs Lisp::                  Emacs Lisp
 * librep::                      librep
-* Scheme::                      GNU guile - Scheme
-* Smalltalk::                   GNU Smalltalk
-* Java::                        Java
-* C#::                          C#
+* Ruby::                        Ruby
+* sh::                          sh - Shell Script
+* bash::                        bash - Bourne-Again Shell Script
 * gawk::                        GNU awk
+* Lua::                         Lua
 * Pascal::                      Pascal - Free Pascal Compiler
+* Smalltalk::                   GNU Smalltalk
+* Vala::                        Vala
 * wxWidgets::                   wxWidgets library
-* YCP::                         YCP - YaST2 scripting language
 * Tcl::                         Tcl - Tk's scripting language
 * Perl::                        Perl
 * PHP::                         PHP Hypertext Preprocessor
 * Pike::                        Pike
 * GCC-source::                  GNU Compiler Collection sources
-* Lua::                         Lua
-* JavaScript::                  JavaScript
-* Vala::                        Vala
+* YCP::                         YCP - YaST2 scripting language
 @end menu
 
-@node C
-@subsection C, C++, Objective C
-@cindex C and C-like languages
-
-@table @asis
-@item RPMs
-gcc, gpp, gobjc, glibc, gettext
-
-@item Ubuntu packages
-gcc, g++, gobjc, libc6-dev, libasprintf-dev
-
-@item File extension
-For C: @code{c}, @code{h}.
-@*For C++: @code{C}, @code{c++}, @code{cc}, @code{cxx}, @code{cpp}, @code{hpp}.
-@*For Objective C: @code{m}.
-
-@item String syntax
-@code{"abc"}
-
-@item gettext shorthand
-@code{_("abc")}
-
-@item gettext/ngettext functions
-@code{gettext}, @code{dgettext}, @code{dcgettext}, @code{ngettext},
-@code{dngettext}, @code{dcngettext}
-
-@item textdomain
-@code{textdomain} function
-
-@item bindtextdomain
-@code{bindtextdomain} function
-
-@item setlocale
-Programmer must call @code{setlocale (LC_ALL, "")}
-
-@item Prerequisite
-@code{#include <libintl.h>}
-@*@code{#include <locale.h>}
-@*@code{#define _(string) gettext (string)}
-
-@item Use or emulate GNU gettext
-Use
-
-@item Extractor
-@code{xgettext -k_}
-
-@item Formatting with positions
-@code{fprintf "%2$d %1$d"}
-@*In C++: @code{autosprintf "%2$d %1$d"}
-(@pxref{Top, , Introduction, autosprintf, GNU autosprintf})
-
-@item Portability
-autoconf (gettext.m4) and #if ENABLE_NLS
-
-@item po-mode marking
-yes
-@end table
-
-The following examples are available in the @file{examples} directory:
-@code{hello-c}, @code{hello-c-gnome}, @code{hello-c++}, @code{hello-c++-qt}, 
-@code{hello-c++-kde}, @code{hello-c++-gnome}, @code{hello-c++-wxwidgets},
-@code{hello-objc}, @code{hello-objc-gnustep}, @code{hello-objc-gnome}.
-
-@node sh
-@subsection sh - Shell Script
-@cindex shell scripts
-
-@table @asis
-@item RPMs
-bash, gettext
-
-@item Ubuntu packages
-bash, gettext-base
-
-@item File extension
-@code{sh}
-
-@item String syntax
-@code{"abc"}, @code{'abc'}, @code{abc}
-
-@item gettext shorthand
-@code{"`gettext \"abc\"`"}
-
-@item gettext/ngettext functions
-@pindex gettext
-@pindex ngettext
-@code{gettext}, @code{ngettext} programs
-@*@code{eval_gettext}, @code{eval_ngettext}, @code{eval_pgettext},
-@code{eval_npgettext} shell functions
-
-@item textdomain
-@vindex TEXTDOMAIN@r{, environment variable}
-environment variable @code{TEXTDOMAIN}
-
-@item bindtextdomain
-@vindex TEXTDOMAINDIR@r{, environment variable}
-environment variable @code{TEXTDOMAINDIR}
-
-@item setlocale
-automatic
-
-@item Prerequisite
-@code{. gettext.sh}
-
-@item Use or emulate GNU gettext
-use
-
-@item Extractor
-@code{xgettext}
-
-@item Formatting with positions
----
-
-@item Portability
-fully portable
-
-@item po-mode marking
----
-@end table
-
-An example is available in the @file{examples} directory: @code{hello-sh}.
-
-@menu
-* Preparing Shell Scripts::     Preparing Shell Scripts for Internationalization
-* gettext.sh::                  Contents of @code{gettext.sh}
-* gettext Invocation::          Invoking the @code{gettext} program
-* ngettext Invocation::         Invoking the @code{ngettext} program
-* envsubst Invocation::         Invoking the @code{envsubst} program
-* eval_gettext Invocation::     Invoking the @code{eval_gettext} function
-* eval_ngettext Invocation::    Invoking the @code{eval_ngettext} function
-* eval_pgettext Invocation::    Invoking the @code{eval_pgettext} function
-* eval_npgettext Invocation::   Invoking the @code{eval_npgettext} function
-@end menu
-
-@node Preparing Shell Scripts
-@subsubsection Preparing Shell Scripts for Internationalization
-@cindex preparing shell scripts for translation
-
-Preparing a shell script for internationalization is conceptually similar
-to the steps described in @ref{Sources}.  The concrete steps for shell
-scripts are as follows.
-
-@enumerate
-@item
-Insert the line
-
-@smallexample
-. gettext.sh
-@end smallexample
-
-near the top of the script.  @code{gettext.sh} is a shell function library
-that provides the functions
-@code{eval_gettext} (see @ref{eval_gettext Invocation}),
-@code{eval_ngettext} (see @ref{eval_ngettext Invocation}),
-@code{eval_pgettext} (see @ref{eval_pgettext Invocation}), and
-@code{eval_npgettext} (see @ref{eval_npgettext Invocation}).
-You have to ensure that @code{gettext.sh} can be found in the @code{PATH}.
-
-@item
-Set and export the @code{TEXTDOMAIN} and @code{TEXTDOMAINDIR} environment
-variables.  Usually @code{TEXTDOMAIN} is the package or program name, and
-@code{TEXTDOMAINDIR} is the absolute pathname corresponding to
-@code{$prefix/share/locale}, where @code{$prefix} is the installation location.
-
-@smallexample
-TEXTDOMAIN=@@PACKAGE@@
-export TEXTDOMAIN
-TEXTDOMAINDIR=@@LOCALEDIR@@
-export TEXTDOMAINDIR
-@end smallexample
-
-@item
-Prepare the strings for translation, as described in @ref{Preparing Strings}.
-
-@item
-Simplify translatable strings so that they don't contain command substitution
-(@code{"`...`"} or @code{"$(...)"}), variable access with defaulting (like
-@code{$@{@var{variable}-@var{default}@}}), access to positional arguments
-(like @code{$0}, @code{$1}, ...) or highly volatile shell variables (like
-@code{$?}). This can always be done through simple local code restructuring.
-For example,
-
-@smallexample
-echo "Usage: $0 [OPTION] FILE..."
-@end smallexample
-
-becomes
-
-@smallexample
-program_name=$0
-echo "Usage: $program_name [OPTION] FILE..."
-@end smallexample
-
-Similarly,
-
-@smallexample
-echo "Remaining files: `ls | wc -l`"
-@end smallexample
-
-becomes
-
-@smallexample
-filecount="`ls | wc -l`"
-echo "Remaining files: $filecount"
-@end smallexample
-
-@item
-For each translatable string, change the output command @samp{echo} or
-@samp{$echo} to @samp{gettext} (if the string contains no references to
-shell variables) or to @samp{eval_gettext} (if it refers to shell variables),
-followed by a no-argument @samp{echo} command (to account for the terminating
-newline). Similarly, for cases with plural handling, replace a conditional
-@samp{echo} command with an invocation of @samp{ngettext} or
-@samp{eval_ngettext}, followed by a no-argument @samp{echo} command.
-
-When doing this, you also need to add an extra backslash before the dollar
-sign in references to shell variables, so that the @samp{eval_gettext}
-function receives the translatable string before the variable values are
-substituted into it. For example,
-
-@smallexample
-echo "Remaining files: $filecount"
-@end smallexample
-
-becomes
-
-@smallexample
-eval_gettext "Remaining files: \$filecount"; echo
-@end smallexample
-
-If the output command is not @samp{echo}, you can make it use @samp{echo}
-nevertheless, through the use of backquotes. However, note that inside
-backquotes, backslashes must be doubled to be effective (because the
-backquoting eats one level of backslashes). For example, assuming that
-@samp{error} is a shell function that signals an error,
-
-@smallexample
-error "file not found: $filename"
-@end smallexample
-
-is first transformed into
-
-@smallexample
-error "`echo \"file not found: \$filename\"`"
-@end smallexample
-
-which then becomes
-
-@smallexample
-error "`eval_gettext \"file not found: \\\$filename\"`"
-@end smallexample
-@end enumerate
-
-@node gettext.sh
-@subsubsection Contents of @code{gettext.sh}
-
-@code{gettext.sh}, contained in the run-time package of GNU gettext, provides
-the following:
-
-@itemize @bullet
-@item $echo
-The variable @code{echo} is set to a command that outputs its first argument
-and a newline, without interpreting backslashes in the argument string.
-
-@item eval_gettext
-See @ref{eval_gettext Invocation}.
-
-@item eval_ngettext
-See @ref{eval_ngettext Invocation}.
-
-@item eval_pgettext
-See @ref{eval_pgettext Invocation}.
-
-@item eval_npgettext
-See @ref{eval_npgettext Invocation}.
-@end itemize
-
-@node gettext Invocation
-@subsubsection Invoking the @code{gettext} program
-
-@include rt-gettext.texi
-
-Note: @code{xgettext} supports only the one-argument form of the
-@code{gettext} invocation, where no options are present and the
-@var{textdomain} is implicit, from the environment.
-
-@node ngettext Invocation
-@subsubsection Invoking the @code{ngettext} program
-
-@include rt-ngettext.texi
-
-Note: @code{xgettext} supports only the three-arguments form of the
-@code{ngettext} invocation, where no options are present and the
-@var{textdomain} is implicit, from the environment.
-
-@node envsubst Invocation
-@subsubsection Invoking the @code{envsubst} program
-
-@include rt-envsubst.texi
-
-@node eval_gettext Invocation
-@subsubsection Invoking the @code{eval_gettext} function
-
-@cindex @code{eval_gettext} function, usage
-@example
-eval_gettext @var{msgid}
-@end example
-
-@cindex lookup message translation
-This function outputs the native language translation of a textual message,
-performing dollar-substitution on the result.  Note that only shell variables
-mentioned in @var{msgid} will be dollar-substituted in the result.
-
-@node eval_ngettext Invocation
-@subsubsection Invoking the @code{eval_ngettext} function
-
-@cindex @code{eval_ngettext} function, usage
-@example
-eval_ngettext @var{msgid} @var{msgid-plural} @var{count}
-@end example
-
-@cindex lookup plural message translation
-This function outputs the native language translation of a textual message
-whose grammatical form depends on a number, performing dollar-substitution
-on the result.  Note that only shell variables mentioned in @var{msgid} or
-@var{msgid-plural} will be dollar-substituted in the result.
-
-@node eval_pgettext Invocation
-@subsubsection Invoking the @code{eval_pgettext} function
-
-@cindex @code{eval_pgettext} function, usage
-@example
-eval_pgettext @var{msgctxt} @var{msgid}
-@end example
-
-@cindex lookup message translation with context
-This function outputs the native language translation of a textual message
-in the given context @var{msgctxt} (see @ref{Contexts}), performing
-dollar-substitution on the result.  Note that only shell variables mentioned
-in @var{msgid} will be dollar-substituted in the result.
-
-@node eval_npgettext Invocation
-@subsubsection Invoking the @code{eval_npgettext} function
-
-@cindex @code{eval_npgettext} function, usage
-@example
-eval_npgettext @var{msgctxt} @var{msgid} @var{msgid-plural} @var{count}
-@end example
-
-@cindex lookup plural message translation with context
-This function outputs the native language translation of a textual message
-whose grammatical form depends on a number in the given context @var{msgctxt}
-(see @ref{Contexts}), performing dollar-substitution on the result.  Note
-that only shell variables mentioned in @var{msgid} or @var{msgid-plural}
-will be dollar-substituted in the result.
-
-@node bash
-@subsection bash - Bourne-Again Shell Script
-@cindex bash
-
-GNU @code{bash} 2.0 or newer has a special shorthand for translating a
-string and substituting variable values in it: @code{$"msgid"}.  But
-the use of this construct is @strong{discouraged}, due to the security
-holes it opens and due to its portability problems.
-
-The security holes of @code{$"..."} come from the fact that after looking up
-the translation of the string, @code{bash} processes it like it processes
-any double-quoted string: dollar and backquote processing, like @samp{eval}
-does.
-
-@enumerate
-@item
-In a locale whose encoding is one of BIG5, BIG5-HKSCS, GBK, GB18030, SHIFT_JIS,
-JOHAB, some double-byte characters have a second byte whose value is
-@code{0x60}.  For example, the byte sequence @code{\xe0\x60} is a single
-character in these locales.  Many versions of @code{bash} (all versions
-up to bash-2.05, and newer versions on platforms without @code{mbsrtowcs()}
-function) don't know about character boundaries and see a backquote character
-where there is only a particular Chinese character.  Thus it can start
-executing part of the translation as a command list.  This situation can occur
-even without the translator being aware of it: if the translator provides
-translations in the UTF-8 encoding, it is the @code{gettext()} function which
-will, during its conversion from the translator's encoding to the user's
-locale's encoding, produce the dangerous @code{\x60} bytes.
-
-@item
-A translator could - voluntarily or inadvertently - use backquotes
-@code{"`...`"} or dollar-parentheses @code{"$(...)"} in her translations.
-The enclosed strings would be executed as command lists by the shell.
-@end enumerate
-
-The portability problem is that @code{bash} must be built with
-internationalization support; this is normally not the case on systems
-that don't have the @code{gettext()} function in libc.
-
-@node Python
-@subsection Python
-@cindex Python
-
-@table @asis
-@item RPMs
-python
-
-@item Ubuntu packages
-python
-
-@item File extension
-@code{py}
-
-@item String syntax
-@code{'abc'}, @code{u'abc'}, @code{r'abc'}, @code{ur'abc'},
-@*@code{"abc"}, @code{u"abc"}, @code{r"abc"}, @code{ur"abc"},
-@*@code{'''abc'''}, @code{u'''abc'''}, @code{r'''abc'''}, @code{ur'''abc'''},
-@*@code{"""abc"""}, @code{u"""abc"""}, @code{r"""abc"""}, @code{ur"""abc"""}
-
-@item gettext shorthand
-@code{_('abc')} etc.
-
-@item gettext/ngettext functions
-@code{gettext.gettext}, @code{gettext.dgettext},
-@code{gettext.ngettext}, @code{gettext.dngettext},
-also @code{ugettext}, @code{ungettext}
-
-@item textdomain
-@code{gettext.textdomain} function, or
-@code{gettext.install(@var{domain})} function
-
-@item bindtextdomain
-@code{gettext.bindtextdomain} function, or
-@code{gettext.install(@var{domain},@var{localedir})} function
-
-@item setlocale
-not used by the gettext emulation
-
-@item Prerequisite
-@code{import gettext}
-
-@item Use or emulate GNU gettext
-emulate
-
-@item Extractor
-@code{xgettext}
-
-@item Formatting with positions
-@code{'...%(ident)d...' % @{ 'ident': value @}}
-
-@item Portability
-fully portable
-
-@item po-mode marking
----
-@end table
-
-An example is available in the @file{examples} directory: @code{hello-python}.
-
-A note about format strings: Python supports format strings with unnamed
-arguments, such as @code{'...%d...'}, and format strings with named arguments,
-such as @code{'...%(ident)d...'}.  The latter are preferable for
-internationalized programs, for two reasons:
-
-@itemize @bullet
-@item
-When a format string takes more than one argument, the translator can provide
-a translation that uses the arguments in a different order, if the format
-string uses named arguments.  For example, the translator can reformulate
-@smallexample
-"'%(volume)s' has only %(freespace)d bytes free."
-@end smallexample
-@noindent
-to
-@smallexample
-"Only %(freespace)d bytes free on '%(volume)s'."
-@end smallexample
-@noindent
-Additionally, the identifiers also provide some context to the translator.
-
-@item
-In the context of plural forms, the format string used for the singular form
-does not use the numeric argument in many languages.  Even in English, one
-prefers to write @code{"one hour"} instead of @code{"1 hour"}.  Omitting
-individual arguments from format strings like this is only possible with
-the named argument syntax.  (With unnamed arguments, Python -- unlike C --
-verifies that the format string uses all supplied arguments.)
-@end itemize
-
-@node Common Lisp
-@subsection GNU clisp - Common Lisp
-@cindex Common Lisp
-@cindex Lisp
-@cindex clisp
-
-@table @asis
-@item RPMs
-clisp 2.28 or newer
-
-@item Ubuntu packages
-clisp
-
-@item File extension
-@code{lisp}
-
-@item String syntax
-@code{"abc"}
-
-@item gettext shorthand
-@code{(_ "abc")}, @code{(ENGLISH "abc")}
-
-@item gettext/ngettext functions
-@code{i18n:gettext}, @code{i18n:ngettext}
-
-@item textdomain
-@code{i18n:textdomain}
-
-@item bindtextdomain
-@code{i18n:textdomaindir}
-
-@item setlocale
-automatic
-
-@item Prerequisite
----
-
-@item Use or emulate GNU gettext
-use
-
-@item Extractor
-@code{xgettext -k_ -kENGLISH}
-
-@item Formatting with positions
-@code{format "~1@@*~D ~0@@*~D"}
-
-@item Portability
-On platforms without gettext, no translation.
-
-@item po-mode marking
----
-@end table
-
-An example is available in the @file{examples} directory: @code{hello-clisp}.
-
-@node clisp C
-@subsection GNU clisp C sources
-@cindex clisp C sources
-
-@table @asis
-@item RPMs
-clisp
-
-@item Ubuntu packages
-clisp
-
-@item File extension
-@code{d}
-
-@item String syntax
-@code{"abc"}
-
-@item gettext shorthand
-@code{ENGLISH ? "abc" : ""}
-@*@code{GETTEXT("abc")}
-@*@code{GETTEXTL("abc")}
-
-@item gettext/ngettext functions
-@code{clgettext}, @code{clgettextl}
-
-@item textdomain
----
-
-@item bindtextdomain
----
-
-@item setlocale
-automatic
-
-@item Prerequisite
-@code{#include "lispbibl.c"}
-
-@item Use or emulate GNU gettext
-use
-
-@item Extractor
-@code{clisp-xgettext}
-
-@item Formatting with positions
-@code{fprintf "%2$d %1$d"}
-
-@item Portability
-On platforms without gettext, no translation.
-
-@item po-mode marking
----
-@end table
-
-@node Emacs Lisp
-@subsection Emacs Lisp
-@cindex Emacs Lisp
-
-@table @asis
-@item RPMs
-emacs, xemacs
-
-@item Ubuntu packages
-emacs, xemacs21
-
-@item File extension
-@code{el}
-
-@item String syntax
-@code{"abc"}
-
-@item gettext shorthand
-@code{(_"abc")}
-
-@item gettext/ngettext functions
-@code{gettext}, @code{dgettext} (xemacs only)
-
-@item textdomain
-@code{domain} special form (xemacs only)
-
-@item bindtextdomain
-@code{bind-text-domain} function (xemacs only)
-
-@item setlocale
-automatic
-
-@item Prerequisite
----
-
-@item Use or emulate GNU gettext
-use
-
-@item Extractor
-@code{xgettext}
-
-@item Formatting with positions
-@code{format "%2$d %1$d"}
-
-@item Portability
-Only XEmacs.  Without @code{I18N3} defined at build time, no translation.
-
-@item po-mode marking
----
-@end table
-
-@node librep
-@subsection librep
-@cindex @code{librep} Lisp
-
-@table @asis
-@item RPMs
-librep 0.15.3 or newer
-
-@item Ubuntu packages
-librep16
-
-@item File extension
-@code{jl}
-
-@item String syntax
-@code{"abc"}
-
-@item gettext shorthand
-@code{(_"abc")}
-
-@item gettext/ngettext functions
-@code{gettext}
-
-@item textdomain
-@code{textdomain} function
-
-@item bindtextdomain
-@code{bindtextdomain} function
-
-@item setlocale
----
-
-@item Prerequisite
-@code{(require 'rep.i18n.gettext)}
-
-@item Use or emulate GNU gettext
-use
-
-@item Extractor
-@code{xgettext}
-
-@item Formatting with positions
-@code{format "%2$d %1$d"}
-
-@item Portability
-On platforms without gettext, no translation.
-
-@item po-mode marking
----
-@end table
-
-An example is available in the @file{examples} directory: @code{hello-librep}.
-
-@node Scheme
-@subsection GNU guile - Scheme
-@cindex Scheme
-@cindex guile
-
-@table @asis
-@item RPMs
-guile
-
-@item Ubuntu packages
-guile-2.0
-
-@item File extension
-@code{scm}
-
-@item String syntax
-@code{"abc"}
-
-@item gettext shorthand
-@code{(_ "abc")}, @code{_"abc"} (GIMP script-fu extension)
-
-@item gettext/ngettext functions
-@code{gettext}, @code{ngettext}
-
-@item textdomain
-@code{textdomain}
-
-@item bindtextdomain
-@code{bindtextdomain}
-
-@item setlocale
-@code{(catch #t (lambda () (setlocale LC_ALL "")) (lambda args #f))}
-
-@item Prerequisite
-@code{(use-modules (ice-9 format))}
-
-@item Use or emulate GNU gettext
-use
-
-@item Extractor
-@code{xgettext -k_}
-
-@item Formatting with positions
-@c @code{format "~1@@*~D ~0@@*~D~2@@*"}, requires @code{(use-modules (ice-9 format))}
-@c not yet supported
----
-
-@item Portability
-On platforms without gettext, no translation.
-
-@item po-mode marking
----
-@end table
-
-An example is available in the @file{examples} directory: @code{hello-guile}.
-
-@node Smalltalk
-@subsection GNU Smalltalk
-@cindex Smalltalk
-
-@table @asis
-@item RPMs
-smalltalk
-
-@item Ubuntu packages
-gnu-smalltalk
-
-@item File extension
-@code{st}
-
-@item String syntax
-@code{'abc'}
-
-@item gettext shorthand
-@code{NLS ? 'abc'}
-
-@item gettext/ngettext functions
-@code{LcMessagesDomain>>#at:}, @code{LcMessagesDomain>>#at:plural:with:}
-
-@item textdomain
-@code{LcMessages>>#domain:localeDirectory:} (returns a @code{LcMessagesDomain}
-object).@*
-Example: @code{I18N Locale default messages domain: 'gettext' localeDirectory: /usr/local/share/locale'}
-
-@item bindtextdomain
-@code{LcMessages>>#domain:localeDirectory:}, see above.
-
-@item setlocale
-Automatic if you use @code{I18N Locale default}.
-
-@item Prerequisite
-@code{PackageLoader fileInPackage: 'I18N'!}
-
-@item Use or emulate GNU gettext
-emulate
-
-@item Extractor
-@code{xgettext}
-
-@item Formatting with positions
-@code{'%1 %2' bindWith: 'Hello' with: 'world'}
-
-@item Portability
-fully portable
-
-@item po-mode marking
----
-@end table
-
-An example is available in the @file{examples} directory:
-@code{hello-smalltalk}.
-
-@node Java
-@subsection Java
-@cindex Java
-
-@table @asis
-@item RPMs
-java, java2
-
-@item Ubuntu packages
-default-jdk
-
-@item File extension
-@code{java}
-
-@item String syntax
-"abc"
-
-@item gettext shorthand
-_("abc")
-
-@item gettext/ngettext functions
-@code{GettextResource.gettext}, @code{GettextResource.ngettext},
-@code{GettextResource.pgettext}, @code{GettextResource.npgettext}
-
-@item textdomain
----, use @code{ResourceBundle.getResource} instead
-
-@item bindtextdomain
----, use CLASSPATH instead
-
-@item setlocale
-automatic
-
-@item Prerequisite
----
-
-@item Use or emulate GNU gettext
----, uses a Java specific message catalog format
-
-@item Extractor
-@code{xgettext -k_}
-
-@item Formatting with positions
-@code{MessageFormat.format "@{1,number@} @{0,number@}"}
-
-@item Portability
-fully portable
-
-@item po-mode marking
----
-@end table
-
-Before marking strings as internationalizable, uses of the string
-concatenation operator need to be converted to @code{MessageFormat}
-applications.  For example, @code{"file "+filename+" not found"} becomes
-@code{MessageFormat.format("file @{0@} not found", new Object[] @{ filename @})}.
-Only after this is done, can the strings be marked and extracted.
-
-GNU gettext uses the native Java internationalization mechanism, namely
-@code{ResourceBundle}s.  There are two formats of @code{ResourceBundle}s:
-@code{.properties} files and @code{.class} files.  The @code{.properties}
-format is a text file which the translators can directly edit, like PO
-files, but which doesn't support plural forms.  Whereas the @code{.class}
-format is compiled from @code{.java} source code and can support plural
-forms (provided it is accessed through an appropriate API, see below).
-
-To convert a PO file to a @code{.properties} file, the @code{msgcat}
-program can be used with the option @code{--properties-output}.  To convert
-a @code{.properties} file back to a PO file, the @code{msgcat} program
-can be used with the option @code{--properties-input}.  All the tools
-that manipulate PO files can work with @code{.properties} files as well,
-if given the @code{--properties-input} and/or @code{--properties-output}
-option.
-
-To convert a PO file to a ResourceBundle class, the @code{msgfmt} program
-can be used with the option @code{--java} or @code{--java2}.  To convert a
-ResourceBundle back to a PO file, the @code{msgunfmt} program can be used
-with the option @code{--java}.
-
-Two different programmatic APIs can be used to access ResourceBundles.
-Note that both APIs work with all kinds of ResourceBundles, whether
-GNU gettext generated classes, or other @code{.class} or @code{.properties}
-files.
-
-@enumerate
-@item
-The @code{java.util.ResourceBundle} API.
-
-In particular, its @code{getString} function returns a string translation.
-Note that a missing translation yields a @code{MissingResourceException}.
-
-This has the advantage of being the standard API.  And it does not require
-any additional libraries, only the @code{msgcat} generated @code{.properties}
-files or the @code{msgfmt} generated @code{.class} files.  But it cannot do
-plural handling, even if the resource was generated by @code{msgfmt} from
-a PO file with plural handling.
-
-@item
-The @code{gnu.gettext.GettextResource} API.
-
-Reference documentation in Javadoc 1.1 style format is in the
-@uref{javadoc2/index.html,javadoc2 directory}.
-
-Its @code{gettext} function returns a string translation.  Note that when
-a translation is missing, the @var{msgid} argument is returned unchanged.
-
-This has the advantage of having the @code{ngettext} function for plural
-handling and the @code{pgettext} and @code{npgettext} for strings constraint
-to a particular context.
-
-@cindex @code{libintl} for Java
-To use this API, one needs the @code{libintl.jar} file which is part of
-the GNU gettext package and distributed under the LGPL.
-@end enumerate
-
-Four examples, using the second API, are available in the @file{examples}
-directory: @code{hello-java}, @code{hello-java-awt}, @code{hello-java-swing},
-@code{hello-java-qtjambi}.
-
-Now, to make use of the API and define a shorthand for @samp{getString},
-there are three idioms that you can choose from:
-
-@itemize @bullet
-@item
-(This one assumes Java 1.5 or newer.)
-In a unique class of your project, say @samp{Util}, define a static variable
-holding the @code{ResourceBundle} instance and the shorthand:
-
-@smallexample
-private static ResourceBundle myResources =
-  ResourceBundle.getBundle("domain-name");
-public static String _(String s) @{
-  return myResources.getString(s);
-@}
-@end smallexample
-
-All classes containing internationalized strings then contain
-
-@smallexample
-import static Util._;
-@end smallexample
-
-@noindent
-and the shorthand is used like this:
-
-@smallexample
-System.out.println(_("Operation completed."));
-@end smallexample
-
-@item
-In a unique class of your project, say @samp{Util}, define a static variable
-holding the @code{ResourceBundle} instance:
-
-@smallexample
-public static ResourceBundle myResources =
-  ResourceBundle.getBundle("domain-name");
-@end smallexample
-
-All classes containing internationalized strings then contain
-
-@smallexample
-private static ResourceBundle res = Util.myResources;
-private static String _(String s) @{ return res.getString(s); @}
-@end smallexample
-
-@noindent
-and the shorthand is used like this:
-
-@smallexample
-System.out.println(_("Operation completed."));
-@end smallexample
-
-@item
-You add a class with a very short name, say @samp{S}, containing just the
-definition of the resource bundle and of the shorthand:
-
-@smallexample
-public class S @{
-  public static ResourceBundle myResources =
-    ResourceBundle.getBundle("domain-name");
-  public static String _(String s) @{
-    return myResources.getString(s);
-  @}
-@}
-@end smallexample
-
-@noindent
-and the shorthand is used like this:
-
-@smallexample
-System.out.println(S._("Operation completed."));
-@end smallexample
-@end itemize
-
-Which of the three idioms you choose, will depend on whether your project
-requires portability to Java versions prior to Java 1.5 and, if so, whether
-copying two lines of codes into every class is more acceptable in your project
-than a class with a single-letter name.
-
-@node C#
-@subsection C#
-@cindex C#
-
-@table @asis
-@item RPMs
-mono
-
-@item Ubuntu packages
-mono-mcs
-
-@item File extension
-@code{cs}
-
-@item String syntax
-@code{"abc"}, @code{@@"abc"}
-
-@item gettext shorthand
-_("abc")
-
-@item gettext/ngettext functions
-@code{GettextResourceManager.GetString},
-@code{GettextResourceManager.GetPluralString}
-@code{GettextResourceManager.GetParticularString}
-@code{GettextResourceManager.GetParticularPluralString}
-
-@item textdomain
-@code{new GettextResourceManager(domain)}
-
-@item bindtextdomain
----, compiled message catalogs are located in subdirectories of the directory
-containing the executable
-
-@item setlocale
-automatic
-
-@item Prerequisite
----
-
-@item Use or emulate GNU gettext
----, uses a C# specific message catalog format
-
-@item Extractor
-@code{xgettext -k_}
-
-@item Formatting with positions
-@code{String.Format "@{1@} @{0@}"}
-
-@item Portability
-fully portable
-
-@item po-mode marking
----
-@end table
-
-Before marking strings as internationalizable, uses of the string
-concatenation operator need to be converted to @code{String.Format}
-invocations.  For example, @code{"file "+filename+" not found"} becomes
-@code{String.Format("file @{0@} not found", filename)}.
-Only after this is done, can the strings be marked and extracted.
-
-GNU gettext uses the native C#/.NET internationalization mechanism, namely
-the classes @code{ResourceManager} and @code{ResourceSet}.  Applications
-use the @code{ResourceManager} methods to retrieve the native language
-translation of strings.  An instance of @code{ResourceSet} is the in-memory
-representation of a message catalog file.  The @code{ResourceManager} loads
-and accesses @code{ResourceSet} instances as needed to look up the
-translations.
-
-There are two formats of @code{ResourceSet}s that can be directly loaded by
-the C# runtime: @code{.resources} files and @code{.dll} files.
-
-@itemize @bullet
-@item
-The @code{.resources} format is a binary file usually generated through the
-@code{resgen} or @code{monoresgen} utility, but which doesn't support plural
-forms.  @code{.resources} files can also be embedded in .NET @code{.exe} files.
-This only affects whether a file system access is performed to load the message
-catalog; it doesn't affect the contents of the message catalog.
-
-@item
-On the other hand, the @code{.dll} format is a binary file that is compiled
-from @code{.cs} source code and can support plural forms (provided it is
-accessed through the GNU gettext API, see below).
-@end itemize
-
-Note that these .NET @code{.dll} and @code{.exe} files are not tied to a
-particular platform; their file format and GNU gettext for C# can be used
-on any platform.
-
-To convert a PO file to a @code{.resources} file, the @code{msgfmt} program
-can be used with the option @samp{--csharp-resources}.  To convert a
-@code{.resources} file back to a PO file, the @code{msgunfmt} program can be
-used with the option @samp{--csharp-resources}.  You can also, in some cases,
-use the @code{monoresgen} program (from the @code{mono}/@code{mcs} package).
-This program can also convert a @code{.resources} file back to a PO file.  But
-beware: as of this writing (January 2004), the @code{monoresgen} converter is
-quite buggy.
-
-To convert a PO file to a @code{.dll} file, the @code{msgfmt} program can be
-used with the option @code{--csharp}.  The result will be a @code{.dll} file
-containing a subclass of @code{GettextResourceSet}, which itself is a subclass
-of @code{ResourceSet}.  To convert a @code{.dll} file containing a
-@code{GettextResourceSet} subclass back to a PO file, the @code{msgunfmt}
-program can be used with the option @code{--csharp}.
-
-The advantages of the @code{.dll} format over the @code{.resources} format
-are:
-
-@enumerate
-@item
-Freedom to localize: Users can add their own translations to an application
-after it has been built and distributed.  Whereas when the programmer uses
-a @code{ResourceManager} constructor provided by the system, the set of
-@code{.resources} files for an application must be specified when the
-application is built and cannot be extended afterwards.
-@c If this were the only issue with the @code{.resources} format, one could
-@c use the @code{ResourceManager.CreateFileBasedResourceManager} function.
-
-@item
-Plural handling: A message catalog in @code{.dll} format supports the plural
-handling function @code{GetPluralString}.  Whereas @code{.resources} files can
-only contain data and only support lookups that depend on a single string.
-
-@item
-Context handling: A message catalog in @code{.dll} format supports the
-query-with-context functions @code{GetParticularString} and
-@code{GetParticularPluralString}.  Whereas @code{.resources} files can
-only contain data and only support lookups that depend on a single string.
-
-@item
-The @code{GettextResourceManager} that loads the message catalogs in
-@code{.dll} format also provides for inheritance on a per-message basis.
-For example, in Austrian (@code{de_AT}) locale, translations from the German
-(@code{de}) message catalog will be used for messages not found in the
-Austrian message catalog.  This has the consequence that the Austrian
-translators need only translate those few messages for which the translation
-into Austrian differs from the German one.  Whereas when working with
-@code{.resources} files, each message catalog must provide the translations
-of all messages by itself.
-
-@item
-The @code{GettextResourceManager} that loads the message catalogs in
-@code{.dll} format also provides for a fallback: The English @var{msgid} is
-returned when no translation can be found.  Whereas when working with
-@code{.resources} files, a language-neutral @code{.resources} file must
-explicitly be provided as a fallback.
-@end enumerate
-
-On the side of the programmatic APIs, the programmer can use either the
-standard @code{ResourceManager} API and the GNU @code{GettextResourceManager}
-API.  The latter is an extension of the former, because
-@code{GettextResourceManager} is a subclass of @code{ResourceManager}.
-
-@enumerate
-@item
-The @code{System.Resources.ResourceManager} API.
-
-This API works with resources in @code{.resources} format.
-
-The creation of the @code{ResourceManager} is done through
-@smallexample
-  new ResourceManager(domainname, Assembly.GetExecutingAssembly())
-@end smallexample
-@noindent
-
-The @code{GetString} function returns a string's translation.  Note that this
-function returns null when a translation is missing (i.e.@: not even found in
-the fallback resource file).
-
-@item
-The @code{GNU.Gettext.GettextResourceManager} API.
-
-This API works with resources in @code{.dll} format.
-
-Reference documentation is in the
-@uref{csharpdoc/index.html,csharpdoc directory}.
-
-The creation of the @code{ResourceManager} is done through
-@smallexample
-  new GettextResourceManager(domainname)
-@end smallexample
-
-The @code{GetString} function returns a string's translation.  Note that when
-a translation is missing, the @var{msgid} argument is returned unchanged.
-
-The @code{GetPluralString} function returns a string translation with plural
-handling, like the @code{ngettext} function in C.
-
-The @code{GetParticularString} function returns a string's translation,
-specific to a particular context, like the @code{pgettext} function in C.
-Note that when a translation is missing, the @var{msgid} argument is returned
-unchanged.
-
-The @code{GetParticularPluralString} function returns a string translation,
-specific to a particular context, with plural handling, like the
-@code{npgettext} function in C.
-
-@cindex @code{libintl} for C#
-To use this API, one needs the @code{GNU.Gettext.dll} file which is part of
-the GNU gettext package and distributed under the LGPL.
-@end enumerate
-
-You can also mix both approaches: use the
-@code{GNU.Gettext.GettextResourceManager} constructor, but otherwise use
-only the @code{ResourceManager} type and only the @code{GetString} method.
-This is appropriate when you want to profit from the tools for PO files,
-but don't want to change an existing source code that uses
-@code{ResourceManager} and don't (yet) need the @code{GetPluralString} method.
-
-Two examples, using the second API, are available in the @file{examples}
-directory: @code{hello-csharp}, @code{hello-csharp-forms}.
-
-Now, to make use of the API and define a shorthand for @samp{GetString},
-there are two idioms that you can choose from:
-
-@itemize @bullet
-@item
-In a unique class of your project, say @samp{Util}, define a static variable
-holding the @code{ResourceManager} instance:
-
-@smallexample
-public static GettextResourceManager MyResourceManager =
-  new GettextResourceManager("domain-name");
-@end smallexample
-
-All classes containing internationalized strings then contain
-
-@smallexample
-private static GettextResourceManager Res = Util.MyResourceManager;
-private static String _(String s) @{ return Res.GetString(s); @}
-@end smallexample
-
-@noindent
-and the shorthand is used like this:
-
-@smallexample
-Console.WriteLine(_("Operation completed."));
-@end smallexample
-
-@item
-You add a class with a very short name, say @samp{S}, containing just the
-definition of the resource manager and of the shorthand:
-
-@smallexample
-public class S @{
-  public static GettextResourceManager MyResourceManager =
-    new GettextResourceManager("domain-name");
-  public static String _(String s) @{
-     return MyResourceManager.GetString(s);
-  @}
-@}
-@end smallexample
-
-@noindent
-and the shorthand is used like this:
-
-@smallexample
-Console.WriteLine(S._("Operation completed."));
-@end smallexample
-@end itemize
-
-Which of the two idioms you choose, will depend on whether copying two lines
-of codes into every class is more acceptable in your project than a class
-with a single-letter name.
-
-@node gawk
-@subsection GNU awk
-@cindex awk
-@cindex gawk
-
-@table @asis
-@item RPMs
-gawk 3.1 or newer
-
-@item Ubuntu packages
-gawk
-
-@item File extension
-@code{awk}, @code{gawk}, @code{twjr}.
-The file extension @code{twjr} is used by TexiWeb Jr
-(@uref{https://github.com/arnoldrobbins/texiwebjr}).
-
-@item String syntax
-@code{"abc"}
-
-@item gettext shorthand
-@code{_"abc"}
-
-@item gettext/ngettext functions
-@code{dcgettext}, missing @code{dcngettext} in gawk-3.1.0
-
-@item textdomain
-@code{TEXTDOMAIN} variable
-
-@item bindtextdomain
-@code{bindtextdomain} function
-
-@item setlocale
-automatic, but missing @code{setlocale (LC_MESSAGES, "")} in gawk-3.1.0
-
-@item Prerequisite
----
-
-@item Use or emulate GNU gettext
-use
-
-@item Extractor
-@code{xgettext}
-
-@item Formatting with positions
-@code{printf "%2$d %1$d"} (GNU awk only)
-
-@item Portability
-On platforms without gettext, no translation.  On non-GNU awks, you must
-define @code{dcgettext}, @code{dcngettext} and @code{bindtextdomain}
-yourself.
-
-@item po-mode marking
----
-@end table
-
-An example is available in the @file{examples} directory: @code{hello-gawk}.
-
-@node Pascal
-@subsection Pascal - Free Pascal Compiler
-@cindex Pascal
-@cindex Free Pascal
-@cindex Object Pascal
-
-@table @asis
-@item RPMs
-fpk
-
-@item Ubuntu packages
-fp-compiler, fp-units-fcl
-
-@item File extension
-@code{pp}, @code{pas}
-
-@item String syntax
-@code{'abc'}
-
-@item gettext shorthand
-automatic
-
-@item gettext/ngettext functions
----, use @code{ResourceString} data type instead
-
-@item textdomain
----, use @code{TranslateResourceStrings} function instead
-
-@item bindtextdomain
----, use @code{TranslateResourceStrings} function instead
-
-@item setlocale
-automatic, but uses only LANG, not LC_MESSAGES or LC_ALL
-
-@item Prerequisite
-@code{@{$mode delphi@}} or @code{@{$mode objfpc@}}@*@code{uses gettext;}
-
-@item Use or emulate GNU gettext
-emulate partially
-
-@item Extractor
-@code{ppc386} followed by @code{xgettext} or @code{rstconv}
-
-@item Formatting with positions
-@code{uses sysutils;}@*@code{format "%1:d %0:d"}
-
-@item Portability
-?
-
-@item po-mode marking
----
-@end table
-
-The Pascal compiler has special support for the @code{ResourceString} data
-type.  It generates a @code{.rst} file.  This is then converted to a
-@code{.pot} file by use of @code{xgettext} or @code{rstconv}.  At runtime,
-a @code{.mo} file corresponding to translations of this @code{.pot} file
-can be loaded using the @code{TranslateResourceStrings} function in the
-@code{gettext} unit.
-
-An example is available in the @file{examples} directory: @code{hello-pascal}.
-
-@node wxWidgets
-@subsection wxWidgets library
-@cindex @code{wxWidgets} library
-
-@table @asis
-@item RPMs
-wxGTK, gettext
-
-@item Ubuntu packages
-libwxgtk3.0-dev
-
-@item File extension
-@code{cpp}
-
-@item String syntax
-@code{"abc"}
-
-@item gettext shorthand
-@code{_("abc")}
-
-@item gettext/ngettext functions
-@code{wxLocale::GetString}, @code{wxGetTranslation}
-
-@item textdomain
-@code{wxLocale::AddCatalog}
-
-@item bindtextdomain
-@code{wxLocale::AddCatalogLookupPathPrefix}
-
-@item setlocale
-@code{wxLocale::Init}, @code{wxSetLocale}
-
-@item Prerequisite
-@code{#include <wx/intl.h>}
-
-@item Use or emulate GNU gettext
-emulate, see @code{include/wx/intl.h} and @code{src/common/intl.cpp}
-
-@item Extractor
-@code{xgettext}
-
-@item Formatting with positions
-wxString::Format supports positions if and only if the system has
-@code{wprintf()}, @code{vswprintf()} functions and they support positions
-according to POSIX.
-
-@item Portability
-fully portable
-
-@item po-mode marking
-yes
-@end table
-
-@node YCP
-@subsection YCP - YaST2 scripting language
-@cindex YCP
-@cindex YaST2 scripting language
-
-@table @asis
-@item RPMs
-libycp, libycp-devel, yast2-core, yast2-core-devel
-
-@item Ubuntu packages
----
-
-@item File extension
-@code{ycp}
-
-@item String syntax
-@code{"abc"}
-
-@item gettext shorthand
-@code{_("abc")}
-
-@item gettext/ngettext functions
-@code{_()} with 1 or 3 arguments
-
-@item textdomain
-@code{textdomain} statement
-
-@item bindtextdomain
----
-
-@item setlocale
----
-
-@item Prerequisite
----
-
-@item Use or emulate GNU gettext
-use
-
-@item Extractor
-@code{xgettext}
-
-@item Formatting with positions
-@code{sformat "%2 %1"}
-
-@item Portability
-fully portable
-
-@item po-mode marking
----
-@end table
-
-An example is available in the @file{examples} directory: @code{hello-ycp}.
-
-@node Tcl
-@subsection Tcl - Tk's scripting language
-@cindex Tcl
-@cindex Tk's scripting language
-
-@table @asis
-@item RPMs
-tcl
-
-@item Ubuntu packages
-tcl
-
-@item File extension
-@code{tcl}
-
-@item String syntax
-@code{"abc"}
-
-@item gettext shorthand
-@code{[_ "abc"]}
-
-@item gettext/ngettext functions
-@code{::msgcat::mc}
-
-@item textdomain
----
-
-@item bindtextdomain
----, use @code{::msgcat::mcload} instead
-
-@item setlocale
-automatic, uses LANG, but ignores LC_MESSAGES and LC_ALL
-
-@item Prerequisite
-@code{package require msgcat}
-@*@code{proc _ @{s@} @{return [::msgcat::mc $s]@}}
-
-@item Use or emulate GNU gettext
----, uses a Tcl specific message catalog format
-
-@item Extractor
-@code{xgettext -k_}
-
-@item Formatting with positions
-@code{format "%2\$d %1\$d"}
-
-@item Portability
-fully portable
-
-@item po-mode marking
----
-@end table
-
-Two examples are available in the @file{examples} directory:
-@code{hello-tcl}, @code{hello-tcl-tk}.
-
-Before marking strings as internationalizable, substitutions of variables
-into the string need to be converted to @code{format} applications.  For
-example, @code{"file $filename not found"} becomes
-@code{[format "file %s not found" $filename]}.
-Only after this is done, can the strings be marked and extracted.
-After marking, this example becomes
-@code{[format [_ "file %s not found"] $filename]} or
-@code{[msgcat::mc "file %s not found" $filename]}.  Note that the
-@code{msgcat::mc} function implicitly calls @code{format} when more than one
-argument is given.
-
-@node Perl
-@subsection Perl
-@cindex Perl
-
-@table @asis
-@item RPMs
-perl
-
-@item Ubuntu packages
-perl, libintl-perl
-
-@item File extension
-@code{pl}, @code{PL}, @code{pm}, @code{perl}, @code{cgi}
-
-@item String syntax
-@itemize @bullet
-
-@item @code{"abc"}
-
-@item @code{'abc'}
-
-@item @code{qq (abc)}
-
-@item @code{q (abc)}
-
-@item @code{qr /abc/}
-
-@item @code{qx (/bin/date)}
-
-@item @code{/pattern match/}
-
-@item @code{?pattern match?}
-
-@item @code{s/substitution/operators/}
-
-@item @code{$tied_hash@{"message"@}}
-
-@item @code{$tied_hash_reference->@{"message"@}}
-
-@item etc., issue the command @samp{man perlsyn} for details
-
-@end itemize
-
-@item gettext shorthand
-@code{__} (double underscore)
-
-@item gettext/ngettext functions
-@code{gettext}, @code{dgettext}, @code{dcgettext}, @code{ngettext},
-@code{dngettext}, @code{dcngettext}, @code{pgettext}, @code{dpgettext},
-@code{dcpgettext}, @code{npgettext}, @code{dnpgettext},
-@code{dcnpgettext}
-
-@item textdomain
-@code{textdomain} function
-
-@item bindtextdomain
-@code{bindtextdomain} function
-
-@item bind_textdomain_codeset 
-@code{bind_textdomain_codeset} function
-
-@item setlocale
-Use @code{setlocale (LC_ALL, "");}
-
-@item Prerequisite
-@code{use POSIX;}
-@*@code{use Locale::TextDomain;} (included in the package libintl-perl
-which is available on the Comprehensive Perl Archive Network CPAN,
-https://www.cpan.org/).
-
-@item Use or emulate GNU gettext
-platform dependent: gettext_pp emulates, gettext_xs uses GNU gettext
-
-@item Extractor
-@code{xgettext -k__ -k\$__ -k%__ -k__x -k__n:1,2 -k__nx:1,2 -k__xn:1,2 
--kN__ -kN__n:1,2 -k__p:1c,2 -k__np:1c,2,3 -kN__p:1c,2 -kN__np:1c,2,3}
-
-@item Formatting with positions
-Both kinds of format strings support formatting with positions.
-@*@code{printf "%2\$d %1\$d", ...} (requires Perl 5.8.0 or newer)
-@*@code{__expand("[new] replaces [old]", old => $oldvalue, new => $newvalue)}
-
-@item Portability
-The @code{libintl-perl} package is platform independent but is not
-part of the Perl core.  The programmer is responsible for
-providing a dummy implementation of the required functions if the 
-package is not installed on the target system.
-
-@item po-mode marking
----
-
-@item Documentation
-Included in @code{libintl-perl}, available on CPAN
-(https://www.cpan.org/).
-
-@end table
-
-An example is available in the @file{examples} directory: @code{hello-perl}.
-
-@cindex marking Perl sources
-
-The @code{xgettext} parser backend for Perl differs significantly from
-the parser backends for other programming languages, just as Perl
-itself differs significantly from other programming languages.  The
-Perl parser backend offers many more string marking facilities than
-the other backends but it also has some Perl specific limitations, the
-worst probably being its imperfectness.
-
-@menu
-* General Problems::            General Problems Parsing Perl Code
-* Default Keywords::            Which Keywords Will xgettext Look For?
-* Special Keywords::            How to Extract Hash Keys
-* Quote-like Expressions::      What are Strings And Quote-like Expressions?
-* Interpolation I::             Invalid String Interpolation
-* Interpolation II::            Valid String Interpolation
-* Parentheses::                 When To Use Parentheses
-* Long Lines::                  How To Grok with Long Lines
-* Perl Pitfalls::               Bugs, Pitfalls, and Things That Do Not Work
-@end menu
-
-@node General Problems
-@subsubsection General Problems Parsing Perl Code
-
-It is often heard that only Perl can parse Perl.  This is not true.
-Perl cannot be @emph{parsed} at all, it can only be @emph{executed}.
-Perl has various built-in ambiguities that can only be resolved at runtime.
-
-The following example may illustrate one common problem:
-
-@example
-print gettext "Hello World!";
-@end example
-
-Although this example looks like a bullet-proof case of a function
-invocation, it is not:
-
-@example
-open gettext, ">testfile" or die;
-print gettext "Hello world!"
-@end example
-
-In this context, the string @code{gettext} looks more like a
-file handle.  But not necessarily:
-
-@example
-use Locale::Messages qw (:libintl_h);
-open gettext ">testfile" or die;
-print gettext "Hello world!";
-@end example
-
-Now, the file is probably syntactically incorrect, provided that the module
-@code{Locale::Messages} found first in the Perl include path exports a
-function @code{gettext}.  But what if the module
-@code{Locale::Messages} really looks like this?
-
-@example
-use vars qw (*gettext);
-
-1;
-@end example
-
-In this case, the string @code{gettext} will be interpreted as a file
-handle again, and the above example will create a file @file{testfile}
-and write the string ``Hello world!'' into it.  Even advanced
-control flow analysis will not really help:
-
-@example
-if (0.5 < rand) @{
-   eval "use Sane";
-@} else @{
-   eval "use InSane";
-@}
-print gettext "Hello world!";
-@end example
-
-If the module @code{Sane} exports a function @code{gettext} that does
-what we expect, and the module @code{InSane} opens a file for writing
-and associates the @emph{handle} @code{gettext} with this output
-stream, we are clueless again about what will happen at runtime.  It is
-completely unpredictable.  The truth is that Perl has so many ways to
-fill its symbol table at runtime that it is impossible to interpret a
-particular piece of code without executing it.
-
-Of course, @code{xgettext} will not execute your Perl sources while
-scanning for translatable strings, but rather use heuristics in order
-to guess what you meant.
-
-Another problem is the ambiguity of the slash and the question mark.
-Their interpretation depends on the context:
-
-@example
-# A pattern match.
-print "OK\n" if /foobar/;
-
-# A division.
-print 1 / 2;
-
-# Another pattern match.
-print "OK\n" if ?foobar?;
-
-# Conditional.
-print $x ? "foo" : "bar";
-@end example
-
-The slash may either act as the division operator or introduce a
-pattern match, whereas the question mark may act as the ternary
-conditional operator or as a pattern match, too.  Other programming
-languages like @code{awk} present similar problems, but the consequences of a
-misinterpretation are particularly nasty with Perl sources.  In @code{awk}
-for instance, a statement can never exceed one line and the parser
-can recover from a parsing error at the next newline and interpret
-the rest of the input stream correctly.  Perl is different, as a
-pattern match is terminated by the next appearance of the delimiter
-(the slash or the question mark) in the input stream, regardless of
-the semantic context.  If a slash is really a division sign but
-mis-interpreted as a pattern match, the rest of the input file is most
-probably parsed incorrectly.
-
-There are certain cases, where the ambiguity cannot be resolved at all:
-
-@example
-$x = wantarray ? 1 : 0;
-@end example
-
-The Perl built-in function @code{wantarray} does not accept any arguments.
-The Perl parser therefore knows that the question mark does not start
-a regular expression but is the ternary conditional operator.
-
-@example 
-sub wantarrays @{@}
-$x = wantarrays ? 1 : 0;
-@end example
-
-Now the situation is different.  The function @code{wantarrays} takes
-a variable number of arguments (like any non-prototyped Perl function).
-The question mark is now the delimiter of a pattern match, and hence
-the piece of code does not compile.
-
-@example
-sub wantarrays() @{@}
-$x = wantarrays ? 1 : 0;
-@end example
-
-Now the function is prototyped, Perl knows that it does not accept any
-arguments, and the question mark is therefore interpreted as the
-ternaray operator again.  But that unfortunately outsmarts @code{xgettext}.
-
-The Perl parser in @code{xgettext} cannot know whether a function has
-a prototype and what that prototype would look like.  It therefore makes
-an educated guess.  If a function is known to be a Perl built-in and
-this function does not accept any arguments, a following question mark
-or slash is treated as an operator, otherwise as the delimiter of a
-following regular expression.  The Perl built-ins that do not accept
-arguments are @code{wantarray}, @code{fork}, @code{time}, @code{times},
-@code{getlogin}, @code{getppid}, @code{getpwent}, @code{getgrent},
-@code{gethostent}, @code{getnetent}, @code{getprotoent}, @code{getservent},
-@code{setpwent}, @code{setgrent}, @code{endpwent}, @code{endgrent},
-@code{endhostent}, @code{endnetent}, @code{endprotoent}, and
-@code{endservent}.
-
-If you find that @code{xgettext} fails to extract strings from
-portions of your sources, you should therefore look out for slashes
-and/or question marks preceding these sections.  You may have come
-across a bug in @code{xgettext}'s Perl parser (and of course you
-should report that bug).  In the meantime you should consider to
-reformulate your code in a manner less challenging to @code{xgettext}.
-
-In particular, if the parser is too dumb to see that a function
-does not accept arguments, use parentheses:
-
-@example
-$x = somefunc() ? 1 : 0;
-$y = (somefunc) ? 1 : 0;
-@end example
-
-In fact the Perl parser itself has similar problems and warns you
-about such constructs.
-
-@node Default Keywords
-@subsubsection Which keywords will xgettext look for?
-@cindex Perl default keywords
-
-Unless you instruct @code{xgettext} otherwise by invoking it with one
-of the options @code{--keyword} or @code{-k}, it will recognize the
-following keywords in your Perl sources:
-
-@itemize @bullet
-
-@item @code{gettext}
-
-@item @code{dgettext:2}
-
-The second argument will be extracted.
-
-@item @code{dcgettext:2}
-
-The second argument will be extracted.
-
-@item @code{ngettext:1,2}
-
-The first (singular) and the second (plural) argument will be
-extracted.
-
-@item @code{dngettext:2,3}
-
-The second (singular) and the third (plural) argument will be
-extracted.
-
-@item @code{dcngettext:2,3}
-
-The second (singular) and the third (plural) argument will be
-extracted.
-
-@item @code{pgettext:1c,2}
-
-The first (message context) and the second argument will be extracted.
-
-@item @code{dpgettext:2c,3}
-
-The second (message context) and the third argument will be extracted.
-
-@item @code{dcpgettext:2c,3}
-
-The second (message context) and the third argument will be extracted.
-
-@item @code{npgettext:1c,2,3}
-
-The first (message context), second (singular), and third (plural)
-argument will be extracted.
-
-@item @code{dnpgettext:2c,3,4}
-
-The second (message context), third (singular), and fourth (plural)
-argument will be extracted.
-
-@item @code{dcnpgettext:2c,3,4}
-
-The second (message context), third (singular), and fourth (plural)
-argument will be extracted.
-
-@item @code{gettext_noop}
-
-@item @code{%gettext}
-
-The keys of lookups into the hash @code{%gettext} will be extracted.
-
-@item @code{$gettext}
-
-The keys of lookups into the hash reference @code{$gettext} will be extracted.
-
-@end itemize
-
-@node Special Keywords
-@subsubsection How to Extract Hash Keys
-@cindex Perl special keywords for hash-lookups
-
-Translating messages at runtime is normally performed by looking up the
-original string in the translation database and returning the
-translated version.  The ``natural'' Perl implementation is a hash
-lookup, and, of course, @code{xgettext} supports such practice.
-
-@example
-print __"Hello world!";
-print $__@{"Hello world!"@};
-print $__->@{"Hello world!"@};
-print $$__@{"Hello world!"@};
-@end example  
-
-The above four lines all do the same thing.  The Perl module 
-@code{Locale::TextDomain} exports by default a hash @code{%__} that
-is tied to the function @code{__()}.  It also exports a reference
-@code{$__} to @code{%__}.
-
-If an argument to the @code{xgettext} option @code{--keyword},
-resp. @code{-k} starts with a percent sign, the rest of the keyword is
-interpreted as the name of a hash.  If it starts with a dollar
-sign, the rest of the keyword is interpreted as a reference to a
-hash.
-
-Note that you can omit the quotation marks (single or double) around
-the hash key (almost) whenever Perl itself allows it:
-
-@example
-print $gettext@{Error@};
-@end example
-
-The exact rule is: You can omit the surrounding quotes, when the hash
-key is a valid C (!) identifier, i.e.@: when it starts with an
-underscore or an ASCII letter and is followed by an arbitrary number
-of underscores, ASCII letters or digits.  Other Unicode characters
-are @emph{not} allowed, regardless of the @code{use utf8} pragma.
-
-@node Quote-like Expressions
-@subsubsection What are Strings And Quote-like Expressions?
-@cindex Perl quote-like expressions
-
-Perl offers a plethora of different string constructs.  Those that can
-be used either as arguments to functions or inside braces for hash
-lookups are generally supported by @code{xgettext}.  
-
-@itemize @bullet
-@item @strong{double-quoted strings}
-@*
-@example
-print gettext "Hello World!";
-@end example
-
-@item @strong{single-quoted strings}
-@*
-@example
-print gettext 'Hello World!';
-@end example
-
-@item @strong{the operator qq}
-@*
-@example
-print gettext qq |Hello World!|;
-print gettext qq <E-mail: <guido\@@imperia.net>>;
-@end example
-
-The operator @code{qq} is fully supported.  You can use arbitrary
-delimiters, including the four bracketing delimiters (round, angle,
-square, curly) that nest.
-
-@item @strong{the operator q}
-@*
-@example
-print gettext q |Hello World!|;
-print gettext q <E-mail: <guido@@imperia.net>>;
-@end example
-
-The operator @code{q} is fully supported.  You can use arbitrary
-delimiters, including the four bracketing delimiters (round, angle,
-square, curly) that nest.
-
-@item @strong{the operator qx}
-@*
-@example
-print gettext qx ;LANGUAGE=C /bin/date;
-print gettext qx [/usr/bin/ls | grep '^[A-Z]*'];
-@end example
-
-The operator @code{qx} is fully supported.  You can use arbitrary
-delimiters, including the four bracketing delimiters (round, angle,
-square, curly) that nest.
-
-The example is actually a useless use of @code{gettext}.  It will
-invoke the @code{gettext} function on the output of the command
-specified with the @code{qx} operator.  The feature was included
-in order to make the interface consistent (the parser will extract
-all strings and quote-like expressions).
-
-@item @strong{here documents}
-@*
-@example
-@group
-print gettext <<'EOF';
-program not found in $PATH
-EOF
-
-print ngettext <<EOF, <<"EOF";
-one file deleted
-EOF
-several files deleted
-EOF
-@end group
-@end example
-
-Here-documents are recognized.  If the delimiter is enclosed in single
-quotes, the string is not interpolated.  If it is enclosed in double
-quotes or has no quotes at all, the string is interpolated.
-
-Delimiters that start with a digit are not supported!
-
-@end itemize
-
-@node Interpolation I
-@subsubsection Invalid Uses Of String Interpolation
-@cindex Perl invalid string interpolation
-
-Perl is capable of interpolating variables into strings.  This offers
-some nice features in localized programs but can also lead to
-problems.
-
-A common error is a construct like the following:
-
-@example
-print gettext "This is the program $0!\n";
-@end example
-
-Perl will interpolate at runtime the value of the variable @code{$0}
-into the argument of the @code{gettext()} function.  Hence, this
-argument is not a string constant but a variable argument (@code{$0}
-is a global variable that holds the name of the Perl script being
-executed).  The interpolation is performed by Perl before the string
-argument is passed to @code{gettext()} and will therefore depend on
-the name of the script which can only be determined at runtime.
-Consequently, it is almost impossible that a translation can be looked
-up at runtime (except if, by accident, the interpolated string is found
-in the message catalog).
-
-The @code{xgettext} program will therefore terminate parsing with a fatal
-error if it encounters a variable inside of an extracted string.  In
-general, this will happen for all kinds of string interpolations that
-cannot be safely performed at compile time.  If you absolutely know
-what you are doing, you can always circumvent this behavior:
-
-@example
-my $know_what_i_am_doing = "This is program $0!\n";
-print gettext $know_what_i_am_doing;
-@end example
-
-Since the parser only recognizes strings and quote-like expressions,
-but not variables or other terms, the above construct will be
-accepted.  You will have to find another way, however, to let your
-original string make it into your message catalog.
-
-If invoked with the option @code{--extract-all}, resp. @code{-a},
-variable interpolation will be accepted.  Rationale: You will
-generally use this option in order to prepare your sources for
-internationalization.
-
-Please see the manual page @samp{man perlop} for details of strings and
-quote-like expressions that are subject to interpolation and those
-that are not.  Safe interpolations (that will not lead to a fatal
-error) are:
-
-@itemize @bullet
-
-@item the escape sequences @code{\t} (tab, HT, TAB), @code{\n}
-(newline, NL), @code{\r} (return, CR), @code{\f} (form feed, FF),
-@code{\b} (backspace, BS), @code{\a} (alarm, bell, BEL), and @code{\e}
-(escape, ESC).
-
-@item octal chars, like @code{\033}
-@*
-Note that octal escapes in the range of 400-777 are translated into a 
-UTF-8 representation, regardless of the presence of the @code{use utf8} pragma.
-
-@item hex chars, like @code{\x1b}
-
-@item wide hex chars, like @code{\x@{263a@}}
-@*
-Note that this escape is translated into a UTF-8 representation,
-regardless of the presence of the @code{use utf8} pragma.
-
-@item control chars, like @code{\c[} (CTRL-[)
-
-@item named Unicode chars, like @code{\N@{LATIN CAPITAL LETTER C WITH CEDILLA@}}
-@*
-Note that this escape is translated into a UTF-8 representation,
-regardless of the presence of the @code{use utf8} pragma.
-@end itemize
-
-The following escapes are considered partially safe:
-
-@itemize @bullet
-
-@item @code{\l} lowercase next char
-
-@item @code{\u} uppercase next char
-
-@item @code{\L} lowercase till \E
-
-@item @code{\U} uppercase till \E
-
-@item @code{\E} end case modification
-
-@item @code{\Q} quote non-word characters till \E
-
-@end itemize
-
-These escapes are only considered safe if the string consists of
-ASCII characters only.  Translation of characters outside the range
-defined by ASCII is locale-dependent and can actually only be performed 
-at runtime; @code{xgettext} doesn't do these locale-dependent translations
-at extraction time.
-
-Except for the modifier @code{\Q}, these translations, albeit valid,
-are generally useless and only obfuscate your sources.  If a
-translation can be safely performed at compile time you can just as
-well write what you mean.
-
-@node Interpolation II
-@subsubsection Valid Uses Of String Interpolation
-@cindex Perl valid string interpolation
-
-Perl is often used to generate sources for other programming languages
-or arbitrary file formats.  Web applications that output HTML code
-make a prominent example for such usage.
-
-You will often come across situations where you want to intersperse
-code written in the target (programming) language with translatable
-messages, like in the following HTML example:
-
-@example
-print gettext <<EOF;
-<h1>My Homepage</h1>
-<script language="JavaScript"><!--
-for (i = 0; i < 100; ++i) @{
-    alert ("Thank you so much for visiting my homepage!");
-@}
-//--></script>
-EOF
-@end example
-
-The parser will extract the entire here document, and it will appear
-entirely in the resulting PO file, including the JavaScript snippet
-embedded in the HTML code.  If you exaggerate with constructs like 
-the above, you will run the risk that the translators of your package 
-will look out for a less challenging project.  You should consider an 
-alternative expression here:
-
-@example
-print <<EOF;
-<h1>$gettext@{"My Homepage"@}</h1>
-<script language="JavaScript"><!--
-for (i = 0; i < 100; ++i) @{
-    alert ("$gettext@{'Thank you so much for visiting my homepage!'@}");
-@}
-//--></script>
-EOF
-@end example
-
-Only the translatable portions of the code will be extracted here, and
-the resulting PO file will begrudgingly improve in terms of readability.
-
-You can interpolate hash lookups in all strings or quote-like
-expressions that are subject to interpolation (see the manual page
-@samp{man perlop} for details).  Double interpolation is invalid, however:
-
-@example
-# TRANSLATORS: Replace "the earth" with the name of your planet.
-print gettext qq@{Welcome to $gettext->@{"the earth"@}@};
-@end example
-
-The @code{qq}-quoted string is recognized as an argument to @code{xgettext} in
-the first place, and checked for invalid variable interpolation.  The
-dollar sign of hash-dereferencing will therefore terminate the parser 
-with an ``invalid interpolation'' error.
-
-It is valid to interpolate hash lookups in regular expressions:
-
-@example
-if ($var =~ /$gettext@{"the earth"@}/) @{
-   print gettext "Match!\n";
-@}
-s/$gettext@{"U. S. A."@}/$gettext@{"U. S. A."@} $gettext@{"(dial +0)"@}/g;
-@end example
-
-@node Parentheses
-@subsubsection When To Use Parentheses
-@cindex Perl parentheses
-
-In Perl, parentheses around function arguments are mostly optional.
-@code{xgettext} will always assume that all
-recognized keywords (except for hashes and hash references) are names
-of properly prototyped functions, and will (hopefully) only require
-parentheses where Perl itself requires them.  All constructs in the
-following example are therefore ok to use:
-
-@example
-@group
-print gettext ("Hello World!\n");
-print gettext "Hello World!\n";
-print dgettext ($package => "Hello World!\n");
-print dgettext $package, "Hello World!\n";
-
-# The "fat comma" => turns the left-hand side argument into a
-# single-quoted string!
-print dgettext smellovision => "Hello World!\n";
-
-# The following assignment only works with prototyped functions.
-# Otherwise, the functions will act as "greedy" list operators and
-# eat up all following arguments.
-my $anonymous_hash = @{
-   planet => gettext "earth",
-   cakes => ngettext "one cake", "several cakes", $n,
-   still => $works,
-@};
-# The same without fat comma:
-my $other_hash = @{
-   'planet', gettext "earth",
-   'cakes', ngettext "one cake", "several cakes", $n,
-   'still', $works,
-@};
-
-# Parentheses are only significant for the first argument.
-print dngettext 'package', ("one cake", "several cakes", $n), $discarded;
-@end group
-@end example
-
-@node Long Lines
-@subsubsection How To Grok with Long Lines
-@cindex Perl long lines
-
-The necessity of long messages can often lead to a cumbersome or
-unreadable coding style.  Perl has several options that may prevent
-you from writing unreadable code, and
-@code{xgettext} does its best to do likewise.  This is where the dot
-operator (the string concatenation operator) may come in handy:
-
-@example
-@group
-print gettext ("This is a very long"
-               . " message that is still"
-               . " readable, because"
-               . " it is split into"
-               . " multiple lines.\n");
-@end group
-@end example
-
-Perl is smart enough to concatenate these constant string fragments
-into one long string at compile time, and so is
-@code{xgettext}.  You will only find one long message in the resulting
-POT file.
-
-Note that the future Perl 6 will probably use the underscore
-(@samp{_}) as the string concatenation operator, and the dot 
-(@samp{.}) for dereferencing.  This new syntax is not yet supported by
-@code{xgettext}.
-
-If embedded newline characters are not an issue, or even desired, you
-may also insert newline characters inside quoted strings wherever you
-feel like it:
-
-@example
-@group
-print gettext ("<em>In HTML output
-embedded newlines are generally no
-problem, since adjacent whitespace
-is always rendered into a single
-space character.</em>");
-@end group
-@end example
-
-You may also consider to use here documents:
-
-@example
-@group
-print gettext <<EOF;
-<em>In HTML output
-embedded newlines are generally no
-problem, since adjacent whitespace
-is always rendered into a single
-space character.</em>
-EOF
-@end group
-@end example
-
-Please do not forget that the line breaks are real, i.e.@: they
-translate into newline characters that will consequently show up in
-the resulting POT file.
-
-@node Perl Pitfalls
-@subsubsection Bugs, Pitfalls, And Things That Do Not Work
-@cindex Perl pitfalls
-
-The foregoing sections should have proven that
-@code{xgettext} is quite smart in extracting translatable strings from
-Perl sources.  Yet, some more or less exotic constructs that could be
-expected to work, actually do not work.  
-
-One of the more relevant limitations can be found in the
-implementation of variable interpolation inside quoted strings.  Only
-simple hash lookups can be used there:
-
-@example
-print <<EOF;
-$gettext@{"The dot operator"
-          . " does not work"
-          . "here!"@}
-Likewise, you cannot @@@{[ gettext ("interpolate function calls") ]@}
-inside quoted strings or quote-like expressions.
-EOF
-@end example
-
-This is valid Perl code and will actually trigger invocations of the
-@code{gettext} function at runtime.  Yet, the Perl parser in
-@code{xgettext} will fail to recognize the strings.  A less obvious
-example can be found in the interpolation of regular expressions:
-
-@example
-s/<!--START_OF_WEEK-->/gettext ("Sunday")/e;
-@end example
-
-The modifier @code{e} will cause the substitution to be interpreted as
-an evaluable statement.  Consequently, at runtime the function
-@code{gettext()} is called, but again, the parser fails to extract the
-string ``Sunday''.  Use a temporary variable as a simple workaround if
-you really happen to need this feature:
-
-@example
-my $sunday = gettext "Sunday";
-s/<!--START_OF_WEEK-->/$sunday/;
-@end example
-
-Hash slices would also be handy but are not recognized:
-
-@example
-my @@weekdays = @@gettext@{'Sunday', 'Monday', 'Tuesday', 'Wednesday',
-                        'Thursday', 'Friday', 'Saturday'@};
-# Or even:
-@@weekdays = @@gettext@{qw (Sunday Monday Tuesday Wednesday Thursday
-                         Friday Saturday) @};
-@end example
-
-This is perfectly valid usage of the tied hash @code{%gettext} but the
-strings are not recognized and therefore will not be extracted.
-
-Another caveat of the current version is its rudimentary support for
-non-ASCII characters in identifiers.  You may encounter serious
-problems if you use identifiers with characters outside the range of
-'A'-'Z', 'a'-'z', '0'-'9' and the underscore '_'.
-
-Maybe some of these missing features will be implemented in future
-versions, but since you can always make do without them at minimal effort,
-these todos have very low priority.
-
-A nasty problem are brace format strings that already contain braces
-as part of the normal text, for example the usage strings typically
-encountered in programs:
-
-@example
-die "usage: $0 @{OPTIONS@} FILENAME...\n";
-@end example
-
-If you want to internationalize this code with Perl brace format strings,
-you will run into a problem:
-
-@example
-die __x ("usage: @{program@} @{OPTIONS@} FILENAME...\n", program => $0);
-@end example
-
-Whereas @samp{@{program@}} is a placeholder, @samp{@{OPTIONS@}}
-is not and should probably be translated. Yet, there is no way to teach
-the Perl parser in @code{xgettext} to recognize the first one, and leave
-the other one alone.
-
-There are two possible work-arounds for this problem.  If you are
-sure that your program will run under Perl 5.8.0 or newer (these
-Perl versions handle positional parameters in @code{printf()}) or
-if you are sure that the translator will not have to reorder the arguments
-in her translation -- for example if you have only one brace placeholder
-in your string, or if it describes a syntax, like in this one --, you can
-mark the string as @code{no-perl-brace-format} and use @code{printf()}:
-
-@example
-# xgettext: no-perl-brace-format
-die sprintf ("usage: %s @{OPTIONS@} FILENAME...\n", $0);
-@end example
-
-If you want to use the more portable Perl brace format, you will have to do
-put placeholders in place of the literal braces:
-
-@example
-die __x ("usage: @{program@} @{[@}OPTIONS@{]@} FILENAME...\n",
-         program => $0, '[' => '@{', ']' => '@}');
-@end example
-
-Perl brace format strings know no escaping mechanism.  No matter how this
-escaping mechanism looked like, it would either give the programmer a
-hard time, make translating Perl brace format strings heavy-going, or
-result in a performance penalty at runtime, when the format directives
-get executed.  Most of the time you will happily get along with
-@code{printf()} for this special case.
-
-@node PHP
-@subsection PHP Hypertext Preprocessor
-@cindex PHP
-
-@table @asis
-@item RPMs
-mod_php4, mod_php4-core, phpdoc
-
-@item Ubuntu packages
-php
-
-@item File extension
-@code{php}, @code{php3}, @code{php4}
-
-@item String syntax
-@code{"abc"}, @code{'abc'}
-
-@item gettext shorthand
-@code{_("abc")}
-
-@item gettext/ngettext functions
-@code{gettext}, @code{dgettext}, @code{dcgettext}; starting with PHP 4.2.0
-also @code{ngettext}, @code{dngettext}, @code{dcngettext}
-
-@item textdomain
-@code{textdomain} function
-
-@item bindtextdomain
-@code{bindtextdomain} function
-
-@item setlocale
-Programmer must call @code{setlocale (LC_ALL, "")}
-
-@item Prerequisite
----
-
-@item Use or emulate GNU gettext
-use
-
-@item Extractor
-@code{xgettext}
-
-@item Formatting with positions
-@code{printf "%2\$d %1\$d"}
-
-@item Portability
-On platforms without gettext, the functions are not available.
-
-@item po-mode marking
----
-@end table
-
-An example is available in the @file{examples} directory: @code{hello-php}.
-
-@node Pike
-@subsection Pike
-@cindex Pike
-
-@table @asis
-@item RPMs
-roxen
-
-@item Ubuntu packages
-pike8.0 or pike7.8
-
-@item File extension
-@code{pike}
-
-@item String syntax
-@code{"abc"}
-
-@item gettext shorthand
----
-
-@item gettext/ngettext functions
-@code{gettext}, @code{dgettext}, @code{dcgettext}
-
-@item textdomain
-@code{textdomain} function
-
-@item bindtextdomain
-@code{bindtextdomain} function
-
-@item setlocale
-@code{setlocale} function
-
-@item Prerequisite
-@code{import Locale.Gettext;}
-
-@item Use or emulate GNU gettext
-use
-
-@item Extractor
----
-
-@item Formatting with positions
----
-
-@item Portability
-On platforms without gettext, the functions are not available.
-
-@item po-mode marking
----
-@end table
-
-@node GCC-source
-@subsection GNU Compiler Collection sources
-@cindex GCC-source
-
-@table @asis
-@item RPMs
-gcc
-
-@item Ubuntu packages
-gcc
-
-@item File extension
-@code{c}, @code{h}.
-
-@item String syntax
-@code{"abc"}
-
-@item gettext shorthand
-@code{_("abc")}
-
-@item gettext/ngettext functions
-@code{gettext}, @code{dgettext}, @code{dcgettext}, @code{ngettext},
-@code{dngettext}, @code{dcngettext}
-
-@item textdomain
-@code{textdomain} function
-
-@item bindtextdomain
-@code{bindtextdomain} function
-
-@item setlocale
-Programmer must call @code{setlocale (LC_ALL, "")}
-
-@item Prerequisite
-@code{#include "intl.h"}
-
-@item Use or emulate GNU gettext
-Use
-
-@item Extractor
-@code{xgettext -k_}
-
-@item Formatting with positions
----
-
-@item Portability
-Uses autoconf macros
-
-@item po-mode marking
-yes
-@end table
-
-@node Lua
-@subsection Lua
-
-@table @asis
-@item RPMs
-lua
-
-@item Ubuntu packages
-lua, lua-gettext
-@*
-You need to install the @code{lua-gettext} package from
-@url{https://gitlab.com/sukhichev/lua-gettext/blob/master/README.us.md}.
-Debian and Ubuntu packages of it are available.  Download the
-appropriate one, and install it through
-@samp{sudo dpkg -i lua-gettext_0.0_amd64.deb}.
-
-@item File extension
-@code{lua}
-
-@item String syntax
-@itemize @bullet
-
-@item @code{"abc"}
-
-@item @code{'abc'}
-
-@item @code{[[abc]]}
-
-@item @code{[=[abc]=]}
-
-@item @code{[==[abc]==]}
-
-@item ...
-
-@end itemize
-
-@item gettext shorthand
-@code{_("abc")}
-
-@item gettext/ngettext functions
-@code{gettext.gettext}, @code{gettext.dgettext}, @code{gettext.dcgettext},
-@code{gettext.ngettext}, @code{gettext.dngettext}, @code{gettext.dcngettext}
-
-@item textdomain
-@code{textdomain} function
-
-@item bindtextdomain
-@code{bindtextdomain} function
-
-@item setlocale
-automatic
-
-@item Prerequisite
-@code{require 'gettext'} or running lua interpreter with @code{-l gettext} option
-
-@item Use or emulate GNU gettext
-use
-
-@item Extractor
-@code{xgettext}
-
-@item Formatting with positions
----
-
-@item Portability
-On platforms without gettext, the functions are not available.
-
-@item po-mode marking
----
-@end table
-
-@node JavaScript
-@subsection JavaScript
-
-@table @asis
-@item RPMs
-js
-
-@item Ubuntu packages
-gjs
-
-@item File extension
-@code{js}
-
-@item String syntax
-@itemize @bullet
-
-@item @code{"abc"}
-
-@item @code{'abc'}
-
-@item @code{`abc`}
-
-@end itemize
-
-@item gettext shorthand
-@code{_("abc")}
-
-@item gettext/ngettext functions
-@code{gettext}, @code{dgettext}, @code{dcgettext}, @code{ngettext},
-@code{dngettext}
-
-@item textdomain
-@code{textdomain} function
-
-@item bindtextdomain
-@code{bindtextdomain} function
-
-@item setlocale
-automatic
-
-@item Prerequisite
----
-
-@item Use or emulate GNU gettext
-use, or emulate
-
-@item Extractor
-@code{xgettext}
-
-@item Formatting with positions
----
-
-@item Portability
-On platforms without gettext, the functions are not available.
-
-@item po-mode marking
----
-@end table
-
-@node Vala
-@subsection Vala
-
-@table @asis
-@item RPMs
-vala
-
-@item Ubuntu packages
-valac
-
-@item File extension
-@code{vala}
-
-@item String syntax
-@itemize @bullet
-
-@item @code{"abc"}
-
-@item @code{"""abc"""}
-
-@end itemize
-
-@item gettext shorthand
-@code{_("abc")}
-
-@item gettext/ngettext functions
-@code{gettext}, @code{dgettext}, @code{dcgettext}, @code{ngettext},
-@code{dngettext}, @code{dpgettext}, @code{dpgettext2}
-
-@item textdomain
-@code{textdomain} function, defined under the @code{Intl} namespace
-
-@item bindtextdomain
-@code{bindtextdomain} function, defined under the @code{Intl} namespace
-
-@item setlocale
-Programmer must call @code{Intl.setlocale (LocaleCategory.ALL, "")}
-
-@item Prerequisite
----
-
-@item Use or emulate GNU gettext
-Use
-
-@item Extractor
-@code{xgettext}
-
-@item Formatting with positions
-Same as for the C language.
-
-@item Portability
-autoconf (gettext.m4) and #if ENABLE_NLS
-
-@item po-mode marking
-yes
-@end table
+@include lang-c.texi
+@include lang-python.texi
+@include lang-java.texi
+@include lang-csharp.texi
+@include lang-javascript.texi
+@include lang-scheme.texi
+@include lang-lisp.texi
+@include lang-clisp-c.texi
+@include lang-elisp.texi
+@include lang-librep.texi
+@include lang-ruby.texi
+@include lang-sh.texi
+@include lang-bash.texi
+@include lang-gawk.texi
+@include lang-lua.texi
+@include lang-pascal.texi
+@include lang-smalltalk.texi
+@include lang-vala.texi
+@include lang-wxwidgets.texi
+@include lang-tcl.texi
+@include lang-perl.texi
+@include lang-php.texi
+@include lang-pike.texi
+@include lang-gcc-source.texi
+@include lang-ycp.texi
 
 @c This is the template for new languages.
 @ignore
@@ -12729,6 +10436,60 @@ The translators produce PO files, one for each language.  Finally, an
 desktop entry file.
 
 For more information, see the example @code{hello-c-gnome3}.
+
+@menu
+* Icons::                       Handling icons
+@end menu
+
+@node Icons
+@subsubsection How to handle icons in Desktop Entry files
+
+Icons are generally locale dependent, for the following reasons:
+
+@itemize @bullet
+@item
+Icons may contain signs that are considered rude in some cultures.  For
+example, the high-five sign, in some cultures, is perceived as an
+unfriendly ``stop'' sign.
+@item
+Icons may contain metaphors that are culture specific.  For example, a
+mailbox in the U.S. looks different than mailboxes all around the world.
+@item
+Icons may need to be mirrored for right-to-left locales.
+@item
+Icons may contain text strings (a bad practice, but anyway).
+@end itemize
+
+However, icons are not covered by GNU gettext localization, because
+@itemize @bullet
+@item
+Icons cannot be easily embedded in PO files,
+@item
+The need to localize an icon is rare, and the ability to do so in a PO
+file would introduce translator mistakes.
+@c https://lists.freedesktop.org/archives/xdg/2019-June/014168.html
+@end itemize
+
+Desktop Entry files may contain an @samp{Icon} property, and this
+property is localizable.  If a translator wishes to localize an icon,
+she should do so by bypassing the normal workflow with PO files:
+@enumerate
+@item
+The translator contacts the package developers directly, sending them
+the icon appropriate for her locale, with a request to change the
+template file.
+@item
+The package developers add the icon file to their repository, and a
+line
+@smallexample
+Icon[@var{locale}]=@var{icon_file_name}
+@end smallexample
+@noindent
+to the template file.
+@end enumerate
+@noindent
+This line remains in place when this template file is merged with the
+translators' PO files, through @code{msgfmt}.
 
 @node XML
 @subsection XML files

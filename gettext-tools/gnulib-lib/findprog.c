@@ -1,18 +1,18 @@
 /* Locating a program in PATH.
-   Copyright (C) 2001-2004, 2006-2019 Free Software Foundation, Inc.
+   Copyright (C) 2001-2004, 2006-2022 Free Software Foundation, Inc.
    Written by Bruno Haible <haible@clisp.cons.org>, 2001.
 
-   This program is free software: you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 3 of the License, or
-   (at your option) any later version.
+   This file is free software: you can redistribute it and/or modify
+   it under the terms of the GNU Lesser General Public License as
+   published by the Free Software Foundation; either version 2.1 of the
+   License, or (at your option) any later version.
 
-   This program is distributed in the hope that it will be useful,
+   This file is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
+   GNU Lesser General Public License for more details.
 
-   You should have received a copy of the GNU General Public License
+   You should have received a copy of the GNU Lesser General Public License
    along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 
@@ -25,6 +25,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#if !(defined _WIN32 || defined __CYGWIN__ || defined __EMX__ || defined __DJGPP__)
+# include <sys/stat.h>
+#endif
 
 /* Avoid collision between findprog.c and findprog-lgpl.c.  */
 #if IN_FINDPROG_LGPL || ! GNULIB_FINDPROG_LGPL
@@ -105,22 +108,39 @@ find_in_path (const char *progname)
          design flaw.  */
       if (eaccess (progpathname, X_OK) == 0)
         {
-          /* Found!  */
-          if (strcmp (progpathname, progname) == 0)
+          /* Check that the progpathname does not point to a directory.  */
+          struct stat statbuf;
+
+          if (stat (progpathname, &statbuf) >= 0
+              && ! S_ISDIR (statbuf.st_mode))
             {
-              free (progpathname);
+              /* Found!  */
+              if (strcmp (progpathname, progname) == 0)
+                {
+                  free (progpathname);
 
-              /* Add the "./" prefix for real, that xconcatenated_filename()
-                 optimized away.  This avoids a second PATH search when the
-                 caller uses execlp/execvp.  */
-              progpathname = XNMALLOC (2 + strlen (progname) + 1, char);
-              progpathname[0] = '.';
-              progpathname[1] = '/';
-              memcpy (progpathname + 2, progname, strlen (progname) + 1);
+                  /* Add the "./" prefix for real, that xconcatenated_filename()
+                     optimized away.  This avoids a second PATH search when the
+                     caller uses execlp/execvp.  */
+# if !IN_FINDPROG_LGPL
+                  progpathname = XNMALLOC (2 + strlen (progname) + 1, char);
+# else
+                  progpathname = (char *) malloc (2 + strlen (progname) + 1);
+                  if (progpathname == NULL)
+                    {
+                      /* Out of memory.  */
+                      free (path);
+                      return progname;
+                    }
+# endif
+                  progpathname[0] = '.';
+                  progpathname[1] = '/';
+                  memcpy (progpathname + 2, progname, strlen (progname) + 1);
+                }
+
+              free (path);
+              return progpathname;
             }
-
-          free (path);
-          return progpathname;
         }
 
       free (progpathname);

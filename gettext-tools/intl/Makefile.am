@@ -1,6 +1,6 @@
 ## Makefile for the gettext-runtime/intl and gettext-tools/intl subdirectories
 ## of GNU gettext.
-## Copyright (C) 1995-1998, 2000-2007, 2009-2019 Free Software Foundation, Inc.
+## Copyright (C) 1995-1998, 2000-2007, 2009-2022 Free Software Foundation, Inc.
 ##
 ## This program is free software: you can redistribute it and/or modify
 ## it under the terms of the GNU Lesser General Public License as published by
@@ -52,6 +52,15 @@ AM_CPPFLAGS = \
   -DLOCALEDIR=\"$(localedir)\" -DLOCALE_ALIAS_PATH=\"$(aliaspath)\" \
   -DLIBDIR=\"$(libdir)\" -DBUILDING_LIBINTL -DBUILDING_DLL -DIN_LIBINTL
 
+if WOE32
+# On mingw, disable the declarations of *printf functions as aliases to the
+# corresponding __mingw_*printf functions, because
+# - these functions are useless for i18n purposes (not POSIX/XSI compliant),
+# - they pull in a dependency to the libgcc_s_sjlj DLL (through the symbols
+#   __udivdi3, __umoddi3).
+AM_CPPFLAGS += -D__USE_MINGW_ANSI_STDIO=0
+endif
+
 # Parametrization of the 'relocatable-lib-lgpl' module.
 AM_CPPFLAGS += \
   -DENABLE_RELOCATABLE=1 -DIN_LIBRARY -DINSTALLDIR=\"$(libdir)\" -DNO_XMALLOC \
@@ -60,8 +69,10 @@ AM_CPPFLAGS += \
   -Drelocate2=libintl_relocate2 \
   -DDEPENDS_ON_LIBICONV=1
 
-YACC = @INTLBISON@ -y -d
+BISON = @INTLBISON@
 BISONFLAGS = --name-prefix=__gettext
+# Just to shut up Automake "error: Yacc source seen but 'YACC' is undefined".
+YACC = $(BISON) -d
 
 # Tell the ELF linker which symbols to export.
 AM_CFLAGS = @CFLAG_VISIBILITY@
@@ -81,10 +92,15 @@ EXTRA_DIST += \
   plural-exp.h \
   eval-plural.h \
   localcharset.h \
-  lock.h \
+  lock.h windows-mutex.h windows-rwlock.h windows-recmutex.h windows-once.h windows-initguard.h \
   relocatable.h \
+  arg-nonnull.h \
+  attribute.h \
+  filename.h \
   flexmember.h \
   localename-table.in.h \
+  setlocale_null.h \
+  thread-optim.h \
   tsearch.h tsearch.c \
   verify.h \
   xsize.h \
@@ -93,6 +109,107 @@ EXTRA_DIST += \
   vasnprintf.h vasnwprintf.h vasnprintf.c \
   intl-exports.c os2compat.h os2compat.c \
   libgnuintl.in.h
+
+# Overview of the code
+# --------------------
+#
+# The following files implement public API, declared in libgnuintl.in.h:
+#   version.c:          libintl_version
+#   gettext.c:          libintl_gettext
+#   dgettext.c:         libintl_dgettext
+#   dcgettext.c:        libintl_dcgettext
+#   ngettext.c:         libintl_ngettext
+#   dngettext.c:        libintl_dngettext
+#   dcngettext.c:       libintl_dcngettext
+#   textdomain.c:       libintl_textdomain
+#   bindtextdom.c:      libintl_bindtextdomain
+#                       libintl_wbindtextdomain
+#                       libintl_bind_textdomain_codeset
+#   printf.c:           libintl_fprintf
+#                       libintl_vfprintf
+#                       libintl_printf
+#                       libintl_vprintf
+#                       libintl_sprintf
+#                       libintl_vsprintf
+#                       libintl_snprintf
+#                       libintl_vsnprintf
+#                       libintl_asprintf
+#                       libintl_vasprintf
+#                       libintl_fwprintf
+#                       libintl_vfwprintf
+#                       libintl_wprintf
+#                       libintl_vwprintf
+#                       libintl_swprintf
+#                       libintl_vswprintf
+#   localename.c:       libintl_newlocale
+#                       libintl_duplocale
+#                       libintl_freelocale
+#   setlocale.c:        libintl_newlocale
+#                       libintl_setlocale
+#   relocatable.c:      libintl_set_relocation_prefix
+#
+# The following files implement private API.
+#   gettextP.h:     dcigettext.c:       libintl_dcigettext
+#                                       _nl_find_msg
+#                                       libintl_nl_default_dirname
+#                                       libintl_nl_domain_bindings
+#                                       libintl_nl_default_default_domain
+#                                       libintl_nl_current_default_domain
+#                   localename.c:       _nl_locale_name_canonicalize
+#                                       _nl_locale_name_from_win32_LANGID
+#                                       _nl_locale_name_from_win32_LCID
+#                                       _nl_locale_name_thread_unsafe
+#                                       _nl_locale_name_thread
+#                                       _nl_locale_name_posix
+#                                       _nl_locale_name_environ
+#                                       _nl_locale_name_default
+#                                       _nl_locale_name
+#                   langprefs.c:        _nl_language_preferences_default
+#                   finddomain.c:       _nl_find_domain
+#                   loadmsgcat.c:       _nl_load_domain
+#                                       _nl_msg_cat_cntr
+#   loadinfo.h:     l10nflist.c:        _nl_make_l10nflist
+#                                       _nl_normalize_codeset
+#                   localealias.c:      _nl_expand_alias
+#                   explodename.c:      _nl_explode_name
+#   plural-exp.h:   plural.y:           libintl_gettext_free_exp
+#                                       libintl_gettextparse
+#                   plural-exp.c:       libintl_gettext_germanic_plural
+#                                       libintl_gettext_extract_plural
+#                   eval-plural.h:      plural_eval
+#
+# Other files:
+#   gmo.h:          Describes the GNU MO file format.
+#   hash-string.h:  hash-string.c:      libintl_hash_string
+#
+# Some other files are borrowed from gnulib, some with small modifications.
+#
+# Overview of invocation hierarchy
+# --------------------------------
+#
+# The main general translation lookup function is libintl_dcigettext.
+# libintl_dcigettext
+#   \-> guess_category_value
+#         \-> _nl_locale_name_thread_unsafe
+#         \-> _nl_locale_name_posix
+#         \-> _nl_locale_name_default
+#         \-> _nl_language_preferences_default
+#   \-> _nl_find_domain
+#         \-> _nl_make_l10nflist
+#         \-> _nl_load_domain
+#         \-> _nl_expand_alias
+#         \-> _nl_explode_name
+#               \-> _nl_normalize_codeset
+#   \-> _nl_find_msg
+#         \-> _nl_load_domain
+#         \-> get_output_charset
+#   \-> plural_lookup
+#         \-> plural_eval
+#
+# _nl_load_domain loads a MO file into memory.
+# _nl_load_domain
+#   \-> _nl_find_msg (for the header entry only)
+#   \-> libintl_gettext_extract_plural
 
 LIBINTLSOURCES = \
   bindtextdom.c \
@@ -122,10 +239,19 @@ LIBINTLSOURCES = \
   log.c \
   printf.c \
   setlocale.c \
+  setlocale-lock.c \
+  setlocale_null.c \
   version.c \
   xsize.c \
   osdep.c \
   intl-compat.c
+if WINDOWS_NATIVE
+LIBINTLSOURCES += \
+  windows-mutex.c \
+  windows-rwlock.c \
+  windows-recmutex.c \
+  windows-once.c
+endif
 
 # We must not install the libintl.h/libintl.la files if we are on a
 # system which has the GNU gettext() function in its C library or in a
@@ -151,8 +277,8 @@ libgnuintl.h: $(srcdir)/libgnuintl.in.h $(srcdir)/export.h
 	    -e 's,@''HAVE_ASPRINTF''@,@HAVE_ASPRINTF@,g' \
 	    -e 's,@''HAVE_SNPRINTF''@,@HAVE_SNPRINTF@,g' \
 	    -e 's,@''HAVE_WPRINTF''@,@HAVE_WPRINTF@,g' \
-	    -e 's,@''HAVE_NAMELESS_LOCALES''@,@HAVE_NAMELESS_LOCALES@,g' \
 	    -e 's,@''HAVE_NEWLOCALE''@,@HAVE_NEWLOCALE@,g' \
+	    -e 's,@''ENHANCE_LOCALE_FUNCS''@,@ENHANCE_LOCALE_FUNCS@,g' \
 	  < $(srcdir)/libgnuintl.in.h \
 	| if test '@WOE32DLL@' = yes; then \
 	    sed -e 's/extern \([^()]*\);/extern __declspec (dllimport) \1;/'; \
@@ -171,15 +297,15 @@ libintl.h: $(srcdir)/libgnuintl.in.h
 	    -e 's,@''HAVE_ASPRINTF''@,@HAVE_ASPRINTF@,g' \
 	    -e 's,@''HAVE_SNPRINTF''@,@HAVE_SNPRINTF@,g' \
 	    -e 's,@''HAVE_WPRINTF''@,@HAVE_WPRINTF@,g' \
-	    -e 's,@''HAVE_NAMELESS_LOCALES''@,@HAVE_NAMELESS_LOCALES@,g' \
 	    -e 's,@''HAVE_NEWLOCALE''@,@HAVE_NEWLOCALE@,g' \
+	    -e 's,@''ENHANCE_LOCALE_FUNCS''@,@ENHANCE_LOCALE_FUNCS@,g' \
 	  < $(srcdir)/libgnuintl.in.h > libintl.h
 MOSTLYCLEANFILES += libintl.h
 
 localename-table.h: $(srcdir)/localename-table.in.h $(srcdir)/export.h
 	sed -e 's/extern \([^"]\)/extern LIBINTL_DLL_EXPORTED \1/' \
 	    -e 's/extern,/extern LIBINTL_DLL_EXPORTED,/' \
-	    -e "/#if HAVE_USELOCALE/r $(srcdir)/export.h" \
+	    -e "/#if HAVE_WORKING_USELOCALE/r $(srcdir)/export.h" \
 	  < $(srcdir)/localename-table.in.h \
 	| sed -e 's,@''HAVE_VISIBILITY''@,@HAVE_VISIBILITY@,g' \
 	  > localename-table.h
@@ -198,17 +324,29 @@ MOSTLYCLEANFILES += localename-table.h
 # script.
 # Additionally, here we need a rule that works even without a VPATH variable.
 # Therefore we override this rule.
+# Note: There is no point in using Bison's --output option, since we need to
+# postprocess the generated files and we don't want that unpostprocessed files
+# remain in place if the user interrupts the build through Ctrl-C.
 
 $(srcdir)/plural.c: $(srcdir)/plural.y
-	$(AM_V_YACC)$(YACC) $(BISONFLAGS) --output plural.c $(srcdir)/plural.y \
-	&& sed -e 's|".*/plural.y"|"plural.y"|' < plural.c > plural.c-tmp \
-	&& rm -f plural.c plural.h \
-	&& mv plural.c-tmp $(srcdir)/plural.c
+	$(AM_V_YACC)$(BISON) -d $(BISONFLAGS) $(srcdir)/plural.y \
+	&& test ':' = '$(BISON)' || { \
+	  sed -e 's|".*/plural.y"|"plural.y"|' \
+	      -e 's|"plural\.tab\.c"|"plural.c"|' \
+	      -e 's|"plural\.tab\.h"|"plural.h"|' \
+	      < plural.tab.c > plural.c-tmp \
+	  && sed -e 's|".*/plural.y"|"plural.y"|' \
+	         -e 's|"plural\.tab\.h"|"plural.h"|' \
+	         < plural.tab.h > plural.h-tmp \
+	  && rm -f plural.tab.c plural.tab.h \
+	  && mv plural.c-tmp $(srcdir)/plural.c \
+	  && mv plural.h-tmp $(srcdir)/plural.h; \
+	}
 # Don't put plural.c into BUILT_SOURCES. Since plural.c is in the source
 # directory, 'make' does not find it without a VPATH variable.
-MOSTLYCLEANFILES     += plural.c-tmp
-MAINTAINERCLEANFILES += plural.c
-EXTRA_DIST           += plural.c
+MOSTLYCLEANFILES     += plural.tab.c plural.tab.h plural.c-tmp plural.h-tmp
+MAINTAINERCLEANFILES += plural.c plural.h
+EXTRA_DIST           += plural.c plural.h
 
 # Rules for compiling a .c file, that work even without a VPATH variable.
 bindtextdom.lo: $(srcdir)/bindtextdom.c
@@ -265,6 +403,10 @@ printf.lo: $(srcdir)/printf.c
 	$(AM_V_CC)$(LTCOMPILE) -c -o $@ $(srcdir)/printf.c
 setlocale.lo: $(srcdir)/setlocale.c
 	$(AM_V_CC)$(LTCOMPILE) -c -o $@ $(srcdir)/setlocale.c
+setlocale-lock.lo: $(srcdir)/setlocale-lock.c
+	$(AM_V_CC)$(LTCOMPILE) -c -o $@ $(srcdir)/setlocale-lock.c
+setlocale_null.lo: $(srcdir)/setlocale_null.c
+	$(AM_V_CC)$(LTCOMPILE) -c -o $@ $(srcdir)/setlocale_null.c
 version.lo: $(srcdir)/version.c
 	$(AM_V_CC)$(LTCOMPILE) -c -o $@ $(srcdir)/version.c
 xsize.lo: $(srcdir)/xsize.c
@@ -273,6 +415,14 @@ osdep.lo: $(srcdir)/osdep.c
 	$(AM_V_CC)$(LTCOMPILE) -c -o $@ $(srcdir)/osdep.c
 intl-compat.lo: $(srcdir)/intl-compat.c
 	$(AM_V_CC)$(LTCOMPILE) -c -o $@ $(srcdir)/intl-compat.c
+windows-mutex.lo: $(srcdir)/windows-mutex.c
+	$(AM_V_CC)$(LTCOMPILE) -c -o $@ $(srcdir)/windows-mutex.c
+windows-rwlock.lo: $(srcdir)/windows-rwlock.c
+	$(AM_V_CC)$(LTCOMPILE) -c -o $@ $(srcdir)/windows-rwlock.c
+windows-recmutex.lo: $(srcdir)/windows-recmutex.c
+	$(AM_V_CC)$(LTCOMPILE) -c -o $@ $(srcdir)/windows-recmutex.c
+windows-once.lo: $(srcdir)/windows-once.c
+	$(AM_V_CC)$(LTCOMPILE) -c -o $@ $(srcdir)/windows-once.c
 
 # Dependencies.
 
@@ -282,37 +432,43 @@ if USE_INCLUDED_LIBINTL
 PLURAL_DEPS += libintl.h
 endif
 
-bindtextdom.lo:      ../config.h $(srcdir)/gettextP.h libgnuintl.h $(srcdir)/gmo.h $(srcdir)/loadinfo.h $(srcdir)/lock.h
-dcgettext.lo:        ../config.h $(srcdir)/gettextP.h libgnuintl.h $(srcdir)/gmo.h $(srcdir)/loadinfo.h $(srcdir)/lock.h
-dgettext.lo:         ../config.h $(srcdir)/gettextP.h libgnuintl.h $(srcdir)/gmo.h $(srcdir)/loadinfo.h $(srcdir)/lock.h
-gettext.lo:          ../config.h $(srcdir)/gettextP.h libgnuintl.h $(srcdir)/gmo.h $(srcdir)/loadinfo.h $(srcdir)/lock.h
-finddomain.lo:       ../config.h $(srcdir)/gettextP.h libgnuintl.h $(srcdir)/gmo.h $(srcdir)/loadinfo.h $(srcdir)/lock.h
+bindtextdom.lo:      ../config.h $(srcdir)/gettextP.h libgnuintl.h $(srcdir)/gmo.h $(srcdir)/loadinfo.h $(srcdir)/lock.h $(srcdir)/windows-mutex.h $(srcdir)/windows-rwlock.h $(srcdir)/windows-recmutex.h $(srcdir)/windows-once.h $(srcdir)/windows-initguard.h
+dcgettext.lo:        ../config.h $(srcdir)/gettextP.h libgnuintl.h $(srcdir)/gmo.h $(srcdir)/loadinfo.h $(srcdir)/lock.h $(srcdir)/windows-mutex.h $(srcdir)/windows-rwlock.h $(srcdir)/windows-recmutex.h $(srcdir)/windows-once.h $(srcdir)/windows-initguard.h
+dgettext.lo:         ../config.h $(srcdir)/gettextP.h libgnuintl.h $(srcdir)/gmo.h $(srcdir)/loadinfo.h $(srcdir)/lock.h $(srcdir)/windows-mutex.h $(srcdir)/windows-rwlock.h $(srcdir)/windows-recmutex.h $(srcdir)/windows-once.h $(srcdir)/windows-initguard.h
+gettext.lo:          ../config.h $(srcdir)/gettextP.h libgnuintl.h $(srcdir)/gmo.h $(srcdir)/loadinfo.h $(srcdir)/lock.h $(srcdir)/windows-mutex.h $(srcdir)/windows-rwlock.h $(srcdir)/windows-recmutex.h $(srcdir)/windows-once.h $(srcdir)/windows-initguard.h
+finddomain.lo:       ../config.h $(srcdir)/gettextP.h libgnuintl.h $(srcdir)/gmo.h $(srcdir)/loadinfo.h $(srcdir)/lock.h $(srcdir)/windows-mutex.h $(srcdir)/windows-rwlock.h $(srcdir)/windows-recmutex.h $(srcdir)/windows-once.h $(srcdir)/windows-initguard.h
 hash-string.lo:      ../config.h $(srcdir)/hash-string.h
-loadmsgcat.lo:       ../config.h $(srcdir)/gettextP.h libgnuintl.h $(srcdir)/gmo.h $(srcdir)/loadinfo.h $(srcdir)/lock.h $(srcdir)/hash-string.h $(srcdir)/plural-exp.h
-localealias.lo:      ../config.h $(srcdir)/gettextP.h libgnuintl.h $(srcdir)/gmo.h $(srcdir)/loadinfo.h $(srcdir)/lock.h $(srcdir)/relocatable.h
-textdomain.lo:       ../config.h $(srcdir)/gettextP.h libgnuintl.h $(srcdir)/gmo.h $(srcdir)/loadinfo.h $(srcdir)/lock.h
-l10nflist.lo:        ../config.h $(srcdir)/loadinfo.h
+loadmsgcat.lo:       ../config.h $(srcdir)/gettextP.h libgnuintl.h $(srcdir)/gmo.h $(srcdir)/loadinfo.h $(srcdir)/lock.h $(srcdir)/windows-mutex.h $(srcdir)/windows-rwlock.h $(srcdir)/windows-recmutex.h $(srcdir)/windows-once.h $(srcdir)/windows-initguard.h $(srcdir)/hash-string.h $(srcdir)/plural-exp.h
+localealias.lo:      ../config.h $(srcdir)/gettextP.h libgnuintl.h $(srcdir)/gmo.h $(srcdir)/loadinfo.h $(srcdir)/lock.h $(srcdir)/windows-mutex.h $(srcdir)/windows-rwlock.h $(srcdir)/windows-recmutex.h $(srcdir)/windows-once.h $(srcdir)/windows-initguard.h $(srcdir)/relocatable.h
+textdomain.lo:       ../config.h $(srcdir)/gettextP.h libgnuintl.h $(srcdir)/gmo.h $(srcdir)/loadinfo.h $(srcdir)/lock.h $(srcdir)/windows-mutex.h $(srcdir)/windows-rwlock.h $(srcdir)/windows-recmutex.h $(srcdir)/windows-once.h $(srcdir)/windows-initguard.h
+l10nflist.lo:        ../config.h $(srcdir)/loadinfo.h $(srcdir)/filename.h
 explodename.lo:      ../config.h $(srcdir)/loadinfo.h
-dcigettext.lo:       ../config.h $(srcdir)/gettextP.h libgnuintl.h $(srcdir)/gmo.h $(srcdir)/loadinfo.h $(srcdir)/lock.h $(srcdir)/localcharset.h $(srcdir)/plural-exp.h $(srcdir)/hash-string.h $(srcdir)/tsearch.h $(srcdir)/tsearch.c $(srcdir)/eval-plural.h
-dcngettext.lo:       ../config.h $(srcdir)/gettextP.h libgnuintl.h $(srcdir)/gmo.h $(srcdir)/loadinfo.h $(srcdir)/lock.h
-dngettext.lo:        ../config.h $(srcdir)/gettextP.h libgnuintl.h $(srcdir)/gmo.h $(srcdir)/loadinfo.h $(srcdir)/lock.h
-ngettext.lo:         ../config.h $(srcdir)/gettextP.h libgnuintl.h $(srcdir)/gmo.h $(srcdir)/loadinfo.h $(srcdir)/lock.h
+dcigettext.lo:       ../config.h $(srcdir)/gettextP.h libgnuintl.h $(srcdir)/gmo.h $(srcdir)/loadinfo.h $(srcdir)/lock.h $(srcdir)/windows-mutex.h $(srcdir)/windows-rwlock.h $(srcdir)/windows-recmutex.h $(srcdir)/windows-once.h $(srcdir)/windows-initguard.h $(srcdir)/localcharset.h $(srcdir)/plural-exp.h $(srcdir)/hash-string.h $(srcdir)/tsearch.h $(srcdir)/tsearch.c $(srcdir)/eval-plural.h $(srcdir)/filename.h
+dcngettext.lo:       ../config.h $(srcdir)/gettextP.h libgnuintl.h $(srcdir)/gmo.h $(srcdir)/loadinfo.h $(srcdir)/lock.h $(srcdir)/windows-mutex.h $(srcdir)/windows-rwlock.h $(srcdir)/windows-recmutex.h $(srcdir)/windows-once.h $(srcdir)/windows-initguard.h
+dngettext.lo:        ../config.h $(srcdir)/gettextP.h libgnuintl.h $(srcdir)/gmo.h $(srcdir)/loadinfo.h $(srcdir)/lock.h $(srcdir)/windows-mutex.h $(srcdir)/windows-rwlock.h $(srcdir)/windows-recmutex.h $(srcdir)/windows-once.h $(srcdir)/windows-initguard.h
+ngettext.lo:         ../config.h $(srcdir)/gettextP.h libgnuintl.h $(srcdir)/gmo.h $(srcdir)/loadinfo.h $(srcdir)/lock.h $(srcdir)/windows-mutex.h $(srcdir)/windows-rwlock.h $(srcdir)/windows-recmutex.h $(srcdir)/windows-once.h $(srcdir)/windows-initguard.h
 plural.lo:           ../config.h $(srcdir)/plural-exp.h $(PLURAL_DEPS)
 plural-exp.lo:       ../config.h $(srcdir)/plural-exp.h
 localcharset.lo:     ../config.h $(srcdir)/localcharset.h
 threadlib.lo:        ../config.h
-lock.lo:             ../config.h $(srcdir)/lock.h
+lock.lo:             ../config.h $(srcdir)/lock.h $(srcdir)/windows-mutex.h $(srcdir)/windows-rwlock.h $(srcdir)/windows-recmutex.h $(srcdir)/windows-once.h $(srcdir)/windows-initguard.h
 relocatable.lo:      ../config.h $(srcdir)/relocatable.h
 langprefs.lo:        ../config.h
-localename.lo:       ../config.h $(srcdir)/gettextP.h libgnuintl.h $(srcdir)/gmo.h $(srcdir)/loadinfo.h $(srcdir)/lock.h $(srcdir)/flexmember.h localename-table.h
-localename-table.lo: ../config.h localename-table.h $(srcdir)/lock.h
-log.lo:              ../config.h $(srcdir)/lock.h
+localename.lo:       ../config.h $(srcdir)/gettextP.h libgnuintl.h $(srcdir)/gmo.h $(srcdir)/loadinfo.h $(srcdir)/lock.h $(srcdir)/windows-mutex.h $(srcdir)/windows-rwlock.h $(srcdir)/windows-recmutex.h $(srcdir)/windows-once.h $(srcdir)/windows-initguard.h $(srcdir)/flexmember.h $(srcdir)/setlocale_null.h $(srcdir)/arg-nonnull.h localename-table.h
+localename-table.lo: ../config.h localename-table.h $(srcdir)/lock.h $(srcdir)/windows-mutex.h $(srcdir)/windows-rwlock.h $(srcdir)/windows-recmutex.h $(srcdir)/windows-once.h $(srcdir)/windows-initguard.h
+log.lo:              ../config.h $(srcdir)/lock.h $(srcdir)/windows-mutex.h $(srcdir)/windows-rwlock.h $(srcdir)/windows-recmutex.h $(srcdir)/windows-once.h $(srcdir)/windows-initguard.h
 printf.lo:           ../config.h $(srcdir)/printf-args.c $(srcdir)/printf-args.h $(srcdir)/printf-parse.c $(srcdir)/printf-parse.h $(srcdir)/wprintf-parse.h $(srcdir)/xsize.h $(srcdir)/vasnprintf.c $(srcdir)/vasnprintf.h $(srcdir)/vasnwprintf.h $(srcdir)/verify.h
-setlocale.lo:        ../config.h $(srcdir)/gettextP.h libgnuintl.h $(srcdir)/gmo.h $(srcdir)/loadinfo.h $(srcdir)/lock.h
+setlocale.lo:        ../config.h $(srcdir)/gettextP.h libgnuintl.h $(srcdir)/gmo.h $(srcdir)/loadinfo.h $(srcdir)/lock.h $(srcdir)/windows-mutex.h $(srcdir)/windows-rwlock.h $(srcdir)/windows-recmutex.h $(srcdir)/windows-once.h $(srcdir)/windows-initguard.h
+setlocale-lock.lo:   ../config.h $(srcdir)/windows-initguard.h
+setlocale_null.lo:   ../config.h $(srcdir)/setlocale_null.h $(srcdir)/arg-nonnull.h
 version.lo:          ../config.h libgnuintl.h
 xsize.lo:            ../config.h $(srcdir)/xsize.h
 osdep.lo:            ../config.h $(srcdir)/intl-exports.c $(srcdir)/os2compat.c
-intl-compat.lo:      ../config.h $(srcdir)/gettextP.h libgnuintl.h $(srcdir)/gmo.h $(srcdir)/loadinfo.h $(srcdir)/lock.h
+intl-compat.lo:      ../config.h $(srcdir)/gettextP.h libgnuintl.h $(srcdir)/gmo.h $(srcdir)/loadinfo.h $(srcdir)/lock.h $(srcdir)/windows-mutex.h $(srcdir)/windows-rwlock.h $(srcdir)/windows-recmutex.h $(srcdir)/windows-once.h $(srcdir)/windows-initguard.h
+windows-mutex.lo:    ../config.h $(srcdir)/windows-mutex.h $(srcdir)/windows-initguard.h
+windows-rwlock.lo:   ../config.h $(srcdir)/windows-rwlock.h $(srcdir)/windows-initguard.h
+windows-recmutex.lo: ../config.h $(srcdir)/windows-recmutex.h $(srcdir)/windows-initguard.h
+windows-once.lo:     ../config.h $(srcdir)/windows-once.h
 
 # Version information according to Woe32 conventions.
 EXTRA_DIST += libintl.rc
@@ -344,16 +500,27 @@ libintl_la_DEPENDENCIES    = $(WOE32_LIBADD)
 libgnuintl_la_LIBADD       = $(WOE32_LIBADD)
 libgnuintl_la_DEPENDENCIES = $(WOE32_LIBADD)
 
+# langprefs.c (_nl_language_preferences_win32_95) uses functions from
+# advapi32.dll.
+if WINDOWS_NATIVE
+INTL_WINDOWS_LIBS = -ladvapi32
+else
+INTL_WINDOWS_LIBS =
+endif
+
 # Libtool's library version information for libintl.
 # Before making a gettext release, you must change this according to the
 # libtool documentation, section "Library interface versions".
-LTV_CURRENT=9
-LTV_REVISION=6
-LTV_AGE=1
+LTV_CURRENT=11
+LTV_REVISION=0
+LTV_AGE=3
 
 # How to build libintl.la and libgnuintl.la.
+# Limit the exported symbols: Don't export glwthread* (from gnulib modules).
 OTHER_LDFLAGS = \
-  @LTLIBICONV@ @INTL_MACOSX_LIBS@ @LTLIBTHREAD@ -no-undefined \
+  @LTLIBICONV@ @INTL_MACOSX_LIBS@ $(INTL_WINDOWS_LIBS) @LTLIBTHREAD@ \
+  -no-undefined \
+  -export-symbols-regex '^([^g]|g[^l]|gl[^w]|glw[^t]|glwt[^h]|glwth[^r]|glwthr[^e]|glwthre[^a]|glwthrea[^d]).*' \
   -version-info $(LTV_CURRENT):$(LTV_REVISION):$(LTV_AGE) \
   -rpath $(libdir)
 libintl_la_LDFLAGS    = $(AM_LDFLAGS) $(OTHER_LDFLAGS)

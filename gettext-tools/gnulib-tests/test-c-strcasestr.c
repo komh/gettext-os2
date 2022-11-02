@@ -1,5 +1,5 @@
 /* Test of case-insensitive searching in a string.
-   Copyright (C) 2007-2019 Free Software Foundation, Inc.
+   Copyright (C) 2007-2022 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -60,18 +60,18 @@ main ()
 
   /* Check that a long periodic needle does not cause false positives.  */
   {
-    const char input[] = ("F_BD_CE_BD_EF_BF_BD_EF_BF_BD_EF_BF_BD_EF_BF_BD"
-                          "_C3_88_20_EF_BF_BD_EF_BF_BD_EF_BF_BD"
-                          "_C3_A7_20_EF_BF_BD");
+    const char input[] = "F_BD_CE_BD_EF_BF_BD_EF_BF_BD_EF_BF_BD_EF_BF_BD"
+                         "_C3_88_20_EF_BF_BD_EF_BF_BD_EF_BF_BD"
+                         "_C3_A7_20_EF_BF_BD";
     const char need[] = "_EF_BF_BD_EF_BF_BD_EF_BF_BD_EF_BF_BD_EF_BF_BD";
     const char *result = c_strcasestr (input, need);
     ASSERT (result == NULL);
   }
   {
-    const char input[] = ("F_BD_CE_BD_EF_BF_BD_EF_BF_BD_EF_BF_BD_EF_BF_BD"
-                          "_C3_88_20_EF_BF_BD_EF_BF_BD_EF_BF_BD"
-                          "_C3_A7_20_EF_BF_BD_DA_B5_C2_A6_20"
-                          "_EF_BF_BD_EF_BF_BD_EF_BF_BD_EF_BF_BD_EF_BF_BD");
+    const char input[] = "F_BD_CE_BD_EF_BF_BD_EF_BF_BD_EF_BF_BD_EF_BF_BD"
+                         "_C3_88_20_EF_BF_BD_EF_BF_BD_EF_BF_BD"
+                         "_C3_A7_20_EF_BF_BD_DA_B5_C2_A6_20"
+                         "_EF_BF_BD_EF_BF_BD_EF_BF_BD_EF_BF_BD_EF_BF_BD";
     const char need[] = "_EF_BF_BD_EF_BF_BD_EF_BF_BD_EF_BF_BD_EF_BF_BD";
     const char *result = c_strcasestr (input, need);
     ASSERT (result == input + 115);

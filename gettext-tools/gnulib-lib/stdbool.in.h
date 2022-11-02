@@ -1,18 +1,18 @@
-/* Copyright (C) 2001-2003, 2006-2019 Free Software Foundation, Inc.
+/* Copyright (C) 2001-2003, 2006-2022 Free Software Foundation, Inc.
    Written by Bruno Haible <haible@clisp.cons.org>, 2001.
 
-   This program is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 3, or (at your option)
-   any later version.
+   This file is free software: you can redistribute it and/or modify
+   it under the terms of the GNU Lesser General Public License as
+   published by the Free Software Foundation; either version 2.1 of the
+   License, or (at your option) any later version.
 
-   This program is distributed in the hope that it will be useful,
+   This file is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
+   GNU Lesser General Public License for more details.
 
-   You should have received a copy of the GNU General Public License
-   along with this program; if not, see <https://www.gnu.org/licenses/>.  */
+   You should have received a copy of the GNU Lesser General Public License
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 #ifndef _GL_STDBOOL_H
 #define _GL_STDBOOL_H
@@ -67,8 +67,10 @@
 #endif
 
 #ifdef __cplusplus
-# define _Bool bool
-# define bool bool
+# if !defined _MSC_VER
+#  define _Bool bool
+#  define bool bool
+# endif
 #else
 # if defined __BEOS__ && !defined __HAIKU__
   /* A compiler known to have 'bool'.  */
@@ -120,8 +122,17 @@ typedef enum { _Bool_must_promote_to_int = -1, false = 0, true = 1 } _Bool;
 
 /* The other macros must be usable in preprocessor directives.  */
 #ifdef __cplusplus
-# define false false
-# define true true
+# if !defined _MSC_VER
+#  define false false
+#  define true true
+# endif
+/* In Sun C++ 5.11 (Solaris Studio 12.2) and older, 'true' as a preprocessor
+   expression evaluates to 0, not 1.  Fix this by overriding 'true'.  Note that
+   the replacement has to be of type 'bool'.  */
+# if defined __SUNPRO_CC && true != 1
+#  undef true
+#  define true (!false)
+# endif
 #else
 # define false 0
 # define true 1

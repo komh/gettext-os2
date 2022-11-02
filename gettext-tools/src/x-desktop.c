@@ -1,5 +1,5 @@
 /* xgettext Desktop Entry backend.
-   Copyright (C) 2014, 2018 Free Software Foundation, Inc.
+   Copyright (C) 2014, 2018-2020 Free Software Foundation, Inc.
 
    This file was written by Daiki Ueno <ueno@gnu.org>, 2014.
 
@@ -36,7 +36,7 @@
 #include "error-progname.h"
 #include "xalloc.h"
 #include "xvasprintf.h"
-#include "hash.h"
+#include "mem-hash-map.h"
 #include "gettext.h"
 #include "read-desktop.h"
 #include "po-charset.h"
@@ -51,11 +51,13 @@
 /* The syntax of a Desktop Entry file is defined at
    https://standards.freedesktop.org/desktop-entry-spec/latest/index.html
 
-   Basically, values with 'localestring' type can be translated.
+   Basically, values with 'localestring' type can be localized.
+   However, the values of 'Icon', while being localizable, are not supported
+   by xgettext.  See the documentation for more info.
 
    The type of a value is determined by looking at the key associated
    with it.  The list of available keys are listed on:
-   https://standards.freedesktop.org/desktop-entry-spec/latest/ar01s05.html  */
+   https://standards.freedesktop.org/desktop-entry-spec/latest/ar01s04.html  */
 
 static hash_table keywords;
 static bool default_keywords = true;
@@ -126,7 +128,7 @@ extract_desktop_handle_pair (struct desktop_reader_ty *reader,
 
       remember_a_message (extract_reader->mlp, NULL,
                           desktop_unescape_string (value, is_list), false,
-                          null_context, key_pos,
+                          false, null_context, key_pos,
                           NULL, savable_comment, false);
     }
   savable_comment_reset ();
@@ -161,7 +163,7 @@ extract_desktop_handle_blank (struct desktop_reader_ty *reader,
   savable_comment_reset ();
 }
 
-desktop_reader_class_ty extract_methods =
+static desktop_reader_class_ty extract_methods =
   {
     sizeof (extract_desktop_reader_ty),
     NULL,

@@ -1,5 +1,5 @@
 /* gettext - retrieve text string from message catalog and print it.
-   Copyright (C) 1995-1997, 2000-2007, 2012, 2018-2019 Free Software
+   Copyright (C) 1995-1997, 2000-2007, 2012, 2018-2022 Free Software
    Foundation, Inc.
    Written by Ulrich Drepper <drepper@gnu.ai.mit.edu>, May 1995.
 
@@ -27,20 +27,23 @@
 #include <string.h>
 #include <locale.h>
 
+#include "attribute.h"
+#include "noreturn.h"
 #include "closeout.h"
 #include "error.h"
 #include "progname.h"
 #include "relocatable.h"
-#include "basename.h"
+#include "basename-lgpl.h"
 #include "xalloc.h"
 #include "propername.h"
+#include "escapes.h"
 #include "gettext.h"
 
 #define _(str) gettext (str)
 
-/* If true, add newline after last string.  This makes only sense in
+/* If false, add newline after last string.  This makes only sense in
    the 'echo' emulation mode.  */
-static bool add_newline;
+static bool inhibit_added_newline;
 
 /* If true, expand escape sequences in strings before looking in the
    message catalog.  */
@@ -58,12 +61,7 @@ static const struct option long_options[] =
 };
 
 /* Forward declaration of local functions.  */
-static void usage (int status)
-#if defined __GNUC__ && ((__GNUC__ == 2 && __GNUC_MINOR__ >= 5) || __GNUC__ > 2)
-     __attribute__ ((noreturn))
-#endif
-;
-static const char *expand_escape (const char *str);
+_GL_NORETURN_FUNC static void usage (int status);
 
 int
 main (int argc, char *argv[])
@@ -78,7 +76,7 @@ main (int argc, char *argv[])
   const char *domain = getenv ("TEXTDOMAIN");
   const char *domaindir = getenv ("TEXTDOMAINDIR");
   const char *context = NULL;
-  add_newline = true;
+  inhibit_added_newline = false;
   do_expand = false;
 
   /* Set program name for message texts.  */
@@ -117,7 +115,7 @@ main (int argc, char *argv[])
       do_help = true;
       break;
     case 'n':
-      add_newline = false;
+      inhibit_added_newline = true;
       break;
     case 's':
       do_shell = true;
@@ -132,14 +130,15 @@ main (int argc, char *argv[])
   /* Version information is requested.  */
   if (do_version)
     {
-      printf ("%s (GNU %s) %s\n", basename (program_name), PACKAGE, VERSION);
+      printf ("%s (GNU %s) %s\n", last_component (program_name),
+              PACKAGE, VERSION);
       /* xgettext: no-wrap */
       printf (_("Copyright (C) %s Free Software Foundation, Inc.\n\
 License GPLv3+: GNU GPL version 3 or later <%s>\n\
 This is free software: you are free to change and redistribute it.\n\
 There is NO WARRANTY, to the extent permitted by law.\n\
 "),
-              "1995-2019", "https://gnu.org/licenses/gpl.html");
+              "1995-2022", "https://gnu.org/licenses/gpl.html");
       printf (_("Written by %s.\n"), proper_name ("Ulrich Drepper"));
       exit (EXIT_SUCCESS);
     }
@@ -162,7 +161,7 @@ There is NO WARRANTY, to the extent permitted by law.\n\
 
           case 2:
             domain = argv[optind++];
-            /* FALLTHROUGH */
+            FALLTHROUGH;
 
           case 1:
             break;
@@ -175,7 +174,7 @@ There is NO WARRANTY, to the extent permitted by law.\n\
 
       /* Expand escape sequences if enabled.  */
       if (do_expand)
-        msgid = expand_escape (msgid);
+        msgid = expand_escapes (msgid, &inhibit_added_newline);
 
       /* If no domain name is given we don't translate.  */
       if (domain == NULL || domain[0] == '\0')
@@ -215,7 +214,7 @@ There is NO WARRANTY, to the extent permitted by law.\n\
 
               /* Expand escape sequences if enabled.  */
               if (do_expand)
-                msgid = expand_escape (msgid);
+                msgid = expand_escapes (msgid, &inhibit_added_newline);
 
               /* Write out the result.  */
               fputs ((domain == NULL ? msgid :
@@ -232,7 +231,7 @@ There is NO WARRANTY, to the extent permitted by law.\n\
         }
 
       /* If not otherwise told: add trailing newline.  */
-      if (add_newline)
+      if (!inhibit_added_newline)
         fputc ('\n', stdout);
     }
 
@@ -306,107 +305,4 @@ or by email to <%s>.\n"),
     }
 
   exit (status);
-}
-
-
-/* Expand some escape sequences found in the argument string.  */
-static const char *
-expand_escape (const char *str)
-{
-  char *retval, *rp;
-  const char *cp = str;
-
-  for (;;)
-    {
-      while (cp[0] != '\0' && cp[0] != '\\')
-        ++cp;
-      if (cp[0] == '\0')
-        return str;
-      /* Found a backslash.  */
-      if (cp[1] == '\0')
-        return str;
-      if (strchr ("abcfnrtv\\01234567", cp[1]) != NULL)
-        break;
-      ++cp;
-    }
-
-  retval = XNMALLOC (strlen (str), char);
-
-  rp = retval + (cp - str);
-  memcpy (retval, str, cp - str);
-
-  do
-    {
-      /* Here cp[0] == '\\'.  */
-      switch (*++cp)
-        {
-        case 'a':               /* alert */
-          *rp++ = '\a';
-          ++cp;
-          break;
-        case 'b':               /* backspace */
-          *rp++ = '\b';
-          ++cp;
-          break;
-        case 'c':               /* suppress trailing newline */
-          add_newline = false;
-          ++cp;
-          break;
-        case 'f':               /* form feed */
-          *rp++ = '\f';
-          ++cp;
-          break;
-        case 'n':               /* new line */
-          *rp++ = '\n';
-          ++cp;
-          break;
-        case 'r':               /* carriage return */
-          *rp++ = '\r';
-          ++cp;
-          break;
-        case 't':               /* horizontal tab */
-          *rp++ = '\t';
-          ++cp;
-          break;
-        case 'v':               /* vertical tab */
-          *rp++ = '\v';
-          ++cp;
-          break;
-        case '\\':
-          *rp = '\\';
-          ++cp;
-          break;
-        case '0': case '1': case '2': case '3':
-        case '4': case '5': case '6': case '7':
-          {
-            int ch = *cp++ - '0';
-
-            if (*cp >= '0' && *cp <= '7')
-              {
-                ch *= 8;
-                ch += *cp++ - '0';
-
-                if (*cp >= '0' && *cp <= '7')
-                  {
-                    ch *= 8;
-                    ch += *cp++ - '0';
-                  }
-              }
-            *rp = ch;
-          }
-          break;
-        default:
-          *rp = '\\';
-          break;
-        }
-
-      while (cp[0] != '\0' && cp[0] != '\\')
-        *rp++ = *cp++;
-    }
-  while (cp[0] != '\0');
-
-  /* Terminate string.  */
-  *rp = '\0';
-
-  return (const char *) retval;
 }

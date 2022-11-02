@@ -1,5 +1,5 @@
 /* xgettext Lisp backend.
-   Copyright (C) 2001-2003, 2005-2009, 2018-2019 Free Software Foundation, Inc.
+   Copyright (C) 2001-2003, 2005-2009, 2018-2020 Free Software Foundation, Inc.
 
    This file was written by Bruno Haible <haible@clisp.cons.org>, 2001.
 
@@ -29,6 +29,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "attribute.h"
 #include "message.h"
 #include "xgettext.h"
 #include "xg-pos.h"
@@ -39,7 +40,7 @@
 #include "xg-message.h"
 #include "error.h"
 #include "xalloc.h"
-#include "hash.h"
+#include "mem-hash-map.h"
 #include "gettext.h"
 
 #define _(s) gettext(s)
@@ -1127,7 +1128,7 @@ read_object (struct object *op, flag_context_ty outer_context)
                 if (c != EOF && c != '@' && c != '.')
                   do_ungetc (c);
               }
-              /*FALLTHROUGH*/
+              FALLTHROUGH;
             case '\'':
             case '`':
               {
@@ -1200,7 +1201,7 @@ read_object (struct object *op, flag_context_ty outer_context)
                     pos.file_name = logical_file_name;
                     pos.line_number = op->line_number_at_start;
                     remember_a_message (mlp, NULL, string_of_object (op), false,
-                                        null_context, &pos,
+                                        false, null_context, &pos,
                                         NULL, savable_comment, false);
                   }
                 last_non_comment_line = line_number;
@@ -1230,7 +1231,7 @@ read_object (struct object *op, flag_context_ty outer_context)
                   case '(':
                   case '"':
                     do_ungetc (c);
-                    /*FALLTHROUGH*/
+                    FALLTHROUGH;
                   case '\'':
                   case ':':
                   case '.':

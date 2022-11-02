@@ -62,6 +62,9 @@ extern         void html_styled_ostream_flush (html_styled_ostream_t first_arg, 
 extern         void html_styled_ostream_free (html_styled_ostream_t first_arg);
 extern          void html_styled_ostream_begin_use_class (html_styled_ostream_t first_arg, const char *classname);
 extern          void html_styled_ostream_end_use_class (html_styled_ostream_t first_arg, const char *classname);
+extern         const char * html_styled_ostream_get_hyperlink_ref (html_styled_ostream_t first_arg);
+extern    const char * html_styled_ostream_get_hyperlink_id (html_styled_ostream_t first_arg);
+extern    void         html_styled_ostream_set_hyperlink (html_styled_ostream_t first_arg,                               const char *ref, const char *id);
 extern              void html_styled_ostream_flush_to_current_style (html_styled_ostream_t first_arg);
 #ifdef __cplusplus
 }
@@ -133,6 +136,33 @@ html_styled_ostream_end_use_class (html_styled_ostream_t first_arg, const char *
   const struct html_styled_ostream_implementation *vtable =
     ((struct html_styled_ostream_representation_header *) (struct html_styled_ostream_representation *) first_arg)->vtable;
   vtable->end_use_class (first_arg,classname);
+}
+
+# define html_styled_ostream_get_hyperlink_ref html_styled_ostream_get_hyperlink_ref_inline
+static inline const char *
+html_styled_ostream_get_hyperlink_ref (html_styled_ostream_t first_arg)
+{
+  const struct html_styled_ostream_implementation *vtable =
+    ((struct html_styled_ostream_representation_header *) (struct html_styled_ostream_representation *) first_arg)->vtable;
+  return vtable->get_hyperlink_ref (first_arg);
+}
+
+# define html_styled_ostream_get_hyperlink_id html_styled_ostream_get_hyperlink_id_inline
+static inline const char *
+html_styled_ostream_get_hyperlink_id (html_styled_ostream_t first_arg)
+{
+  const struct html_styled_ostream_implementation *vtable =
+    ((struct html_styled_ostream_representation_header *) (struct html_styled_ostream_representation *) first_arg)->vtable;
+  return vtable->get_hyperlink_id (first_arg);
+}
+
+# define html_styled_ostream_set_hyperlink html_styled_ostream_set_hyperlink_inline
+static inline void
+html_styled_ostream_set_hyperlink (html_styled_ostream_t first_arg,                               const char *ref, const char *id)
+{
+  const struct html_styled_ostream_implementation *vtable =
+    ((struct html_styled_ostream_representation_header *) (struct html_styled_ostream_representation *) first_arg)->vtable;
+  vtable->set_hyperlink (first_arg,ref,id);
 }
 
 # define html_styled_ostream_flush_to_current_style html_styled_ostream_flush_to_current_style_inline

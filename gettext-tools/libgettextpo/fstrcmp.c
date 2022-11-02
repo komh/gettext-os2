@@ -1,5 +1,5 @@
 /* Functions to make fuzzy comparisons between strings
-   Copyright (C) 1988-1989, 1992-1993, 1995, 2001-2003, 2006, 2008-2019 Free
+   Copyright (C) 1988-1989, 1992-1993, 1995, 2001-2003, 2006, 2008-2022 Free
    Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
@@ -46,6 +46,7 @@
   ptrdiff_t edit_count;
 #define NOTE_DELETE(ctxt, xoff) ctxt->edit_count++
 #define NOTE_INSERT(ctxt, yoff) ctxt->edit_count++
+#define NOTE_ORDERED false
 #define EARLY_ABORT(ctxt) ctxt->edit_count > 0
 /* We don't need USE_HEURISTIC, since it is unlikely in typical uses of
    fstrcmp().  */
@@ -72,6 +73,21 @@ keys_init (void)
 
 /* Ensure that keys_init is called once only.  */
 gl_once_define(static, keys_init_once)
+
+void
+fstrcmp_free_resources (void)
+{
+  ptrdiff_t *buffer;
+
+  gl_once (keys_init_once, keys_init);
+  buffer = gl_tls_get (buffer_key);
+  if (buffer != NULL)
+    {
+      gl_tls_set (buffer_key, NULL);
+      gl_tls_set (bufmax_key, (void *) (uintptr_t) 0);
+      free (buffer);
+    }
+}
 
 
 /* In the code below, branch probabilities were measured by Ralf Wildenhues,

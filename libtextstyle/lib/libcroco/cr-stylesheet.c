@@ -1,4 +1,13 @@
-/* -*- Mode: C; indent-tabs-mode: ni; c-basic-offset: 8 -*- */
+/* -*- Mode: C; indent-tabs-mode: nil; c-basic-offset: 8 -*- */
+
+/* libcroco - Library for parsing and applying CSS
+ * Copyright (C) 2006-2019 Free Software Foundation, Inc.
+ *
+ * This file is not part of the GNU gettext program, but is used with
+ * GNU gettext.
+ *
+ * The original copyright notice is as follows:
+ */
 
 /*
  * This file is part of The Croco Library
@@ -6,7 +15,7 @@
  * Copyright (C) 2002-2004 Dodji Seketeli
  *
  * This program is free software; you can redistribute it and/or
- * modify it under the terms of version 3 of the GNU General Public
+ * modify it under the terms of version 2.1 of the GNU Lesser General Public
  * License as published by the Free Software Foundation.
  *
  * This program is distributed in the hope that it will be useful,
@@ -14,7 +23,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA
@@ -58,11 +67,11 @@ cr_stylesheet_new (CRStatement * a_stmts)
  *@return the serialized stylesheet.
  */
 gchar *
-cr_stylesheet_to_string (CRStyleSheet *a_this)
+cr_stylesheet_to_string (CRStyleSheet const *a_this)
 {
 	gchar *str = NULL;
 	GString *stringue = NULL;
-	CRStatement *cur_stmt = NULL;
+	CRStatement const *cur_stmt = NULL;
 
         g_return_val_if_fail (a_this, NULL);
 
@@ -96,7 +105,7 @@ cr_stylesheet_to_string (CRStyleSheet *a_this)
  *@param a_fp the destination file
  */
 void
-cr_stylesheet_dump (CRStyleSheet * a_this, FILE * a_fp)
+cr_stylesheet_dump (CRStyleSheet const * a_this, FILE * a_fp)
 {
 	gchar *str = NULL ;
 
@@ -116,7 +125,7 @@ cr_stylesheet_dump (CRStyleSheet * a_this, FILE * a_fp)
  *@return number of rules in the stylesheet.
  */
 gint
-cr_stylesheet_nr_rules (CRStyleSheet * a_this)
+cr_stylesheet_nr_rules (CRStyleSheet const * a_this)
 {
         g_return_val_if_fail (a_this, -1);
 

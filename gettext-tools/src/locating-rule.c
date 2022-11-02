@@ -1,5 +1,5 @@
 /* XML resource locating rules
-   Copyright (C) 2015 Free Software Foundation, Inc.
+   Copyright (C) 2015, 2019-2020 Free Software Foundation, Inc.
 
    This file was written by Daiki Ueno <ueno@gnu.org>, 2015.
 
@@ -23,7 +23,7 @@
 /* Specification.  */
 #include "locating-rule.h"
 
-#include "basename.h"
+#include "basename-lgpl.h"
 #include "concat-filename.h"
 #include "c-strcase.h"
 
@@ -43,7 +43,7 @@
 #include "filename.h"
 #include <fnmatch.h>
 #include "gettext.h"
-#include "hash.h"
+#include "mem-hash-map.h"
 #include <libxml/parser.h>
 #include <libxml/uri.h>
 #include "xalloc.h"
@@ -146,7 +146,7 @@ locating_rule_match (struct locating_rule_ty *rule,
              && memcmp (reduced + strlen (reduced) - 3, ".in", 3) == 0)
         reduced[strlen (reduced) - 3] = '\0';
 
-      err = fnmatch (rule->pattern, basename (reduced), FNM_PATHNAME);
+      err = fnmatch (rule->pattern, last_component (reduced), FNM_PATHNAME);
       free (reduced);
       if (err != 0)
         return NULL;
@@ -194,18 +194,11 @@ locating_rule_list_locate (struct locating_rule_list_ty *rules,
                            const char *filename,
                            const char *name)
 {
-  const char *target = NULL;
   size_t i;
 
   for (i = 0; i < rules->nitems; i++)
     {
-      if (IS_ABSOLUTE_PATH (filename))
-        {
-          target = locating_rule_match (&rules->items[i], filename, name);
-          if (target != NULL)
-            return target;
-        }
-      else
+      if (IS_RELATIVE_FILE_NAME (filename))
         {
           int j;
 
@@ -213,6 +206,7 @@ locating_rule_list_locate (struct locating_rule_list_ty *rules,
             {
               const char *dir = dir_list_nth (j);
               char *new_filename;
+              const char *target;
 
               if (dir == NULL)
                 break;
@@ -224,6 +218,14 @@ locating_rule_list_locate (struct locating_rule_list_ty *rules,
               if (target != NULL)
                 return target;
             }
+        }
+      else
+        {
+          const char *target =
+            locating_rule_match (&rules->items[i], filename, name);
+
+          if (target != NULL)
+            return target;
         }
     }
 
@@ -331,34 +333,35 @@ locating_rule_list_add_from_file (struct locating_rule_list_ty *rules,
             {
               missing_attribute (node, "pattern");
               xmlFreeDoc (doc);
-              continue;
             }
-
-          memset (&rule, 0, sizeof (struct locating_rule_ty));
-          rule.pattern = get_attribute (node, "pattern");
-          if (xmlHasProp (node, BAD_CAST "name"))
-            rule.name = get_attribute (node, "name");
-          if (xmlHasProp (node, BAD_CAST "target"))
-            rule.target = get_attribute (node, "target");
           else
             {
-              xmlNode *n;
-
-              for (n = node->children; n; n = n->next)
+              memset (&rule, 0, sizeof (struct locating_rule_ty));
+              rule.pattern = get_attribute (node, "pattern");
+              if (xmlHasProp (node, BAD_CAST "name"))
+                rule.name = get_attribute (node, "name");
+              if (xmlHasProp (node, BAD_CAST "target"))
+                rule.target = get_attribute (node, "target");
+              else
                 {
-                  if (xmlStrEqual (n->name, BAD_CAST "documentRule"))
-                    document_locating_rule_list_add (&rule.doc_rules, n);
+                  xmlNode *n;
+
+                  for (n = node->children; n; n = n->next)
+                    {
+                      if (xmlStrEqual (n->name, BAD_CAST "documentRule"))
+                        document_locating_rule_list_add (&rule.doc_rules, n);
+                    }
                 }
+              if (rules->nitems == rules->nitems_max)
+                {
+                  rules->nitems_max = 2 * rules->nitems_max + 1;
+                  rules->items =
+                    xrealloc (rules->items,
+                              sizeof (struct locating_rule_ty) * rules->nitems_max);
+                }
+              memcpy (&rules->items[rules->nitems++], &rule,
+                      sizeof (struct locating_rule_ty));
             }
-          if (rules->nitems == rules->nitems_max)
-            {
-              rules->nitems_max = 2 * rules->nitems_max + 1;
-              rules->items =
-                xrealloc (rules->items,
-                          sizeof (struct locating_rule_ty) * rules->nitems_max);
-            }
-          memcpy (&rules->items[rules->nitems++], &rule,
-                  sizeof (struct locating_rule_ty));
         }
     }
 
@@ -420,7 +423,7 @@ locating_rule_list_alloc (void)
   return result;
 }
 
-void
+static void
 locating_rule_list_destroy (struct locating_rule_list_ty *rules)
 {
   while (rules->nitems-- > 0)

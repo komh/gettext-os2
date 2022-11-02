@@ -1,5 +1,5 @@
 /* Unicode CLDR plural rule parser and converter
-   Copyright (C) 2015, 2018-2019 Free Software Foundation, Inc.
+   Copyright (C) 2015, 2018-2022 Free Software Foundation, Inc.
 
    This file was written by Daiki Ueno <ueno@gnu.org>, 2015.
 
@@ -20,7 +20,7 @@
 # include <config.h>
 #endif
 
-#include "basename.h"
+#include "basename-lgpl.h"
 #include "cldr-plural-exp.h"
 #include "closeout.h"
 #include "c-ctype.h"
@@ -286,14 +286,15 @@ main (int argc, char **argv)
   /* Version information requested.  */
   if (do_version)
     {
-      printf ("%s (GNU %s) %s\n", basename (program_name), PACKAGE, VERSION);
+      printf ("%s (GNU %s) %s\n", last_component (program_name),
+              PACKAGE, VERSION);
       /* xgettext: no-wrap */
       printf (_("Copyright (C) %s Free Software Foundation, Inc.\n\
 License GPLv3+: GNU GPL version 3 or later <%s>\n\
 This is free software: you are free to change and redistribute it.\n\
 There is NO WARRANTY, to the extent permitted by law.\n\
 "),
-              "2015-2019", "https://gnu.org/licenses/gpl.html");
+              "2015-2022", "https://gnu.org/licenses/gpl.html");
       printf (_("Written by %s.\n"), proper_name ("Daiki Ueno"));
       exit (EXIT_SUCCESS);
     }

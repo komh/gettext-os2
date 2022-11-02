@@ -1,17 +1,17 @@
 /* Substitution of parameters in strings from terminal descriptions.
-   Copyright (C) 2006, 2012 Free Software Foundation, Inc.
+   Copyright (C) 2006, 2012, 2020 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 3 of the License, or
+   it under the terms of the GNU Lesser General Public License as published by
+   the Free Software Foundation; either version 2.1 of the License, or
    (at your option) any later version.
 
    This program is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
+   GNU Lesser General Public License for more details.
 
-   You should have received a copy of the GNU General Public License
+   You should have received a copy of the GNU Lesser General Public License
    along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 /* Originally by Ross Ridge, Public Domain, 92/02/01 07:30:36 */
@@ -22,6 +22,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "attribute.h"
 #include "c-ctype.h"
 
 #ifdef USE_SCCS_IDS
@@ -331,7 +332,7 @@ tparm (const char *str, ...)
                   sp++;
                   break;
                 }
-              /* FALLTHROUGH */
+              FALLTHROUGH;
             case 'C':
               if (*sp == 'C')
                 {
@@ -347,7 +348,7 @@ tparm (const char *str, ...)
                     }
                 }
               fmt = "%c";
-              /* FALLTHROUGH */
+              FALLTHROUGH;
             case 'a':
               if (!termcap)
                 return OOPS;
@@ -415,7 +416,7 @@ tparm (const char *str, ...)
               if (fmt == NULL)
                 break;
               sp--;
-              /* FALLTHROUGH */
+              FALLTHROUGH;
             case '-':
               if (!termcap)
                 {
@@ -429,7 +430,7 @@ tparm (const char *str, ...)
                   break;
                 }
               fmt = "%c";
-              /* FALLTHROUGH */
+              FALLTHROUGH;
             case 's':
               if (termcap && (fmt == NULL || *sp == '-'))
                 {
@@ -449,23 +450,23 @@ tparm (const char *str, ...)
                 }
               if (!termcap)
                 return OOPS;
-              /* FALLTHROUGH */
+              FALLTHROUGH;
             case '.':
               if (termcap && fmt == NULL)
                 fmt = "%c";
-              /* FALLTHROUGH */
+              FALLTHROUGH;
             case 'd':
               if (termcap && fmt == NULL)
                 fmt = "%d";
-              /* FALLTHROUGH */
+              FALLTHROUGH;
             case '2':
               if (termcap && fmt == NULL)
                 fmt = "%02d";
-              /* FALLTHROUGH */
+              FALLTHROUGH;
             case '3':
               if (termcap && fmt == NULL)
                 fmt = "%03d";
-              /* FALLTHROUGH */
+              FALLTHROUGH;
             case ':': case ' ': case '#': case 'u':
             case 'x': case 'X': case 'o': case 'c':
             case '0': case '1': case '4': case '5':

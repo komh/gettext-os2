@@ -1,5 +1,5 @@
 /* Compile a C# program.
-   Copyright (C) 2003-2019 Free Software Foundation, Inc.
+   Copyright (C) 2003-2022 Free Software Foundation, Inc.
    Written by Bruno Haible <bruno@clisp.org>, 2003.
 
    This program is free software: you can redistribute it and/or modify
@@ -76,7 +76,7 @@ compile_csharp_using_mono (const char * const *sources,
          "mcs --version >/dev/null 2>/dev/null"
          and (to exclude an unrelated 'mcs' program on QNX 6)
          "mcs --version 2>/dev/null | grep Mono >/dev/null"  */
-      char *argv[3];
+      const char *argv[3];
       pid_t child;
       int fd[1];
       int exitstatus;
@@ -84,8 +84,8 @@ compile_csharp_using_mono (const char * const *sources,
       argv[0] = "mcs";
       argv[1] = "--version";
       argv[2] = NULL;
-      child = create_pipe_in ("mcs", "mcs", argv, DEV_NULL, true, true, false,
-                              fd);
+      child = create_pipe_in ("mcs", "mcs", argv, NULL,
+                              DEV_NULL, true, true, false, fd);
       mcs_present = false;
       if (child != -1)
         {
@@ -121,8 +121,8 @@ compile_csharp_using_mono (const char * const *sources,
   if (mcs_present)
     {
       unsigned int argc;
-      char **argv;
-      char **argp;
+      const char **argv;
+      const char **argp;
       pid_t child;
       int fd[1];
       FILE *fp;
@@ -136,7 +136,7 @@ compile_csharp_using_mono (const char * const *sources,
       argc =
         1 + (output_is_library ? 1 : 0) + 1 + libdirs_count + libraries_count
         + (debug ? 1 : 0) + sources_count;
-      argv = (char **) xmalloca ((argc + 1) * sizeof (char *));
+      argv = (const char **) xmalloca ((argc + 1) * sizeof (const char *));
 
       argp = argv;
       *argp++ = "mcs";
@@ -179,7 +179,7 @@ compile_csharp_using_mono (const char * const *sources,
               *argp++ = option;
             }
           else
-            *argp++ = (char *) source_file;
+            *argp++ = source_file;
         }
       *argp = NULL;
       /* Ensure argv length was correctly calculated.  */
@@ -193,7 +193,8 @@ compile_csharp_using_mono (const char * const *sources,
           free (command);
         }
 
-      child = create_pipe_in ("mcs", "mcs", argv, NULL, false, true, true, fd);
+      child = create_pipe_in ("mcs", "mcs", argv, NULL,
+                              NULL, false, true, true, fd);
 
       /* Read the subprocess output, copying it to stderr.  Drop the last
          line if it starts with "Compilation succeeded".  */
@@ -231,10 +232,10 @@ compile_csharp_using_mono (const char * const *sources,
            i < 1 + (output_is_library ? 1 : 0)
                + 1 + libdirs_count + libraries_count;
            i++)
-        freea (argv[i]);
+        freea ((char *) argv[i]);
       for (i = 0; i < sources_count; i++)
         if (argv[argc - sources_count + i] != sources[i])
-          freea (argv[argc - sources_count + i]);
+          freea ((char *) argv[argc - sources_count + i]);
       freea (argv);
 
       return (exitstatus != 0);
@@ -262,7 +263,7 @@ compile_csharp_using_sscli (const char * const *sources,
       /* Test for presence of csc:
          "csc -help >/dev/null 2>/dev/null \
           && ! { csc -help 2>/dev/null | grep -i chicken > /dev/null; }"  */
-      char *argv[3];
+      const char *argv[3];
       pid_t child;
       int fd[1];
       int exitstatus;
@@ -270,8 +271,8 @@ compile_csharp_using_sscli (const char * const *sources,
       argv[0] = "csc";
       argv[1] = "-help";
       argv[2] = NULL;
-      child = create_pipe_in ("csc", "csc", argv, DEV_NULL, true, true, false,
-                              fd);
+      child = create_pipe_in ("csc", "csc", argv, NULL,
+                              DEV_NULL, true, true, false, fd);
       csc_present = false;
       if (child != -1)
         {
@@ -311,20 +312,19 @@ compile_csharp_using_sscli (const char * const *sources,
   if (csc_present)
     {
       unsigned int argc;
-      char **argv;
-      char **argp;
+      const char **argv;
+      const char **argp;
       int exitstatus;
       unsigned int i;
 
       argc =
         1 + 1 + 1 + libdirs_count + libraries_count
         + (optimize ? 1 : 0) + (debug ? 1 : 0) + sources_count;
-      argv = (char **) xmalloca ((argc + 1) * sizeof (char *));
+      argv = (const char **) xmalloca ((argc + 1) * sizeof (const char *));
 
       argp = argv;
       *argp++ = "csc";
-      *argp++ =
-        (char *) (output_is_library ? "-target:library" : "-target:exe");
+      *argp++ = (output_is_library ? "-target:library" : "-target:exe");
       {
         char *option = (char *) xmalloca (5 + strlen (output_file) + 1);
         memcpy (option, "-out:", 5);
@@ -364,7 +364,7 @@ compile_csharp_using_sscli (const char * const *sources,
               *argp++ = option;
             }
           else
-            *argp++ = (char *) source_file;
+            *argp++ = source_file;
         }
       *argp = NULL;
       /* Ensure argv length was correctly calculated.  */
@@ -378,14 +378,15 @@ compile_csharp_using_sscli (const char * const *sources,
           free (command);
         }
 
-      exitstatus = execute ("csc", "csc", argv, false, false, false, false,
+      exitstatus = execute ("csc", "csc", argv, NULL,
+                            false, false, false, false,
                             true, true, NULL);
 
       for (i = 2; i < 3 + libdirs_count + libraries_count; i++)
-        freea (argv[i]);
+        freea ((char *) argv[i]);
       for (i = 0; i < sources_count; i++)
         if (argv[argc - sources_count + i] != sources[i])
-          freea (argv[argc - sources_count + i]);
+          freea ((char *) argv[argc - sources_count + i]);
       freea (argv);
 
       return (exitstatus != 0);

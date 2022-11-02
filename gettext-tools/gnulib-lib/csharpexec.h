@@ -1,5 +1,5 @@
 /* Execute a C# program.
-   Copyright (C) 2003, 2009-2019 Free Software Foundation, Inc.
+   Copyright (C) 2003, 2009-2022 Free Software Foundation, Inc.
    Written by Bruno Haible <bruno@clisp.org>, 2003.
 
    This program is free software: you can redistribute it and/or modify
@@ -21,7 +21,7 @@
 #include <stdbool.h>
 
 typedef bool execute_fn (const char *progname,
-                         const char *prog_path, char **prog_argv,
+                         const char *prog_path, const char * const *prog_argv,
                          void *private_data);
 
 /* Execute a C# program.

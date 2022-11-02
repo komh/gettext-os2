@@ -1,5 +1,5 @@
 /* GNU gettext - internationalization aids
-   Copyright (C) 1995-1998, 2000-2010, 2012-2013, 2015-2016 Free Software Foundation, Inc.
+   Copyright (C) 1995-1998, 2000-2010, 2012-2013, 2015-2016, 2019-2020 Free Software Foundation, Inc.
 
    This file was written by Peter Miller <millerp@canb.auug.org.au>
 
@@ -21,7 +21,7 @@
 
 #include "str-list.h"
 #include "pos.h"
-#include "hash.h"
+#include "mem-hash-map.h"
 
 #include <stdbool.h>
 
@@ -45,34 +45,36 @@ enum format_type
 {
   format_c,
   format_objc,
-  format_sh,
   format_python,
   format_python_brace,
+  format_java,
+  format_java_printf,
+  format_csharp,
+  format_javascript,
+  format_scheme,
   format_lisp,
   format_elisp,
   format_librep,
-  format_scheme,
-  format_smalltalk,
-  format_java,
-  format_csharp,
+  format_ruby,
+  format_sh,
   format_awk,
+  format_lua,
   format_pascal,
-  format_ycp,
+  format_smalltalk,
+  format_qt,
+  format_qt_plural,
+  format_kde,
+  format_kde_kuit,
+  format_boost,
   format_tcl,
   format_perl,
   format_perl_brace,
   format_php,
   format_gcc_internal,
   format_gfc_internal,
-  format_qt,
-  format_qt_plural,
-  format_kde,
-  format_kde_kuit,
-  format_boost,
-  format_lua,
-  format_javascript
+  format_ycp
 };
-#define NFORMATS 28     /* Number of format_type enum values.  */
+#define NFORMATS 30     /* Number of format_type enum values.  */
 extern DLL_VARIABLE const char *const format_language[NFORMATS];
 extern DLL_VARIABLE const char *const format_language_pretty[NFORMATS];
 

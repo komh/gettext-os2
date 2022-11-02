@@ -1,5 +1,5 @@
-# perror.m4 serial 8
-dnl Copyright (C) 2008-2019 Free Software Foundation, Inc.
+# perror.m4 serial 10
+dnl Copyright (C) 2008-2022 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
@@ -15,7 +15,7 @@ AC_DEFUN([gl_FUNC_PERROR],
   dnl since on glibc systems, strerror_r is replaced only for signature
   dnl issues, and perror is just fine.  Rather, we only want to
   dnl replace perror if strerror_r was replaced for a content fix.
-  if test "$ERRNO_H:$REPLACE_STRERROR_0" != :0; then
+  if test "$GL_GENERATE_ERRNO_H:$REPLACE_STRERROR_0" != false:0; then
     dnl The system's perror() cannot know about the new errno values we add
     dnl to <errno.h>, or any fix for strerror(0). Replace it.
     REPLACE_PERROR=1
@@ -52,8 +52,8 @@ AC_DEFUN([gl_FUNC_PERROR],
               *-musl*) gl_cv_func_perror_works="guessing yes" ;;
                        # Guess yes on native Windows.
               mingw*)  gl_cv_func_perror_works="guessing yes" ;;
-                       # Otherwise guess no.
-              *)       gl_cv_func_perror_works="guessing no" ;;
+                       # Otherwise obey --enable-cross-guesses.
+              *)       gl_cv_func_perror_works="$gl_cross_guess_normal" ;;
             esac
            ])
         ])

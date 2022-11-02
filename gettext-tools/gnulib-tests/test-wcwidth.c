@@ -1,5 +1,5 @@
 /* Test of wcwidth() function.
-   Copyright (C) 2007-2019 Free Software Foundation, Inc.
+   Copyright (C) 2007-2022 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -35,7 +35,7 @@ main ()
 {
   wchar_t wc;
 
-#if !GNULIB_WCHAR_SINGLE
+#if !GNULIB_WCHAR_SINGLE_LOCALE
 # ifdef C_CTYPE_ASCII
   /* Test width of ASCII characters.  */
   for (wc = 0x20; wc < 0x7F; wc++)
@@ -69,7 +69,11 @@ main ()
 #endif
 
       /* Test width of some zero width characters.  */
-      ASSERT (wcwidth (0x200B) == 0);
+      /* While it is desirable that U+200B, U+200C, U+200D have width 0,
+         because this makes wcswidth work better on strings that contain these
+         characters, it is acceptable if an implementation treats these
+         characters like control characters.  */
+      ASSERT (wcwidth (0x200B) <= 0);
       ASSERT (wcwidth (0xFEFF) <= 0);
 
       /* Test width of some math symbols.

@@ -1,7 +1,18 @@
 /* -*- Mode: C; indent-tabs-mode:nil; c-basic-offset: 8-*- */
 
+/* libcroco - Library for parsing and applying CSS
+ * Copyright (C) 2006-2019 Free Software Foundation, Inc.
+ *
+ * This file is not part of the GNU gettext program, but is used with
+ * GNU gettext.
+ *
+ * The original copyright notice is as follows:
+ */
+
 /*
  * This file is part of The Croco Library
+ *
+ * Copyright (C) 2003-2004 Dodji Seketeli.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of version 2.1 of the GNU Lesser General Public
@@ -18,7 +29,6 @@
  * USA
  *
  * Author: Dodji Seketeli
- * See COPYRIGHTS file for copyrights information.
  */
 
 #ifndef __CR_PARSER_H__
@@ -68,7 +78,7 @@ enum CRStatus cr_parser_set_tknzr (CRParser *a_this, CRTknzr *a_tknzr) ;
 
 enum CRStatus cr_parser_get_tknzr (CRParser *a_this, CRTknzr **a_tknzr) ;
 
-enum CRStatus cr_parser_get_parsing_location (CRParser *a_this, CRParsingLocation *a_loc) ;
+enum CRStatus cr_parser_get_parsing_location (CRParser const *a_this, CRParsingLocation *a_loc) ;
 
 enum CRStatus cr_parser_try_to_skip_spaces_and_comments (CRParser *a_this) ;
 
@@ -81,7 +91,7 @@ enum CRStatus cr_parser_get_sac_handler (CRParser *a_this,
 
 enum CRStatus cr_parser_set_use_core_grammar (CRParser *a_this,
                                               gboolean a_use_core_grammar) ;
-enum CRStatus cr_parser_get_use_core_grammar (CRParser *a_this,
+enum CRStatus cr_parser_get_use_core_grammar (CRParser const *a_this,
                                               gboolean *a_use_core_grammar) ;
 
 enum CRStatus cr_parser_parse (CRParser *a_this) ;

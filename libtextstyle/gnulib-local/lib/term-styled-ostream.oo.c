@@ -1,5 +1,5 @@
 /* Output stream for CSS styled text, producing ANSI escape sequences.
-   Copyright (C) 2006-2007, 2019 Free Software Foundation, Inc.
+   Copyright (C) 2006-2007, 2019-2020 Free Software Foundation, Inc.
    Written by Bruno Haible <bruno@clisp.org>, 2006.
 
    This program is free software: you can redistribute it and/or modify
@@ -33,7 +33,7 @@
 #include <cr-string.h>
 
 #include "term-ostream.h"
-#include "hash.h"
+#include "mem-hash-map.h"
 #include "xalloc.h"
 
 
@@ -593,6 +593,25 @@ term_styled_ostream::end_use_class (term_styled_ostream_t stream,
                        &found) < 0)
     abort ();
   stream->curr_attr = (attributes_t *) found;
+}
+
+static const char *
+term_styled_ostream::get_hyperlink_ref (term_styled_ostream_t stream)
+{
+  return term_ostream_get_hyperlink_ref (stream->destination);
+}
+
+static const char *
+term_styled_ostream::get_hyperlink_id (term_styled_ostream_t stream)
+{
+  return term_ostream_get_hyperlink_id (stream->destination);
+}
+
+static void
+term_styled_ostream::set_hyperlink (term_styled_ostream_t stream,
+                                    const char *ref, const char *id)
+{
+  term_ostream_set_hyperlink (stream->destination, ref, id);
 }
 
 static void

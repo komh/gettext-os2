@@ -1,5 +1,5 @@
 /* GNU gettext - internationalization aids
-   Copyright (C) 1995-1998, 2000-2008, 2012, 2019 Free Software
+   Copyright (C) 1995-1998, 2000-2008, 2012, 2019-2020 Free Software
    Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
@@ -210,7 +210,9 @@ msgdomain_list_print (msgdomain_list_ty *mdlp, const char *filename,
 #if ENABLE_COLOR
   if (output_syntax->supports_color
       && (color_mode == color_yes
-          || (color_mode == color_tty && to_stdout && isatty (STDOUT_FILENO))))
+          || (color_mode == color_tty && to_stdout
+              && isatty (STDOUT_FILENO)
+              && getenv ("NO_COLOR") == NULL)))
     {
       int fd;
       ostream_t stream;
@@ -421,23 +423,22 @@ cmp_by_filepos (const void *va, const void *vb)
   int cmp;
 
   /* No filepos is smaller than any other filepos.  */
-  if (a->filepos_count == 0)
+  cmp = (a->filepos_count != 0) - (b->filepos_count != 0);
+  if (cmp != 0)
+    return cmp;
+
+  if (a->filepos_count != 0)
     {
-      if (b->filepos_count != 0)
-        return -1;
+      /* Compare on the file names...  */
+      cmp = strcmp (a->filepos[0].file_name, b->filepos[0].file_name);
+      if (cmp != 0)
+        return cmp;
+
+      /* If they are equal, compare on the line numbers...  */
+      cmp = a->filepos[0].line_number - b->filepos[0].line_number;
+      if (cmp != 0)
+        return cmp;
     }
-  if (b->filepos_count == 0)
-    return 1;
-
-  /* Compare on the file names...  */
-  cmp = strcmp (a->filepos[0].file_name, b->filepos[0].file_name);
-  if (cmp != 0)
-    return cmp;
-
-  /* If they are equal, compare on the line numbers...  */
-  cmp = a->filepos[0].line_number - b->filepos[0].line_number;
-  if (cmp != 0)
-    return cmp;
 
   /* If they are equal, compare on the msgid strings.  */
   /* Because msgids normally contain only ASCII characters or are UTF-8

@@ -1,17 +1,17 @@
 /* isatty() replacement.
-   Copyright (C) 2012-2019 Free Software Foundation, Inc.
+   Copyright (C) 2012-2022 Free Software Foundation, Inc.
 
-   This program is free software: you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 3 of the License, or
-   (at your option) any later version.
+   This file is free software: you can redistribute it and/or modify
+   it under the terms of the GNU Lesser General Public License as
+   published by the Free Software Foundation; either version 2.1 of the
+   License, or (at your option) any later version.
 
-   This program is distributed in the hope that it will be useful,
+   This file is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
+   GNU Lesser General Public License for more details.
 
-   You should have received a copy of the GNU General Public License
+   You should have received a copy of the GNU Lesser General Public License
    along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 #include <config.h>
@@ -39,9 +39,17 @@
 # include <io.h>
 #endif
 
+/* Don't assume that UNICODE is not defined.  */
+#undef LoadLibrary
+#define LoadLibrary LoadLibraryA
+#undef QueryFullProcessImageName
+#define QueryFullProcessImageName QueryFullProcessImageNameA
+
+#if !(_WIN32_WINNT >= _WIN32_WINNT_VISTA)
+
 /* Avoid warnings from gcc -Wcast-function-type.  */
-#define GetProcAddress \
-  (void *) GetProcAddress
+# define GetProcAddress \
+   (void *) GetProcAddress
 
 /* GetNamedPipeClientProcessId was introduced only in Windows Vista.  */
 typedef BOOL (WINAPI * GetNamedPipeClientProcessIdFuncType) (HANDLE hPipe,
@@ -69,6 +77,13 @@ initialize (void)
   initialized = TRUE;
 }
 
+#else
+
+# define GetNamedPipeClientProcessIdFunc GetNamedPipeClientProcessId
+# define QueryFullProcessImageNameFunc QueryFullProcessImageName
+
+#endif
+
 static BOOL IsConsoleHandle (HANDLE h)
 {
   DWORD mode;
@@ -84,8 +99,10 @@ static BOOL IsCygwinConsoleHandle (HANDLE h)
   BOOL result = FALSE;
   ULONG processId;
 
+#if !(_WIN32_WINNT >= _WIN32_WINNT_VISTA)
   if (!initialized)
     initialize ();
+#endif
 
   /* GetNamedPipeClientProcessId
      <https://docs.microsoft.com/en-us/windows/desktop/api/winbase/nf-winbase-getnamedpipeclientprocessid>

@@ -1,5 +1,5 @@
 /* Abstract sequential list data type, with out-of-memory checking.
-   Copyright (C) 2009-2019 Free Software Foundation, Inc.
+   Copyright (C) 2009-2022 Free Software Foundation, Inc.
    Written by Bruno Haible <bruno@clisp.org>, 2009.
 
    This program is free software: you can redistribute it and/or modify
@@ -41,17 +41,23 @@ extern gl_list_t gl_list_create_empty (gl_list_implementation_t implementation,
                                        gl_listelement_equals_fn equals_fn,
                                        gl_listelement_hashcode_fn hashcode_fn,
                                        gl_listelement_dispose_fn dispose_fn,
-                                       bool allow_duplicates);
+                                       bool allow_duplicates)
+  /*_GL_ATTRIBUTE_DEALLOC (gl_list_free, 1)*/
+  _GL_ATTRIBUTE_RETURNS_NONNULL;
 extern gl_list_t gl_list_create (gl_list_implementation_t implementation,
                                  gl_listelement_equals_fn equals_fn,
                                  gl_listelement_hashcode_fn hashcode_fn,
                                  gl_listelement_dispose_fn dispose_fn,
                                  bool allow_duplicates,
-                                 size_t count, const void **contents);
+                                 size_t count, const void **contents)
+  /*_GL_ATTRIBUTE_DEALLOC (gl_list_free, 1)*/
+  _GL_ATTRIBUTE_RETURNS_NONNULL;
 extern void gl_list_node_set_value (gl_list_t list, gl_list_node_t node,
                                     const void *elt);
 extern gl_list_node_t gl_list_set_at (gl_list_t list, size_t position,
                                       const void *elt);
+extern gl_list_node_t gl_list_set_first (gl_list_t list, const void *elt);
+extern gl_list_node_t gl_list_set_last (gl_list_t list, const void *elt);
 extern gl_list_node_t gl_list_add_first (gl_list_t list, const void *elt);
 extern gl_list_node_t gl_list_add_last (gl_list_t list, const void *elt);
 extern gl_list_node_t gl_list_add_before (gl_list_t list, gl_list_node_t node,
@@ -65,7 +71,10 @@ extern gl_list_node_t gl_sortedlist_add (gl_list_t list,
                                          const void *elt);
 #endif
 
-GL_XLIST_INLINE gl_list_t
+GL_XLIST_INLINE
+/*_GL_ATTRIBUTE_DEALLOC (gl_list_free, 1)*/
+_GL_ATTRIBUTE_RETURNS_NONNULL
+gl_list_t
 gl_list_create_empty (gl_list_implementation_t implementation,
                       gl_listelement_equals_fn equals_fn,
                       gl_listelement_hashcode_fn hashcode_fn,
@@ -80,7 +89,10 @@ gl_list_create_empty (gl_list_implementation_t implementation,
   return result;
 }
 
-GL_XLIST_INLINE gl_list_t
+GL_XLIST_INLINE
+/*_GL_ATTRIBUTE_DEALLOC (gl_list_free, 1)*/
+_GL_ATTRIBUTE_RETURNS_NONNULL
+gl_list_t
 gl_list_create (gl_list_implementation_t implementation,
                 gl_listelement_equals_fn equals_fn,
                 gl_listelement_hashcode_fn hashcode_fn,
@@ -108,6 +120,24 @@ GL_XLIST_INLINE gl_list_node_t
 gl_list_set_at (gl_list_t list, size_t position, const void *elt)
 {
   gl_list_node_t result = gl_list_nx_set_at (list, position, elt);
+  if (result == NULL)
+    xalloc_die ();
+  return result;
+}
+
+GL_XLIST_INLINE gl_list_node_t
+gl_list_set_first (gl_list_t list, const void *elt)
+{
+  gl_list_node_t result = gl_list_nx_set_first (list, elt);
+  if (result == NULL)
+    xalloc_die ();
+  return result;
+}
+
+GL_XLIST_INLINE gl_list_node_t
+gl_list_set_last (gl_list_t list, const void *elt)
+{
+  gl_list_node_t result = gl_list_nx_set_last (list, elt);
   if (result == NULL)
     xalloc_die ();
   return result;

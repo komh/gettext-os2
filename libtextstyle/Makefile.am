@@ -1,5 +1,5 @@
 ## Makefile for the toplevel directory of GNU libtextstyle
-## Copyright (C) 1995-2019 Free Software Foundation, Inc.
+## Copyright (C) 1995-2021 Free Software Foundation, Inc.
 ##
 ## This program is free software: you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@ AUTOMAKE_OPTIONS = 1.13 gnu no-dependencies
 ACLOCAL_AMFLAGS = -I m4 -I gnulib-m4
 
 # The list of subdirectories containing Makefiles.
-SUBDIRS = doc lib tests adhoc-tests
+SUBDIRS = lib tests adhoc-tests doc
 
 EXTRA_DIST = \
   version.sh \
@@ -37,9 +37,11 @@ EXTRA_DIST = \
   gnulib-local/lib/glib/ghash.in.h \
   gnulib-local/lib/glib/glist.c \
   gnulib-local/lib/glib/glist.in.h \
+  gnulib-local/lib/glib/gmacros.in.h \
   gnulib-local/lib/glib/gmessages.c \
   gnulib-local/lib/glib/gprimes.c \
   gnulib-local/lib/glib/gprimes.in.h \
+  gnulib-local/lib/glib/gprintfint.in.h \
   gnulib-local/lib/glib/gstrfuncs.c \
   gnulib-local/lib/glib/gstrfuncs.in.h \
   gnulib-local/lib/glib/gstring.c \
@@ -142,6 +144,7 @@ EXTRA_DIST = \
   gnulib-local/modules/libglib \
   gnulib-local/modules/libxml.diff \
   gnulib-local/modules/memory-ostream \
+  gnulib-local/modules/memory-ostream-tests \
   gnulib-local/modules/moo \
   gnulib-local/modules/moo-tests \
   gnulib-local/modules/noop-styled-ostream \
@@ -154,6 +157,7 @@ EXTRA_DIST = \
   gnulib-local/modules/term-ostream \
   gnulib-local/modules/term-ostream-tests \
   gnulib-local/modules/term-styled-ostream \
+  gnulib-local/tests/test-memory-ostream.c \
   gnulib-local/tests/test-moo-aroot.oo.c \
   gnulib-local/tests/test-moo-aroot.oo.h \
   gnulib-local/tests/test-moo-assign.c \
@@ -175,6 +179,7 @@ EXTRA_DIST = \
   gnulib-local/tests/test-term-ostream-xterm-basic-italic.out \
   gnulib-local/tests/test-term-ostream-xterm-basic.out \
   gnulib-local/tests/test-term-ostream-xterm-freebsd101.out \
+  gnulib-local/tests/test-term-ostream-xterm-freebsd-italic.out \
   gnulib-local/tests/test-term-ostream-xterm-irix65.out \
   gnulib-local/tests/test-term-ostream-xterm-linux-debian.out \
   gnulib-local/tests/test-term-ostream-xterm-linux-mandriva.out \
@@ -185,6 +190,7 @@ EXTRA_DIST = \
   gnulib-local/tests/test-term-ostream-xterm-solaris10.out \
   gnulib-local/tests/test-term-ostream-xterm-xf86-v32.out \
   build-aux/moopp \
+  build-aux/join-v-1 \
   build-aux/texi2html \
   build-aux/run-test \
   build-aux/test-driver.diff \

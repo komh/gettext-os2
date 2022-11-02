@@ -1,5 +1,5 @@
 ## Makefile for the toplevel directory of GNU gettext
-## Copyright (C) 1995-2019 Free Software Foundation, Inc.
+## Copyright (C) 1995-2022 Free Software Foundation, Inc.
 ##
 ## This program is free software: you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -76,7 +76,6 @@ distcheck-hook:
 	cmp -s $(srcdir)/gettext-runtime/m4/gettext.m4 $(srcdir)/gettext-tools/gnulib-m4/gettext.m4
 	cmp -s $(srcdir)/gettext-runtime/m4/iconv.m4 $(srcdir)/gettext-tools/gnulib-m4/iconv.m4
 	cmp -s $(srcdir)/gettext-runtime/m4/intlmacosx.m4 $(srcdir)/gettext-tools/gnulib-m4/intlmacosx.m4
-	cmp -s $(srcdir)/gettext-runtime/m4/inttypes-pri.m4 $(srcdir)/gettext-tools/gnulib-m4/inttypes-pri.m4
 	cmp -s $(srcdir)/gettext-runtime/m4/inttypes_h.m4 $(srcdir)/gettext-tools/gnulib-m4/inttypes_h.m4
 	cmp -s $(srcdir)/gettext-runtime/m4/nls.m4 $(srcdir)/gettext-tools/gnulib-m4/nls.m4
 	cmp -s $(srcdir)/gettext-runtime/m4/po.m4 $(srcdir)/gettext-tools/gnulib-m4/po.m4
@@ -85,6 +84,9 @@ distcheck-hook:
 	cmp -s $(srcdir)/gettext-runtime/m4/stdint_h.m4 $(srcdir)/gettext-tools/gnulib-m4/stdint_h.m4
 	cmp -s $(srcdir)/gettext-runtime/m4/xsize.m4 $(srcdir)/gettext-tools/gnulib-m4/xsize.m4
 	cmp -s $(srcdir)/gettext-runtime/libasprintf/gnulib-m4/intmax_t.m4 $(srcdir)/gettext-tools/gnulib-m4/intmax_t.m4
+	test "`sed 1,16d $(srcdir)/gettext-runtime/intl/arg-nonnull.h | md5sum`" = "`sed 1,16d $(srcdir)/gettext-tools/gnulib-lib/arg-nonnull.h | md5sum`"
+	test "`sed 1,16d $(srcdir)/gettext-runtime/intl/attribute.h | md5sum`" = "`sed 1,16d $(srcdir)/gettext-tools/gnulib-lib/attribute.h | md5sum`"
+	test "`sed 1,15d $(srcdir)/gettext-runtime/intl/filename.h | md5sum`" = "`sed 1,17d $(srcdir)/gettext-tools/gnulib-lib/filename.h | md5sum`"
 	test "`sed 1,16d $(srcdir)/gettext-runtime/intl/flexmember.h | md5sum`" = "`sed 1,19d $(srcdir)/gettext-tools/gnulib-lib/flexmember.h | md5sum`"
 	test "`sed 1,16d $(srcdir)/gettext-runtime/intl/localcharset.h | md5sum`" = "`sed 1,16d $(srcdir)/gettext-tools/gnulib-lib/localcharset.h | md5sum`"
 	test "`sed 1,16d $(srcdir)/gettext-runtime/intl/localcharset.c | md5sum`" = "`sed 1,16d $(srcdir)/gettext-tools/gnulib-lib/localcharset.c | md5sum`"
@@ -93,8 +95,21 @@ distcheck-hook:
 	test "`sed 1,16d $(srcdir)/gettext-runtime/intl/localename-table.c | md5sum`" = "`sed 1,16d $(srcdir)/gettext-tools/gnulib-lib/localename-table.c | md5sum`"
 	test "`sed 1,15d $(srcdir)/gettext-runtime/intl/lock.h | md5sum`" = "`sed 1,15d $(srcdir)/gettext-tools/gnulib-lib/glthread/lock.h | md5sum`"
 	test "`sed 1,15d $(srcdir)/gettext-runtime/intl/lock.c | md5sum`" = "`sed -e 1,15d -e 's,glthread/,,g' $(srcdir)/gettext-tools/gnulib-lib/glthread/lock.c | md5sum`"
+	test "`sed 1,16d $(srcdir)/gettext-runtime/intl/setlocale-lock.c | md5sum`" = "`sed 1,16d $(srcdir)/gettext-tools/gnulib-lib/setlocale-lock.c | md5sum`"
+	test "`sed 1,16d $(srcdir)/gettext-runtime/intl/setlocale_null.h | md5sum`" = "`sed 1,16d $(srcdir)/gettext-tools/gnulib-lib/setlocale_null.h | md5sum`"
+	test "`sed 1,16d $(srcdir)/gettext-runtime/intl/setlocale_null.c | md5sum`" = "`sed 1,16d $(srcdir)/gettext-tools/gnulib-lib/setlocale_null.c | md5sum`"
+	test "`sed 1,16d $(srcdir)/gettext-runtime/intl/thread-optim.h | md5sum`" = "`sed 1,16d $(srcdir)/gettext-tools/gnulib-lib/thread-optim.h | md5sum`"
 	test "`sed 1,15d $(srcdir)/gettext-runtime/intl/threadlib.c | md5sum`" = "`sed -e 1,15d $(srcdir)/gettext-tools/gnulib-lib/glthread/threadlib.c | md5sum`"
 	test "`sed 1,16d $(srcdir)/gettext-runtime/intl/verify.h | md5sum`" = "`sed 1,16d $(srcdir)/gettext-tools/gnulib-lib/verify.h | md5sum`"
+	test "`sed 1,15d $(srcdir)/gettext-runtime/intl/windows-initguard.h | md5sum`" = "`sed 1,15d $(srcdir)/gettext-tools/gnulib-lib/windows-initguard.h | md5sum`"
+	test "`sed 1,15d $(srcdir)/gettext-runtime/intl/windows-mutex.h | md5sum`" = "`sed 1,15d $(srcdir)/gettext-tools/gnulib-lib/windows-mutex.h | md5sum`"
+	test "`sed 1,15d $(srcdir)/gettext-runtime/intl/windows-mutex.c | md5sum`" = "`sed 1,15d $(srcdir)/gettext-tools/gnulib-lib/windows-mutex.c | md5sum`"
+	test "`sed 1,15d $(srcdir)/gettext-runtime/intl/windows-once.h | md5sum`" = "`sed 1,15d $(srcdir)/gettext-tools/gnulib-lib/windows-once.h | md5sum`"
+	test "`sed 1,15d $(srcdir)/gettext-runtime/intl/windows-once.c | md5sum`" = "`sed 1,15d $(srcdir)/gettext-tools/gnulib-lib/windows-once.c | md5sum`"
+	test "`sed 1,15d $(srcdir)/gettext-runtime/intl/windows-recmutex.h | md5sum`" = "`sed 1,15d $(srcdir)/gettext-tools/gnulib-lib/windows-recmutex.h | md5sum`"
+	test "`sed 1,15d $(srcdir)/gettext-runtime/intl/windows-recmutex.c | md5sum`" = "`sed 1,15d $(srcdir)/gettext-tools/gnulib-lib/windows-recmutex.c | md5sum`"
+	test "`sed 1,15d $(srcdir)/gettext-runtime/intl/windows-rwlock.h | md5sum`" = "`sed 1,15d $(srcdir)/gettext-tools/gnulib-lib/windows-rwlock.h | md5sum`"
+	test "`sed 1,15d $(srcdir)/gettext-runtime/intl/windows-rwlock.c | md5sum`" = "`sed 1,15d $(srcdir)/gettext-tools/gnulib-lib/windows-rwlock.c | md5sum`"
 	cmp -s $(srcdir)/gettext-runtime/intl/printf-args.h $(srcdir)/gettext-runtime/libasprintf/printf-args.h
 	cmp -s $(srcdir)/gettext-runtime/intl/printf-args.c $(srcdir)/gettext-runtime/libasprintf/printf-args.c
 	cmp -s $(srcdir)/gettext-runtime/intl/printf-parse.h $(srcdir)/gettext-runtime/libasprintf/printf-parse.h
@@ -109,6 +124,7 @@ distcheck-hook:
 	test "`sed 1,16d $(srcdir)/gettext-runtime/intl/xsize.h | md5sum`" = "`sed 1,16d $(srcdir)/gettext-tools/gnulib-lib/xsize.h | md5sum`"
 	cmp -s $(srcdir)/gettext-runtime/man/help2man $(srcdir)/gettext-tools/man/help2man
 	cmp -s $(srcdir)/gettext-runtime/man/x-to-1.in $(srcdir)/gettext-tools/man/x-to-1.in
+	cmp -s $(srcdir)/libtextstyle/m4/libtextstyle.m4 $(srcdir)/gettext-tools/gnulib-m4/libtextstyle.m4
 	cmp -s $(srcdir)/gettext-tools/examples/hello-java-awt/m4/TestAWT.java $(srcdir)/gettext-tools/examples/hello-java-swing/m4/TestAWT.java
 	cmp -s $(srcdir)/gettext-tools/examples/hello-java-awt/m4/TestAWT.class $(srcdir)/gettext-tools/examples/hello-java-swing/m4/TestAWT.class
 	test "`sed 1,15d $(srcdir)/gnulib-local/lib/alloca.in.h | md5sum`" = "`sed 1,15d $(srcdir)/gettext-runtime/libasprintf/alloca.in.h | md5sum`"

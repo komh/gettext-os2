@@ -1,5 +1,5 @@
 /* Test of character set conversion.
-   Copyright (C) 2007-2019 Free Software Foundation, Inc.
+   Copyright (C) 2007-2022 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -44,8 +44,8 @@ main ()
 #if HAVE_ICONV
   /* Assume that iconv() supports at least the encodings ASCII, ISO-8859-1,
      and UTF-8.  */
-  iconv_t cd_88591_to_utf8 = iconv_open ("UTF-8", "ISO8859-1");
-  iconv_t cd_utf8_to_88591 = iconv_open ("ISO8859-1", "UTF-8");
+  iconv_t cd_88591_to_utf8 = iconv_open ("UTF-8", "ISO-8859-1");
+  iconv_t cd_utf8_to_88591 = iconv_open ("ISO-8859-1", "UTF-8");
 
 #if defined __MVS__ && defined __IBMC__
   /* String literals below are in ASCII, not EBCDIC.  */

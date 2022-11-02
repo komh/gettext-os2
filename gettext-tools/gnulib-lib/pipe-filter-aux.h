@@ -1,5 +1,5 @@
 /* Auxiliary code for filtering of data through a subprocess.
-   Copyright (C) 2001-2003, 2008-2019 Free Software Foundation, Inc.
+   Copyright (C) 2001-2003, 2008-2022 Free Software Foundation, Inc.
    Written by Bruno Haible <haible@clisp.cons.org>, 2009.
 
    This program is free software: you can redistribute it and/or modify
@@ -23,8 +23,28 @@ _GL_INLINE_HEADER_BEGIN
 # define PIPE_FILTER_AUX_INLINE _GL_INLINE
 #endif
 
+#if defined _WIN32 && ! defined __CYGWIN__
+/* In the pipe-filter-* modules we want to use the write() function that is
+   not overridden to emulate SIGPIPE behaviour, because we don't want force
+   the caller to do
+     signal (SIGPIPE, SIG_DFL);
+   To reproduce the problem, use a gnulib testdir for the modules
+   'pipe-filter-gi', 'write', 'sigpipe'.  */
+# undef write
+# define write _write
+#endif
+
 #ifndef SSIZE_MAX
 # define SSIZE_MAX ((ssize_t) (SIZE_MAX / 2))
+#endif
+#ifdef _AIX
+/* On AIX, despite having select() and despite having put the file descriptor
+   in non-blocking mode, it can happen that select() reports that fd[1] is
+   writable but writing a large amount of data to fd[1] then fails with errno
+   EAGAIN.  Seen with test-pipe-filter-gi1 on AIX 7.2, with data sizes of
+   29 KB.  So, limit the size of data passed to the write() call to 4 KB.  */
+# undef SSIZE_MAX
+# define SSIZE_MAX 4096
 #endif
 
 /* We use a child process, and communicate through a bidirectional pipe.

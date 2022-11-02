@@ -1,5 +1,5 @@
 /* Determine the Java version supported by javaexec.
-   Copyright (C) 2006, 2009-2019 Free Software Foundation, Inc.
+   Copyright (C) 2006, 2009-2022 Free Software Foundation, Inc.
    Written by Bruno Haible <bruno@clisp.org>, 2006.
 
    This program is free software: you can redistribute it and/or modify
@@ -18,6 +18,8 @@
 #ifndef _JAVAVERSION_H
 #define _JAVAVERSION_H
 
+#include <stdlib.h>
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -28,7 +30,8 @@ extern "C" {
    This is the value of System.getProperty("java.specification.version").
    Some possible values are: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 9, 10, 11.
    Return NULL if the Java version cannot be determined.  */
-extern char * javaexec_version (void);
+extern char * javaexec_version (void)
+  _GL_ATTRIBUTE_MALLOC _GL_ATTRIBUTE_DEALLOC_FREE;
 
 
 #ifdef __cplusplus

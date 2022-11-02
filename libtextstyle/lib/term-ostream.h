@@ -105,7 +105,10 @@ extern         term_posture_t term_ostream_get_posture (term_ostream_t first_arg
 extern    void           term_ostream_set_posture (term_ostream_t first_arg, term_posture_t posture);
 extern         term_underline_t term_ostream_get_underline (term_ostream_t first_arg);
 extern    void             term_ostream_set_underline (term_ostream_t first_arg,                                   term_underline_t underline);
-extern              void term_ostream_flush_to_current_style (term_ostream_t first_arg);
+extern         const char * term_ostream_get_hyperlink_ref (term_ostream_t first_arg);
+extern    const char * term_ostream_get_hyperlink_id (term_ostream_t first_arg);
+extern    void         term_ostream_set_hyperlink (term_ostream_t first_arg,                               const char *ref, const char *id);
+extern               void term_ostream_flush_to_current_style (term_ostream_t first_arg);
 #ifdef __cplusplus
 }
 #endif
@@ -259,6 +262,33 @@ term_ostream_set_underline (term_ostream_t first_arg,                           
   vtable->set_underline (first_arg,underline);
 }
 
+# define term_ostream_get_hyperlink_ref term_ostream_get_hyperlink_ref_inline
+static inline const char *
+term_ostream_get_hyperlink_ref (term_ostream_t first_arg)
+{
+  const struct term_ostream_implementation *vtable =
+    ((struct term_ostream_representation_header *) (struct term_ostream_representation *) first_arg)->vtable;
+  return vtable->get_hyperlink_ref (first_arg);
+}
+
+# define term_ostream_get_hyperlink_id term_ostream_get_hyperlink_id_inline
+static inline const char *
+term_ostream_get_hyperlink_id (term_ostream_t first_arg)
+{
+  const struct term_ostream_implementation *vtable =
+    ((struct term_ostream_representation_header *) (struct term_ostream_representation *) first_arg)->vtable;
+  return vtable->get_hyperlink_id (first_arg);
+}
+
+# define term_ostream_set_hyperlink term_ostream_set_hyperlink_inline
+static inline void
+term_ostream_set_hyperlink (term_ostream_t first_arg,                               const char *ref, const char *id)
+{
+  const struct term_ostream_implementation *vtable =
+    ((struct term_ostream_representation_header *) (struct term_ostream_representation *) first_arg)->vtable;
+  vtable->set_hyperlink (first_arg,ref,id);
+}
+
 # define term_ostream_flush_to_current_style term_ostream_flush_to_current_style_inline
 static inline void
 term_ostream_flush_to_current_style (term_ostream_t first_arg)
@@ -276,7 +306,7 @@ extern const typeinfo_t term_ostream_typeinfo;
 
 extern const struct term_ostream_implementation term_ostream_vtable;
 
-#line 99 "term-ostream.oo.h"
+#line 106 "term-ostream.oo.h"
 
 /* Get ttyctl_t.  */
 #define term_style_user_data term_ostream_representation

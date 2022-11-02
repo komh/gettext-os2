@@ -1,3 +1,79 @@
+2022-10-10  Bruno Haible  <bruno@clisp.org>
+
+	Prepare for 0.21.1 release: Update translations.
+	* gettext-runtime/po/*.po: Update from TP.
+	* gettext-tools/po/*.po: Likewise.
+	* gettext-tools/examples/po/*.po: Likewise.
+	* gettext-tools/examples/po/LINGUAS: Add 'ka'.
+	* gettext-tools/examples/hello-*/po/LINGUAS: Likewise.
+	* gettext-tools/examples/Makefile.am (EXAMPLESPOFILES): Add ka.po.
+
+2022-10-09  Bruno Haible  <bruno@clisp.org>
+
+	Update after gnulib changed.
+	* gettext-tools/po/POTFILES.in: Update.
+
+2020-07-26  Bruno Haible  <bruno@clisp.org>
+
+	Update translations (from the TP).
+	* gettext-runtime/po/*.po: Update.
+	* gettext-tools/po/*.po: Update.
+	* gettext-tools/examples/po/*.po: Update.
+	* gettext-tools/examples/po/LINGUAS: Add 'nn'.
+	* gettext-tools/examples/hello-*/po/LINGUAS: Likewise.
+	* gettext-tools/examples/Makefile.am (EXAMPLESPOFILES): Add nn.po.
+
+2020-06-27  Bruno Haible  <bruno@clisp.org>
+
+	Update after gnulib changed.
+	* gnulib-local/modules/fnmatch.diff: Remove file.
+	* gnulib-local/lib/fnmatch.c.diff: Remove file.
+	* gnulib-local/lib/fnmatch_loop.c.diff: Remove file.
+	* gnulib-local/Makefile.am (EXTRA_DIST): Remove them.
+	* gettext-tools/src/read-properties.c (properties_parse): Update the fread_file
+	invocation.
+	* gettext-tools/po/POTFILES.in: Remove gnulib-lib/copy-acl.c,
+	gnulib-lib/set-acl.c.
+	* gettext-runtime/intl/localename.c: Update from gnulib.
+	* gettext-runtime/intl/relocatable.c: Likewise.
+	* gettext-runtime/intl/verify.h: Likewise.
+	* gettext-runtime/intl/windows-rwlock.c: Likewise.
+
+2020-05-10  Bruno Haible  <bruno@clisp.org>
+
+	Reorder list of programming languages.
+	* gettext-tools/src/format.h: Reorder declarations.
+	* gettext-tools/src/format.c (formatstring_parsers): Reorder entries.
+	* gettext-tools/src/message.h (enum format_type): Reorder items.
+	* gettext-tools/src/message.c (format_language, format_language_pretty): Reorder
+	entries.
+	* gettext-tools/src/xgettext.c: Reorder includes.
+	(flag_table_*): Reorder declarations.
+	(main): Reorder init_flag_table_* invocations.
+	(xgettext_record_flag): Reorder switch statement.
+	(language_to_extractor, extension_to_language): Reorder table entries.
+	* gettext-tools/src/format-smalltalk.c: Renamed from
+	gettext-tools/src/format-ycp.c.
+	* gettext-tools/src/FILES: Update.
+	* gettext-tools/src/Makefile.am (noinst_HEADERS, FORMAT_SOURCE,
+	xgettext_SOURCES): Update.
+	* gettext-tools/po/POTFILES.in: Update.
+	* gettext-tools/libgettextpo/Makefile.am (libgettextpo_la_AUXSOURCES): Update.
+	* gettext-tools/tests/Makefile.am (TESTS): Reorder.
+
+	i18n: Update list of files.
+	* gettext-tools/po/POTFILES.in: Add missing files.
+
+2020-04-14  Bruno Haible  <bruno@clisp.org>
+
+	Merge from 0.20.x branch: Update translations (from the TP).
+	* gettext-runtime/po/*.po: Update.
+	* gettext-tools/po/*.po: Update.
+	* gettext-tools/examples/po/*.po: Update.
+	* gettext-tools/examples/po/LINGUAS: Add 'sq'.
+	* gettext-tools/examples/hello-*/po/LINGUAS: Likewise.
+	* gettext-tools/examples/Makefile.am (EXAMPLESPOFILES): Add sq.po.
+
 2019-05-12  Bruno Haible  <bruno@clisp.org>
 
 	Update translations (from the TP).

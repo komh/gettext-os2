@@ -1,20 +1,19 @@
 /* obstack.h - object stack macros
-   Copyright (C) 1988-2019 Free Software Foundation, Inc.
+   Copyright (C) 1988-2022 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
-   The GNU C Library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU General Public
-   License as published by the Free Software Foundation; either
-   version 3 of the License, or (at your option) any later version.
+   This file is free software: you can redistribute it and/or modify
+   it under the terms of the GNU Lesser General Public License as
+   published by the Free Software Foundation; either version 3 of the
+   License, or (at your option) any later version.
 
-   The GNU C Library is distributed in the hope that it will be useful,
+   This file is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   General Public License for more details.
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU Lesser General Public License for more details.
 
-   You should have received a copy of the GNU General Public
-   License along with the GNU C Library; if not, see
-   <https://www.gnu.org/licenses/>.  */
+   You should have received a copy of the GNU Lesser General Public License
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 /* Summary:
 
@@ -153,7 +152,7 @@
 
 /* Not the same as _Noreturn, since it also works with function pointers.  */
 #ifndef __attribute_noreturn__
-# if 2 < __GNUC__ + (8 <= __GNUC_MINOR__) || 0x5110 <= __SUNPRO_C
+# if 2 < __GNUC__ + (8 <= __GNUC_MINOR__) || defined __clang__ || 0x5110 <= __SUNPRO_C
 #  define __attribute_noreturn__ __attribute__ ((__noreturn__))
 # else
 #  define __attribute_noreturn__
@@ -283,8 +282,9 @@ extern DLL_VARIABLE int obstack_exit_failure;
 
 #define obstack_memory_used(h) _obstack_memory_used (h)
 
-#if defined __GNUC__
-# if !defined __GNUC_MINOR__ || __GNUC__ * 1000 + __GNUC_MINOR__ < 2008
+#if defined __GNUC__ || defined __clang__
+# if !(defined __GNUC_MINOR__ && __GNUC__ * 1000 + __GNUC_MINOR__ >= 2008 \
+       || defined __clang__)
 #  define __extension__
 # endif
 

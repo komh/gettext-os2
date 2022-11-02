@@ -1,5 +1,5 @@
 dnl Configuration for the gettext-runtime directory of GNU gettext
-dnl Copyright (C) 1995-2010, 2012-2015, 2018-2019 Free Software Foundation, Inc.
+dnl Copyright (C) 1995-2010, 2012-2015, 2018-2022 Free Software Foundation, Inc.
 dnl
 dnl This program is free software: you can redistribute it and/or modify
 dnl it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@ dnl along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 dnl Process this file with autoconf to produce a configure script.
 
-AC_PREREQ([2.63])
+AC_PREREQ([2.64])
 AC_INIT([gettext-runtime],
 	m4_esyscmd([../build-aux/git-version-gen ../.tarball-version]),
 	[bug-gettext@gnu.org])
@@ -31,17 +31,21 @@ test "$docdir" != '${datarootdir}/doc/${PACKAGE_TARNAME}' || docdir='${datarootd
 dnl Checks for programs.
 AC_PROG_CC
 AC_PROG_INSTALL
-AC_PROG_YACC
 
 gt_JAVA_CHOICE
-
-gt_JAVACOMP([1.5], [1.6])
-AC_CHECK_PROG([JAR], [jar], [jar])
-if test -n "$HAVE_JAVACOMP" && test -n "$JAR" && test "$JAVA_CHOICE" != no; then
-  BUILDJAVA=yes
-else
+AS_IF([test "$JAVA_CHOICE" != no], [
+  gt_JAVACOMP([1.5], [1.6])
+  AC_CHECK_PROG([JAR], [jar], [jar])
+  if test -n "$HAVE_JAVACOMP" && test -n "$JAR"; then
+    BUILDJAVA=yes
+  else
+    BUILDJAVA=no
+  fi
+], [
+  gt_JAVACOMP_DISABLED
+  JAR=
   BUILDJAVA=no
-fi
+])
 AC_SUBST([BUILDJAVA])
 
 gt_CSHARPCOMP
@@ -61,6 +65,9 @@ AC_EXEEXT
 
 dnl For a 64-bit build on AIX, AC_PROG_RANLIB is not sufficient.
 gl_PROG_AR_RANLIB
+
+dnl Set preferences for the gnulib module 'threadlib'.
+gl_AVOID_WINPTHREAD
 
 dnl Make sure we see all GNU and Solaris extensions.
 gl_EARLY
@@ -84,6 +91,13 @@ case "$host_os" in
 esac
 AM_CONDITIONAL([WOE32], [test $is_woe32 = yes])
 
+dnl Some code is only meant to be compiled on native Windows.
+case "$host_os" in
+  mingw*) is_windows_native=yes ;;
+  *) is_windows_native=no ;;
+esac
+AM_CONDITIONAL([WINDOWS_NATIVE], [test $is_windows_native = yes])
+
 dnl Checks for libraries.
 
 dnl These are the only lines required to internationalize the package.
@@ -99,21 +113,6 @@ dnl Checks for header files, functions and declarations.
 gl_INIT
 AC_TYPE_SIZE_T
 AC_CHECK_FUNCS([setlocale])
-
-dnl Put some default definitions into config.h.
-AH_BOTTOM([
-/* On Windows, variables that may be in a DLL must be marked specially.  */
-#if (defined _MSC_VER && defined _DLL) && !defined IN_RELOCWRAPPER
-# define DLL_VARIABLE __declspec (dllimport)
-#else
-# define DLL_VARIABLE
-#endif
-
-/* Extra OS/2 (emx+gcc) defines.  */
-#if defined __EMX__ && !defined __KLIBC__
-# include "intl/os2compat.h"
-#endif
-])
 
 dnl Compilation on mingw and Cygwin needs special Makefile rules, because
 dnl 1. when we install a shared library, we must arrange to export
@@ -136,13 +135,22 @@ if test $is_woe32dll = yes; then
     [Define when --enable-shared is used on mingw or Cygwin.])
 fi
 
-INTL_EXPORTS_FLAGS=
-dnl 64-bit mingw does not prepend an underscore to C symbols.
-dnl USER_LABEL_PREFIX is set by gl_ASM_SYMBOL_PREFIX, inside gl_INIT.
-if test "$USER_LABEL_PREFIX" = _; then
-  INTL_EXPORTS_FLAGS="-DUSER_LABEL_PREFIX_UNDERSCORE $INTL_EXPORTS_FLAGS"
-fi
-AC_SUBST([INTL_EXPORTS_FLAGS])
+dnl Put some default definitions into config.h.
+AH_BOTTOM([
+/* On Windows, variables that may be in a DLL must be marked specially.
+   But here, the only such variable is 'exit_failure', and it is always
+   built into a static library, never into a shared library.  */
+#if defined WOE32DLL && !defined IN_RELOCWRAPPER && 0
+# define DLL_VARIABLE __declspec (dllimport)
+#else
+# define DLL_VARIABLE
+#endif
+
+/* Extra OS/2 (emx+gcc) defines.  */
+#if defined __EMX__ && !defined __KLIBC__
+# include "intl/os2compat.h"
+#endif
+])
 
 dnl Check for tools needed for formatting the documentation.
 ac_aux_dir_abs=`cd $ac_aux_dir && pwd`
@@ -180,9 +188,14 @@ if test "$CXX" = "no"; then
 fi
 AM_CONDITIONAL([ENABLE_LIBASPRINTF], [test -n "$SUBDIR_libasprintf"])
 
+dnl Determine variables used by uninstalled-config.sh.
+ENABLE_SHARED="$enable_shared"
+AC_SUBST([ENABLE_SHARED])
+
 AC_CONFIG_SUBDIRS([libasprintf])
 
 AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([uninstalled-config.sh])
 
 AC_CONFIG_FILES([doc/Makefile])
 

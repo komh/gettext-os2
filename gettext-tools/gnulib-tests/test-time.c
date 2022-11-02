@@ -1,5 +1,5 @@
 /* Test of <time.h> substitute.
-   Copyright (C) 2007, 2009-2019 Free Software Foundation, Inc.
+   Copyright (C) 2007, 2009-2022 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -33,6 +33,10 @@ pid_t t2;
 /* Check that NULL can be passed through varargs as a pointer type,
    per POSIX 2008.  */
 verify (sizeof NULL == sizeof (void *));
+
+/* Check that TIME_UTC is defined and a positive integer.  */
+int t3 = TIME_UTC;
+verify (TIME_UTC > 0);
 
 int
 main (void)

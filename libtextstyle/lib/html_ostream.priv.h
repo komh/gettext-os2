@@ -10,6 +10,8 @@ struct html_ostream_representation
    
   ostream_t destination;
    
+  char *hyperlink_ref;
+   
   gl_list_t   class_stack;
    
   size_t curr_class_stack_size;

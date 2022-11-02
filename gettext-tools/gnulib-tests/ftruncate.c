@@ -1,5 +1,5 @@
 /* ftruncate emulations for native Windows.
-   Copyright (C) 1992-2019 Free Software Foundation, Inc.
+   Copyright (C) 1992-2022 Free Software Foundation, Inc.
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -19,19 +19,21 @@
 /* Specification.  */
 #include <unistd.h>
 
-#if HAVE_CHSIZE
+#if HAVE__CHSIZE
 /* A native Windows platform.  */
 
 # include <errno.h>
 
 # if _GL_WINDOWS_64_BIT_OFF_T
 
-/* Large File Support: off_t is 64-bit, but chsize() takes only a 32-bit
+/* Large File Support: off_t is 64-bit, but _chsize() takes only a 32-bit
    argument.  So, define a 64-bit safe SetFileSize function ourselves.  */
 
 /* Ensure that <windows.h> declares GetFileSizeEx.  */
-#  undef _WIN32_WINNT
-#  define _WIN32_WINNT _WIN32_WINNT_WIN2K
+#  if !defined _WIN32_WINNT || (_WIN32_WINNT < _WIN32_WINNT_WIN2K)
+#   undef _WIN32_WINNT
+#   define _WIN32_WINNT _WIN32_WINNT_WIN2K
+#  endif
 
 /* Get declarations of the native Windows API functions.  */
 #  define WIN32_LEAN_AND_MEAN
@@ -168,7 +170,7 @@ chsize_nothrow (int fd, long length)
 
   TRY_MSVC_INVAL
     {
-      result = chsize (fd, length);
+      result = _chsize (fd, length);
     }
   CATCH_MSVC_INVAL
     {
@@ -180,7 +182,7 @@ chsize_nothrow (int fd, long length)
   return result;
 }
 #  else
-#   define chsize_nothrow chsize
+#   define chsize_nothrow _chsize
 #  endif
 
 int

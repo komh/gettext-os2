@@ -1,5 +1,5 @@
 #!/bin/sh
-# Copyright (C) 2003-2019 Free Software Foundation, Inc.
+# Copyright (C) 2003-2022 Free Software Foundation, Inc.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -70,7 +70,8 @@ if ! $skip_gnulib; then
   # In gettext-runtime:
   GNULIB_MODULES_RUNTIME_FOR_SRC='
     atexit
-    basename
+    attribute
+    basename-lgpl
     binary-io
     closeout
     error
@@ -78,6 +79,7 @@ if ! $skip_gnulib; then
     gettext-h
     havelib
     memmove
+    noreturn
     progname
     propername
     relocatable-prog
@@ -94,6 +96,7 @@ if ! $skip_gnulib; then
   GNULIB_MODULES_RUNTIME_OTHER='
     gettext-runtime-misc
     ansi-c++-opt
+    bison
     csharpcomp-script
     java
     javacomp-script
@@ -103,6 +106,7 @@ if ! $skip_gnulib; then
   # In gettext-runtime/libasprintf:
   GNULIB_MODULES_LIBASPRINTF='
     alloca
+    attribute
     errno
     verify
     xsize
@@ -118,9 +122,11 @@ if ! $skip_gnulib; then
   GNULIB_MODULES_TOOLS_FOR_SRC='
     alloca-opt
     atexit
+    attribute
     backupfile
-    basename
+    basename-lgpl
     binary-io
+    bison
     bison-i18n
     byteswap
     c-ctype
@@ -141,6 +147,7 @@ if ! $skip_gnulib; then
     findprog
     fnmatch
     fopen
+    free-posix
     fstrcmp
     full-write
     fwriteerror
@@ -149,7 +156,6 @@ if ! $skip_gnulib; then
     getopt-gnu
     gettext
     gettext-h
-    hash
     iconv
     javacomp
     javaexec
@@ -160,11 +166,13 @@ if ! $skip_gnulib; then
     localename
     localtime
     lock
+    mem-hash-map
     memchr
     memmove
     memset
     minmax
     mkdir
+    noreturn
     obstack
     open
     opendir
@@ -193,11 +201,13 @@ if ! $skip_gnulib; then
     strpbrk
     strtol
     strtoul
+    supersede
     sys_select
     sys_stat
     sys_time
     trim
     unictype/ctype-space
+    unictype/syntax-java-whitespace
     unilbrk/ulc-width-linebreaks
     uniname/uniname
     unistd
@@ -234,6 +244,7 @@ if ! $skip_gnulib; then
     mbrtowc
     mbsinit
     multiarch
+    setlocale-null
     snippet/arg-nonnull
     snippet/c++defs
     snippet/warn-on-use
@@ -247,6 +258,10 @@ if ! $skip_gnulib; then
     verify
     wchar
     wctype-h
+    windows-mutex
+    windows-once
+    windows-recmutex
+    windows-rwlock
   '
   GNULIB_MODULES_TOOLS_OTHER='
     gettext-tools-misc
@@ -266,19 +281,32 @@ if ! $skip_gnulib; then
     uniwidth/width-tests
   '
   $GNULIB_TOOL --dir=gettext-tools --lib=libgettextlib --source-base=gnulib-lib --m4-base=gnulib-m4 --tests-base=gnulib-tests --makefile-name=Makefile.gnulib --libtool --with-tests --local-dir=gnulib-local --local-symlink \
-    --import --avoid=array-list-tests --avoid=linkedhash-list-tests --avoid=hash-tests --avoid=fdutimensat-tests --avoid=futimens-tests --avoid=utime-tests --avoid=utimens-tests --avoid=utimensat-tests \
+    --import \
+    --avoid=fdutimensat-tests --avoid=futimens-tests --avoid=utime-tests --avoid=utimens-tests --avoid=utimensat-tests \
+    --avoid=array-list-tests --avoid=linked-list-tests --avoid=linkedhash-list-tests \
     `for m in $GNULIB_MODULES_TOOLS_LIBUNISTRING_TESTS; do echo --avoid=$m; done` $GNULIB_MODULES_TOOLS_FOR_SRC $GNULIB_MODULES_TOOLS_FOR_SRC_COMMON_DEPENDENCIES $GNULIB_MODULES_TOOLS_OTHER || exit $?
+  $GNULIB_TOOL --copy-file m4/libtextstyle.m4 gettext-tools/gnulib-m4/libtextstyle.m4 || exit $?
   # In gettext-tools/libgrep:
   GNULIB_MODULES_TOOLS_FOR_LIBGREP='
     mbrlen
     regex
   '
   $GNULIB_TOOL --dir=gettext-tools --macro-prefix=grgl --lib=libgrep --source-base=libgrep --m4-base=libgrep/gnulib-m4 --witness-c-macro=IN_GETTEXT_TOOLS_LIBGREP --makefile-name=Makefile.gnulib --local-dir=gnulib-local --local-symlink \
-    --import `for m in $GNULIB_MODULES_TOOLS_FOR_SRC_COMMON_DEPENDENCIES; do if test \`$GNULIB_TOOL --extract-applicability $m\` != all; then echo --avoid=$m; fi; done` $GNULIB_MODULES_TOOLS_FOR_LIBGREP || exit $?
+    --import \
+    `for m in $GNULIB_MODULES_TOOLS_FOR_SRC_COMMON_DEPENDENCIES; do \
+       if test \`$GNULIB_TOOL --extract-applicability $m\` != all; then \
+         case $m in \
+           locale | stdbool | stddef | stdint | stdlib | unistd | wchar | wctype-h) ;; \
+           *) echo --avoid=$m ;; \
+         esac; \
+       fi; \
+     done` \
+    $GNULIB_MODULES_TOOLS_FOR_LIBGREP || exit $?
   # In gettext-tools/libgettextpo:
-  # This is a subset of the GNULIB_MODULES_FOR_SRC.
+  # This is a subset of the GNULIB_MODULES_TOOLS_FOR_SRC.
   GNULIB_MODULES_LIBGETTEXTPO='
-    basename
+    attribute
+    basename-lgpl
     close
     c-ctype
     c-strcase
@@ -287,16 +315,17 @@ if ! $skip_gnulib; then
     error-progname
     filename
     fopen
+    free-posix
     fstrcmp
     fwriteerror
     gcd
     getline
     gettext-h
-    hash
     iconv
     libtextstyle-dummy
     libunistring-optional
     markup
+    mem-hash-map
     minmax
     open
     relocatable-lib
@@ -324,12 +353,18 @@ if ! $skip_gnulib; then
     xstriconv
     xvasprintf
   '
+  # Module 'fdopen' is enabled in gettext-tools/config.status, because
+  # it occurs as dependency of some module ('supersede') in
+  # GNULIB_MODULES_TOOLS_FOR_SRC. Therefore on mingw, libgettextpo/stdio.h
+  # contains '#define fdopen rpl_fdopen'. Therefore we need to include
+  # fdopen.lo in libgettextpo.la.
   # Module 'realloc-posix' is enabled in gettext-tools/config.status, because
   # it occurs as dependency of some module ('read-file') in
   # GNULIB_MODULES_TOOLS_FOR_SRC. Therefore on mingw, libgettextpo/stdlib.h
   # contains '#define realloc rpl_realloc'. Therefore we need to include
   # realloc.lo in libgettextpo.la.
   GNULIB_MODULES_LIBGETTEXTPO_OTHER='
+    fdopen
     realloc-posix
   '
   $GNULIB_TOOL --dir=gettext-tools --source-base=libgettextpo --m4-base=libgettextpo/gnulib-m4 --macro-prefix=gtpo --makefile-name=Makefile.gnulib --libtool --local-dir=gnulib-local --local-symlink \
@@ -352,7 +387,7 @@ fi
 # Fetch config.guess, config.sub.
 if test -n "$GNULIB_TOOL"; then
   for file in config.guess config.sub; do
-    $GNULIB_TOOL --copy-file build-aux/$file; chmod a+x build-aux/$file || exit $?
+    $GNULIB_TOOL --copy-file build-aux/$file && chmod a+x build-aux/$file || exit $?
   done
 else
   for file in config.guess config.sub; do
@@ -413,7 +448,9 @@ cd "$dir0"
 
 echo "$0: generating files in libtextstyle..."
 cd libtextstyle
-./autogen.sh $skip_gnulib_option || exit $?
+(if ! $skip_gnulib; then export GNULIB_SRCDIR; fi
+ ./autogen.sh $skip_gnulib_option
+) || exit $?
 cd "$dir0"
 
 echo "$0: generating configure in gettext-tools/examples..."

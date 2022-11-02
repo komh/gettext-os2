@@ -1,8 +1,9 @@
-/* A Bison parser, made by GNU Bison 3.2.2.  */
+/* A Bison parser, made by GNU Bison 3.8.2.  */
 
 /* Bison interface for Yacc-like parsers in C
 
-   Copyright (C) 1984, 1989-1990, 2000-2015, 2018 Free Software Foundation, Inc.
+   Copyright (C) 1984, 1989-1990, 2000-2015, 2018-2021 Free Software Foundation,
+   Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -15,7 +16,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 /* As a special exception, you may create a larger work that contains
    part or all of the Bison parser skeleton and distribute that work
@@ -30,62 +31,60 @@
    This special exception was added by the Free Software Foundation in
    version 2.2 of Bison.  */
 
-/* Undocumented macros, especially those whose name start with YY_,
-   are private implementation details.  Do not rely on them.  */
+/* DO NOT RELY ON FEATURES THAT ARE NOT DOCUMENTED in the manual,
+   especially those whose name start with YY_ or yy_.  They are
+   private implementation details that can be changed or removed.  */
 
-#ifndef YY_YY_PO_GRAM_GEN_H_INCLUDED
-# define YY_YY_PO_GRAM_GEN_H_INCLUDED
+#ifndef YY_PO_GRAM_PO_GRAM_GEN_TAB_H_INCLUDED
+# define YY_PO_GRAM_PO_GRAM_GEN_TAB_H_INCLUDED
 /* Debug traces.  */
-#ifndef YYDEBUG
-# define YYDEBUG 0
-#endif
+#ifndef PO_GRAM_DEBUG
+# if defined YYDEBUG
 #if YYDEBUG
-extern int yydebug;
+#   define PO_GRAM_DEBUG 1
+#  else
+#   define PO_GRAM_DEBUG 0
+#  endif
+# else /* ! defined YYDEBUG */
+#  define PO_GRAM_DEBUG 0
+# endif /* ! defined YYDEBUG */
+#endif  /* ! defined PO_GRAM_DEBUG */
+#if PO_GRAM_DEBUG
+extern int po_gram_debug;
 #endif
 
-/* Token type.  */
-#ifndef YYTOKENTYPE
-# define YYTOKENTYPE
-  enum yytokentype
+/* Token kinds.  */
+#ifndef PO_GRAM_TOKENTYPE
+# define PO_GRAM_TOKENTYPE
+  enum po_gram_tokentype
   {
-    COMMENT = 258,
-    DOMAIN = 259,
-    JUNK = 260,
-    PREV_MSGCTXT = 261,
-    PREV_MSGID = 262,
-    PREV_MSGID_PLURAL = 263,
-    PREV_STRING = 264,
-    MSGCTXT = 265,
-    MSGID = 266,
-    MSGID_PLURAL = 267,
-    MSGSTR = 268,
-    NAME = 269,
-    NUMBER = 270,
-    STRING = 271
+    PO_GRAM_EMPTY = -2,
+    PO_GRAM_EOF = 0,               /* "end of file"  */
+    PO_GRAM_error = 256,           /* error  */
+    PO_GRAM_UNDEF = 257,           /* "invalid token"  */
+    COMMENT = 258,                 /* COMMENT  */
+    DOMAIN = 259,                  /* DOMAIN  */
+    JUNK = 260,                    /* JUNK  */
+    PREV_MSGCTXT = 261,            /* PREV_MSGCTXT  */
+    PREV_MSGID = 262,              /* PREV_MSGID  */
+    PREV_MSGID_PLURAL = 263,       /* PREV_MSGID_PLURAL  */
+    PREV_STRING = 264,             /* PREV_STRING  */
+    MSGCTXT = 265,                 /* MSGCTXT  */
+    MSGID = 266,                   /* MSGID  */
+    MSGID_PLURAL = 267,            /* MSGID_PLURAL  */
+    MSGSTR = 268,                  /* MSGSTR  */
+    NAME = 269,                    /* NAME  */
+    NUMBER = 270,                  /* NUMBER  */
+    STRING = 271                   /* STRING  */
   };
+  typedef enum po_gram_tokentype po_gram_token_kind_t;
 #endif
-/* Tokens.  */
-#define COMMENT 258
-#define DOMAIN 259
-#define JUNK 260
-#define PREV_MSGCTXT 261
-#define PREV_MSGID 262
-#define PREV_MSGID_PLURAL 263
-#define PREV_STRING 264
-#define MSGCTXT 265
-#define MSGID 266
-#define MSGID_PLURAL 267
-#define MSGSTR 268
-#define NAME 269
-#define NUMBER 270
-#define STRING 271
 
 /* Value type.  */
-#if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
-
-union YYSTYPE
+#if ! defined PO_GRAM_STYPE && ! defined PO_GRAM_STYPE_IS_DECLARED
+union PO_GRAM_STYPE
 {
-#line 144 "./po-gram-gen.y" /* yacc.c:1906  */
+#line 103 "po-gram-gen.y"
 
   struct { char *string; lex_pos_ty pos; bool obsolete; } string;
   struct { string_list_ty stringlist; lex_pos_ty pos; bool obsolete; } stringlist;
@@ -95,17 +94,19 @@ union YYSTYPE
   struct { char *prev_ctxt; char *prev_id; char *prev_id_plural; char *ctxt; lex_pos_ty pos; bool obsolete; } message_intro;
   struct { struct msgstr_def rhs; lex_pos_ty pos; bool obsolete; } rhs;
 
-#line 99 "po-gram-gen.h" /* yacc.c:1906  */
-};
+#line 98 "po-gram-gen.h"
 
-typedef union YYSTYPE YYSTYPE;
-# define YYSTYPE_IS_TRIVIAL 1
-# define YYSTYPE_IS_DECLARED 1
+};
+typedef union PO_GRAM_STYPE PO_GRAM_STYPE;
+# define PO_GRAM_STYPE_IS_TRIVIAL 1
+# define PO_GRAM_STYPE_IS_DECLARED 1
 #endif
 
 
-extern YYSTYPE yylval;
+extern PO_GRAM_STYPE po_gram_lval;
 
-int yyparse (void);
 
-#endif /* !YY_YY_PO_GRAM_GEN_H_INCLUDED  */
+int po_gram_parse (void);
+
+
+#endif /* !YY_PO_GRAM_PO_GRAM_GEN_TAB_H_INCLUDED  */

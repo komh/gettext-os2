@@ -63,6 +63,9 @@ extern         void term_styled_ostream_flush (term_styled_ostream_t first_arg, 
 extern         void term_styled_ostream_free (term_styled_ostream_t first_arg);
 extern          void term_styled_ostream_begin_use_class (term_styled_ostream_t first_arg, const char *classname);
 extern          void term_styled_ostream_end_use_class (term_styled_ostream_t first_arg, const char *classname);
+extern         const char * term_styled_ostream_get_hyperlink_ref (term_styled_ostream_t first_arg);
+extern    const char * term_styled_ostream_get_hyperlink_id (term_styled_ostream_t first_arg);
+extern    void         term_styled_ostream_set_hyperlink (term_styled_ostream_t first_arg,                               const char *ref, const char *id);
 extern              void term_styled_ostream_flush_to_current_style (term_styled_ostream_t first_arg);
 #ifdef __cplusplus
 }
@@ -134,6 +137,33 @@ term_styled_ostream_end_use_class (term_styled_ostream_t first_arg, const char *
   const struct term_styled_ostream_implementation *vtable =
     ((struct term_styled_ostream_representation_header *) (struct term_styled_ostream_representation *) first_arg)->vtable;
   vtable->end_use_class (first_arg,classname);
+}
+
+# define term_styled_ostream_get_hyperlink_ref term_styled_ostream_get_hyperlink_ref_inline
+static inline const char *
+term_styled_ostream_get_hyperlink_ref (term_styled_ostream_t first_arg)
+{
+  const struct term_styled_ostream_implementation *vtable =
+    ((struct term_styled_ostream_representation_header *) (struct term_styled_ostream_representation *) first_arg)->vtable;
+  return vtable->get_hyperlink_ref (first_arg);
+}
+
+# define term_styled_ostream_get_hyperlink_id term_styled_ostream_get_hyperlink_id_inline
+static inline const char *
+term_styled_ostream_get_hyperlink_id (term_styled_ostream_t first_arg)
+{
+  const struct term_styled_ostream_implementation *vtable =
+    ((struct term_styled_ostream_representation_header *) (struct term_styled_ostream_representation *) first_arg)->vtable;
+  return vtable->get_hyperlink_id (first_arg);
+}
+
+# define term_styled_ostream_set_hyperlink term_styled_ostream_set_hyperlink_inline
+static inline void
+term_styled_ostream_set_hyperlink (term_styled_ostream_t first_arg,                               const char *ref, const char *id)
+{
+  const struct term_styled_ostream_implementation *vtable =
+    ((struct term_styled_ostream_representation_header *) (struct term_styled_ostream_representation *) first_arg)->vtable;
+  vtable->set_hyperlink (first_arg,ref,id);
 }
 
 # define term_styled_ostream_flush_to_current_style term_styled_ostream_flush_to_current_style_inline

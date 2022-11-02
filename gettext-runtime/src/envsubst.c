@@ -1,5 +1,5 @@
 /* Substitution of environment variables in shell format strings.
-   Copyright (C) 2003-2007, 2012, 2018-2019 Free Software Foundation, Inc.
+   Copyright (C) 2003-2007, 2012, 2018-2022 Free Software Foundation, Inc.
    Written by Bruno Haible <bruno@clisp.org>, 2003.
 
    This program is free software: you can redistribute it and/or modify
@@ -28,11 +28,12 @@
 #include <unistd.h>
 #include <locale.h>
 
+#include "noreturn.h"
 #include "closeout.h"
 #include "error.h"
 #include "progname.h"
 #include "relocatable.h"
-#include "basename.h"
+#include "basename-lgpl.h"
 #include "xalloc.h"
 #include "propername.h"
 #include "binary-io.h"
@@ -53,11 +54,7 @@ static const struct option long_options[] =
 };
 
 /* Forward declaration of local functions.  */
-static void usage (int status)
-#if defined __GNUC__ && ((__GNUC__ == 2 && __GNUC_MINOR__ >= 5) || __GNUC__ > 2)
-     __attribute__ ((noreturn))
-#endif
-;
+_GL_NORETURN_FUNC static void usage (int status);
 static void print_variables (const char *string);
 static void note_variables (const char *string);
 static void subst_from_stdin (void);
@@ -107,14 +104,15 @@ main (int argc, char *argv[])
   /* Version information is requested.  */
   if (do_version)
     {
-      printf ("%s (GNU %s) %s\n", basename (program_name), PACKAGE, VERSION);
+      printf ("%s (GNU %s) %s\n", last_component (program_name),
+              PACKAGE, VERSION);
       /* xgettext: no-wrap */
       printf (_("Copyright (C) %s Free Software Foundation, Inc.\n\
 License GPLv3+: GNU GPL version 3 or later <%s>\n\
 This is free software: you are free to change and redistribute it.\n\
 There is NO WARRANTY, to the extent permitted by law.\n\
 "),
-              "2003-2019", "https://gnu.org/licenses/gpl.html");
+              "2003-2022", "https://gnu.org/licenses/gpl.html");
       printf (_("Written by %s.\n"), proper_name ("Bruno Haible"));
       exit (EXIT_SUCCESS);
     }
@@ -345,8 +343,8 @@ string_list_append (string_list_ty *slp, const char *s)
 static int
 cmp_string (const void *pstr1, const void *pstr2)
 {
-  const char *str1 = *(const char **)pstr1;
-  const char *str2 = *(const char **)pstr2;
+  const char *str1 = *(const char * const *)pstr1;
+  const char *str2 = *(const char * const *)pstr2;
 
   return strcmp (str1, str2);
 }

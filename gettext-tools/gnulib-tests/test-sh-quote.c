@@ -1,5 +1,5 @@
 /* Test of sh-quote module.
-   Copyright (C) 2012-2019 Free Software Foundation, Inc.
+   Copyright (C) 2012-2022 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -172,7 +172,7 @@ main (void)
 
   /* Check the shell_quote_argv function.  */
   {
-    char *argv[1];
+    const char *argv[1];
     char *result;
     argv[0] = NULL;
     result = shell_quote_argv (argv);
@@ -180,19 +180,19 @@ main (void)
     free (result);
   }
   {
-    char *argv[2];
+    const char *argv[2];
     char *result;
-    argv[0] = (char *) "foo bar/baz";
+    argv[0] = "foo bar/baz";
     argv[1] = NULL;
     result = shell_quote_argv (argv);
     ASSERT (strcmp (result, "'foo bar/baz'") == 0); /* or "\"foo bar/baz\"" */
     free (result);
   }
   {
-    char *argv[3];
+    const char *argv[3];
     char *result;
-    argv[0] = (char *) "foo bar/baz";
-    argv[1] = (char *) "$";
+    argv[0] = "foo bar/baz";
+    argv[1] = "$";
     argv[2] = NULL;
     result = shell_quote_argv (argv);
     ASSERT (strcmp (result, "'foo bar/baz' '$'") == 0); /* or "\"foo bar/baz\" \"\\$\"" */

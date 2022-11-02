@@ -1,5 +1,16 @@
+/* libcroco - Library for parsing and applying CSS
+ * Copyright (C) 2006-2019 Free Software Foundation, Inc.
+ *
+ * This file is not part of the GNU gettext program, but is used with
+ * GNU gettext.
+ *
+ * The original copyright notice is as follows:
+ */
+
 /*
  * This file is part of The Croco Library
+ *
+ * Copyright (C) 2003-2004 Dodji Seketeli.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of version 2.1 of the GNU Lesser General Public
@@ -16,7 +27,6 @@
  * USA
  *
  * Author: Dodji Seketeli
- * See COPYRIGHTS file for copyrights information.
  */
 
 #ifndef __CR_PROP_LIST_H__
@@ -53,7 +63,7 @@ CRPropList *  cr_prop_list_prepend2 (CRPropList *a_this,
 enum CRStatus cr_prop_list_set_prop (CRPropList *a_this,
 				     CRString *a_prop) ;
 
-enum CRStatus cr_prop_list_get_prop (CRPropList *a_this,
+enum CRStatus cr_prop_list_get_prop (CRPropList const *a_this,
 				     CRString **a_prop) ;
 
 enum CRStatus cr_prop_list_lookup_prop (CRPropList *a_this,
@@ -67,7 +77,7 @@ CRPropList * cr_prop_list_get_prev (CRPropList *a_this) ;
 enum CRStatus cr_prop_list_set_decl (CRPropList *a_this,
 				     CRDeclaration *a_decl);
 
-enum CRStatus cr_prop_list_get_decl (CRPropList *a_this,
+enum CRStatus cr_prop_list_get_decl (CRPropList const *a_this,
 				     CRDeclaration **a_decl) ;
 
 CRPropList * cr_prop_list_unlink (CRPropList *a_this, 

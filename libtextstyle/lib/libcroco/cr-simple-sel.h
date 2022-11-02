@@ -1,10 +1,21 @@
 /* -*- Mode: C; indent-tabs-mode:nil; c-basic-offset: 8-*- */
 
+/* libcroco - Library for parsing and applying CSS
+ * Copyright (C) 2006-2019 Free Software Foundation, Inc.
+ *
+ * This file is not part of the GNU gettext program, but is used with
+ * GNU gettext.
+ *
+ * The original copyright notice is as follows:
+ */
+
 /*
  * This file is part of The Croco Library
  *
+ * Copyright (C) 2003-2004 Dodji Seketeli.  All Rights Reserved.
+ *
  * This program is free software; you can redistribute it and/or
- * modify it under the terms of version 3 of the GNU General Public
+ * modify it under the terms of version 2.1 of the GNU Lesser General Public
  * License as published by the Free Software Foundation.
  *
  * This program is distributed in the hope that it will be useful,
@@ -12,13 +23,12 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA
  *
  * Author: Dodji Seketeli
- * See COPYRIGHTS file for copyright information.
  */
 
 
@@ -112,13 +122,13 @@ CRSimpleSel * cr_simple_sel_append_simple_sel (CRSimpleSel *a_this,
 CRSimpleSel * cr_simple_sel_prepend_simple_sel (CRSimpleSel *a_this, 
                                                 CRSimpleSel *a_sel) ;
 
-guchar * cr_simple_sel_to_string (CRSimpleSel *a_this) ;
+guchar * cr_simple_sel_to_string (CRSimpleSel const *a_this) ;
 
-guchar * cr_simple_sel_one_to_string (CRSimpleSel * a_this) ;
+guchar * cr_simple_sel_one_to_string (CRSimpleSel const * a_this) ;
 
-enum CRStatus cr_simple_sel_dump (CRSimpleSel *a_this, FILE *a_fp) ;
+enum CRStatus cr_simple_sel_dump (CRSimpleSel const *a_this, FILE *a_fp) ;
 
-enum CRStatus cr_simple_sel_dump_attr_sel_list (CRSimpleSel *a_this) ;
+enum CRStatus cr_simple_sel_dump_attr_sel_list (CRSimpleSel const *a_this) ;
 
 enum CRStatus cr_simple_sel_compute_specificity (CRSimpleSel *a_this) ;
 

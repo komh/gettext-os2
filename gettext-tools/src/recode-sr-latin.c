@@ -1,5 +1,5 @@
 /* Recode Serbian text from Cyrillic to Latin script.
-   Copyright (C) 2006-2007, 2010, 2012, 2018-2019 Free Software Foundation,
+   Copyright (C) 2006-2007, 2010, 2012, 2018-2022 Free Software Foundation,
    Inc.
    Written by Bruno Haible <bruno@clisp.org>, 2006.
 
@@ -31,11 +31,12 @@
 #include <iconv.h>
 #endif
 
+#include "noreturn.h"
 #include "closeout.h"
 #include "error.h"
 #include "progname.h"
 #include "relocatable.h"
-#include "basename.h"
+#include "basename-lgpl.h"
 #include "xalloc.h"
 #include "localcharset.h"
 #include "c-strcase.h"
@@ -56,11 +57,7 @@ static const struct option long_options[] =
 };
 
 /* Forward declaration of local functions.  */
-static void usage (int status)
-#if defined __GNUC__ && ((__GNUC__ == 2 && __GNUC_MINOR__ >= 5) || __GNUC__ > 2)
-     __attribute__ ((noreturn))
-#endif
-;
+_GL_NORETURN_FUNC static void usage (int status);
 static void process (FILE *stream);
 
 int
@@ -104,14 +101,15 @@ main (int argc, char *argv[])
   /* Version information is requested.  */
   if (do_version)
     {
-      printf ("%s (GNU %s) %s\n", basename (program_name), PACKAGE, VERSION);
+      printf ("%s (GNU %s) %s\n", last_component (program_name),
+              PACKAGE, VERSION);
       /* xgettext: no-wrap */
       printf (_("Copyright (C) %s Free Software Foundation, Inc.\n\
 License GPLv3+: GNU GPL version 3 or later <%s>\n\
 This is free software: you are free to change and redistribute it.\n\
 There is NO WARRANTY, to the extent permitted by law.\n\
 "),
-              "2006-2019", "https://gnu.org/licenses/gpl.html");
+              "2006-2022", "https://gnu.org/licenses/gpl.html");
       printf (_("Written by %s and %s.\n"),
               /* TRANSLATORS: This is a proper name. The last name is
                  (with Unicode escapes) "\u0160egan" or (with HTML entities)
@@ -291,11 +289,11 @@ process (FILE *stream)
       if (conv_to_utf8 == (iconv_t)(-1))
         error (EXIT_FAILURE, 0,
                _("Cannot convert from \"%s\" to \"%s\". %s relies on iconv(), and iconv() does not support this conversion."),
-               locale_code, "UTF-8", basename (program_name));
+               locale_code, "UTF-8", last_component (program_name));
       if (conv_from_utf8 == (iconv_t)(-1))
         error (EXIT_FAILURE, 0,
                _("Cannot convert from \"%s\" to \"%s\". %s relies on iconv(), and iconv() does not support this conversion."),
-               "UTF-8", locale_code, basename (program_name));
+               "UTF-8", locale_code, last_component (program_name));
       last_utf8_line = NULL;
       last_utf8_line_len = 0;
       last_backconv_line = NULL;
@@ -303,7 +301,7 @@ process (FILE *stream)
 #else
       error (EXIT_FAILURE, 0,
              _("Cannot convert from \"%s\" to \"%s\". %s relies on iconv(). This version was built without iconv()."),
-             locale_code, "UTF-8", basename (program_name));
+             locale_code, "UTF-8", last_component (program_name));
 #endif
     }
 

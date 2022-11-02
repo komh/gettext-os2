@@ -1,5 +1,5 @@
 /* Get the contents of an URL.
-   Copyright (C) 2001-2003, 2005-2010, 2012, 2017-2019 Free Software
+   Copyright (C) 2001-2003, 2005-2010, 2012, 2017-2022 Free Software
    Foundation, Inc.
    Written by Bruno Haible <haible@clisp.cons.org>, 2001.
 
@@ -30,12 +30,13 @@
 #include <locale.h>
 #include <unistd.h>
 
+#include "noreturn.h"
 #include "closeout.h"
 #include "error.h"
 #include "error-progname.h"
 #include "progname.h"
 #include "relocatable.h"
-#include "basename.h"
+#include "basename-lgpl.h"
 #include "full-write.h"
 #include "execute.h"
 #include "javaexec.h"
@@ -81,11 +82,7 @@ static const struct option long_options[] =
 
 
 /* Forward declaration of local functions.  */
-static void usage (int status)
-#if defined __GNUC__ && ((__GNUC__ == 2 && __GNUC_MINOR__ >= 5) || __GNUC__ > 2)
-     __attribute__ ((noreturn))
-#endif
-;
+_GL_NORETURN_FUNC static void usage (int status);
 static void fetch (const char *url, const char *file);
 
 
@@ -137,14 +134,15 @@ main (int argc, char *argv[])
   /* Version information requested.  */
   if (do_version)
     {
-      printf ("%s (GNU %s) %s\n", basename (program_name), PACKAGE, VERSION);
+      printf ("%s (GNU %s) %s\n", last_component (program_name),
+              PACKAGE, VERSION);
       /* xgettext: no-wrap */
       printf (_("Copyright (C) %s Free Software Foundation, Inc.\n\
 License GPLv3+: GNU GPL version 3 or later <%s>\n\
 This is free software: you are free to change and redistribute it.\n\
 There is NO WARRANTY, to the extent permitted by law.\n\
 "),
-              "2001-2019", "https://gnu.org/licenses/gpl.html");
+              "2001-2022", "https://gnu.org/licenses/gpl.html");
       printf (_("Written by %s.\n"), proper_name ("Bruno Haible"));
       exit (EXIT_SUCCESS);
     }
@@ -248,14 +246,14 @@ static int java_exitcode;
 
 static bool
 execute_it (const char *progname,
-            const char *prog_path, char **prog_argv,
+            const char *prog_path, const char * const *prog_argv,
             void *private_data)
 {
   (void) private_data;
 
   java_exitcode =
-    execute (progname, prog_path, prog_argv, true, true, false, false, true,
-             false, NULL);
+    execute (progname, prog_path, prog_argv, NULL,
+             true, true, false, false, true, false, NULL);
   /* Exit code 0 means success, 2 means timed out.  */
   return !(java_exitcode == 0 || java_exitcode == 2);
 }
@@ -316,31 +314,32 @@ fetch (const char *url, const char *file)
     if (!wget_tested)
       {
         /* Test for presence of wget: "wget --version > /dev/null"  */
-        char *argv[3];
+        const char *argv[3];
         int exitstatus;
 
         argv[0] = "wget";
         argv[1] = "--version";
         argv[2] = NULL;
-        exitstatus = execute ("wget", "wget", argv, false, false, true, true,
-                              true, false, NULL);
+        exitstatus = execute ("wget", "wget", argv, NULL,
+                              false, false, true, true, true, false, NULL);
         wget_present = (exitstatus == 0);
         wget_tested = true;
       }
 
     if (wget_present)
       {
-        char *argv[8];
+        const char *argv[10];
         int exitstatus;
 
         argv[0] = "wget";
-        argv[1] = "-q";
-        argv[2] = "-O"; argv[3] = "-";
-        argv[4] = "-T"; argv[5] = "30";
-        argv[6] = (char *) url;
-        argv[7] = NULL;
-        exitstatus = execute ("wget", "wget", argv, true, false, false, false,
-                              true, false, NULL);
+        argv[1] = "--quiet";
+        argv[2] = "--output-document"; argv[3] = "-";
+        argv[4] = "--timeout"; argv[5] = "30";
+        argv[6] = "--user-agent"; argv[7] = "urlget";
+        argv[8] = url;
+        argv[9] = NULL;
+        exitstatus = execute ("wget", "wget", argv, NULL,
+                              true, false, false, false, true, false, NULL);
         if (exitstatus != 127)
           {
             if (exitstatus != 0)
@@ -360,29 +359,30 @@ fetch (const char *url, const char *file)
     if (!lynx_tested)
       {
         /* Test for presence of lynx: "lynx --version > /dev/null"  */
-        char *argv[3];
+        const char *argv[3];
         int exitstatus;
 
         argv[0] = "lynx";
         argv[1] = "--version";
         argv[2] = NULL;
-        exitstatus = execute ("lynx", "lynx", argv, false, false, true, true,
-                              true, false, NULL);
+        exitstatus = execute ("lynx", "lynx", argv, NULL,
+                              false, false, true, true, true, false, NULL);
         lynx_present = (exitstatus == 0);
         lynx_tested = true;
       }
 
     if (lynx_present)
       {
-        char *argv[4];
+        const char *argv[5];
         int exitstatus;
 
         argv[0] = "lynx";
-        argv[1] = "-source";
-        argv[2] = (char *) url;
-        argv[3] = NULL;
-        exitstatus = execute ("lynx", "lynx", argv, true, false, false, false,
-                              true, false, NULL);
+        argv[1] = "-useragent=urlget";
+        argv[2] = "-source";
+        argv[3] = url;
+        argv[4] = NULL;
+        exitstatus = execute ("lynx", "lynx", argv, NULL,
+                              true, false, false, false, true, false, NULL);
         if (exitstatus != 127)
           {
             if (exitstatus != 0)
@@ -402,29 +402,30 @@ fetch (const char *url, const char *file)
     if (!curl_tested)
       {
         /* Test for presence of curl: "curl --version > /dev/null"  */
-        char *argv[3];
+        const char *argv[3];
         int exitstatus;
 
         argv[0] = "curl";
         argv[1] = "--version";
         argv[2] = NULL;
-        exitstatus = execute ("curl", "curl", argv, false, false, true, true,
-                              true, false, NULL);
+        exitstatus = execute ("curl", "curl", argv, NULL,
+                              false, false, true, true, true, false, NULL);
         curl_present = (exitstatus == 0 || exitstatus == 2);
         curl_tested = true;
       }
 
     if (curl_present)
       {
-        char *argv[4];
+        const char *argv[6];
         int exitstatus;
 
         argv[0] = "curl";
         argv[1] = "--silent";
-        argv[2] = (char *) url;
-        argv[3] = NULL;
-        exitstatus = execute ("curl", "curl", argv, true, false, false, false,
-                              true, false, NULL);
+        argv[2] = "--user-agent"; argv[3] = "urlget";
+        argv[4] = url;
+        argv[5] = NULL;
+        exitstatus = execute ("curl", "curl", argv, NULL,
+                              true, false, false, false, true, false, NULL);
         if (exitstatus != 127)
           {
             if (exitstatus != 0)

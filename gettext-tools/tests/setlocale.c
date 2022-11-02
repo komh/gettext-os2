@@ -1,5 +1,5 @@
 /* Fake setlocale - platform independent, for testing purposes.
-   Copyright (C) 2001-2002 Free Software Foundation, Inc.
+   Copyright (C) 2001-2002, 2019-2020 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -21,6 +21,16 @@
 #include <stdlib.h>
 #include <locale.h>
 #include <string.h>
+
+/* Make this override available independently of possible overrides in
+   libgnuintl.h or locale.h.
+   Note: On platforms where _nl_locale_name_posix invokes setlocale_null, this
+   override *must* be called 'setlocale'.  */
+#undef setlocale
+/* Avoid a link error on MSVC.  */
+#if defined _WIN32 && !defined __CYGWIN__
+# define setlocale fake_setlocale
+#endif
 
 /* Return string representation of locale CATEGORY.  */
 static const char *
@@ -84,7 +94,7 @@ category_to_name (int category)
    actually change the behaviour of locale dependent functions.
    Assumes setenv()/putenv() is not called.  */
 char *
-setlocale (int category, SETLOCALE_CONST char *locale)
+setlocale (int category, const char *locale)
 {
   static char C_string[] = "C";
   static char *current_locale = C_string;

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 Free Software Foundation, Inc.
+# Copyright (C) 2002-2022 Free Software Foundation, Inc.
 #
 # This file is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -39,25 +39,28 @@
 #  --libtool \
 #  --macro-prefix=gtpo \
 #  --avoid=progname \
-#  basename \
+#  attribute \
+#  basename-lgpl \
 #  c-ctype \
 #  c-strcase \
 #  c-strstr \
 #  close \
 #  error \
 #  error-progname \
+#  fdopen \
 #  filename \
 #  fopen \
+#  free-posix \
 #  fstrcmp \
 #  fwriteerror \
 #  gcd \
 #  getline \
 #  gettext-h \
-#  hash \
 #  iconv \
 #  libtextstyle-dummy \
 #  libunistring-optional \
 #  markup \
+#  mem-hash-map \
 #  minmax \
 #  open \
 #  realloc-posix \
@@ -89,25 +92,28 @@
 # Specification in the form of a few gnulib-tool.m4 macro invocations:
 gl_LOCAL_DIR([../gnulib-local])
 gl_MODULES([
-  basename
+  attribute
+  basename-lgpl
   c-ctype
   c-strcase
   c-strstr
   close
   error
   error-progname
+  fdopen
   filename
   fopen
+  free-posix
   fstrcmp
   fwriteerror
   gcd
   getline
   gettext-h
-  hash
   iconv
   libtextstyle-dummy
   libunistring-optional
   markup
+  mem-hash-map
   minmax
   open
   realloc-posix

@@ -101,7 +101,8 @@ SUFFIXES = .po .gmo .sed .sin .nop .po-create .po-update
 # the .pot file. This eliminates the need to update the .po files when the
 # .pot file has changed, which would be troublesome if the .po files are put
 # under version control.
-.po.gmo: $(srcdir)/$(DOMAIN).pot
+$(GMOFILES): $(srcdir)/$(DOMAIN).pot
+.po.gmo:
 	@lang=`echo $* | sed -e 's,.*/,,'`; \
 	test "$(srcdir)" = . && cdcmd="" || cdcmd="cd $(srcdir) && "; \
 	echo "$${cdcmd}rm -f $${lang}.gmo && $(MSGMERGE) $(MSGMERGE_FOR_MSGFMT_OPTION) -o $${lang}.1po $${lang}.po $(DOMAIN).pot && $(GMSGFMT) -c --statistics --verbose -o $${lang}.gmo $${lang}.1po && rm -f $${lang}.1po"; \
@@ -352,11 +353,16 @@ EXTRA_DIST = remove-potcdate.sin LINGUAS $(POFILES) $(GMOFILES)
 distdir1:
 	$(MAKE) update-po
 	$(MAKE) $(srcdir)/stamp-po
-	if test -f $(srcdir)/$(DOMAIN).pot; then \
+	@if test -f $(srcdir)/$(DOMAIN).pot; then \
 	  for file in $(DOMAIN).pot stamp-po; do \
 	    if test -f $$file; then d=.; else d=$(srcdir); fi; \
 	    cp -p $$d/$$file $(distdir)/$$file || exit 1; \
 	  done; \
+	else \
+	  case $(XGETTEXT) in \
+	    :) echo "Warning: Creating a tarball without '$(DOMAIN).pot', because a suitable 'xgettext' program was not found in PATH." 1>&2;; \
+	    *) echo "Warning: Creating a tarball without '$(DOMAIN).pot', because 'xgettext' found no strings to extract. Check the POTFILES and the XGETTEXT_OPTIONS in the Makefile.am file." 1>&2;; \
+	  esac; \
 	fi
 
 update-po: Makefile

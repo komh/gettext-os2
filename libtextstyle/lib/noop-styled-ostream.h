@@ -64,6 +64,9 @@ extern         void noop_styled_ostream_flush (noop_styled_ostream_t first_arg, 
 extern         void noop_styled_ostream_free (noop_styled_ostream_t first_arg);
 extern          void noop_styled_ostream_begin_use_class (noop_styled_ostream_t first_arg, const char *classname);
 extern          void noop_styled_ostream_end_use_class (noop_styled_ostream_t first_arg, const char *classname);
+extern         const char * noop_styled_ostream_get_hyperlink_ref (noop_styled_ostream_t first_arg);
+extern    const char * noop_styled_ostream_get_hyperlink_id (noop_styled_ostream_t first_arg);
+extern    void         noop_styled_ostream_set_hyperlink (noop_styled_ostream_t first_arg,                               const char *ref, const char *id);
 extern              void noop_styled_ostream_flush_to_current_style (noop_styled_ostream_t first_arg);
 #ifdef __cplusplus
 }
@@ -135,6 +138,33 @@ noop_styled_ostream_end_use_class (noop_styled_ostream_t first_arg, const char *
   const struct noop_styled_ostream_implementation *vtable =
     ((struct noop_styled_ostream_representation_header *) (struct noop_styled_ostream_representation *) first_arg)->vtable;
   vtable->end_use_class (first_arg,classname);
+}
+
+# define noop_styled_ostream_get_hyperlink_ref noop_styled_ostream_get_hyperlink_ref_inline
+static inline const char *
+noop_styled_ostream_get_hyperlink_ref (noop_styled_ostream_t first_arg)
+{
+  const struct noop_styled_ostream_implementation *vtable =
+    ((struct noop_styled_ostream_representation_header *) (struct noop_styled_ostream_representation *) first_arg)->vtable;
+  return vtable->get_hyperlink_ref (first_arg);
+}
+
+# define noop_styled_ostream_get_hyperlink_id noop_styled_ostream_get_hyperlink_id_inline
+static inline const char *
+noop_styled_ostream_get_hyperlink_id (noop_styled_ostream_t first_arg)
+{
+  const struct noop_styled_ostream_implementation *vtable =
+    ((struct noop_styled_ostream_representation_header *) (struct noop_styled_ostream_representation *) first_arg)->vtable;
+  return vtable->get_hyperlink_id (first_arg);
+}
+
+# define noop_styled_ostream_set_hyperlink noop_styled_ostream_set_hyperlink_inline
+static inline void
+noop_styled_ostream_set_hyperlink (noop_styled_ostream_t first_arg,                               const char *ref, const char *id)
+{
+  const struct noop_styled_ostream_implementation *vtable =
+    ((struct noop_styled_ostream_representation_header *) (struct noop_styled_ostream_representation *) first_arg)->vtable;
+  vtable->set_hyperlink (first_arg,ref,id);
 }
 
 # define noop_styled_ostream_flush_to_current_style noop_styled_ostream_flush_to_current_style_inline

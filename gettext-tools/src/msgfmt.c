@@ -1,5 +1,5 @@
 /* Converts Uniforum style .po files to binary .mo files
-   Copyright (C) 1995-1998, 2000-2007, 2009-2010, 2012, 2014-2016, 2018-2019 Free Software
+   Copyright (C) 1995-1998, 2000-2007, 2009-2010, 2012, 2014-2016, 2018-2022 Free Software
    Foundation, Inc.
    Written by Ulrich Drepper <drepper@gnu.ai.mit.edu>, April 1995.
 
@@ -31,6 +31,7 @@
 #include <sys/stat.h>
 #include <assert.h>
 
+#include "noreturn.h"
 #include "closeout.h"
 #include "str-list.h"
 #include "dir-list.h"
@@ -38,7 +39,7 @@
 #include "error-progname.h"
 #include "progname.h"
 #include "relocatable.h"
-#include "basename.h"
+#include "basename-lgpl.h"
 #include "xerror.h"
 #include "xvasprintf.h"
 #include "xalloc.h"
@@ -218,11 +219,7 @@ static const struct option long_options[] =
 
 
 /* Forward declaration of local functions.  */
-static void usage (int status)
-#if defined __GNUC__ && ((__GNUC__ == 2 && __GNUC_MINOR__ >= 5) || __GNUC__ > 2)
-        __attribute__ ((noreturn))
-#endif
-;
+_GL_NORETURN_FUNC static void usage (int status);
 static const char *add_mo_suffix (const char *);
 static struct msg_domain *new_domain (const char *name, const char *file_name);
 static bool is_nonobsolete (const message_ty *mp);
@@ -439,14 +436,15 @@ main (int argc, char *argv[])
   /* Version information is requested.  */
   if (do_version)
     {
-      printf ("%s (GNU %s) %s\n", basename (program_name), PACKAGE, VERSION);
+      printf ("%s (GNU %s) %s\n", last_component (program_name),
+              PACKAGE, VERSION);
       /* xgettext: no-wrap */
       printf (_("Copyright (C) %s Free Software Foundation, Inc.\n\
 License GPLv3+: GNU GPL version 3 or later <%s>\n\
 This is free software: you are free to change and redistribute it.\n\
 There is NO WARRANTY, to the extent permitted by law.\n\
 "),
-              "1995-2019", "https://gnu.org/licenses/gpl.html");
+              "1995-2022", "https://gnu.org/licenses/gpl.html");
       printf (_("Written by %s.\n"), proper_name ("Ulrich Drepper"));
       exit (EXIT_SUCCESS);
     }
@@ -1410,12 +1408,12 @@ static void
 add_languages (string_list_ty *languages, string_list_ty *desired_languages,
                const char *line, size_t length)
 {
-  char *start;
+  const char *start;
 
   /* Split the line by whitespace and build the languages list.  */
-  for (start = (char *) line; start - line < length; )
+  for (start = line; start - line < length; )
     {
-      char *p;
+      const char *p;
 
       /* Skip whitespace before the string.  */
       while (*start == ' ' || *start == '\t')
@@ -1425,10 +1423,9 @@ add_languages (string_list_ty *languages, string_list_ty *desired_languages,
       while (*p != '\0' && *p != ' ' && *p != '\t')
         p++;
 
-      *p = '\0';
       if (desired_languages == NULL
-          || string_list_member (desired_languages, start))
-        string_list_append_unique (languages, start);
+          || string_list_member_desc (desired_languages, start, p - start))
+        string_list_append_unique_desc (languages, start, p - start);
       start = p + 1;
     }
 }
@@ -1488,10 +1485,9 @@ get_languages (string_list_ty *languages, const char *directory)
         line_buf[--len] = '\0';
 
       /* Test if we have to ignore the line.  */
-      if (*line_buf == '\0' || *line_buf == '#')
-        continue;
-
-      add_languages (languages, desired_languages, line_buf, len);
+      if (!(*line_buf == '\0' || *line_buf == '#'))
+        /* Include the line among the languages.  */
+        add_languages (languages, desired_languages, line_buf, len);
     }
 
   free (line_buf);

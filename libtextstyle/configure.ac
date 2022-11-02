@@ -1,5 +1,5 @@
 dnl Configuration for the toplevel directory of GNU libtextstyle
-dnl Copyright (C) 2009-2019 Free Software Foundation, Inc.
+dnl Copyright (C) 2009-2021 Free Software Foundation, Inc.
 dnl
 dnl This program is free software: you can redistribute it and/or modify
 dnl it under the terms of the GNU General Public License as published by
@@ -16,14 +16,14 @@ dnl along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 dnl Process this file with autoconf to produce a configure script.
 
-AC_PREREQ([2.63])
+AC_PREREQ([2.64])
 AC_INIT
 AC_CONFIG_SRCDIR([version.sh])
 AC_CONFIG_AUX_DIR([build-aux])
 . $srcdir/version.sh
 gl_INIT_PACKAGE([libtextstyle], [$VERSION_NUMBER])
 AM_INIT_AUTOMAKE([1.13 silent-rules])
-AM_CONFIG_HEADER([config.h])
+AC_CONFIG_HEADERS([config.h])
 
 dnl Override automake's tar command used for creating distributions.
 am__tar='${AMTAR} chof - --owner=root --group=root "$$tardir"'
@@ -72,7 +72,8 @@ lts_INIT
 
 dnl Arrange that the gnulib-generated <unistd.h> does not declare isatty(). The
 dnl adhoc-tests want to get this declaration from <textstyle.h>, not <unistd.h>.
-GNULIB_ISATTY=0
+GL_LTS_GNULIB_ISATTY=0
+GL_LTS_GNULIB_MDA_ISATTY=0
 
 dnl Compilation on mingw and Cygwin needs special Makefile rules, because
 dnl 1. when we install a shared library, we must arrange to export

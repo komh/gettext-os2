@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 Free Software Foundation, Inc.
+# Copyright (C) 2002-2022 Free Software Foundation, Inc.
 #
 # This file is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -39,14 +39,14 @@
 #  --no-conditional-dependencies \
 #  --libtool \
 #  --macro-prefix=gl \
-#  --avoid=array-list-tests \
-#  --avoid=linkedhash-list-tests \
-#  --avoid=hash-tests \
 #  --avoid=fdutimensat-tests \
 #  --avoid=futimens-tests \
 #  --avoid=utime-tests \
 #  --avoid=utimens-tests \
 #  --avoid=utimensat-tests \
+#  --avoid=array-list-tests \
+#  --avoid=linked-list-tests \
+#  --avoid=linkedhash-list-tests \
 #  --avoid=unilbrk/u8-possible-linebreaks-tests \
 #  --avoid=unilbrk/ulc-width-linebreaks-tests \
 #  --avoid=unistr/u8-mbtouc-tests \
@@ -55,9 +55,11 @@
 #  alloca-opt \
 #  ansi-c++-opt \
 #  atexit \
+#  attribute \
 #  backupfile \
-#  basename \
+#  basename-lgpl \
 #  binary-io \
+#  bison \
 #  bison-i18n \
 #  byteswap \
 #  c-ctype \
@@ -81,6 +83,7 @@
 #  findprog \
 #  fnmatch \
 #  fopen \
+#  free-posix \
 #  fstrcmp \
 #  full-write \
 #  fwriteerror \
@@ -90,7 +93,6 @@
 #  gettext \
 #  gettext-h \
 #  gettext-tools-misc \
-#  hash \
 #  iconv \
 #  include_next \
 #  java \
@@ -108,12 +110,14 @@
 #  malloc-posix \
 #  mbrtowc \
 #  mbsinit \
+#  mem-hash-map \
 #  memchr \
 #  memmove \
 #  memset \
 #  minmax \
 #  mkdir \
 #  multiarch \
+#  noreturn \
 #  obstack \
 #  open \
 #  opendir \
@@ -126,6 +130,7 @@
 #  relocatable-prog \
 #  relocatable-script \
 #  setlocale \
+#  setlocale-null \
 #  sh-filename \
 #  sh-quote \
 #  sigpipe \
@@ -149,11 +154,13 @@
 #  strpbrk \
 #  strtol \
 #  strtoul \
+#  supersede \
 #  sys_select \
 #  sys_stat \
 #  sys_time \
 #  trim \
 #  unictype/ctype-space \
+#  unictype/syntax-java-whitespace \
 #  unilbrk/ulc-width-linebreaks \
 #  uniname/uniname \
 #  unistd \
@@ -170,6 +177,10 @@
 #  wait-process \
 #  wchar \
 #  wctype-h \
+#  windows-mutex \
+#  windows-once \
+#  windows-recmutex \
+#  windows-rwlock \
 #  write \
 #  xalloc \
 #  xconcat-filename \
@@ -187,9 +198,11 @@ gl_MODULES([
   alloca-opt
   ansi-c++-opt
   atexit
+  attribute
   backupfile
-  basename
+  basename-lgpl
   binary-io
+  bison
   bison-i18n
   byteswap
   c-ctype
@@ -213,6 +226,7 @@ gl_MODULES([
   findprog
   fnmatch
   fopen
+  free-posix
   fstrcmp
   full-write
   fwriteerror
@@ -222,7 +236,6 @@ gl_MODULES([
   gettext
   gettext-h
   gettext-tools-misc
-  hash
   iconv
   include_next
   java
@@ -240,12 +253,14 @@ gl_MODULES([
   malloc-posix
   mbrtowc
   mbsinit
+  mem-hash-map
   memchr
   memmove
   memset
   minmax
   mkdir
   multiarch
+  noreturn
   obstack
   open
   opendir
@@ -258,6 +273,7 @@ gl_MODULES([
   relocatable-prog
   relocatable-script
   setlocale
+  setlocale-null
   sh-filename
   sh-quote
   sigpipe
@@ -281,11 +297,13 @@ gl_MODULES([
   strpbrk
   strtol
   strtoul
+  supersede
   sys_select
   sys_stat
   sys_time
   trim
   unictype/ctype-space
+  unictype/syntax-java-whitespace
   unilbrk/ulc-width-linebreaks
   uniname/uniname
   unistd
@@ -302,6 +320,10 @@ gl_MODULES([
   wait-process
   wchar
   wctype-h
+  windows-mutex
+  windows-once
+  windows-recmutex
+  windows-rwlock
   write
   xalloc
   xconcat-filename
@@ -313,7 +335,7 @@ gl_MODULES([
   xstriconveh
   xvasprintf
 ])
-gl_AVOID([ array-list-tests linkedhash-list-tests hash-tests fdutimensat-tests futimens-tests utime-tests utimens-tests utimensat-tests unilbrk/u8-possible-linebreaks-tests unilbrk/ulc-width-linebreaks-tests unistr/u8-mbtouc-tests unistr/u8-mbtouc-unsafe-tests uniwidth/width-tests])
+gl_AVOID([ fdutimensat-tests futimens-tests utime-tests utimens-tests utimensat-tests array-list-tests linked-list-tests linkedhash-list-tests unilbrk/u8-possible-linebreaks-tests unilbrk/ulc-width-linebreaks-tests unistr/u8-mbtouc-tests unistr/u8-mbtouc-unsafe-tests uniwidth/width-tests])
 gl_SOURCE_BASE([gnulib-lib])
 gl_M4_BASE([gnulib-m4])
 gl_PO_BASE([])

@@ -1,5 +1,5 @@
 /* Filtering of data through a subprocess.
-   Copyright (C) 2001-2003, 2008-2019 Free Software Foundation, Inc.
+   Copyright (C) 2001-2003, 2008-2022 Free Software Foundation, Inc.
    Written by Bruno Haible <bruno@clisp.org>, 2009.
 
    This program is free software: you can redistribute it and/or modify
@@ -27,6 +27,7 @@
 #include <unistd.h>
 #if defined _WIN32 && ! defined __CYGWIN__
 # include <windows.h>
+# include <process.h> /* _beginthreadex, _endthreadex */
 #elif defined __KLIBC__
 # define INCL_DOS
 # include <os2.h>
@@ -254,7 +255,7 @@ reader_thread_func (void *thread_arg)
 
 int
 pipe_filter_ii_execute (const char *progname,
-                        const char *prog_path, const char **prog_argv,
+                        const char *prog_path, const char * const *prog_argv,
                         bool null_stderr, bool exit_on_error,
                         prepare_write_fn prepare_write,
                         done_write_fn done_write,
@@ -269,8 +270,8 @@ pipe_filter_ii_execute (const char *progname,
 #endif
 
   /* Open a bidirectional pipe to a subprocess.  */
-  child = create_pipe_bidi (progname, prog_path, (char **) prog_argv,
-                            null_stderr, true, exit_on_error,
+  child = create_pipe_bidi (progname, prog_path, prog_argv,
+                            NULL, null_stderr, true, exit_on_error,
                             fd);
   if (child == -1)
     return -1;
@@ -478,7 +479,7 @@ pipe_filter_ii_execute (const char *progname,
                 /* Writing to a pipe in non-blocking mode is tricky: The
                    write() call may fail with EAGAIN, simply because sufficient
                    space is not available in the pipe. See POSIX:2008
-                   <http://pubs.opengroup.org/onlinepubs/9699919799/functions/write.html>.
+                   <https://pubs.opengroup.org/onlinepubs/9699919799/functions/write.html>.
                    This happens actually on AIX and IRIX, when bufsize >= 8192
                    (even though PIPE_BUF and pathconf ("/", _PC_PIPE_BUF) are
                    both 32768).  */

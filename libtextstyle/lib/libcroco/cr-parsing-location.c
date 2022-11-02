@@ -1,10 +1,21 @@
-/* -*- Mode: C; indent-tabs-mode: ni; c-basic-offset: 8 -*- */
+/* -*- Mode: C; indent-tabs-mode: nil; c-basic-offset: 8 -*- */
+
+/* libcroco - Library for parsing and applying CSS
+ * Copyright (C) 2006-2019 Free Software Foundation, Inc.
+ *
+ * This file is not part of the GNU gettext program, but is used with
+ * GNU gettext.
+ *
+ * The original copyright notice is as follows:
+ */
 
 /*
  * This file is part of The Croco Library
  *
+ * Copyright (C) 2003-2004 Dodji Seketeli.  All Rights Reserved.
+ *
  * This program is free software; you can redistribute it and/or
- * modify it under the terms of version 3 of the GNU General Public
+ * modify it under the terms of version 2.1 of the GNU Lesser General Public
  * License as published by the Free Software Foundation.
  *
  * This program is distributed in the hope that it will be useful,
@@ -12,13 +23,12 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA
  *
  * Author: Dodji Seketeli.
- * See the COPYRIGHTS file for copyright information.
  */
 
 #include <config.h>
@@ -83,7 +93,7 @@ cr_parsing_location_init (CRParsingLocation *a_this)
  */
 enum CRStatus 
 cr_parsing_location_copy (CRParsingLocation *a_to,
-			  CRParsingLocation *a_from)
+			  CRParsingLocation const *a_from)
 {
 	g_return_val_if_fail (a_to && a_from, CR_BAD_PARAM_ERROR) ;
 
@@ -100,7 +110,7 @@ cr_parsing_location_copy (CRParsingLocation *a_to,
  *Returns the serialized string or NULL in case of an error.
  */
 gchar * 
-cr_parsing_location_to_string (CRParsingLocation *a_this,
+cr_parsing_location_to_string (CRParsingLocation const *a_this,
 			       enum CRParsingLocationSerialisationMask a_mask)
 {
 	GString *result = NULL ;
@@ -142,7 +152,7 @@ cr_parsing_location_to_string (CRParsingLocation *a_this,
  * @a_fp: the file pointer to dump the parsing location to.
  */
 void
-cr_parsing_location_dump (CRParsingLocation *a_this,
+cr_parsing_location_dump (CRParsingLocation const *a_this,
 			  enum CRParsingLocationSerialisationMask a_mask,
 			  FILE *a_fp)
 {

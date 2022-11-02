@@ -1,18 +1,18 @@
 /* Emergency actions in case of a fatal signal.
-   Copyright (C) 2003-2004, 2006-2019 Free Software Foundation, Inc.
+   Copyright (C) 2003-2004, 2006-2022 Free Software Foundation, Inc.
    Written by Bruno Haible <bruno@clisp.org>, 2003.
 
-   This program is free software: you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 3 of the License, or
-   (at your option) any later version.
+   This file is free software: you can redistribute it and/or modify
+   it under the terms of the GNU Lesser General Public License as
+   published by the Free Software Foundation; either version 2.1 of the
+   License, or (at your option) any later version.
 
-   This program is distributed in the hope that it will be useful,
+   This file is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
+   GNU Lesser General Public License for more details.
 
-   You should have received a copy of the GNU General Public License
+   You should have received a copy of the GNU Lesser General Public License
    along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 
@@ -26,8 +26,9 @@
 #include <signal.h>
 #include <unistd.h>
 
+#include "glthread/lock.h"
+#include "thread-optim.h"
 #include "sig-handler.h"
-#include "xalloc.h"
 
 #define SIZEOF(a) (sizeof(a) / sizeof(a[0]))
 
@@ -85,6 +86,10 @@ static int fatal_signals[] =
 static void
 init_fatal_signals (void)
 {
+  /* This function is multithread-safe even without synchronization, because
+     if two threads execute it simultaneously, the fatal_signals[] array will
+     not change any more after the first of the threads has completed this
+     function.  */
   static bool fatal_signals_initialized = false;
   if (!fatal_signals_initialized)
     {
@@ -200,11 +205,18 @@ install_handlers (void)
 }
 
 
+/* Lock that makes at_fatal_signal multi-thread safe.  */
+gl_lock_define_initialized (static, at_fatal_signal_lock)
+
 /* Register a cleanup function to be executed when a catchable fatal signal
    occurs.  */
-void
+int
 at_fatal_signal (action_t action)
 {
+  bool mt = gl_multithreaded ();
+
+  if (mt) gl_lock_lock (at_fatal_signal_lock);
+
   static bool cleanup_initialized = false;
   if (!cleanup_initialized)
     {
@@ -212,6 +224,8 @@ at_fatal_signal (action_t action)
       install_handlers ();
       cleanup_initialized = true;
     }
+
+  int ret = 0;
 
   if (actions_count == actions_allocated)
     {
@@ -222,9 +236,15 @@ at_fatal_signal (action_t action)
       size_t old_actions_allocated = actions_allocated;
       size_t new_actions_allocated = 2 * actions_allocated;
       actions_entry_t *new_actions =
-        XNMALLOC (new_actions_allocated, actions_entry_t);
-      size_t k;
+        (actions_entry_t *)
+        malloc (new_actions_allocated * sizeof (actions_entry_t));
+      if (new_actions == NULL)
+        {
+          ret = -1;
+          goto done;
+        }
 
+      size_t k;
       /* Don't use memcpy() here, because memcpy takes non-volatile arguments
          and is therefore not guaranteed to complete all memory stores before
          the next statement.  */
@@ -233,8 +253,15 @@ at_fatal_signal (action_t action)
       actions = new_actions;
       actions_allocated = new_actions_allocated;
       /* Now we can free the old actions array.  */
+      /* No, we can't do that.  If fatal_signal_handler is running in a
+         different thread and has already fetched the actions pointer (getting
+         old_actions) but not yet accessed its n-th element, that thread may
+         crash when accessing an element of the already freed old_actions
+         array.  */
+      #if 0
       if (old_actions != static_actions)
         free (old_actions);
+      #endif
     }
   /* The two uses of 'volatile' in the types above (and ISO C 99 section
      5.1.2.3.(5)) ensure that we increment the actions_count only after
@@ -242,6 +269,11 @@ at_fatal_signal (action_t action)
      actions[actions_count].  */
   actions[actions_count].action = action;
   actions_count++;
+
+ done:
+  if (mt) gl_lock_unlock (at_fatal_signal_lock);
+
+  return ret;
 }
 
 
@@ -251,38 +283,68 @@ at_fatal_signal (action_t action)
 static sigset_t fatal_signal_set;
 
 static void
+do_init_fatal_signal_set (void)
+{
+  size_t i;
+
+  init_fatal_signals ();
+
+  sigemptyset (&fatal_signal_set);
+  for (i = 0; i < num_fatal_signals; i++)
+    if (fatal_signals[i] >= 0)
+      sigaddset (&fatal_signal_set, fatal_signals[i]);
+}
+
+/* Ensure that do_init_fatal_signal_set is called once only.  */
+gl_once_define(static, fatal_signal_set_once)
+
+static void
 init_fatal_signal_set (void)
 {
-  static bool fatal_signal_set_initialized = false;
-  if (!fatal_signal_set_initialized)
-    {
-      size_t i;
-
-      init_fatal_signals ();
-
-      sigemptyset (&fatal_signal_set);
-      for (i = 0; i < num_fatal_signals; i++)
-        if (fatal_signals[i] >= 0)
-          sigaddset (&fatal_signal_set, fatal_signals[i]);
-
-      fatal_signal_set_initialized = true;
-    }
+  gl_once (fatal_signal_set_once, do_init_fatal_signal_set);
 }
+
+/* Lock and counter that allow block_fatal_signals/unblock_fatal_signals pairs
+   to occur in different threads and even overlap in time.  */
+gl_lock_define_initialized (static, fatal_signals_block_lock)
+static unsigned int fatal_signals_block_counter = 0;
 
 /* Temporarily delay the catchable fatal signals.  */
 void
 block_fatal_signals (void)
 {
-  init_fatal_signal_set ();
-  sigprocmask (SIG_BLOCK, &fatal_signal_set, NULL);
+  bool mt = gl_multithreaded ();
+
+  if (mt) gl_lock_lock (fatal_signals_block_lock);
+
+  if (fatal_signals_block_counter++ == 0)
+    {
+      init_fatal_signal_set ();
+      sigprocmask (SIG_BLOCK, &fatal_signal_set, NULL);
+    }
+
+  if (mt) gl_lock_unlock (fatal_signals_block_lock);
 }
 
 /* Stop delaying the catchable fatal signals.  */
 void
 unblock_fatal_signals (void)
 {
-  init_fatal_signal_set ();
-  sigprocmask (SIG_UNBLOCK, &fatal_signal_set, NULL);
+  bool mt = gl_multithreaded ();
+
+  if (mt) gl_lock_lock (fatal_signals_block_lock);
+
+  if (fatal_signals_block_counter == 0)
+    /* There are more calls to unblock_fatal_signals() than to
+       block_fatal_signals().  */
+    abort ();
+  if (--fatal_signals_block_counter == 0)
+    {
+      init_fatal_signal_set ();
+      sigprocmask (SIG_UNBLOCK, &fatal_signal_set, NULL);
+    }
+
+  if (mt) gl_lock_unlock (fatal_signals_block_lock);
 }
 
 
@@ -300,4 +362,11 @@ get_fatal_signals (int signals[64])
         *p++ = fatal_signals[i];
     return p - signals;
   }
+}
+
+const sigset_t *
+get_fatal_signal_set (void)
+{
+  init_fatal_signal_set ();
+  return &fatal_signal_set;
 }

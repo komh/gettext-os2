@@ -1,5 +1,5 @@
 /* ngettext - retrieve plural form strings from message catalog and print them.
-   Copyright (C) 1995-1997, 2000-2007, 2012, 2018-2019 Free Software
+   Copyright (C) 1995-1997, 2000-2007, 2012, 2018-2020 Free Software
    Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
@@ -23,20 +23,29 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <locale.h>
 #include <errno.h>
 
+#include "attribute.h"
+#include "noreturn.h"
 #include "closeout.h"
 #include "error.h"
 #include "progname.h"
 #include "relocatable.h"
-#include "basename.h"
+#include "basename-lgpl.h"
 #include "propername.h"
 #include "xsetenv.h"
 
 /* Make sure we use the included libintl, not the system's one. */
 #undef _LIBINTL_H
 #include "libgnuintl.h"
+
+#if defined _WIN32 && !defined __CYGWIN__
+# undef setlocale
+# define setlocale fake_setlocale
+extern char *setlocale (int category, const char *locale);
+#endif
 
 #define _(str) gettext (str)
 
@@ -51,11 +60,7 @@ static const struct option long_options[] =
 };
 
 /* Forward declaration of local functions.  */
-static void usage (int __status)
-#if defined __GNUC__ && ((__GNUC__ == 2 && __GNUC_MINOR__ >= 5) || __GNUC__ > 2)
-     __attribute__ ((noreturn))
-#endif
-;
+_GL_NORETURN_FUNC static void usage (int __status);
 
 int
 main (int argc, char *argv[])
@@ -114,7 +119,7 @@ main (int argc, char *argv[])
             break;
           }
       }
-      /*FALLTHROUGH*/
+      FALLTHROUGH;
     default:
       usage (EXIT_FAILURE);
     }
@@ -126,7 +131,8 @@ main (int argc, char *argv[])
   /* Version information is requested.  */
   if (do_version)
     {
-      printf ("%s (GNU %s) %s\n", basename (program_name), PACKAGE, VERSION);
+      printf ("%s (GNU %s) %s\n", last_component (program_name),
+              PACKAGE, VERSION);
       /* xgettext: no-wrap */
       printf (_("Copyright (C) %s Free Software Foundation, Inc.\n\
 License GPLv3+: GNU GPL version 3 or later <%s>\n\

@@ -1,18 +1,18 @@
 /* Sequential list data type implemented by an array.
-   Copyright (C) 2006-2019 Free Software Foundation, Inc.
+   Copyright (C) 2006-2022 Free Software Foundation, Inc.
    Written by Bruno Haible <bruno@clisp.org>, 2006.
 
-   This program is free software: you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 3 of the License, or
-   (at your option) any later version.
+   This file is free software: you can redistribute it and/or modify
+   it under the terms of the GNU Lesser General Public License as
+   published by the Free Software Foundation; either version 2.1 of the
+   License, or (at your option) any later version.
 
-   This program is distributed in the hope that it will be useful,
+   This file is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
+   GNU Lesser General Public License for more details.
 
-   You should have received a copy of the GNU General Public License
+   You should have received a copy of the GNU Lesser General Public License
    along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 #include <config.h>
@@ -111,7 +111,7 @@ gl_array_nx_create (gl_list_implementation_t implementation,
   return NULL;
 }
 
-static size_t
+static size_t _GL_ATTRIBUTE_PURE
 gl_array_size (gl_list_t list)
 {
   return list->count;
@@ -166,6 +166,24 @@ gl_array_previous_node (gl_list_t list, gl_list_node_t node)
     return NULL;
 }
 
+static gl_list_node_t _GL_ATTRIBUTE_PURE
+gl_array_first_node (gl_list_t list)
+{
+  if (list->count > 0)
+    return INDEX_TO_NODE (0);
+  else
+    return NULL;
+}
+
+static gl_list_node_t _GL_ATTRIBUTE_PURE
+gl_array_last_node (gl_list_t list)
+{
+  if (list->count > 0)
+    return INDEX_TO_NODE (list->count - 1);
+  else
+    return NULL;
+}
+
 static const void * _GL_ATTRIBUTE_PURE
 gl_array_get_at (gl_list_t list, size_t position)
 {
@@ -189,7 +207,7 @@ gl_array_nx_set_at (gl_list_t list, size_t position, const void *elt)
   return INDEX_TO_NODE (position);
 }
 
-static size_t
+static size_t _GL_ATTRIBUTE_PURE
 gl_array_indexof_from_to (gl_list_t list, size_t start_index, size_t end_index,
                           const void *elt)
 {
@@ -232,7 +250,7 @@ gl_array_indexof_from_to (gl_list_t list, size_t start_index, size_t end_index,
   return (size_t)(-1);
 }
 
-static gl_list_node_t
+static gl_list_node_t _GL_ATTRIBUTE_PURE
 gl_array_search_from_to (gl_list_t list, size_t start_index, size_t end_index,
                          const void *elt)
 {
@@ -441,7 +459,7 @@ gl_array_list_free (gl_list_t list)
 
 /* --------------------- gl_list_iterator_t Data Type --------------------- */
 
-static gl_list_iterator_t
+static gl_list_iterator_t _GL_ATTRIBUTE_PURE
 gl_array_iterator (gl_list_t list)
 {
   gl_list_iterator_t result;
@@ -459,7 +477,7 @@ gl_array_iterator (gl_list_t list)
   return result;
 }
 
-static gl_list_iterator_t
+static gl_list_iterator_t _GL_ATTRIBUTE_PURE
 gl_array_iterator_from_to (gl_list_t list, size_t start_index, size_t end_index)
 {
   gl_list_iterator_t result;
@@ -509,13 +527,13 @@ gl_array_iterator_next (gl_list_iterator_t *iterator,
 }
 
 static void
-gl_array_iterator_free (gl_list_iterator_t *iterator _GL_UNUSED)
+gl_array_iterator_free (_GL_ATTRIBUTE_MAYBE_UNUSED gl_list_iterator_t *iterator)
 {
 }
 
 /* ---------------------- Sorted gl_list_t Data Type ---------------------- */
 
-static size_t
+static size_t _GL_ATTRIBUTE_PURE
 gl_array_sortedlist_indexof_from_to (gl_list_t list,
                                      gl_listelement_compar_fn compar,
                                      size_t low, size_t high,
@@ -574,7 +592,7 @@ gl_array_sortedlist_indexof_from_to (gl_list_t list,
   return (size_t)(-1);
 }
 
-static size_t
+static size_t _GL_ATTRIBUTE_PURE
 gl_array_sortedlist_indexof (gl_list_t list, gl_listelement_compar_fn compar,
                              const void *elt)
 {
@@ -582,7 +600,7 @@ gl_array_sortedlist_indexof (gl_list_t list, gl_listelement_compar_fn compar,
                                               elt);
 }
 
-static gl_list_node_t
+static gl_list_node_t _GL_ATTRIBUTE_PURE
 gl_array_sortedlist_search_from_to (gl_list_t list,
                                     gl_listelement_compar_fn compar,
                                     size_t low, size_t high,
@@ -593,7 +611,7 @@ gl_array_sortedlist_search_from_to (gl_list_t list,
   return INDEX_TO_NODE (index);
 }
 
-static gl_list_node_t
+static gl_list_node_t _GL_ATTRIBUTE_PURE
 gl_array_sortedlist_search (gl_list_t list, gl_listelement_compar_fn compar,
                             const void *elt)
 {
@@ -651,6 +669,8 @@ const struct gl_list_implementation gl_array_list_implementation =
     gl_array_node_nx_set_value,
     gl_array_next_node,
     gl_array_previous_node,
+    gl_array_first_node,
+    gl_array_last_node,
     gl_array_get_at,
     gl_array_nx_set_at,
     gl_array_search_from_to,

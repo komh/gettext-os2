@@ -1,5 +1,5 @@
 /* Provide relocatable programs.
-   Copyright (C) 2003-2019 Free Software Foundation, Inc.
+   Copyright (C) 2003-2022 Free Software Foundation, Inc.
    Written by Bruno Haible <bruno@clisp.org>, 2003.
 
    This program is free software: you can redistribute it and/or modify
@@ -70,14 +70,25 @@
 # define O_EXEC O_RDONLY /* This is often close enough in older systems.  */
 #endif
 
+#if defined IN_RELOCWRAPPER && (!defined O_CLOEXEC || GNULIB_defined_O_CLOEXEC)
+# undef O_CLOEXEC
+# define O_CLOEXEC 0
+#endif
+
 /* Declare canonicalize_file_name.
    The <stdlib.h> included above may be the system's one, not the gnulib
    one.  */
 extern char * canonicalize_file_name (const char *name);
 
+#if defined WINDOWS_NATIVE
+/* Don't assume that UNICODE is not defined.  */
+# undef GetModuleFileName
+# define GetModuleFileName GetModuleFileNameA
+#endif
+
 /* Pathname support.
-   ISSLASH(C)           tests whether C is a directory separator character.
-   IS_PATH_WITH_DIR(P)  tests whether P contains a directory specification.
+   ISSLASH(C)                tests whether C is a directory separator character.
+   IS_FILE_NAME_WITH_DIR(P)  tests whether P contains a directory specification.
  */
 #if (defined _WIN32 && !defined __CYGWIN__) || defined __EMX__ || defined __DJGPP__
   /* Native Windows, OS/2, DOS */
@@ -85,13 +96,13 @@ extern char * canonicalize_file_name (const char *name);
 # define HAS_DEVICE(P) \
     ((((P)[0] >= 'A' && (P)[0] <= 'Z') || ((P)[0] >= 'a' && (P)[0] <= 'z')) \
      && (P)[1] == ':')
-# define IS_PATH_WITH_DIR(P) \
+# define IS_FILE_NAME_WITH_DIR(P) \
     (strchr (P, '/') != NULL || strchr (P, '\\') != NULL || HAS_DEVICE (P))
 # define FILE_SYSTEM_PREFIX_LEN(P) (HAS_DEVICE (P) ? 2 : 0)
 #else
   /* Unix */
 # define ISSLASH(C) ((C) == '/')
-# define IS_PATH_WITH_DIR(P) (strchr (P, '/') != NULL)
+# define IS_FILE_NAME_WITH_DIR(P) (strchr (P, '/') != NULL)
 # define FILE_SYSTEM_PREFIX_LEN(P) 0
 #endif
 
@@ -154,7 +165,7 @@ static int executable_fd = -1;
 /* Define this function only when it's needed.  */
 #if !(defined WINDOWS_NATIVE || defined __EMX__)
 
-/* Tests whether a given pathname may belong to the executable.  */
+/* Tests whether a given filename may belong to the executable.  */
 static bool
 maybe_executable (const char *filename)
 {
@@ -173,18 +184,20 @@ maybe_executable (const char *filename)
       struct stat statfile;
 
       if (fstat (executable_fd, &statexe) >= 0)
-        {
-          if (stat (filename, &statfile) < 0)
-            return false;
-          if (!(statfile.st_dev
+        return (stat (filename, &statfile) >= 0
+                && statfile.st_dev
                 && statfile.st_dev == statexe.st_dev
-                && statfile.st_ino == statexe.st_ino))
-            return false;
-        }
+                && statfile.st_ino == statexe.st_ino);
     }
 # endif
 
-  return true;
+  /* Check that the filename does not point to a directory.  */
+  {
+    struct stat statfile;
+
+    return (stat (filename, &statfile) >= 0
+            && ! S_ISDIR (statfile.st_mode));
+  }
 }
 
 #endif
@@ -206,7 +219,7 @@ find_executable (const char *argv0)
   int length = GetModuleFileName (NULL, location, sizeof (location));
   if (length < 0)
     return NULL;
-  if (!IS_PATH_WITH_DIR (location))
+  if (!IS_FILE_NAME_WITH_DIR (location))
     /* Shouldn't happen.  */
     return NULL;
   return xstrdup (location);
@@ -240,7 +253,7 @@ find_executable (const char *argv0)
     if (link != NULL && link[0] != '[')
       return link;
     if (executable_fd < 0)
-      executable_fd = open ("/proc/self/exe", O_EXEC, 0);
+      executable_fd = open ("/proc/self/exe", O_EXEC | O_CLOEXEC, 0);
 
     {
       char buf[6+10+5];
@@ -249,7 +262,7 @@ find_executable (const char *argv0)
       if (link != NULL && link[0] != '[')
         return link;
       if (executable_fd < 0)
-        executable_fd = open (buf, O_EXEC, 0);
+        executable_fd = open (buf, O_EXEC | O_CLOEXEC, 0);
     }
   }
 # endif
@@ -296,7 +309,7 @@ find_executable (const char *argv0)
      the current directory.  */
   {
     char namebuf[4096];
-    int fd = open ("/proc/self/execname", O_RDONLY, 0);
+    int fd = open ("/proc/self/execname", O_RDONLY | O_CLOEXEC, 0);
     if (fd >= 0)
       {
         size_t len = full_read (fd, namebuf, sizeof (namebuf));
@@ -319,7 +332,7 @@ find_executable (const char *argv0)
     if (link != NULL)
       return link;
     if (executable_fd < 0)
-      executable_fd = open ("/proc/self/exe", O_EXEC, 0);
+      executable_fd = open ("/proc/self/exe", O_EXEC | O_CLOEXEC, 0);
   }
 # endif
 # if HAVE_MACH_O_DYLD_H && HAVE__NSGETEXECUTABLEPATH

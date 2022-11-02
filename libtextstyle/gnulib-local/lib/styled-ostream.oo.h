@@ -1,5 +1,5 @@
 /* Abstract output stream for CSS styled text.
-   Copyright (C) 2006 Free Software Foundation, Inc.
+   Copyright (C) 2006, 2019 Free Software Foundation, Inc.
    Written by Bruno Haible <bruno@clisp.org>, 2006.
 
    This program is free software: you can redistribute it and/or modify
@@ -39,12 +39,18 @@ methods:
      The begin_use_class / end_use_class calls must match properly.  */
   void end_use_class (styled_ostream_t stream, const char *classname);
 
+  /* Get/set the hyperlink attribute and its id.  */
+  const char * get_hyperlink_ref (styled_ostream_t stream);
+  const char * get_hyperlink_id (styled_ostream_t stream);
+  void         set_hyperlink (styled_ostream_t stream,
+                              const char *ref, const char *id);
+
   /* Like styled_ostream_flush (first_arg, FLUSH_THIS_STREAM), except that it
      leaves the destination with the current text style enabled, instead
      of with the default text style.
      After calling this function, you can output strings without newlines(!)
      to the underlying stream, and they will be rendered like strings passed
-     to 'ostream_write_mem' or 'ostream_write_str'.  */
+     to 'ostream_write_mem', 'ostream_write_str', or 'ostream_write_printf'.  */
   void flush_to_current_style (styled_ostream_t stream);
 };
 

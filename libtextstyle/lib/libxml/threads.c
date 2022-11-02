@@ -1,10 +1,39 @@
-/**
- * threads.c: set of generic threading related routines
+/* libxml2 - Library for parsing XML documents
+ * Copyright (C) 2006-2019 Free Software Foundation, Inc.
  *
- * See Copyright for the status of this software.
+ * This file is not part of the GNU gettext program, but is used with
+ * GNU gettext.
+ *
+ * The original copyright notice is as follows:
+ */
+
+/*
+ * Copyright (C) 1998-2012 Daniel Veillard.  All Rights Reserved.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is fur-
+ * nished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FIT-
+ * NESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
  *
  * Gary Pennington <Gary.Pennington@uk.sun.com>
  * daniel@veillard.com
+ */
+
+/**
+ * threads.c: set of generic threading related routines
  */
 
 #define IN_LIBXML
@@ -45,6 +74,7 @@
 
 /* #define DEBUG_THREADS */
 
+#ifdef LIBXML_THREAD_ENABLED
 #ifdef HAVE_PTHREAD_H
 
 #if defined(__GNUC__) && (__GNUC__ * 100 + __GNUC_MINOR__ >= 303) && \
@@ -79,6 +109,7 @@ static int libxml_is_threaded = 1;
 #endif /* __GNUC__, __GLIBC__, __linux__ */
 
 #endif /* HAVE_PTHREAD_H */
+#endif /* LIBXML_THREAD_ENABLED */
 
 /*
  * TODO: this module still uses malloc/free and not xmlMalloc/xmlFree
@@ -90,6 +121,7 @@ static int libxml_is_threaded = 1;
  * xmlMutex are a simple mutual exception locks
  */
 struct _xmlMutex {
+#ifdef LIBXML_THREAD_ENABLED
 #ifdef HAVE_PTHREAD_H
     pthread_mutex_t lock;
 #elif defined HAVE_WIN32_THREADS
@@ -100,12 +132,16 @@ struct _xmlMutex {
 #else
     int empty;
 #endif
+#else
+    int empty;
+#endif
 };
 
 /*
  * xmlRMutex are reentrant mutual exception locks
  */
 struct _xmlRMutex {
+#ifdef LIBXML_THREAD_ENABLED
 #ifdef HAVE_PTHREAD_H
     pthread_mutex_t lock;
     unsigned int held;
@@ -122,6 +158,9 @@ struct _xmlRMutex {
 #else
     int empty;
 #endif
+#else
+    int empty;
+#endif
 };
 
 /*
@@ -130,6 +169,7 @@ struct _xmlRMutex {
  *   - globalkey used for per-thread data
  */
 
+#ifdef LIBXML_THREAD_ENABLED
 #ifdef HAVE_PTHREAD_H
 static pthread_key_t globalkey;
 static pthread_t mainthread;
@@ -158,6 +198,7 @@ int32 run_once_init = 0;
 static int32 global_init_lock = -1;
 static vint32 global_init_count = 0;
 #endif
+#endif
 
 static xmlRMutexPtr xmlLibraryLock = NULL;
 
@@ -180,6 +221,7 @@ xmlNewMutex(void)
 
     if ((tok = malloc(sizeof(xmlMutex))) == NULL)
         return (NULL);
+#ifdef LIBXML_THREAD_ENABLED
 #ifdef HAVE_PTHREAD_H
     if (libxml_is_threaded != 0)
         pthread_mutex_init(&tok->lock, NULL);
@@ -191,6 +233,7 @@ xmlNewMutex(void)
         return NULL;
     }
     tok->tid = -1;
+#endif
 #endif
     return (tok);
 }
@@ -208,6 +251,7 @@ xmlFreeMutex(xmlMutexPtr tok)
     if (tok == NULL)
         return;
 
+#ifdef LIBXML_THREAD_ENABLED
 #ifdef HAVE_PTHREAD_H
     if (libxml_is_threaded != 0)
         pthread_mutex_destroy(&tok->lock);
@@ -215,6 +259,7 @@ xmlFreeMutex(xmlMutexPtr tok)
     CloseHandle(tok->mutex);
 #elif defined HAVE_BEOS_THREADS
     delete_sem(tok->sem);
+#endif
 #endif
     free(tok);
 }
@@ -230,6 +275,7 @@ xmlMutexLock(xmlMutexPtr tok)
 {
     if (tok == NULL)
         return;
+#ifdef LIBXML_THREAD_ENABLED
 #ifdef HAVE_PTHREAD_H
     if (libxml_is_threaded != 0)
         pthread_mutex_lock(&tok->lock);
@@ -244,7 +290,7 @@ xmlMutexLock(xmlMutexPtr tok)
     }
     tok->tid = find_thread(NULL);
 #endif
-
+#endif
 }
 
 /**
@@ -258,6 +304,7 @@ xmlMutexUnlock(xmlMutexPtr tok)
 {
     if (tok == NULL)
         return;
+#ifdef LIBXML_THREAD_ENABLED
 #ifdef HAVE_PTHREAD_H
     if (libxml_is_threaded != 0)
         pthread_mutex_unlock(&tok->lock);
@@ -268,6 +315,7 @@ xmlMutexUnlock(xmlMutexPtr tok)
         tok->tid = -1;
         release_sem(tok->sem);
     }
+#endif
 #endif
 }
 
@@ -288,6 +336,7 @@ xmlNewRMutex(void)
 
     if ((tok = malloc(sizeof(xmlRMutex))) == NULL)
         return (NULL);
+#ifdef LIBXML_THREAD_ENABLED
 #ifdef HAVE_PTHREAD_H
     if (libxml_is_threaded != 0) {
         pthread_mutex_init(&tok->lock, NULL);
@@ -305,6 +354,7 @@ xmlNewRMutex(void)
     }
     tok->count = 0;
 #endif
+#endif
     return (tok);
 }
 
@@ -320,6 +370,7 @@ xmlFreeRMutex(xmlRMutexPtr tok ATTRIBUTE_UNUSED)
 {
     if (tok == NULL)
         return;
+#ifdef LIBXML_THREAD_ENABLED
 #ifdef HAVE_PTHREAD_H
     if (libxml_is_threaded != 0) {
         pthread_mutex_destroy(&tok->lock);
@@ -329,6 +380,7 @@ xmlFreeRMutex(xmlRMutexPtr tok ATTRIBUTE_UNUSED)
     DeleteCriticalSection(&tok->cs);
 #elif defined HAVE_BEOS_THREADS
     xmlFreeMutex(tok->lock);
+#endif
 #endif
     free(tok);
 }
@@ -344,6 +396,7 @@ xmlRMutexLock(xmlRMutexPtr tok)
 {
     if (tok == NULL)
         return;
+#ifdef LIBXML_THREAD_ENABLED
 #ifdef HAVE_PTHREAD_H
     if (libxml_is_threaded == 0)
         return;
@@ -376,6 +429,7 @@ xmlRMutexLock(xmlRMutexPtr tok)
         tok->count = 1;
     }
 #endif
+#endif
 }
 
 /**
@@ -389,6 +443,7 @@ xmlRMutexUnlock(xmlRMutexPtr tok ATTRIBUTE_UNUSED)
 {
     if (tok == NULL)
         return;
+#ifdef LIBXML_THREAD_ENABLED
 #ifdef HAVE_PTHREAD_H
     if (libxml_is_threaded == 0)
         return;
@@ -415,6 +470,7 @@ xmlRMutexUnlock(xmlRMutexPtr tok ATTRIBUTE_UNUSED)
         return;
     }
 #endif
+#endif
 }
 
 /**
@@ -427,6 +483,7 @@ void
 __xmlGlobalInitMutexLock(void)
 {
     /* Make sure the global init lock is initialized and then lock it. */
+#ifdef LIBXML_THREAD_ENABLED
 #ifdef HAVE_PTHREAD_H
     /* The mutex is statically initialized, so we just lock it. */
 #ifdef XML_PTHREAD_WEAK
@@ -496,11 +553,13 @@ __xmlGlobalInitMutexLock(void)
 #endif
     }
 #endif
+#endif
 }
 
 void
 __xmlGlobalInitMutexUnlock(void)
 {
+#ifdef LIBXML_THREAD_ENABLED
 #ifdef HAVE_PTHREAD_H
 #ifdef XML_PTHREAD_WEAK
     if (pthread_mutex_unlock == NULL)
@@ -514,6 +573,7 @@ __xmlGlobalInitMutexUnlock(void)
 #elif defined HAVE_BEOS_THREADS
     release_sem(global_init_lock);
 #endif
+#endif
 }
 
 /**
@@ -525,6 +585,7 @@ __xmlGlobalInitMutexUnlock(void)
 void
 __xmlGlobalInitMutexDestroy(void)
 {
+#ifdef LIBXML_THREAD_ENABLED
 #ifdef HAVE_PTHREAD_H
 #elif defined HAVE_WIN32_THREADS
     if (global_init_lock != NULL) {
@@ -532,6 +593,7 @@ __xmlGlobalInitMutexDestroy(void)
         free(global_init_lock);
         global_init_lock = NULL;
     }
+#endif
 #endif
 }
 
@@ -590,6 +652,8 @@ xmlNewGlobalState(void)
 }
 #endif /* LIBXML_THREAD_ENABLED */
 
+#ifdef LIBXML_THREAD_ENABLED
+
 #ifdef HAVE_PTHREAD_H
 #elif defined HAVE_WIN32_THREADS
 #if !defined(HAVE_COMPILER_TLS)
@@ -643,6 +707,8 @@ xmlGlobalStateCleanup(void *data)
 }
 #endif
 
+#endif /* LIBXML_THREAD_ENABLED */
+
 /**
  * xmlGetGlobalState:
  *
@@ -653,6 +719,7 @@ xmlGlobalStateCleanup(void *data)
 xmlGlobalStatePtr
 xmlGetGlobalState(void)
 {
+#ifdef LIBXML_THREAD_ENABLED
 #ifdef HAVE_PTHREAD_H
     xmlGlobalState *globalval;
 
@@ -743,6 +810,9 @@ xmlGetGlobalState(void)
 #else
     return (NULL);
 #endif
+#else
+    return (NULL);
+#endif
 }
 
 /************************************************************************
@@ -763,6 +833,7 @@ xmlGetGlobalState(void)
 int
 xmlGetThreadId(void)
 {
+#ifdef LIBXML_THREAD_ENABLED
 #ifdef HAVE_PTHREAD_H
     pthread_t id;
     int ret;
@@ -780,6 +851,9 @@ xmlGetThreadId(void)
 #else
     return ((int) 0);
 #endif
+#else
+    return ((int) 0);
+#endif
 }
 
 /**
@@ -792,6 +866,7 @@ xmlGetThreadId(void)
 int
 xmlIsMainThread(void)
 {
+#ifdef LIBXML_THREAD_ENABLED
 #ifdef HAVE_PTHREAD_H
     if (libxml_is_threaded == -1)
         xmlInitThreads();
@@ -813,6 +888,9 @@ xmlIsMainThread(void)
     return (mainthread == GetCurrentThreadId());
 #elif defined HAVE_BEOS_THREADS
     return (mainthread == find_thread(NULL));
+#else
+    return (1);
+#endif
 #else
     return (1);
 #endif
@@ -857,6 +935,7 @@ xmlUnlockLibrary(void)
 void
 xmlInitThreads(void)
 {
+#ifdef LIBXML_THREAD_ENABLED
 #ifdef HAVE_PTHREAD_H
 #ifdef XML_PTHREAD_WEAK
     if (libxml_is_threaded == -1) {
@@ -888,6 +967,7 @@ xmlInitThreads(void)
 #elif defined(HAVE_WIN32_THREADS) && !defined(HAVE_COMPILER_TLS) && (!defined(LIBXML_STATIC) || defined(LIBXML_STATIC_FOR_DLL))
     InitializeCriticalSection(&cleanup_helpers_cs);
 #endif
+#endif
 }
 
 /**
@@ -910,6 +990,7 @@ xmlCleanupThreads(void)
 #ifdef DEBUG_THREADS
     xmlGenericError(xmlGenericErrorContext, "xmlCleanupThreads()\n");
 #endif
+#ifdef LIBXML_THREAD_ENABLED
 #ifdef HAVE_PTHREAD_H
     if (libxml_is_threaded != 0)
         pthread_key_delete(globalkey);
@@ -933,6 +1014,7 @@ xmlCleanupThreads(void)
         globalkey = TLS_OUT_OF_INDEXES;
     }
     DeleteCriticalSection(&cleanup_helpers_cs);
+#endif
 #endif
 }
 

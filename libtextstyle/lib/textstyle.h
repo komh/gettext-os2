@@ -1,5 +1,5 @@
 /* Public API of the libtextstyle library.
-   Copyright (C) 2006-2007, 2019 Free Software Foundation, Inc.
+   Copyright (C) 2006-2007, 2019-2021 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 #ifndef _TEXTSTYLE_H
 #define _TEXTSTYLE_H
 
+#include <stdarg.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <textstyle/stdbool.h>
@@ -70,6 +71,21 @@ extern "C" {
 /* Write a string's contents to a stream.  */
 extern void ostream_write_str (ostream_t stream, const char *string);
 
+/* Writes formatted output to a stream.
+   Returns the size of formatted output, or a negative value in case of an
+   error.  */
+extern ptrdiff_t ostream_printf (ostream_t stream, const char *format, ...)
+#if (__GNUC__ == 3 && __GNUC_MINOR__ >= 1) || __GNUC__ > 3
+  __attribute__ ((__format__ (__printf__, 2, 3)))
+#endif
+  ;
+extern ptrdiff_t ostream_vprintf (ostream_t stream,
+                                  const char *format, va_list args)
+#if (__GNUC__ == 3 && __GNUC_MINOR__ >= 1) || __GNUC__ > 3
+  __attribute__ ((__format__ (__printf__, 2, 0)))
+#endif
+  ;
+
 #ifdef __cplusplus
 }
 #endif
@@ -93,12 +109,15 @@ extern void styled_ostream_flush (styled_ostream_t first_arg, ostream_flush_scop
 extern void styled_ostream_free (styled_ostream_t first_arg);
 extern void styled_ostream_begin_use_class (styled_ostream_t first_arg, const char *classname);
 extern void styled_ostream_end_use_class (styled_ostream_t first_arg, const char *classname);
+extern const char *styled_ostream_get_hyperlink_ref (styled_ostream_t first_arg);
+extern const char *styled_ostream_get_hyperlink_id (styled_ostream_t first_arg);
+extern void styled_ostream_set_hyperlink (styled_ostream_t first_arg, const char *ref, const char *id);
 /* Like styled_ostream_flush (first_arg, FLUSH_THIS_STREAM), except that it
    leaves the destination with the current text style enabled, instead
    of with the default text style.
    After calling this function, you can output strings without newlines(!)
    to the underlying stream, and they will be rendered like strings passed
-   to 'ostream_write_mem' or 'ostream_write_str'.  */
+   to 'ostream_write_mem', 'ostream_write_str', or 'ostream_write_printf'.  */
 extern void styled_ostream_flush_to_current_style (styled_ostream_t stream);
 #ifdef __cplusplus
 }
@@ -226,12 +245,16 @@ extern term_posture_t term_ostream_get_posture (term_ostream_t first_arg);
 extern void term_ostream_set_posture (term_ostream_t first_arg, term_posture_t posture);
 extern term_underline_t term_ostream_get_underline (term_ostream_t first_arg);
 extern void term_ostream_set_underline (term_ostream_t first_arg, term_underline_t underline);
+extern const char *term_ostream_get_hyperlink_ref (term_ostream_t first_arg);
+extern const char *term_ostream_get_hyperlink_id (term_ostream_t first_arg);
+extern void term_ostream_set_hyperlink (term_ostream_t first_arg, const char *ref, const char *id);
 /* Like term_ostream_flush (first_arg, FLUSH_THIS_STREAM), except that it
    leaves the terminal with the current text attributes enabled, instead of
    with the default text attributes.
    After calling this function, you can output strings without newlines(!)
    to the underlying file descriptor, and they will be rendered like strings
-   passed to 'ostream_write_mem' or 'ostream_write_str'.  */
+   passed to 'ostream_write_mem', 'ostream_write_str', or
+   'ostream_write_printf'.  */
 extern void term_ostream_flush_to_current_style (term_ostream_t first_arg);
 #ifdef __cplusplus
 }
@@ -355,12 +378,14 @@ extern void html_ostream_flush (html_ostream_t first_arg, ostream_flush_scope_t 
 extern void html_ostream_free (html_ostream_t first_arg);
 extern void html_ostream_begin_span (html_ostream_t first_arg, const char *classname);
 extern void html_ostream_end_span (html_ostream_t first_arg, const char *classname);
+extern const char *html_ostream_get_hyperlink_ref (html_ostream_t first_arg);
+extern void html_ostream_set_hyperlink_ref (html_ostream_t first_arg, const char *ref);
 /* Like html_ostream_flush (first_arg, FLUSH_THIS_STREAM), except that it
    leaves the destination with the current text style enabled, instead
    of with the default text style.
    After calling this function, you can output strings without newlines(!)
    to the underlying stream, and they will be rendered like strings passed
-   to 'ostream_write_mem' or 'ostream_write_str'.  */
+   to 'ostream_write_mem', 'ostream_write_str', or 'ostream_write_printf'.  */
 extern void html_ostream_flush_to_current_style (html_ostream_t stream);
 #ifdef __cplusplus
 }
@@ -399,6 +424,9 @@ extern void term_styled_ostream_flush (term_styled_ostream_t first_arg, ostream_
 extern void term_styled_ostream_free (term_styled_ostream_t first_arg);
 extern void term_styled_ostream_begin_use_class (term_styled_ostream_t first_arg, const char *classname);
 extern void term_styled_ostream_end_use_class (term_styled_ostream_t first_arg, const char *classname);
+extern const char *term_styled_ostream_get_hyperlink_ref (term_styled_ostream_t first_arg);
+extern const char *term_styled_ostream_get_hyperlink_id (term_styled_ostream_t first_arg);
+extern void term_styled_ostream_set_hyperlink (term_styled_ostream_t first_arg, const char *ref, const char *id);
 extern void term_styled_ostream_flush_to_current_style (term_styled_ostream_t first_arg);
 #ifdef __cplusplus
 }
@@ -439,6 +467,9 @@ extern void html_styled_ostream_flush (html_styled_ostream_t first_arg, ostream_
 extern void html_styled_ostream_free (html_styled_ostream_t first_arg);
 extern void html_styled_ostream_begin_use_class (html_styled_ostream_t first_arg, const char *classname);
 extern void html_styled_ostream_end_use_class (html_styled_ostream_t first_arg, const char *classname);
+extern const char *html_styled_ostream_get_hyperlink_ref (html_styled_ostream_t first_arg);
+extern const char *html_styled_ostream_get_hyperlink_id (html_styled_ostream_t first_arg);
+extern void html_styled_ostream_set_hyperlink (html_styled_ostream_t first_arg, const char *ref, const char *id);
 extern void html_styled_ostream_flush_to_current_style (html_styled_ostream_t first_arg);
 #ifdef __cplusplus
 }
@@ -476,6 +507,9 @@ extern void noop_styled_ostream_flush (noop_styled_ostream_t first_arg, ostream_
 extern void noop_styled_ostream_free (noop_styled_ostream_t first_arg);
 extern void noop_styled_ostream_begin_use_class (noop_styled_ostream_t first_arg, const char *classname);
 extern void noop_styled_ostream_end_use_class (noop_styled_ostream_t first_arg, const char *classname);
+extern const char *noop_styled_ostream_get_hyperlink_ref (noop_styled_ostream_t first_arg);
+extern const char *noop_styled_ostream_get_hyperlink_id (noop_styled_ostream_t first_arg);
+extern void noop_styled_ostream_set_hyperlink (noop_styled_ostream_t first_arg, const char *ref, const char *id);
 extern void noop_styled_ostream_flush_to_current_style (noop_styled_ostream_t first_arg);
 #ifdef __cplusplus
 }
@@ -580,9 +614,11 @@ extern void libtextstyle_set_failure_exit_code (int exit_code);
 extern "C" {
 # endif
 
+# if !((defined isatty && defined _GL_UNISTD_H) || defined GNULIB_overrides_isatty) /* don't override gnulib */
 extern int libtextstyle_isatty (int fd);
-# undef isatty
-# define isatty libtextstyle_isatty
+#  undef isatty
+#  define isatty libtextstyle_isatty
+# endif
 
 # ifdef __cplusplus
 }

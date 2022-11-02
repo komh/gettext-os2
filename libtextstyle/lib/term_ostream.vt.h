@@ -15,4 +15,7 @@
    void           (*set_posture) (THIS_ARG, term_posture_t posture);
         term_underline_t (*get_underline) (THIS_ARG);
    void             (*set_underline) (THIS_ARG,                                   term_underline_t underline);
-             void (*flush_to_current_style) (THIS_ARG);
+        const char * (*get_hyperlink_ref) (THIS_ARG);
+   const char * (*get_hyperlink_id) (THIS_ARG);
+   void         (*set_hyperlink) (THIS_ARG,                               const char *ref, const char *id);
+              void (*flush_to_current_style) (THIS_ARG);

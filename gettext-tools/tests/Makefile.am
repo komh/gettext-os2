@@ -1,5 +1,5 @@
 ## Makefile for the gettext-tools/tests subdirectory of GNU gettext
-## Copyright (C) 1995-1997, 2001-2010, 2012-2016, 2018-2019 Free Software Foundation, Inc.
+## Copyright (C) 1995-1997, 2001-2010, 2012-2016, 2018-2022 Free Software Foundation, Inc.
 ##
 ## This program is free software: you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@ EXTRA_DIST =
 MOSTLYCLEANFILES = core *.stackdump
 
 TESTS = gettext-1 gettext-2 \
-	intl-1 intl-2 intl-3 intl-4 intl-5 \
+	intl-1 intl-2 intl-3 intl-4 intl-5 intl-6 \
 	intl-setlocale-1 intl-setlocale-2 \
 	intl-thread-1 intl-thread-2 intl-thread-3 \
 	intl-version \
@@ -32,7 +32,7 @@ TESTS = gettext-1 gettext-2 \
 	msgattrib-properties-1 \
 	msgcat-1 msgcat-2 msgcat-3 msgcat-4 msgcat-5 msgcat-6 msgcat-7 \
 	msgcat-8 msgcat-9 msgcat-10 msgcat-11 msgcat-12 msgcat-13 msgcat-14 \
-	msgcat-15 msgcat-16 msgcat-17 msgcat-18 msgcat-19 msgcat-20 \
+	msgcat-15 msgcat-16 msgcat-17 msgcat-18 msgcat-19 msgcat-20 msgcat-21 \
 	msgcat-properties-1 msgcat-properties-2 \
 	msgcat-stringtable-1 \
 	msgcmp-1 msgcmp-2 msgcmp-3 msgcmp-4 \
@@ -52,7 +52,7 @@ TESTS = gettext-1 gettext-2 \
 	msgfmt-15 msgfmt-16 msgfmt-17 msgfmt-18 msgfmt-19 \
 	msgfmt-properties-1 \
 	msgfmt-qt-1 msgfmt-qt-2 \
-	msgfmt-desktop-1 msgfmt-desktop-2 \
+	msgfmt-desktop-1 msgfmt-desktop-2 msgfmt-desktop-3 \
 	msgfmt-xml-1 msgfmt-xml-2 \
 	msggrep-1 msggrep-2 msggrep-3 msggrep-4 msggrep-5 msggrep-6 msggrep-7 \
 	msggrep-8 msggrep-9 msggrep-10 msggrep-11 \
@@ -62,7 +62,7 @@ TESTS = gettext-1 gettext-2 \
 	msgmerge-13 msgmerge-14 msgmerge-15 msgmerge-16 msgmerge-17 \
 	msgmerge-18 msgmerge-19 msgmerge-20 msgmerge-21 msgmerge-22 \
 	msgmerge-23 msgmerge-24 msgmerge-25 msgmerge-26 msgmerge-27 \
-	msgmerge-28 \
+	msgmerge-28 msgmerge-29 \
 	msgmerge-compendium-1 msgmerge-compendium-2 msgmerge-compendium-3 \
 	msgmerge-compendium-4 msgmerge-compendium-5 msgmerge-compendium-6 \
 	msgmerge-properties-1 msgmerge-properties-2 \
@@ -77,7 +77,8 @@ TESTS = gettext-1 gettext-2 \
 	recode-sr-latin-1 recode-sr-latin-2 \
 	xgettext-2 xgettext-3 xgettext-4 xgettext-5 xgettext-6 \
 	xgettext-7 xgettext-8 xgettext-9 xgettext-10 xgettext-11 xgettext-12 \
-	xgettext-13 xgettext-14 \
+	xgettext-13 xgettext-14 xgettext-15 xgettext-16 \
+	xgettext-18 \
 	xgettext-appdata-1 \
 	xgettext-awk-1 xgettext-awk-2 \
 	xgettext-c-2 xgettext-c-3 xgettext-c-4 xgettext-c-5 xgettext-c-6 \
@@ -91,13 +92,20 @@ TESTS = gettext-1 gettext-2 \
 	xgettext-csharp-1 xgettext-csharp-2 xgettext-csharp-3 \
 	xgettext-csharp-4 xgettext-csharp-5 xgettext-csharp-6 \
 	xgettext-csharp-7 xgettext-csharp-8 \
+	xgettext-desktop-1 xgettext-desktop-2 \
 	xgettext-elisp-1 xgettext-elisp-2 \
 	xgettext-glade-1 xgettext-glade-2 xgettext-glade-3 xgettext-glade-4 \
 	xgettext-glade-5 xgettext-glade-6 xgettext-glade-7 \
+	xgettext-gsettings-1 \
+	xgettext-its-1 xgettext-its-2 \
 	xgettext-java-1 xgettext-java-2 xgettext-java-3 xgettext-java-4 \
 	xgettext-java-5 xgettext-java-6 xgettext-java-7 \
+	xgettext-javascript-1 xgettext-javascript-2 xgettext-javascript-3 \
+	xgettext-javascript-4 xgettext-javascript-5 xgettext-javascript-6 \
+	xgettext-javascript-7 \
 	xgettext-librep-1 xgettext-librep-2 \
 	xgettext-lisp-1 xgettext-lisp-2 \
+	xgettext-lua-1 xgettext-lua-2 \
 	xgettext-objc-1 xgettext-objc-2 \
 	xgettext-perl-1 xgettext-perl-2 xgettext-perl-3 xgettext-perl-4 \
 	xgettext-perl-5 xgettext-perl-6 xgettext-perl-7 xgettext-perl-8 \
@@ -108,22 +116,16 @@ TESTS = gettext-1 gettext-2 \
 	xgettext-rst-1 xgettext-rst-2 \
 	xgettext-python-1 xgettext-python-2 xgettext-python-3 \
 	xgettext-python-4 \
+	xgettext-ruby-1 \
 	xgettext-scheme-1 xgettext-scheme-2 xgettext-scheme-3 \
 	xgettext-scheme-4 \
 	xgettext-sh-1 xgettext-sh-2 xgettext-sh-3 xgettext-sh-4 xgettext-sh-5 \
-	xgettext-sh-6 \
+	xgettext-sh-6 xgettext-sh-7 \
 	xgettext-smalltalk-1 xgettext-smalltalk-2 \
 	xgettext-stringtable-1 \
 	xgettext-tcl-1 xgettext-tcl-2 xgettext-tcl-3 xgettext-tcl-4 \
-	xgettext-ycp-1 xgettext-ycp-2 xgettext-ycp-3 xgettext-ycp-4 \
-	xgettext-lua-1 xgettext-lua-2 \
-	xgettext-javascript-1 xgettext-javascript-2 xgettext-javascript-3 \
-	xgettext-javascript-4 xgettext-javascript-5 xgettext-javascript-6 \
-	xgettext-javascript-7 \
 	xgettext-vala-1 xgettext-vala-2 \
-	xgettext-gsettings-1 \
-	xgettext-desktop-1 \
-	xgettext-its-1 xgettext-its-2 \
+	xgettext-ycp-1 xgettext-ycp-2 xgettext-ycp-3 xgettext-ycp-4 \
 	format-awk-1 format-awk-2 \
 	format-boost-1 format-boost-2 \
 	format-c-1 format-c-2 format-c-3 format-c-4 format-c-5 \
@@ -132,10 +134,13 @@ TESTS = gettext-1 gettext-2 \
 	format-gcc-internal-1 format-gcc-internal-2 \
 	format-gfc-internal-1 format-gfc-internal-2 \
 	format-java-1 format-java-2 \
+	format-java-printf-1 format-java-printf-2 \
+	format-javascript-1 format-javascript-2 \
 	format-kde-1 format-kde-2 \
 	format-kde-kuit-1 format-kde-kuit-2 \
 	format-librep-1 format-librep-2 \
 	format-lisp-1 format-lisp-2 \
+	format-lua-1 format-lua-2 \
 	format-php-1 format-php-2 \
 	format-python-1 format-python-2 \
 	format-python-brace-1 format-python-brace-2 \
@@ -145,24 +150,36 @@ TESTS = gettext-1 gettext-2 \
 	format-perl-mixed-1 format-perl-mixed-2 \
 	format-qt-1 format-qt-2 \
 	format-qt-plural-1 format-qt-plural-2 \
+	format-ruby-1 format-ruby-2 \
 	format-scheme-1 format-scheme-2 \
 	format-sh-1 format-sh-2 \
 	format-tcl-1 format-tcl-2 \
 	format-ycp-1 format-ycp-2 \
-	format-lua-1 format-lua-2 \
-	format-javascript-1 format-javascript-2 \
 	plural-1 plural-2 \
 	gettextpo-1 sentence-1 \
-	lang-c lang-c++ lang-objc lang-sh lang-bash lang-python-1 \
-	lang-python-2 lang-clisp lang-elisp lang-librep lang-guile \
-	lang-smalltalk lang-java lang-csharp lang-gawk lang-pascal \
-	lang-ycp lang-tcl lang-perl-1 lang-perl-2 lang-php lang-po lang-rst \
-	lang-lua lang-javascript lang-vala \
+	lang-po \
+	lang-c lang-c++ lang-objc \
+	lang-python-1 lang-python-2 \
+	lang-java \
+	lang-csharp \
+	lang-javascript \
+	lang-guile lang-clisp lang-elisp lang-librep \
+	lang-sh lang-bash \
+	lang-gawk \
+	lang-lua \
+	lang-pascal \
+	lang-smalltalk \
+	lang-vala \
+	lang-tcl \
+	lang-perl-1 lang-perl-2 \
+	lang-php \
+	lang-ycp \
+	lang-rst \
 	autopoint-1 autopoint-2 autopoint-3 cldr-plurals-1
 
 EXTRA_DIST += init.sh init.cfg $(TESTS) \
 	test.mo overflow-1.mo overflow-2.mo overflow-3.mo overflow-4.mo \
-	overflow-5.mo overflow-6.mo sysdep-without-nul.mo \
+	overflow-5.mo overflow-6.mo overflow-7.mo sysdep-without-nul.mo \
 	xg-c-1.ok.po mex-test2.ok \
 	mm-ko.ascii.pot mm-ko.euc-kr.po mm-ko-comp.euc-kr.po \
 	mm-viet.comp.po mm-viet.pot mm-viet.out \
@@ -233,8 +250,10 @@ DEFS = -DLOCALEDIR=\"$(localedir)\" @DEFS@
 LDADD = $(LDADD_@USE_INCLUDED_LIBINTL@) @INTL_MACOSX_LIBS@
 LDADD_yes = ../intl/libintl.la @LTLIBTHREAD@
 LDADD_no = ../intl/libgnuintl.la @LTLIBTHREAD@ @LTLIBINTL@
-check_PROGRAMS = tstgettext tstngettext testlocale intl-1-prg intl-3-prg intl-4-prg intl-5-prg intl-setlocale-1-prg intl-setlocale-2-prg intl-thread-1-prg intl-thread-2-prg intl-thread-3-prg intl-version-prg cake fc3 fc4 fc5 gettextpo-1-prg sentence-1-prg
-tstgettext_SOURCES = tstgettext.c setlocale.c
+check_PROGRAMS = tstgettext tstngettext testlocale intl-1-prg intl-3-prg intl-4-prg intl-5-prg intl-6-prg intl-setlocale-1-prg intl-setlocale-2-prg intl-thread-1-prg intl-thread-2-prg intl-thread-3-prg intl-version-prg cake fc3 fc4 fc5 gettextpo-1-prg sentence-1-prg
+tstgettext_SOURCES = \
+  tstgettext.c ../../gettext-runtime/src/escapes.h \
+  setlocale.c
 tstgettext_CFLAGS = -DINSTALLDIR=\".\"
 tstgettext_LDADD = ../gnulib-lib/libgettextlib.la $(LDADD)
 tstngettext_SOURCES = tstngettext.c setlocale.c
@@ -249,6 +268,8 @@ intl_4_prg_SOURCES = intl-4-prg.c
 intl_4_prg_LDADD = ../gnulib-lib/libgettextlib.la $(LDADD)
 intl_5_prg_SOURCES = intl-5-prg.c
 intl_5_prg_LDADD = ../gnulib-lib/libgettextlib.la $(LDADD)
+intl_6_prg_SOURCES = intl-6-prg.c
+intl_6_prg_LDADD = ../gnulib-lib/libgettextlib.la $(LDADD)
 intl_setlocale_1_prg_SOURCES = intl-setlocale-1-prg.c
 intl_setlocale_1_prg_LDADD = ../gnulib-lib/libgettextlib.la $(LDADD)
 intl_setlocale_2_prg_SOURCES = intl-setlocale-2-prg.c

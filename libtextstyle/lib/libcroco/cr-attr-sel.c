@@ -1,10 +1,21 @@
 /* -*- Mode: C; indent-tabs-mode:nil; c-basic-offset: 8-*- */
 
+/* libcroco - Library for parsing and applying CSS
+ * Copyright (C) 2006-2019 Free Software Foundation, Inc.
+ *
+ * This file is not part of the GNU gettext program, but is used with
+ * GNU gettext.
+ *
+ * The original copyright notice is as follows:
+ */
+
 /*
  * This file is part of The Croco Library
  *
+ * Copyright (C) 2003-2004 Dodji Seketeli.  All Rights Reserved.
+ *
  * This program is free software; you can redistribute it and/or
- * modify it under the terms of version 3 of the GNU General Public
+ * modify it under the terms of version 2.1 of the GNU Lesser General Public
  * License as published by the Free Software Foundation.
  *
  * This program is distributed in the hope that it will be useful,
@@ -12,12 +23,10 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA
- * 
- * See COPYRIGHTS file for copyrights information.
  */
 
 #include <config.h>
@@ -106,9 +115,9 @@ cr_attr_sel_prepend_attr_sel (CRAttrSel * a_this,
  * Returns the serialized attribute selector.
  */
 guchar *
-cr_attr_sel_to_string (CRAttrSel * a_this)
+cr_attr_sel_to_string (CRAttrSel const * a_this)
 {
-        CRAttrSel *cur = NULL;
+        CRAttrSel const *cur = NULL;
         guchar *result = NULL;
         GString *str_buf = NULL;
 
@@ -124,10 +133,10 @@ cr_attr_sel_to_string (CRAttrSel * a_this)
                 if (cur->name) {
                         guchar *name = NULL;
 
-                        name = g_strndup (cur->name->stryng->str, 
+                        name = (guchar *) g_strndup (cur->name->stryng->str, 
                                           cur->name->stryng->len);
                         if (name) {
-                                g_string_append (str_buf, name);
+                                g_string_append (str_buf, (const gchar *) name);
                                 g_free (name);
                                 name = NULL;
                         }
@@ -136,7 +145,7 @@ cr_attr_sel_to_string (CRAttrSel * a_this)
                 if (cur->value) {
                         guchar *value = NULL;
 
-                        value = g_strndup (cur->value->stryng->str, 
+                        value = (guchar *) g_strndup (cur->value->stryng->str, 
                                            cur->value->stryng->len);
                         if (value) {
                                 switch (cur->match_way) {
@@ -169,7 +178,7 @@ cr_attr_sel_to_string (CRAttrSel * a_this)
         }
 
         if (str_buf) {
-                result = str_buf->str;
+                result = (guchar *) str_buf->str;
                 g_string_free (str_buf, FALSE);
         }
 
@@ -185,7 +194,7 @@ cr_attr_sel_to_string (CRAttrSel * a_this)
  * Dumps the current instance of #CRAttrSel to a file.
  */
 void
-cr_attr_sel_dump (CRAttrSel * a_this, FILE * a_fp)
+cr_attr_sel_dump (CRAttrSel const * a_this, FILE * a_fp)
 {
         guchar *tmp_str = NULL;
 

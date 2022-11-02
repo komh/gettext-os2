@@ -1,5 +1,5 @@
-/* Test of execution of program termination handlers.
-   Copyright (C) 2007-2019 Free Software Foundation, Inc.
+/* Test of execution of file name canonicalization.
+   Copyright (C) 2007-2022 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -15,6 +15,11 @@
    along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 /* Written by Bruno Haible <bruno@clisp.org>, 2007.  */
+
+/* Don't use __attribute__ __nonnull__ in this compilation unit.  Otherwise gcc
+   may "optimize" the null_ptr function, when its result gets passed to a
+   function that has an argument declared as _GL_ARG_NONNULL.  */
+#define _GL_ARG_NONNULL(params)
 
 #include <config.h>
 
@@ -34,7 +39,10 @@ SIGNATURE_CHECK (canonicalize_file_name, char *, (const char *));
 #include "same-inode.h"
 #include "ignore-value.h"
 
-#include "null-ptr.h"
+#if GNULIB_defined_canonicalize_file_name
+# include "null-ptr.h"
+#endif
+
 #include "macros.h"
 
 #define BASE "t-can-lgpl.tmp"
@@ -59,6 +67,48 @@ main (void)
     ASSERT (close (fd) == 0);
   }
 
+  /* Check // handling (the easy cases, without symlinks).
+     This // handling is not mandated by POSIX.  However, many applications
+     expect that canonicalize_file_name "canonicalizes" the file name,
+     that is, that different results of canonicalize_file_name correspond
+     to different files (except for hard links).  */
+  {
+    char *result0 = canonicalize_file_name ("/etc/passwd");
+    if (result0 != NULL) /* This file does not exist on native Windows.  */
+      {
+        char *result;
+
+        result = canonicalize_file_name ("/etc//passwd");
+        ASSERT (result != NULL && strcmp (result, result0) == 0);
+
+        result = canonicalize_file_name ("/etc///passwd");
+        ASSERT (result != NULL && strcmp (result, result0) == 0);
+
+        /* On Windows, the syntax //host/share/filename denotes a file
+           in a directory named 'share', exported from host 'host'.
+           See also m4/double-slash-root.m4.  */
+#if !(defined _WIN32 || defined __CYGWIN__)
+        result = canonicalize_file_name ("//etc/passwd");
+        ASSERT (result != NULL && strcmp (result, result0) == 0);
+
+        result = canonicalize_file_name ("//etc//passwd");
+        ASSERT (result != NULL && strcmp (result, result0) == 0);
+
+        result = canonicalize_file_name ("//etc///passwd");
+        ASSERT (result != NULL && strcmp (result, result0) == 0);
+#endif
+
+        result = canonicalize_file_name ("///etc/passwd");
+        ASSERT (result != NULL && strcmp (result, result0) == 0);
+
+        result = canonicalize_file_name ("///etc//passwd");
+        ASSERT (result != NULL && strcmp (result, result0) == 0);
+
+        result = canonicalize_file_name ("///etc///passwd");
+        ASSERT (result != NULL && strcmp (result, result0) == 0);
+      }
+  }
+
   /* Check for ., .., intermediate // handling, and for error cases.  */
   {
     char *result = canonicalize_file_name (BASE "//./..//" BASE "/tra");
@@ -66,14 +116,22 @@ main (void)
     ASSERT (strstr (result, "/" BASE "/tra")
             == result + strlen (result) - strlen ("/" BASE "/tra"));
     free (result);
+
     errno = 0;
     result = canonicalize_file_name ("");
     ASSERT (result == NULL);
     ASSERT (errno == ENOENT);
+
+    /* This test works only if the canonicalize_file_name implementation
+       comes from gnulib.  If it comes from libc, we have no way to prevent
+       gcc from "optimizing" the null_ptr function in invalid ways.  See
+       <https://gcc.gnu.org/bugzilla/show_bug.cgi?id=93156>.  */
+#if GNULIB_defined_canonicalize_file_name
     errno = 0;
     result = canonicalize_file_name (null_ptr ());
     ASSERT (result == NULL);
     ASSERT (errno == EINVAL);
+#endif
   }
 
   /* Check that a non-directory with trailing slash yields NULL.  */
@@ -150,13 +208,29 @@ main (void)
     ASSERT (errno == ENOENT);
   }
 
-  /* Check that a non-directory symlink with trailing slash yields NULL.  */
+  /* Check that a non-directory symlink with trailing slash yields NULL,
+     and likewise for other troublesome suffixes.  */
   {
-    char *result;
-    errno = 0;
-    result = canonicalize_file_name (BASE "/huk/");
-    ASSERT (result == NULL);
-    ASSERT (errno == ENOTDIR);
+    char const *const file_name[]
+      = {
+         BASE "/huk/",
+         BASE "/huk/.",
+         BASE "/huk/./",
+         BASE "/huk/./.",
+         BASE "/huk/x",
+         BASE "/huk/..",
+         BASE "/huk/../",
+         BASE "/huk/../.",
+         BASE "/huk/../x",
+         BASE "/huk/./..",
+         BASE "/huk/././../x",
+        };
+    for (int i = 0; i < sizeof file_name / sizeof *file_name; i++)
+      {
+        errno = 0;
+        ASSERT (!canonicalize_file_name (file_name[i]));
+        ASSERT (errno == ENOTDIR);
+      }
   }
 
   /* Check that a missing directory via symlink yields NULL.  */
@@ -177,7 +251,7 @@ main (void)
     ASSERT (errno == ELOOP);
   }
 
-  /* Check that leading // is honored correctly.  */
+  /* Check that leading // within symlinks is honored correctly.  */
   {
     struct stat st1;
     struct stat st2;

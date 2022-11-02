@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 Free Software Foundation, Inc.
+# Copyright (C) 2002-2022 Free Software Foundation, Inc.
 #
 # This file is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -43,22 +43,19 @@
 #  --avoid=extensions \
 #  --avoid=gettext-h \
 #  --avoid=include_next \
-#  --avoid=locale \
 #  --avoid=localcharset \
 #  --avoid=malloc-posix \
 #  --avoid=mbrtowc \
 #  --avoid=mbsinit \
 #  --avoid=multiarch \
+#  --avoid=setlocale-null \
 #  --avoid=ssize_t \
-#  --avoid=stdbool \
-#  --avoid=stddef \
-#  --avoid=stdint \
-#  --avoid=stdlib \
 #  --avoid=streq \
-#  --avoid=unistd \
 #  --avoid=verify \
-#  --avoid=wchar \
-#  --avoid=wctype-h \
+#  --avoid=windows-mutex \
+#  --avoid=windows-once \
+#  --avoid=windows-recmutex \
+#  --avoid=windows-rwlock \
 #  mbrlen \
 #  regex
 
@@ -68,7 +65,7 @@ gl_MODULES([
   mbrlen
   regex
 ])
-gl_AVOID([ alloca-opt extensions gettext-h include_next locale localcharset malloc-posix mbrtowc mbsinit multiarch ssize_t stdbool stddef stdint stdlib streq unistd verify wchar wctype-h])
+gl_AVOID([ alloca-opt extensions gettext-h include_next localcharset malloc-posix mbrtowc mbsinit multiarch setlocale-null ssize_t streq verify windows-mutex windows-once windows-recmutex windows-rwlock])
 gl_SOURCE_BASE([libgrep])
 gl_M4_BASE([libgrep/gnulib-m4])
 gl_PO_BASE([])

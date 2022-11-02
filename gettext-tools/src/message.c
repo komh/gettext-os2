@@ -1,5 +1,5 @@
 /* GNU gettext - internationalization aids
-   Copyright (C) 1995-1998, 2000-2010, 2012-2013, 2015-2016 Free Software Foundation, Inc.
+   Copyright (C) 1995-1998, 2000-2010, 2012-2013, 2015-2016, 2019-2020 Free Software Foundation, Inc.
 
    This file was written by Peter Miller <millerp@canb.auug.org.au>
 
@@ -27,7 +27,7 @@
 #include <string.h>
 
 #include "fstrcmp.h"
-#include "hash.h"
+#include "mem-hash-map.h"
 #include "xalloc.h"
 #include "xmalloca.h"
 
@@ -36,64 +36,68 @@ const char *const format_language[NFORMATS] =
 {
   /* format_c */                "c",
   /* format_objc */             "objc",
-  /* format_sh */               "sh",
   /* format_python */           "python",
   /* format_python_brace */     "python-brace",
+  /* format_java */             "java",
+  /* format_java_printf */      "java-printf",
+  /* format_csharp */           "csharp",
+  /* format_javascript */       "javascript",
+  /* format_scheme */           "scheme",
   /* format_lisp */             "lisp",
   /* format_elisp */            "elisp",
   /* format_librep */           "librep",
-  /* format_scheme */           "scheme",
-  /* format_smalltalk */        "smalltalk",
-  /* format_java */             "java",
-  /* format_csharp */           "csharp",
+  /* format_ruby */             "ruby",
+  /* format_sh */               "sh",
   /* format_awk */              "awk",
+  /* format_lua */              "lua",
   /* format_pascal */           "object-pascal",
-  /* format_ycp */              "ycp",
+  /* format_smalltalk */        "smalltalk",
+  /* format_qt */               "qt",
+  /* format_qt_plursl */        "qt-plural",
+  /* format_kde */              "kde",
+  /* format_kde_kuit */         "kde-kuit",
+  /* format_boost */            "boost",
   /* format_tcl */              "tcl",
   /* format_perl */             "perl",
   /* format_perl_brace */       "perl-brace",
   /* format_php */              "php",
   /* format_gcc_internal */     "gcc-internal",
   /* format_gfc_internal */     "gfc-internal",
-  /* format_qt */               "qt",
-  /* format_qt_plursl */        "qt-plural",
-  /* format_kde */              "kde",
-  /* format_kde_kuit */         "kde-kuit",
-  /* format_boost */            "boost",
-  /* format_lua */              "lua",
-  /* format_javascript */       "javascript"
+  /* format_ycp */              "ycp"
 };
 
 const char *const format_language_pretty[NFORMATS] =
 {
   /* format_c */                "C",
   /* format_objc */             "Objective C",
-  /* format_sh */               "Shell",
   /* format_python */           "Python",
   /* format_python_brace */     "Python brace",
+  /* format_java */             "Java MessageFormat",
+  /* format_java_printf */      "Java printf",
+  /* format_csharp */           "C#",
+  /* format_javascript */       "JavaScript",
+  /* format_scheme */           "Scheme",
   /* format_lisp */             "Lisp",
   /* format_elisp */            "Emacs Lisp",
   /* format_librep */           "librep",
-  /* format_scheme */           "Scheme",
-  /* format_smalltalk */        "Smalltalk",
-  /* format_java */             "Java",
-  /* format_csharp */           "C#",
+  /* format_ruby */             "Ruby",
+  /* format_sh */               "Shell",
   /* format_awk */              "awk",
+  /* format_lua */              "Lua",
   /* format_pascal */           "Object Pascal",
-  /* format_ycp */              "YCP",
+  /* format_smalltalk */        "Smalltalk",
+  /* format_qt */               "Qt",
+  /* format_qt_plural */        "Qt plural",
+  /* format_kde */              "KDE",
+  /* format_kde_kuit */         "KDE KUIT",
+  /* format_boost */            "Boost",
   /* format_tcl */              "Tcl",
   /* format_perl */             "Perl",
   /* format_perl_brace */       "Perl brace",
   /* format_php */              "PHP",
   /* format_gcc_internal */     "GCC internal",
   /* format_gfc_internal */     "GFC internal",
-  /* format_qt */               "Qt",
-  /* format_qt_plural */        "Qt plural",
-  /* format_kde */              "KDE",
-  /* format_kde_kuit */         "KDE KUIT",
-  /* format_boost */            "Boost",
-  /* format_lua */              "Lua",
-  /* format_javascript */       "JavaScript"
+  /* format_ycp */              "YCP"
 };
 
 

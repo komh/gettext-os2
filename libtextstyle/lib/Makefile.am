@@ -1,5 +1,5 @@
 ## Makefile for the lib subdirectory of GNU libtextstyle.
-## Copyright (C) 2009-2019 Free Software Foundation, Inc.
+## Copyright (C) 2009-2022 Free Software Foundation, Inc.
 ##
 ## This program is free software: you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -39,6 +39,7 @@ noinst_HEADERS = notinline.h
 AM_CPPFLAGS = \
   -I. -I$(srcdir) \
   -I$(top_builddir) -I$(top_srcdir) \
+  -Iglib \
   -DIN_LIBTEXTSTYLE
 
 # Parameterization of the 'libxml' module:
@@ -46,6 +47,13 @@ AM_CPPFLAGS = \
 # xmlMalloc, xmlMallocAtomic, xmlRealloc, xmlFree, xmlMemStrdup.
 if INCLUDED_LIBXML
 AM_CPPFLAGS += -DLIBXML_STATIC
+endif
+
+if WOE32
+# On mingw, disable the declarations of *printf functions as aliases to the
+# corresponding __mingw_*printf functions, because they pull in a dependency
+# to the libgcc_s_sjlj DLL (through the symbols __udivdi3, __umoddi3).
+AM_CPPFLAGS += -D__USE_MINGW_ANSI_STDIO=0
 endif
 
 # Rules generated and collected by gnulib-tool.
@@ -138,19 +146,26 @@ HEADERS_WITH_EXTERNS = \
 # List of declared exported symbols.
 # We extract it from the header files that get installed.
 # This file has the same format as the one expected by the libtool option
-# '-export-symbols', but we don't use this option, because it may prevent us
-# from building some of the unit tests.
+# '-export-symbols'.
 $(srcdir)/libtextstyle.sym.in : $(HEADERS_WITH_EXTERNS)
-	for f in $(HEADERS_WITH_EXTERNS); do \
-	  if test -f $$f; then \
-	    cat $$f; \
+	if \
+	  for f in $(HEADERS_WITH_EXTERNS); do \
+	    if test -f $$f; then \
+	      cat $$f; \
+	    else \
+	      cat $(srcdir)/$$f; \
+	    fi; \
+	  done \
+	  | $(srcdir)/declared.sh > $@-t1; \
+	then \
+	  LC_ALL=C sort < $@-t1 | LC_ALL=C uniq > $@-t2 && mv $@-t2 $@; \
+	else \
+	  if test -f $@; then \
+	    echo "Continuing with existing libtextstyle.sym.in."; \
 	  else \
-	    cat $(srcdir)/$$f; \
+	    exit 1; \
 	  fi; \
-	done \
-	  | $(srcdir)/declared.sh | LC_ALL=C sort | LC_ALL=C uniq \
-	  > $@-t
-	mv $@-t $@
+	fi
 # We distribute it because declared.sh relies on GNU sed.
 # The GNU Coding Standards say in
 # <https://www.gnu.org/prep/standards/html_node/Makefile-Basics.html>:
@@ -160,7 +175,7 @@ $(srcdir)/libtextstyle.sym.in : $(HEADERS_WITH_EXTERNS)
 #    So Makefile rules to update them should put the updated files in the
 #    source directory."
 # Therefore we put this file in the source directory, not the build directory.
-MOSTLYCLEANFILES     += libtextstyle.sym.in-t
+MOSTLYCLEANFILES     += libtextstyle.sym.in-t1 libtextstyle.sym.in-t2
 MAINTAINERCLEANFILES += libtextstyle.sym.in
 EXTRA_DIST           += libtextstyle.sym.in declared.sh
 
@@ -219,9 +234,9 @@ config.h: $(BUILT_SOURCES) libtextstyle.sym
 	            ;; \
 	        esac; \
 	      done; \
-	    } 5>&1 \
-	      | sed -e 's,.* ,,' | LC_ALL=C sort | LC_ALL=C uniq \
-	      | LC_ALL=C join -v 1 - libtextstyle.sym \
+	    } 5>&1 1>&2 \
+	      | sed -e 's,.* ,,' | grep -v '@' | LC_ALL=C sort | LC_ALL=C uniq \
+	      | LC_ALL=C $(top_srcdir)/build-aux/join-v-1 - libtextstyle.sym \
 	      | sed -e 's,^\(.*\)$$,#define \1 libtextstyle_\1,' > config.h-t; \
 	  } 6>&1 && \
 	  if test -f config.h; then \
@@ -267,9 +282,9 @@ AM_CPPFLAGS += -DDEPENDS_ON_LIBICONV=1
 
 # Libtool's library version information for libtextstyle.
 # See the libtool documentation, section "Library interface versions".
-LTV_CURRENT=0
-LTV_REVISION=0
-LTV_AGE=0
+LTV_CURRENT=1
+LTV_REVISION=2
+LTV_AGE=1
 
 # How to build libtextstyle.la.
 libtextstyle_la_LDFLAGS += \
