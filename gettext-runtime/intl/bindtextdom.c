@@ -1,5 +1,5 @@
 /* Implementation of the bindtextdomain(3) function
-   Copyright (C) 1995-2020 Free Software Foundation, Inc.
+   Copyright (C) 1995-2026 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU Lesser General Public License as published by
@@ -13,6 +13,8 @@
 
    You should have received a copy of the GNU Lesser General Public License
    along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
+
+/* Written by Ulrich Drepper and Bruno Haible.  */
 
 #ifdef HAVE_CONFIG_H
 # include <config.h>
@@ -31,23 +33,17 @@
 
 /* Handle multi-threaded applications.  */
 #ifdef _LIBC
-# include <bits/libc-lock.h>
+# include <libc-lock.h>
 # define gl_rwlock_define __libc_rwlock_define
 # define gl_rwlock_wrlock __libc_rwlock_wrlock
 # define gl_rwlock_unlock __libc_rwlock_unlock
 #else
-# include "lock.h"
+# include "glthread/lock.h"
 #endif
 
-/* Some compilers, like SunOS4 cc, don't have offsetof in <stddef.h>.  */
-#ifndef offsetof
-# define offsetof(type,ident) ((size_t)&(((type*)0)->ident))
-#endif
+#include "flexmember.h"
 
 /* @@ end of prolog @@ */
-
-/* Lock variable to protect the global data in the gettext implementation.  */
-gl_rwlock_define (extern, _nl_state_lock attribute_hidden)
 
 
 /* Names for the libintl functions are a problem.  They must not clash
@@ -237,7 +233,9 @@ set_binding_values (const char *domainname,
       /* We have to create a new binding.  */
       size_t len = strlen (domainname) + 1;
       struct binding *new_binding =
-	(struct binding *) malloc (offsetof (struct binding, domainname) + len);
+	(struct binding *)
+	malloc (FLEXNSIZEOF (struct binding, domainname, len));
+
 
       if (__builtin_expect (new_binding == NULL, 0))
 	goto failed;

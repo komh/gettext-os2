@@ -10,6 +10,8 @@ struct html_styled_ostream_representation
    
   ostream_t destination;
    
+  char *css_filename;
+   
   html_ostream_t html_destination;
    
   char *hyperlink_id;

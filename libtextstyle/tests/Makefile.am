@@ -1,5 +1,5 @@
 ## Makefile for the tests subdirectory of GNU libtextstyle.
-## Copyright (C) 2009-2019 Free Software Foundation, Inc.
+## Copyright (C) 2009-2025 Free Software Foundation, Inc.
 ##
 ## This program is free software: you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
 
 ## Process this file with automake to produce Makefile.in.
 
+AM_CFLAGS =
+
 # Rules generated and collected by gnulib-tool.
 include Makefile.gnulib
 
@@ -23,6 +25,17 @@ AUTOMAKE_OPTIONS += 1.13 subdir-objects color-tests
 
 # Ensure that ../lib/config.h is seen before ../config.h.
 DEFAULT_INCLUDES = -I. -I$(srcdir) -I$(top_builddir)/lib -I$(top_builddir)
+
+TESTS += \
+  test-instanceof \
+  test-accessors
+check_PROGRAMS += \
+  test-instanceof \
+  test-accessors
+EXTRA_DIST += \
+  test-instanceof.c \
+  test-accessors.c
+AM_CPPFLAGS += -DSRCDIR=\"$(srcdir)/\"
 
 
 # For debugging memory leaks and memory allocation bugs.

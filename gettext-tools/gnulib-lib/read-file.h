@@ -1,5 +1,5 @@
 /* read-file.h -- read file contents into a string
-   Copyright (C) 2006, 2009-2022 Free Software Foundation, Inc.
+   Copyright (C) 2006, 2009-2026 Free Software Foundation, Inc.
    Written by Simon Josefsson.
 
    This file is free software: you can redistribute it and/or modify
@@ -18,11 +18,21 @@
 #ifndef READ_FILE_H
 #define READ_FILE_H
 
+/* This file uses _GL_ATTRIBUTE_MALLOC.  */
+#if !_GL_CONFIG_H_INCLUDED
+ #error "Please include config.h first."
+#endif
+
 /* Get size_t, free().  */
 #include <stdlib.h>
 
 /* Get FILE.  */
 #include <stdio.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 
 /* Indicate that the file is treated as binary.  */
 #define RF_BINARY 0x1
@@ -35,5 +45,10 @@ extern char *fread_file (FILE * stream, int flags, size_t * length)
 
 extern char *read_file (const char *filename, int flags, size_t * length)
   _GL_ATTRIBUTE_MALLOC _GL_ATTRIBUTE_DEALLOC_FREE;
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* READ_FILE_H */

@@ -2,8 +2,7 @@
 
 #line 1 "fd-ostream.oo.h"
 /* Output stream referring to a file descriptor.
-   Copyright (C) 2006 Free Software Foundation, Inc.
-   Written by Bruno Haible <bruno@clisp.org>, 2006.
+   Copyright (C) 2006-2026 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -18,6 +17,8 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
+/* Written by Bruno Haible.  */
+
 #ifndef _FD_OSTREAM_H
 #define _FD_OSTREAM_H
 
@@ -26,7 +27,7 @@
 #include "ostream.h"
 
 
-#line 30 "fd-ostream.h"
+#line 31 "fd-ostream.h"
 struct fd_ostream_representation;
 /* fd_ostream_t is defined as a pointer to struct fd_ostream_representation.
    In C++ mode, we use a smart pointer class.
@@ -59,6 +60,9 @@ extern "C" {
 extern        void fd_ostream_write_mem (fd_ostream_t first_arg, const void *data, size_t len);
 extern         void fd_ostream_flush (fd_ostream_t first_arg, ostream_flush_scope_t scope);
 extern         void fd_ostream_free (fd_ostream_t first_arg);
+extern       int          fd_ostream_get_descriptor (fd_ostream_t first_arg);
+extern    const char * fd_ostream_get_filename (fd_ostream_t first_arg);
+extern    bool         fd_ostream_is_buffered (fd_ostream_t first_arg);
 #ifdef __cplusplus
 }
 #endif
@@ -113,6 +117,33 @@ fd_ostream_free (fd_ostream_t first_arg)
   vtable->free (first_arg);
 }
 
+# define fd_ostream_get_descriptor fd_ostream_get_descriptor_inline
+static inline int
+fd_ostream_get_descriptor (fd_ostream_t first_arg)
+{
+  const struct fd_ostream_implementation *vtable =
+    ((struct fd_ostream_representation_header *) (struct fd_ostream_representation *) first_arg)->vtable;
+  return vtable->get_descriptor (first_arg);
+}
+
+# define fd_ostream_get_filename fd_ostream_get_filename_inline
+static inline const char *
+fd_ostream_get_filename (fd_ostream_t first_arg)
+{
+  const struct fd_ostream_implementation *vtable =
+    ((struct fd_ostream_representation_header *) (struct fd_ostream_representation *) first_arg)->vtable;
+  return vtable->get_filename (first_arg);
+}
+
+# define fd_ostream_is_buffered fd_ostream_is_buffered_inline
+static inline bool
+fd_ostream_is_buffered (fd_ostream_t first_arg)
+{
+  const struct fd_ostream_implementation *vtable =
+    ((struct fd_ostream_representation_header *) (struct fd_ostream_representation *) first_arg)->vtable;
+  return vtable->is_buffered (first_arg);
+}
+
 #endif
 
 extern const typeinfo_t fd_ostream_typeinfo;
@@ -121,7 +152,7 @@ extern const typeinfo_t fd_ostream_typeinfo;
 
 extern const struct fd_ostream_implementation fd_ostream_vtable;
 
-#line 30 "fd-ostream.oo.h"
+#line 35 "fd-ostream.oo.h"
 
 
 #ifdef __cplusplus
@@ -134,6 +165,10 @@ extern "C" {
    Note that the resulting stream must be closed before FD can be closed.  */
 extern fd_ostream_t fd_ostream_create (int fd, const char *filename,
                                        bool buffered);
+
+
+/* Test whether a given output stream is a fd_ostream.  */
+extern bool is_instance_of_fd_ostream (ostream_t stream);
 
 
 #ifdef __cplusplus

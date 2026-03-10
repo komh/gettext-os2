@@ -1,5 +1,5 @@
 /* Test program, used by the format-c-5 test.
-   Copyright (C) 2004, 2006, 2010, 2018 Free Software Foundation, Inc.
+   Copyright (C) 2004-2026 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -14,9 +14,9 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+/* Written by Bruno Haible.  */
+
+#include <config.h>
 
 #include <locale.h>
 #include <stdio.h>
@@ -38,8 +38,6 @@
 # include "libgnuintl.h"
 #endif
 
-#define _(string) gettext (string)
-
 int
 main (int argc, char *argv[])
 {
@@ -58,11 +56,20 @@ main (int argc, char *argv[])
   textdomain ("fc5");
   bindtextdomain ("fc5", ".");
 
+  if (strcmp (gettext ("the president"), "der Vorsitzende") != 0)
+    {
+      fprintf (stderr, "Simple messages not translated.\n");
+      exit (1);
+    }
+
   s = gettext ("father of %d children");
   en = "father of %d children";
 #if (__GLIBC__ > 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 2)) && !defined __UCLIBC__
   expected_translation = "Vater von %Id Kindern";
-  expected_result = "Vater von \xdb\xb5 Kindern";
+  if (strncmp (argv[1], "fa", 2) == 0)
+    expected_result = "Vater von \xdb\xb5 Kindern";
+  else
+    expected_result = "Vater von 5 Kindern";
 #else
   expected_translation = "Vater von %d Kindern";
   expected_result = "Vater von 5 Kindern";
@@ -70,7 +77,7 @@ main (int argc, char *argv[])
 
   if (strcmp (s, en) == 0)
     {
-      fprintf (stderr, "String untranslated.\n");
+      fprintf (stderr, "String not translated.\n");
       exit (1);
     }
   if (strcmp (s, expected_translation) != 0)

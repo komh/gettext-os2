@@ -2,8 +2,7 @@
 
 #line 1 "file-ostream.oo.h"
 /* Output stream referring to an stdio FILE.
-   Copyright (C) 2006 Free Software Foundation, Inc.
-   Written by Bruno Haible <bruno@clisp.org>, 2006.
+   Copyright (C) 2006-2026 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -18,15 +17,18 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
+/* Written by Bruno Haible.  */
+
 #ifndef _FILE_OSTREAM_H
 #define _FILE_OSTREAM_H
 
+#include <stdbool.h>
 #include <stdio.h>
 
 #include "ostream.h"
 
 
-#line 30 "file-ostream.h"
+#line 32 "file-ostream.h"
 struct file_ostream_representation;
 /* file_ostream_t is defined as a pointer to struct file_ostream_representation.
    In C++ mode, we use a smart pointer class.
@@ -59,6 +61,7 @@ extern "C" {
 extern        void file_ostream_write_mem (file_ostream_t first_arg, const void *data, size_t len);
 extern         void file_ostream_flush (file_ostream_t first_arg, ostream_flush_scope_t scope);
 extern         void file_ostream_free (file_ostream_t first_arg);
+extern       FILE * file_ostream_get_stdio_stream (file_ostream_t first_arg);
 #ifdef __cplusplus
 }
 #endif
@@ -113,6 +116,15 @@ file_ostream_free (file_ostream_t first_arg)
   vtable->free (first_arg);
 }
 
+# define file_ostream_get_stdio_stream file_ostream_get_stdio_stream_inline
+static inline FILE *
+file_ostream_get_stdio_stream (file_ostream_t first_arg)
+{
+  const struct file_ostream_implementation *vtable =
+    ((struct file_ostream_representation_header *) (struct file_ostream_representation *) first_arg)->vtable;
+  return vtable->get_stdio_stream (first_arg);
+}
+
 #endif
 
 extern const typeinfo_t file_ostream_typeinfo;
@@ -121,7 +133,7 @@ extern const typeinfo_t file_ostream_typeinfo;
 
 extern const struct file_ostream_implementation file_ostream_vtable;
 
-#line 30 "file-ostream.oo.h"
+#line 34 "file-ostream.oo.h"
 
 
 #ifdef __cplusplus
@@ -132,6 +144,10 @@ extern "C" {
 /* Create an output stream referring to FP.
    Note that the resulting stream must be closed before FP can be closed.  */
 extern file_ostream_t file_ostream_create (FILE *fp);
+
+
+/* Test whether a given output stream is a file_ostream.  */
+extern bool is_instance_of_file_ostream (ostream_t stream);
 
 
 #ifdef __cplusplus

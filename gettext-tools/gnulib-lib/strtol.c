@@ -1,6 +1,6 @@
 /* Convert string representation of a number into an integer value.
 
-   Copyright (C) 1991-1992, 1994-1999, 2003, 2005-2007, 2009-2022 Free Software
+   Copyright (C) 1991-1992, 1994-1999, 2003, 2005-2007, 2009-2026 Free Software
    Foundation, Inc.
 
    NOTE: The canonical source of this file is maintained with the GNU C
@@ -8,7 +8,7 @@
 
    This file is free software: you can redistribute it and/or modify
    it under the terms of the GNU Lesser General Public License as
-   published by the Free Software Foundation; either version 3 of the
+   published by the Free Software Foundation, either version 3 of the
    License, or (at your option) any later version.
 
    This file is distributed in the hope that it will be useful,
@@ -212,15 +212,6 @@ INT
 INTERNAL (strtol) (const STRING_TYPE *nptr, STRING_TYPE **endptr,
                    int base GROUP_PARAM_PROTO LOCALE_PARAM_PROTO)
 {
-  int negative;
-  register unsigned LONG int cutoff;
-  register unsigned int cutlim;
-  register unsigned LONG int i;
-  register const STRING_TYPE *s;
-  register UCHAR_TYPE c;
-  const STRING_TYPE *save, *end;
-  int overflow;
-
 #ifdef USE_NUMBER_GROUPING
 # ifdef USE_IN_EXTENDED_LOCALE_MODEL
   struct locale_data *current = loc->__locales[LC_NUMERIC];
@@ -258,7 +249,8 @@ INTERNAL (strtol) (const STRING_TYPE *nptr, STRING_TYPE **endptr,
       return 0;
     }
 
-  save = s = nptr;
+  register const STRING_TYPE *s = nptr;
+  const STRING_TYPE *save = s;
 
   /* Skip white space.  */
   while (ISSPACE (*s))
@@ -267,6 +259,7 @@ INTERNAL (strtol) (const STRING_TYPE *nptr, STRING_TYPE **endptr,
     goto noconv;
 
   /* Check for a sign.  */
+  int negative;
   if (*s == L_('-'))
     {
       negative = 1;
@@ -288,6 +281,11 @@ INTERNAL (strtol) (const STRING_TYPE *nptr, STRING_TYPE **endptr,
           s += 2;
           base = 16;
         }
+      else if ((base == 0 || base == 2) && TOUPPER (s[1]) == L_('B'))
+        {
+          s += 2;
+          base = 2;
+        }
       else if (base == 0)
         base = 8;
     }
@@ -297,12 +295,13 @@ INTERNAL (strtol) (const STRING_TYPE *nptr, STRING_TYPE **endptr,
   /* Save the pointer so we can check later if anything happened.  */
   save = s;
 
+  const STRING_TYPE *end;
 #ifdef USE_NUMBER_GROUPING
   if (group)
     {
       /* Find the end of the digit string and check its grouping.  */
       end = s;
-      for (c = *end; c != L_('\0'); c = *++end)
+      for (UCHAR_TYPE c = *end; c != L_('\0'); c = *++end)
         if ((wchar_t) c != thousands
             && ((wchar_t) c < L_('0') || (wchar_t) c > L_('9'))
             && (!ISALPHA (c) || (int) (TOUPPER (c) - L_('A') + 10) >= base))
@@ -316,12 +315,12 @@ INTERNAL (strtol) (const STRING_TYPE *nptr, STRING_TYPE **endptr,
 #endif
     end = NULL;
 
-  cutoff = STRTOL_ULONG_MAX / (unsigned LONG int) base;
-  cutlim = STRTOL_ULONG_MAX % (unsigned LONG int) base;
+  register unsigned LONG int cutoff = STRTOL_ULONG_MAX / (unsigned LONG int) base;
+  register unsigned int cutlim = STRTOL_ULONG_MAX % (unsigned LONG int) base;
 
-  overflow = 0;
-  i = 0;
-  for (c = *s; c != L_('\0'); c = *++s)
+  int overflow = 0;
+  register unsigned LONG int i = 0;
+  for (UCHAR_TYPE c = *s; c != L_('\0'); c = *++s)
     {
       if (s == end)
         break;
@@ -378,11 +377,14 @@ INTERNAL (strtol) (const STRING_TYPE *nptr, STRING_TYPE **endptr,
 noconv:
   /* We must handle a special case here: the base is 0 or 16 and the
      first two characters are '0' and 'x', but the rest are no
-     hexadecimal digits.  This is no error case.  We return 0 and
-     ENDPTR points to the 'x'.  */
+     hexadecimal digits.  Likewise when the base is 0 or 2 and the
+     first two characters are '0' and 'b', but the rest are no binary
+     digits.  This is no error case.  We return 0 and ENDPTR points to
+     the 'x' or 'b'.  */
   if (endptr != NULL)
     {
-      if (save - nptr >= 2 && TOUPPER (save[-1]) == L_('X')
+      if (save - nptr >= 2
+          && (TOUPPER (save[-1]) == L_('X') || TOUPPER (save[-1]) == L_('B'))
           && save[-2] == L_('0'))
         *endptr = (STRING_TYPE *) &save[-1];
       else

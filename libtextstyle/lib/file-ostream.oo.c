@@ -1,6 +1,5 @@
 /* Output stream referring to an stdio FILE.
-   Copyright (C) 2006, 2019 Free Software Foundation, Inc.
-   Written by Bruno Haible <bruno@clisp.org>, 2006.
+   Copyright (C) 2006-2026 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -14,6 +13,8 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
+
+/* Written by Bruno Haible.  */
 
 #include <config.h>
 
@@ -100,9 +101,24 @@ file_ostream_t
 file_ostream_create (FILE *fp)
 {
   file_ostream_t stream = XMALLOC (struct file_ostream_representation);
-
   stream->base.vtable = &file_ostream_vtable;
   stream->fp = fp;
 
   return stream;
+}
+
+/* Accessors.  */
+
+static FILE *
+file_ostream::get_stdio_stream (file_ostream_t stream)
+{
+  return stream->fp;
+}
+
+/* Instanceof test.  */
+
+bool
+is_instance_of_file_ostream (ostream_t stream)
+{
+  return IS_INSTANCE (stream, ostream, file_ostream);
 }

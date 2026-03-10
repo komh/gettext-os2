@@ -1,15 +1,16 @@
-#!/usr/local/bin/clisp -C
+#!/usr/bin/env -S clisp -C
 
-;;; Creation of gnulib's uninames.h from the UnicodeData.txt table.
+;;; Creation of gnulib's uninames.h from the UnicodeData.txt and NameAliases.txt
+;;; tables.
 
-;;; Copyright (C) 2000-2022 Free Software Foundation, Inc.
+;;; Copyright (C) 2000-2026 Free Software Foundation, Inc.
 ;;; Written by Bruno Haible <bruno@clisp.org>, 2000-12-28.
 ;;;
 ;;; This program is free software.
 ;;; It is dual-licensed under "the GNU LGPLv3+ or the GNU GPLv2+".
 ;;; You can redistribute it and/or modify it under either
 ;;;   - the terms of the GNU Lesser General Public License as published
-;;;     by the Free Software Foundation; either version 3, or (at your
+;;;     by the Free Software Foundation, either version 3, or (at your
 ;;;     option) any later version, or
 ;;;   - the terms of the GNU General Public License as published by the
 ;;;     Free Software Foundation; either version 2, or (at your option)
@@ -48,8 +49,8 @@
   length                        ; number of words
 )
 
-(defun main (inputfile outputfile aliasfile)
-  (declare (type string inputfile outputfile aliasfile))
+(defun main (inputfile aliasfile outputfile)
+  (declare (type string inputfile aliasfile outputfile))
   #+UNICODE (setq *default-file-encoding* charset:utf-8)
   (let ((all-chars '())
         (all-chars-hashed (make-hash-table :test #'equal))
@@ -176,13 +177,13 @@
         (format ostream " * Unicode character name table.~%")
         (format ostream " * Generated automatically by the gen-uninames utility.~%")
         (format ostream " */~%")
-        (format ostream "/* Copyright (C) 2000-2022 Free Software Foundation, Inc.~%")
+        (format ostream "/* Copyright (C) 2000-2024 Free Software Foundation, Inc.~%")
         (format ostream "~%")
         (format ostream "   This file is free software.~%")
         (format ostream "   It is dual-licensed under \"the GNU LGPLv3+ or the GNU GPLv2+\".~%")
         (format ostream "   You can redistribute it and/or modify it under either~%")
         (format ostream "     - the terms of the GNU Lesser General Public License as published~%")
-        (format ostream "       by the Free Software Foundation; either version 3, or (at your~%")
+        (format ostream "       by the Free Software Foundation, either version 3, or (at your~%")
         (format ostream "       option) any later version, or~%")
         (format ostream "     - the terms of the GNU General Public License as published by the~%")
         (format ostream "       Free Software Foundation; either version 2, or (at your option)~%")

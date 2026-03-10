@@ -1,5 +1,5 @@
 /* Auxiliary functions for the creation of subprocesses.  Native Windows API.
-   Copyright (C) 2001, 2003-2022 Free Software Foundation, Inc.
+   Copyright (C) 2001, 2003-2026 Free Software Foundation, Inc.
    Written by Bruno Haible <bruno@clisp.org>, 2003.
 
    This file is free software: you can redistribute it and/or modify
@@ -18,13 +18,22 @@
 #ifndef _WINDOWS_SPAWN_H
 #define _WINDOWS_SPAWN_H
 
-#include <stdbool.h>
+/* This file uses _GL_ATTRIBUTE_MALLOC.  */
+#if !_GL_CONFIG_H_INCLUDED
+ #error "Please include config.h first."
+#endif
+
 #include <stdint.h>
 #include <stdlib.h>
 
 /* Get declarations of the native Windows API functions.  */
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 /* Prepares an argument vector before calling spawn().
@@ -79,11 +88,44 @@ extern char * compose_command (const char * const *argv)
 /* Composes the block of memory that contains the environment variables.
    ENVP must contain an environment (a NULL-terminated array of string of the
    form VARIABLE=VALUE).
+   NEW_PATH must be a string of the form PATH=VALUE, or NULL if the PATH
+   environment variable from this process is suitable for the child process.
    Returns a freshly allocated block of memory.  In case of memory allocation
    failure, NULL is returned, with errno set.  */
-extern char * compose_envblock (const char * const *envp)
+extern char * compose_envblock (const char * const *envp, const char *new_PATH)
   _GL_ATTRIBUTE_MALLOC _GL_ATTRIBUTE_DEALLOC_FREE;
 
+
+/* An inheritable handle with some additional information.  */
+struct IHANDLE
+{
+  /* Either INVALID_HANDLE_VALUE or an inheritable handle.  */
+  HANDLE handle;
+  /* Only relevant if handle != INVALID_HANDLE_VALUE.
+     It is a bit mask consisting of:
+       - 32 for O_APPEND.
+       - KEEP_OPEN_IN_CHILD if the handle is scheduled to be preserved in the
+         child process.
+       - KEEP_OPEN_IN_PARENT if the handle is shared with (and needs to be kept
+         open in) the parent process.
+       - DELAYED_DUP2_OLDFD if there is a delayed dup2 (oldfd, newfd) and
+         this IHANDLE is at position oldfd.
+       - DELAYED_DUP2_NEWFD if there is a delayed dup2 (oldfd, newfd) and
+         this IHANDLE is at position newfd.
+     Note that DELAYED_DUP2_OLDFD and DELAYED_DUP2_NEWFD cannot be set in the
+     same IHANDLE.  */
+  unsigned short flags;
+  #define KEEP_OPEN_IN_CHILD 0x100
+  #define KEEP_OPEN_IN_PARENT 0x200
+  #define DELAYED_DUP2_OLDFD 0x400
+  #define DELAYED_DUP2_NEWFD 0x800
+  /* Only relevant if handle != INVALID_HANDLE_VALUE and flags contains
+     either DELAYED_DUP2_OLDFD or DELAYED_DUP2_NEWFD.
+     It is the other fd of the delayed dup2 (oldfd, newfd), i.e.
+       - for DELAYED_DUP2_OLDFD, the newfd,
+       - for DELAYED_DUP2_NEWFD, the oldfd.  */
+  int linked_fd;
+};
 
 /* This struct keeps track of which handles to potentially pass to a subprocess,
    and with which flags.  All of the handles here are inheritable.
@@ -98,18 +140,8 @@ struct inheritable_handles
   size_t count;
   /* The number of allocated entries in the two arrays below.  */
   size_t allocated;
-  /* handles[0..count-1] are the occupied entries.
-     handles[fd] is either INVALID_HANDLE_VALUE or an inheritable handle.  */
-  HANDLE *handles;
-  /* flags[0..count-1] are the occupied entries.
-     flags[fd] is only relevant if handles[fd] != INVALID_HANDLE_VALUE.
-     It is a bit mask consisting of:
-       - 32 for O_APPEND.
-       - KEEP_OPEN_IN_CHILD if handles[fd] is scheduled to be preserved in the
-         child process.
-   */
-  unsigned short *flags;
-  #define KEEP_OPEN_IN_CHILD 0x100
+  /* ih[0..count-1] are the occupied entries.  */
+  struct IHANDLE *ih;
 };
 
 /* Initializes a set of inheritable handles, filling in all or part of the
@@ -146,6 +178,9 @@ extern int convert_CreateProcess_error (DWORD error);
    ENVP is the NULL-terminated set of environment variable assignments, or NULL
    to inherit the initial environ variable assignments from the caller and
    ignore all calls to putenv(), setenv(), unsetenv() done in the caller.
+   DLL_DIRS is, on Windows platforms, a NULL-terminated list of directories
+   that contain DLLs needed to execute the program, or NULL if none is needed.
+   On other platforms, always pass NULL.
    CURRDIR is the directory in which to start the program, or NULL to inherit
    the working directory from the caller.
    STDIN_HANDLE, STDOUT_HANDLE, STDERR_HANDLE are the handles to use for the
@@ -158,8 +193,14 @@ extern int convert_CreateProcess_error (DWORD error);
 extern intptr_t spawnpvech (int mode,
                             const char *progname, const char * const *argv,
                             const char * const *envp,
+                            const char * const *dll_dirs,
                             const char *currdir,
                             HANDLE stdin_handle, HANDLE stdout_handle,
                             HANDLE stderr_handle);
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _WINDOWS_SPAWN_H */

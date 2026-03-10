@@ -1,10 +1,10 @@
 /* Test of filtering of data through a subprocess.
-   Copyright (C) 2009-2022 Free Software Foundation, Inc.
+   Copyright (C) 2009-2026 Free Software Foundation, Inc.
    Written by Bruno Haible <haible@clisp.cons.org>, 2009.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 3 of the License, or
+   the Free Software Foundation, either version 3 of the License, or
    (at your option) any later version.
 
    This program is distributed in the hope that it will be useful,
@@ -72,9 +72,8 @@ done_read (void *data_read, size_t num_bytes_read, void *private_data)
   struct locals *l = (struct locals *) private_data;
   const char *p = l->input + l->nread;
   const char *q = (const char *) data_read;
-  size_t i;
 
-  for (i = 0; i < num_bytes_read; i++, q++)
+  for (size_t i = 0; i < num_bytes_read; i++, q++)
     {
       /* Handle conversion NL -> CRLF possibly done by the child process.  */
       if (!(O_BINARY && *q == '\r'))
@@ -107,7 +106,7 @@ main (int argc, char *argv[])
 
   /* Convert it to uppercase, line by line.  */
   {
-    const char *argv[4];
+    const char *tr_argv[4];
     struct locals l;
     int result;
 
@@ -116,12 +115,12 @@ main (int argc, char *argv[])
     l.nwritten = 0;
     l.nread = 0;
 
-    argv[0] = tr_program;
-    argv[1] = "abcdefghijklmnopqrstuvwxyz";
-    argv[2] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    argv[3] = NULL;
+    tr_argv[0] = tr_program;
+    tr_argv[1] = "abcdefghijklmnopqrstuvwxyz";
+    tr_argv[2] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    tr_argv[3] = NULL;
 
-    result = pipe_filter_ii_execute ("tr", tr_program, argv, false, true,
+    result = pipe_filter_ii_execute ("tr", tr_program, tr_argv, false, true,
                                      prepare_write, done_write,
                                      prepare_read, done_read,
                                      &l);
@@ -132,5 +131,5 @@ main (int argc, char *argv[])
 
   free (input);
 
-  return 0;
+  return test_exit_status;
 }

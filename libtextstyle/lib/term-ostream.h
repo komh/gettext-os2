@@ -2,8 +2,7 @@
 
 #line 1 "term-ostream.oo.h"
 /* Output stream for attributed text, producing ANSI escape sequences.
-   Copyright (C) 2006, 2019 Free Software Foundation, Inc.
-   Written by Bruno Haible <bruno@clisp.org>, 2006.
+   Copyright (C) 2006-2026 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -18,8 +17,12 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
+/* Written by Bruno Haible.  */
+
 #ifndef _TERM_OSTREAM_H
 #define _TERM_OSTREAM_H
+
+#include <stdbool.h>
 
 #include "ostream.h"
 
@@ -61,7 +64,11 @@ typedef enum
   UNDERLINE_DEFAULT = UNDERLINE_OFF
 } term_underline_t;
 
-#line 65 "term-ostream.h"
+/* Get ttyctl_t.  */
+#define term_style_user_data term_ostream_representation
+#include "term-style-control.h"
+
+#line 72 "term-ostream.h"
 struct term_ostream_representation;
 /* term_ostream_t is defined as a pointer to struct term_ostream_representation.
    In C++ mode, we use a smart pointer class.
@@ -109,6 +116,10 @@ extern         const char * term_ostream_get_hyperlink_ref (term_ostream_t first
 extern    const char * term_ostream_get_hyperlink_id (term_ostream_t first_arg);
 extern    void         term_ostream_set_hyperlink (term_ostream_t first_arg,                               const char *ref, const char *id);
 extern               void term_ostream_flush_to_current_style (term_ostream_t first_arg);
+extern         int          term_ostream_get_descriptor (term_ostream_t first_arg);
+extern    const char * term_ostream_get_filename (term_ostream_t first_arg);
+extern    ttyctl_t     term_ostream_get_tty_control (term_ostream_t first_arg);
+extern    ttyctl_t     term_ostream_get_effective_tty_control (term_ostream_t first_arg);
 #ifdef __cplusplus
 }
 #endif
@@ -298,6 +309,42 @@ term_ostream_flush_to_current_style (term_ostream_t first_arg)
   vtable->flush_to_current_style (first_arg);
 }
 
+# define term_ostream_get_descriptor term_ostream_get_descriptor_inline
+static inline int
+term_ostream_get_descriptor (term_ostream_t first_arg)
+{
+  const struct term_ostream_implementation *vtable =
+    ((struct term_ostream_representation_header *) (struct term_ostream_representation *) first_arg)->vtable;
+  return vtable->get_descriptor (first_arg);
+}
+
+# define term_ostream_get_filename term_ostream_get_filename_inline
+static inline const char *
+term_ostream_get_filename (term_ostream_t first_arg)
+{
+  const struct term_ostream_implementation *vtable =
+    ((struct term_ostream_representation_header *) (struct term_ostream_representation *) first_arg)->vtable;
+  return vtable->get_filename (first_arg);
+}
+
+# define term_ostream_get_tty_control term_ostream_get_tty_control_inline
+static inline ttyctl_t
+term_ostream_get_tty_control (term_ostream_t first_arg)
+{
+  const struct term_ostream_implementation *vtable =
+    ((struct term_ostream_representation_header *) (struct term_ostream_representation *) first_arg)->vtable;
+  return vtable->get_tty_control (first_arg);
+}
+
+# define term_ostream_get_effective_tty_control term_ostream_get_effective_tty_control_inline
+static inline ttyctl_t
+term_ostream_get_effective_tty_control (term_ostream_t first_arg)
+{
+  const struct term_ostream_implementation *vtable =
+    ((struct term_ostream_representation_header *) (struct term_ostream_representation *) first_arg)->vtable;
+  return vtable->get_effective_tty_control (first_arg);
+}
+
 #endif
 
 extern const typeinfo_t term_ostream_typeinfo;
@@ -306,11 +353,7 @@ extern const typeinfo_t term_ostream_typeinfo;
 
 extern const struct term_ostream_implementation term_ostream_vtable;
 
-#line 106 "term-ostream.oo.h"
-
-/* Get ttyctl_t.  */
-#define term_style_user_data term_ostream_representation
-#include "term-style-control.h"
+#line 119 "term-ostream.oo.h"
 
 
 #ifdef __cplusplus
@@ -325,6 +368,10 @@ extern "C" {
    Note that the resulting stream must be closed before FD can be closed.  */
 extern term_ostream_t
        term_ostream_create (int fd, const char *filename, ttyctl_t tty_control);
+
+
+/* Test whether a given output stream is a term_ostream.  */
+extern bool is_instance_of_term_ostream (ostream_t stream);
 
 
 #ifdef __cplusplus

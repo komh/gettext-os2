@@ -1,9 +1,9 @@
 /* Test of case-insensitive searching in a string.
-   Copyright (C) 2007-2022 Free Software Foundation, Inc.
+   Copyright (C) 2007-2026 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 3 of the License, or
+   the Free Software Foundation, either version 3 of the License, or
    (at your option) any later version.
 
    This program is distributed in the hope that it will be useful,
@@ -224,9 +224,8 @@ main ()
       "with_multilib_list\n";
     size_t h_len = strlen (h);
     char *haystack = malloc (h_len + 1);
-    size_t i;
     ASSERT (haystack);
-    for (i = 0; i < h_len - strlen (needle); i++)
+    for (size_t i = 0; i < h_len - strlen (needle); i++)
       {
         const char *p;
         memcpy (haystack, h, h_len + 1);
@@ -236,6 +235,14 @@ main ()
         ASSERT (p - haystack == i);
       }
     free (haystack);
+  }
+
+  /* Test case from Yves Bastide.
+     <https://www.openwall.com/lists/musl/2014/04/18/2>  */
+  {
+    const char input[] = "playing PLAY play PLAY always";
+    const char *result = c_strcasestr (input, "play PLAY play");
+    ASSERT (result == input + 8);
   }
 
   /* Test long needles.  */
@@ -260,5 +267,5 @@ main ()
     free (haystack);
   }
 
-  return 0;
+  return test_exit_status;
 }

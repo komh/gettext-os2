@@ -19,3 +19,7 @@
    const char * (*get_hyperlink_id) (THIS_ARG);
    void         (*set_hyperlink) (THIS_ARG,                               const char *ref, const char *id);
               void (*flush_to_current_style) (THIS_ARG);
+        int          (*get_descriptor) (THIS_ARG);
+   const char * (*get_filename) (THIS_ARG);
+   ttyctl_t     (*get_tty_control) (THIS_ARG);
+   ttyctl_t     (*get_effective_tty_control) (THIS_ARG);

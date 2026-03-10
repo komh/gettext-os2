@@ -1,5 +1,5 @@
 /* Look at first character in UTF-8 string.
-   Copyright (C) 1999-2000, 2002, 2006-2007, 2009-2022 Free Software
+   Copyright (C) 1999-2000, 2002, 2006-2007, 2009-2026 Free Software
    Foundation, Inc.
    Written by Bruno Haible <bruno@clisp.org>, 2002.
 
@@ -47,13 +47,13 @@ u8_mblen (const uint8_t *s, size_t n)
                   && (c != 0xed || s[1] < 0xa0))
                 return 3;
             }
-          else if (c < 0xf8)
+          else if (c <= 0xf4)
             {
               if (n >= 4
                   && (s[1] ^ 0x80) < 0x40 && (s[2] ^ 0x80) < 0x40
                   && (s[3] ^ 0x80) < 0x40
                   && (c >= 0xf1 || s[1] >= 0x90)
-                  && (c < 0xf4 || (c == 0xf4 && s[1] < 0x90)))
+                  && (c < 0xf4 || (/* c == 0xf4 && */ s[1] < 0x90)))
                 return 4;
             }
         }

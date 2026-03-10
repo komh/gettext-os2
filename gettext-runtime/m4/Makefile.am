@@ -1,5 +1,5 @@
 ## Makefile for the gettext-runtime/m4 directory of GNU gettext
-## Copyright (C) 2003, 2005-2013, 2017-2020 Free Software Foundation, Inc.
+## Copyright (C) 2003, 2005-2013, 2017-2023 Free Software Foundation, Inc.
 ##
 ## This program is free software: you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -19,22 +19,9 @@
 # Generate this list with
 # find . -type f -name '*.m4' -printf '%f\n' | sort | tr '\012' @ | sed 's/@$/%/;s/@/ \\@/g' | tr @% '\012\012'
 EXTRA_DIST = README \
-fcntl-o.m4 \
-flexmember.m4 \
+build-to-host.m4 \
 gettext.m4 \
 glibc2.m4 \
-iconv.m4 \
-intdiv0.m4 \
-intl.m4 \
-intlmacosx.m4 \
-intmax.m4 \
-inttypes_h.m4 \
 nls.m4 \
 po.m4 \
-printf-posix.m4 \
-progtest.m4 \
-size_max.m4 \
-stdint_h.m4 \
-uintmax_t.m4 \
-visibility.m4 \
-xsize.m4
+progtest.m4

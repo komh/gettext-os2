@@ -10,6 +10,8 @@ struct term_styled_ostream_representation
    
   term_ostream_t destination;
    
+  char *css_filename;
+   
   CRCascade *css_document;
    
   CRSelEng *css_engine;

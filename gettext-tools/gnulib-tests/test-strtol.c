@@ -1,9 +1,9 @@
 /*
- * Copyright (C) 2011-2022 Free Software Foundation, Inc.
+ * Copyright (C) 2011-2026 Free Software Foundation, Inc.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -239,5 +239,67 @@ main (void)
     ASSERT (errno == 0);
   }
 
-  return 0;
+  /* Binary integer syntax.  */
+  {
+    const char input[] = "0b111010";
+    char *ptr;
+    long result;
+    errno = 0;
+    result = strtol (input, &ptr, 10);
+    ASSERT (result == 0L);
+    ASSERT (ptr == input + 1);
+    ASSERT (errno == 0);
+  }
+  {
+    const char input[] = "0b111010";
+    char *ptr;
+    long result;
+    errno = 0;
+    result = strtol (input, &ptr, 2);
+    ASSERT (result == 58L);
+    ASSERT (ptr == input + 8);
+    ASSERT (errno == 0);
+  }
+  {
+    const char input[] = "0b111010";
+    char *ptr;
+    long result;
+    errno = 0;
+    result = strtol (input, &ptr, 0);
+    ASSERT (result == 58L);
+    ASSERT (ptr == input + 8);
+    ASSERT (errno == 0);
+  }
+  {
+    const char input[] = "0b";
+    char *ptr;
+    long result;
+    errno = 0;
+    result = strtol (input, &ptr, 10);
+    ASSERT (result == 0L);
+    ASSERT (ptr == input + 1);
+    ASSERT (errno == 0);
+  }
+  {
+    const char input[] = "0b";
+    char *ptr;
+    long result;
+    errno = 0;
+    result = strtol (input, &ptr, 2);
+    ASSERT (result == 0L);
+    ASSERT (ptr == input + 1);
+    ASSERT (errno == 0);
+  }
+  {
+    const char input[] = "0b";
+    char *ptr;
+    long result;
+    errno = 0;
+    result = strtol (input, &ptr, 0);
+    ASSERT (result == 0L);
+    ASSERT (ptr == input + 1);
+    ASSERT (errno == 0);
+  }
+
+  return test_exit_status;
 }

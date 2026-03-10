@@ -1,5 +1,5 @@
 /* Abstract sequential list data type.  -*- coding: utf-8 -*-
-   Copyright (C) 2006-2022 Free Software Foundation, Inc.
+   Copyright (C) 2006-2026 Free Software Foundation, Inc.
    Written by Bruno Haible <bruno@clisp.org>, 2006.
 
    This file is free software: you can redistribute it and/or modify
@@ -18,12 +18,14 @@
 #ifndef _GL_LIST_H
 #define _GL_LIST_H
 
-#include <stdbool.h>
-#include <stddef.h>
-
-#ifndef _GL_INLINE_HEADER_BEGIN
+/* This file uses _GL_INLINE_HEADER_BEGIN, _GL_INLINE,
+   _GL_ATTRIBUTE_NODISCARD.  */
+#if !_GL_CONFIG_H_INCLUDED
  #error "Please include config.h first."
 #endif
+
+#include <stddef.h>
+
 _GL_INLINE_HEADER_BEGIN
 #ifndef GL_LIST_INLINE
 # define GL_LIST_INLINE _GL_INLINE

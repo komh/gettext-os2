@@ -1,6 +1,5 @@
 /* Output stream referring to a file descriptor.
-   Copyright (C) 2006-2007, 2019-2020 Free Software Foundation, Inc.
-   Written by Bruno Haible <bruno@clisp.org>, 2006.
+   Copyright (C) 2006-2026 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -14,6 +13,8 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
+
+/* Written by Bruno Haible.  */
 
 #include <config.h>
 
@@ -29,7 +30,7 @@
 # include <termios.h>
 #endif
 
-#include "error.h"
+#include <error.h>
 #include "full-write.h"
 #include "xalloc.h"
 #include "gettext.h"
@@ -198,4 +199,32 @@ fd_ostream_create (int fd, const char *filename, bool buffered)
     stream->buffer = NULL;
 
   return stream;
+}
+
+/* Accessors.  */
+
+static int
+fd_ostream::get_descriptor (fd_ostream_t stream)
+{
+  return stream->fd;
+}
+
+static const char *
+fd_ostream::get_filename (fd_ostream_t stream)
+{
+  return stream->filename;
+}
+
+static bool
+fd_ostream::is_buffered (fd_ostream_t stream)
+{
+  return stream->buffer != NULL;
+}
+
+/* Instanceof test.  */
+
+bool
+is_instance_of_fd_ostream (ostream_t stream)
+{
+  return IS_INSTANCE (stream, ostream, fd_ostream);
 }

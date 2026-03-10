@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: hello-objc 0\n"
 "Report-Msgid-Bugs-To: bug-gettext@gnu.org\n"
-"POT-Creation-Date: 2022-09-11 12:56+0200\n"
+"POT-Creation-Date: 2025-10-01 13:28+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,11 +17,11 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: hello-objc/hello.m:30
+#: hello-objc/hello.m:35
 msgid "Hello, world!"
 msgstr ""
 
-#: hello-objc/hello.m:31
+#: hello-objc/hello.m:36
 #, c-format
 msgid "This program is running as process number %d."
 msgstr ""

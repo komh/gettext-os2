@@ -5,10 +5,8 @@
 # with new versions of autoconf or automake.
 #
 # This script requires autoconf-2.64..2.71 and automake-1.11..1.16 in the PATH.
-# If not used from a released tarball, it also requires
-#   - the GNULIB_SRCDIR environment variable pointing to a gnulib checkout.
 
-# Copyright (C) 2003-2021 Free Software Foundation, Inc.
+# Copyright (C) 2003-2025 Free Software Foundation, Inc.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,13 +21,19 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+# Prerequisite (if not used from a released tarball): either
+#   - the GNULIB_SRCDIR environment variable pointing to a gnulib checkout, or
+#   - a preceding invocation of './autopull.sh'.
+#
 # Usage: ./autogen.sh [--skip-gnulib]
 #
-# Usage from a git checkout:                 ./autogen.sh
-# This uses an up-to-date gnulib checkout.
-#
-# Usage from a released tarball:             ./autogen.sh --skip-gnulib
-# This does not use a gnulib checkout.
+# Options:
+#   --skip-gnulib       Avoid fetching files from Gnulib.
+#                       This option is useful
+#                       - when you are working from a released tarball (possibly
+#                         with modifications), or
+#                       - as a speedup, if the set of gnulib modules did not
+#                         change since the last time you ran this script.
 
 skip_gnulib=false
 while :; do
@@ -39,22 +43,7 @@ while :; do
   esac
 done
 
-TEXINFO_VERSION=6.5
-
 if test $skip_gnulib = false; then
-  mkdir -p build-aux
-  # texinfo.tex
-  # The most recent snapshot of it is available in the gnulib repository.
-  # But this is a snapshot, with all possible dangers.
-  # A stable release of it is available through "automake --add-missing --copy",
-  # but that depends on the Automake version. So take the version which matches
-  # the latest stable texinfo release.
-  if test ! -f build-aux/texinfo.tex; then
-    { wget -q --timeout=5 -O build-aux/texinfo.tex.tmp 'https://git.savannah.gnu.org/gitweb/?p=texinfo.git;a=blob_plain;f=doc/texinfo.tex;hb=refs/tags/texinfo-'"$TEXINFO_VERSION" \
-        && mv build-aux/texinfo.tex.tmp build-aux/texinfo.tex; \
-    } || rm -f build-aux/texinfo.tex.tmp
-  fi
-
   if test -n "$GNULIB_SRCDIR"; then
     test -d "$GNULIB_SRCDIR" || {
       echo "*** GNULIB_SRCDIR is set but does not point to an existing directory." 1>&2
@@ -89,6 +78,7 @@ if test $skip_gnulib = false; then
     filename
     isatty
     largefile
+    manywarnings
     vasprintf-posix
     xalloc
     xconcat-filename
@@ -100,7 +90,9 @@ if test $skip_gnulib = false; then
     --macro-prefix=lts \
     --makefile-name=Makefile.gnulib --libtool \
     --local-dir=gnulib-local --local-dir=../gnulib-local \
-    --import $GNULIB_MODULES
+    --import \
+    $GNULIB_MODULES
+  $GNULIB_TOOL --copy-file m4/init-package-version.m4
   $GNULIB_TOOL --copy-file build-aux/config.guess; chmod a+x build-aux/config.guess
   $GNULIB_TOOL --copy-file build-aux/config.sub;   chmod a+x build-aux/config.sub
   $GNULIB_TOOL --copy-file build-aux/declared.sh lib/declared.sh; chmod a+x lib/declared.sh
@@ -110,6 +102,8 @@ if test $skip_gnulib = false; then
   if test ! -f build-aux/texinfo.tex; then
     $GNULIB_TOOL --copy-file build-aux/texinfo.tex
   fi
+  # Fetch INSTALL.generic.
+  $GNULIB_TOOL --copy-file doc/INSTALL.UTF-8 INSTALL.generic
   # For use by the example programs.
   $GNULIB_TOOL --copy-file m4/libtextstyle.m4
 fi
@@ -119,6 +113,7 @@ cp -p ../INSTALL.windows .
 mkdir -p m4
 cp -p ../m4/libtool.m4 m4/
 cp -p ../m4/lt*.m4 m4/
+cp -p ../m4/more-warnings.m4 m4/
 cp -p ../m4/woe32-dll.m4 m4/
 cp -p ../build-aux/ltmain.sh build-aux/
 cp -p ../build-aux/texi2html build-aux/

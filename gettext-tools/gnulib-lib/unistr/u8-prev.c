@@ -1,5 +1,5 @@
 /* Iterate over previous character in UTF-8 string.
-   Copyright (C) 2002, 2006-2007, 2009-2022 Free Software Foundation, Inc.
+   Copyright (C) 2002, 2006-2007, 2009-2026 Free Software Foundation, Inc.
    Written by Bruno Haible <bruno@clisp.org>, 2002.
 
    This file is free software: you can redistribute it and/or modify
@@ -14,6 +14,9 @@
 
    You should have received a copy of the GNU Lesser General Public License
    along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
+
+/* Don't use the const-improved function macros in this compilation unit.  */
+#define _LIBUNISTRING_NO_CONST_GENERICS
 
 #include <config.h>
 
@@ -63,9 +66,9 @@ u8_prev (ucs4_t *puc, const uint8_t *s, const uint8_t *start)
                       {
                         uint8_t c_4 = s[-4];
 
-                        if (c_4 >= 0xf0 && c_4 < 0xf8
+                        if (c_4 >= 0xf0 && c_4 <= 0xf4
                             && (c_4 >= 0xf1 || c_3 >= 0x90)
-                            && (c_4 < 0xf4 || (c_4 == 0xf4 && c_3 < 0x90)))
+                            && (c_4 < 0xf4 || (/* c_4 == 0xf4 && */ c_3 < 0x90)))
                           {
                             *puc = ((unsigned int) (c_4 & 0x07) << 18)
                                    | ((unsigned int) (c_3 ^ 0x80) << 12)

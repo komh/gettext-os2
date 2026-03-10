@@ -1,10 +1,10 @@
 /* Test of concatenation of two arbitrary file names.
 
-   Copyright (C) 1996-2007, 2009-2022 Free Software Foundation, Inc.
+   Copyright (C) 1996-2007, 2009-2026 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 3 of the License, or
+   the Free Software Foundation, either version 3 of the License, or
    (at your option) any later version.
 
    This program is distributed in the hope that it will be useful,
@@ -23,7 +23,6 @@
 
 #include "idx.h"
 
-#include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -48,10 +47,9 @@ main (_GL_UNUSED int argc, char *argv[])
       {"a", "//b",  "a//b"},
       {"", "a", "a"},  /* this might deserve a diagnostic */
     };
-  unsigned int i;
   bool fail = false;
 
-  for (i = 0; i < sizeof tests / sizeof tests[0]; i++)
+  for (unsigned int i = 0; i < sizeof tests / sizeof tests[0]; i++)
     {
       char *base_in_result;
       char const *const *t = tests[i];

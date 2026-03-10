@@ -1,6 +1,5 @@
 /* Output stream with no-op styling.
-   Copyright (C) 2006, 2019 Free Software Foundation, Inc.
-   Written by Bruno Haible <bruno@clisp.org>, 2019.
+   Copyright (C) 2006-2026 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -14,6 +13,8 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
+
+/* Written by Bruno Haible.  */
 
 #include <config.h>
 
@@ -112,7 +113,6 @@ noop_styled_ostream_create (ostream_t destination, bool pass_ownership)
 {
   noop_styled_ostream_t stream =
     XMALLOC (struct noop_styled_ostream_representation);
-
   stream->base.base.vtable = &noop_styled_ostream_vtable;
   stream->destination = destination;
   stream->own_destination = pass_ownership;
@@ -120,4 +120,26 @@ noop_styled_ostream_create (ostream_t destination, bool pass_ownership)
   stream->hyperlink_id = NULL;
 
   return stream;
+}
+
+/* Accessors.  */
+
+static ostream_t
+noop_styled_ostream::get_destination (noop_styled_ostream_t stream)
+{
+  return stream->destination;
+}
+
+static bool
+noop_styled_ostream::is_owning_destination (noop_styled_ostream_t stream)
+{
+  return stream->own_destination;
+}
+
+/* Instanceof test.  */
+
+bool
+is_instance_of_noop_styled_ostream (ostream_t stream)
+{
+  return IS_INSTANCE (stream, ostream, noop_styled_ostream);
 }

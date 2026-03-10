@@ -1,5 +1,5 @@
 /* Character set conversion with error handling and autodetection.
-   Copyright (C) 2002, 2005, 2007-2022 Free Software Foundation, Inc.
+   Copyright (C) 2002, 2005, 2007-2026 Free Software Foundation, Inc.
    Written by Bruno Haible.
 
    This file is free software: you can redistribute it and/or modify
@@ -18,7 +18,11 @@
 #ifndef _STRICONVEHA_H
 #define _STRICONVEHA_H
 
-#include <stdbool.h>
+/* This file uses _GL_ATTRIBUTE_MALLOC.  */
+#if !_GL_CONFIG_H_INCLUDED
+ #error "Please include config.h first."
+#endif
+
 #include <stdlib.h>
 
 #include "iconveh.h"

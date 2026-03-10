@@ -1,6 +1,5 @@
 /* Output stream with no-op styling.
-   Copyright (C) 2006, 2019 Free Software Foundation, Inc.
-   Written by Bruno Haible <bruno@clisp.org>, 2019.
+   Copyright (C) 2006-2026 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -15,6 +14,8 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
+/* Written by Bruno Haible.  */
+
 #ifndef _NOOP_STYLED_OSTREAM_H
 #define _NOOP_STYLED_OSTREAM_H
 
@@ -26,6 +27,9 @@
 struct noop_styled_ostream : struct styled_ostream
 {
 methods:
+  /* Accessors.  */
+  ostream_t get_destination (noop_styled_ostream_t stream);
+  bool      is_owning_destination (noop_styled_ostream_t stream);
 };
 
 
@@ -42,6 +46,10 @@ extern "C" {
    before DESTINATION can be closed.  */
 extern noop_styled_ostream_t
        noop_styled_ostream_create (ostream_t destination, bool pass_ownership);
+
+
+/* Test whether a given output stream is a noop_styled_ostream.  */
+extern bool is_instance_of_noop_styled_ostream (ostream_t stream);
 
 
 #ifdef __cplusplus

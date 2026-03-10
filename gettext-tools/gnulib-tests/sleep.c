@@ -1,5 +1,5 @@
 /* Pausing execution of the current thread.
-   Copyright (C) 2007, 2009-2022 Free Software Foundation, Inc.
+   Copyright (C) 2007, 2009-2026 Free Software Foundation, Inc.
    Written by Bruno Haible <bruno@clisp.org>, 2007.
 
    This file is free software: you can redistribute it and/or modify
@@ -21,8 +21,6 @@
 #include <unistd.h>
 
 #include <limits.h>
-
-#include "verify.h"
 
 #if defined _WIN32 && ! defined __CYGWIN__
 
@@ -56,13 +54,12 @@ unsigned int
 rpl_sleep (unsigned int seconds)
 {
   /* This requires int larger than 16 bits.  */
-  verify (UINT_MAX / 24 / 24 / 60 / 60);
+  static_assert (UINT_MAX / 24 / 24 / 60 / 60);
   const unsigned int limit = 24 * 24 * 60 * 60;
   while (limit < seconds)
     {
-      unsigned int result;
       seconds -= limit;
-      result = sleep (limit);
+      unsigned int result = sleep (limit);
       if (result)
         return seconds + result;
     }

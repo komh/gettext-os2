@@ -1,5 +1,5 @@
 /* GLIB - Library of useful routines for C programming
- * Copyright (C) 2006-2019 Free Software Foundation, Inc.
+ * Copyright (C) 2006-2026 Free Software Foundation, Inc.
  *
  * This file is not part of the GNU gettext program, but is used with
  * GNU gettext.
@@ -210,9 +210,10 @@ gchar*
 g_strdup_vprintf (const gchar *format,
 		  va_list      args)
 {
-  gchar *string = NULL;
+  gchar *string;
 
-  g_vasprintf (&string, format, args);
+  if (g_vasprintf (&string, format, args) < 0)
+    return NULL;
 
   return string;
 }
@@ -372,7 +373,11 @@ g_ascii_strtod (const gchar *nptr,
   fail_pos = NULL;
 
   locale_data = localeconv ();
+#if HAVE_STRUCT_LCONV_DECIMAL_POINT
   decimal_point = locale_data->decimal_point;
+#else
+  decimal_point = ".";
+#endif
   decimal_point_len = strlen (decimal_point);
 
   g_assert (decimal_point_len != 0);
@@ -588,7 +593,11 @@ g_ascii_formatd (gchar       *buffer,
   _g_snprintf (buffer, buf_len, format, d);
 
   locale_data = localeconv ();
+#if HAVE_STRUCT_LCONV_DECIMAL_POINT
   decimal_point = locale_data->decimal_point;
+#else
+  decimal_point = ".";
+#endif
   decimal_point_len = strlen (decimal_point);
 
   g_assert (decimal_point_len != 0);
@@ -2601,7 +2610,7 @@ g_strjoin (const gchar  *separator,
  * Return value: a pointer to the found occurrence, or
  *    %NULL if not found.
  **/
-gchar *
+const gchar *
 g_strstr_len (const gchar *haystack,
 	      gssize       haystack_len,
 	      const gchar *needle)

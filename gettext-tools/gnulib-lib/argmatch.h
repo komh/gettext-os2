@@ -1,11 +1,11 @@
 /* argmatch.h -- definitions and prototypes for argmatch.c
 
-   Copyright (C) 1990, 1998-1999, 2001-2002, 2004-2005, 2009-2022 Free Software
+   Copyright (C) 1990, 1998-1999, 2001-2002, 2004-2005, 2009-2026 Free Software
    Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 3 of the License, or
+   the Free Software Foundation, either version 3 of the License, or
    (at your option) any later version.
 
    This program is distributed in the hope that it will be useful,
@@ -22,15 +22,18 @@
 #ifndef ARGMATCH_H_
 # define ARGMATCH_H_ 1
 
+/* This file uses _GL_ATTRIBUTE_PURE.  */
+# if !_GL_CONFIG_H_INCLUDED
+#  error "Please include config.h first."
+# endif
+
 # include <limits.h>
-# include <stdbool.h>
 # include <stddef.h>
 # include <stdio.h>
-# include <string.h> /* memcmp */
+# include <string.h> /* memeq */
 
 # include "gettext.h"
 # include "quote.h"
-# include "verify.h"
 
 # ifdef  __cplusplus
 extern "C" {
@@ -42,7 +45,8 @@ extern "C" {
    (argument list ends with a NULL guard).  */
 
 # define ARGMATCH_VERIFY(Arglist, Vallist) \
-    verify (ARRAY_CARDINALITY (Arglist) == ARRAY_CARDINALITY (Vallist) + 1)
+    static_assert (ARRAY_CARDINALITY (Arglist) \
+                   == ARRAY_CARDINALITY (Vallist) + 1)
 
 /* Return the index of the element of ARGLIST (NULL terminated) that
    matches with ARG.  If VALLIST is not NULL, then use it to resolve
@@ -52,8 +56,14 @@ extern "C" {
 ptrdiff_t argmatch (char const *arg, char const *const *arglist,
                     void const *vallist, size_t valsize) _GL_ATTRIBUTE_PURE;
 
+ptrdiff_t argmatch_exact (char const *arg, char const *const *arglist)
+  _GL_ATTRIBUTE_PURE;
+
 # define ARGMATCH(Arg, Arglist, Vallist) \
   argmatch (Arg, Arglist, (void const *) (Vallist), sizeof *(Vallist))
+
+# define ARGMATCH_EXACT(Arg, Arglist) \
+  argmatch_exact (Arg, Arglist)
 
 /* xargmatch calls this function when it fails.  This function should not
    return.  By default, this is a function that calls ARGMATCH_DIE which
@@ -83,13 +93,14 @@ void argmatch_valid (char const *const *arglist,
 
 
 
-/* Same as argmatch, but upon failure, report an explanation of the
-   failure, and exit using the function EXIT_FN. */
+/* Like argmatch/argmatch_exact, but upon failure, report an explanation
+   of the failure, and exit using the function EXIT_FN. */
 
 ptrdiff_t __xargmatch_internal (char const *context,
                                 char const *arg, char const *const *arglist,
                                 void const *vallist, size_t valsize,
-                                argmatch_exit_fn exit_fn);
+                                argmatch_exit_fn exit_fn,
+                                bool allow_abbreviation);
 
 /* Programmer friendly interface to __xargmatch_internal. */
 
@@ -97,7 +108,15 @@ ptrdiff_t __xargmatch_internal (char const *context,
   ((Vallist) [__xargmatch_internal (Context, Arg, Arglist,      \
                                     (void const *) (Vallist),   \
                                     sizeof *(Vallist),          \
-                                    argmatch_die)])
+                                    argmatch_die,               \
+                                    true)])
+
+# define XARGMATCH_EXACT(Context, Arg, Arglist, Vallist)        \
+  ((Vallist) [__xargmatch_internal (Context, Arg, Arglist,      \
+                                    (void const *) (Vallist),   \
+                                    sizeof *(Vallist),          \
+                                    argmatch_die,               \
+                                    false)])
 
 /* Convert a value into a corresponding argument. */
 
@@ -191,7 +210,7 @@ char const *argmatch_to_argument (void const *value,
           else if (res == -1)                                           \
             /* First nonexact match found.  */                          \
             res = i;                                                    \
-          else if (memcmp (&g->args[res].val, &g->args[i].val, size))   \
+          else if (!memeq (&g->args[res].val, &g->args[i].val, size))   \
             /* Second nonexact match found.  */                         \
             /* There is a real ambiguity, or we could not               \
                disambiguate. */                                         \
@@ -206,7 +225,7 @@ char const *argmatch_to_argument (void const *value,
     const argmatch_##Name##_group_type *g = &argmatch_##Name##_group;   \
     size_t size = argmatch_##Name##_size;                               \
     for (size_t i = 0; g->args[i].arg; i++)                             \
-      if (!memcmp (val, &g->args[i].val, size))                         \
+      if (memeq (val, &g->args[i].val, size))                           \
         return g->args[i].arg;                                          \
     return NULL;                                                        \
   }                                                                     \
@@ -220,10 +239,10 @@ char const *argmatch_to_argument (void const *value,
                                                                         \
     /* Try to put synonyms on the same line.  Synonyms are expected     \
        to follow each other. */                                         \
-    fputs (gettext ("Valid arguments are:"), out);                      \
+    fputs (dgettext (GNULIB_TEXT_DOMAIN, "Valid arguments are:"), out); \
     for (int i = 0; g->args[i].arg; i++)                                \
       if (i == 0                                                        \
-          || memcmp (&g->args[i-1].val, &g->args[i].val, size))         \
+          || !memeq (&g->args[i-1].val, &g->args[i].val, size))         \
         fprintf (out, "\n  - %s", quote (g->args[i].arg));              \
       else                                                              \
         fprintf (out, ", %s", quote (g->args[i].arg));                  \
@@ -262,7 +281,7 @@ char const *argmatch_to_argument (void const *value,
         else                                                            \
           /* Genuine argument, display it with its synonyms. */         \
           for (int j = 0; g->args[j].arg; ++j)                          \
-            if (! memcmp (&g->args[ival].val, &g->args[j].val, size))   \
+            if (memeq (&g->args[ival].val, &g->args[j].val, size))      \
               col += (col == 4 ? 0 : 2) + strlen (g->args[j].arg);      \
         if (res <= col)                                                 \
           res = col <= 20 ? col : 20;                                   \
@@ -293,7 +312,7 @@ char const *argmatch_to_argument (void const *value,
         else                                                            \
           /* Genuine argument, display it with its synonyms. */         \
           for (int j = 0; g->args[j].arg; ++j)                          \
-            if (! memcmp (&g->args[ival].val, &g->args[j].val, size))   \
+            if (memeq (&g->args[ival].val, &g->args[j].val, size))      \
               {                                                         \
                 if (!first                                              \
                     && screen_width < col + 2 + strlen (g->args[j].arg)) \
