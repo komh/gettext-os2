@@ -2,8 +2,7 @@
 
 #line 1 "noop-styled-ostream.oo.h"
 /* Output stream with no-op styling.
-   Copyright (C) 2006, 2019 Free Software Foundation, Inc.
-   Written by Bruno Haible <bruno@clisp.org>, 2019.
+   Copyright (C) 2006-2026 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -18,6 +17,8 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
+/* Written by Bruno Haible.  */
+
 #ifndef _NOOP_STYLED_OSTREAM_H
 #define _NOOP_STYLED_OSTREAM_H
 
@@ -26,7 +27,7 @@
 #include "styled-ostream.h"
 
 
-#line 30 "noop-styled-ostream.h"
+#line 31 "noop-styled-ostream.h"
 struct noop_styled_ostream_representation;
 /* noop_styled_ostream_t is defined as a pointer to struct noop_styled_ostream_representation.
    In C++ mode, we use a smart pointer class.
@@ -68,6 +69,8 @@ extern         const char * noop_styled_ostream_get_hyperlink_ref (noop_styled_o
 extern    const char * noop_styled_ostream_get_hyperlink_id (noop_styled_ostream_t first_arg);
 extern    void         noop_styled_ostream_set_hyperlink (noop_styled_ostream_t first_arg,                               const char *ref, const char *id);
 extern              void noop_styled_ostream_flush_to_current_style (noop_styled_ostream_t first_arg);
+extern       ostream_t noop_styled_ostream_get_destination (noop_styled_ostream_t first_arg);
+extern    bool      noop_styled_ostream_is_owning_destination (noop_styled_ostream_t first_arg);
 #ifdef __cplusplus
 }
 #endif
@@ -176,6 +179,24 @@ noop_styled_ostream_flush_to_current_style (noop_styled_ostream_t first_arg)
   vtable->flush_to_current_style (first_arg);
 }
 
+# define noop_styled_ostream_get_destination noop_styled_ostream_get_destination_inline
+static inline ostream_t
+noop_styled_ostream_get_destination (noop_styled_ostream_t first_arg)
+{
+  const struct noop_styled_ostream_implementation *vtable =
+    ((struct noop_styled_ostream_representation_header *) (struct noop_styled_ostream_representation *) first_arg)->vtable;
+  return vtable->get_destination (first_arg);
+}
+
+# define noop_styled_ostream_is_owning_destination noop_styled_ostream_is_owning_destination_inline
+static inline bool
+noop_styled_ostream_is_owning_destination (noop_styled_ostream_t first_arg)
+{
+  const struct noop_styled_ostream_implementation *vtable =
+    ((struct noop_styled_ostream_representation_header *) (struct noop_styled_ostream_representation *) first_arg)->vtable;
+  return vtable->is_owning_destination (first_arg);
+}
+
 #endif
 
 extern const typeinfo_t noop_styled_ostream_typeinfo;
@@ -184,7 +205,7 @@ extern const typeinfo_t noop_styled_ostream_typeinfo;
 
 extern const struct noop_styled_ostream_implementation noop_styled_ostream_vtable;
 
-#line 30 "noop-styled-ostream.oo.h"
+#line 34 "noop-styled-ostream.oo.h"
 
 
 #ifdef __cplusplus
@@ -200,6 +221,10 @@ extern "C" {
    before DESTINATION can be closed.  */
 extern noop_styled_ostream_t
        noop_styled_ostream_create (ostream_t destination, bool pass_ownership);
+
+
+/* Test whether a given output stream is a noop_styled_ostream.  */
+extern bool is_instance_of_noop_styled_ostream (ostream_t stream);
 
 
 #ifdef __cplusplus

@@ -1,15 +1,14 @@
-# serial 40.1
+# nanosleep.m4
+# serial 48
+dnl Copyright (C) 1999-2001, 2003-2026 Free Software Foundation, Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+dnl This file is offered as-is, without any warranty.
 
 dnl From Jim Meyering.
 dnl Check for the nanosleep function.
 dnl If not found, use the supplied replacement.
-dnl
-
-# Copyright (C) 1999-2001, 2003-2022 Free Software Foundation, Inc.
-
-# This file is free software; the Free Software Foundation
-# gives unlimited permission to copy and/or distribute it,
-# with or without modifications, as long as this notice is preserved.
 
 AC_DEFUN([gl_FUNC_NANOSLEEP],
 [
@@ -19,20 +18,17 @@ AC_DEFUN([gl_FUNC_NANOSLEEP],
  dnl Persuade glibc and Solaris <time.h> to declare nanosleep.
  AC_REQUIRE([gl_USE_SYSTEM_EXTENSIONS])
 
- AC_CHECK_HEADERS_ONCE([sys/time.h])
- AC_REQUIRE([gl_FUNC_SELECT])
-
  AC_CHECK_DECLS_ONCE([alarm])
 
- nanosleep_save_libs=$LIBS
+ gl_saved_LIBS=$LIBS
 
  # Solaris 2.5.1 needs -lposix4 to get the nanosleep function.
  # Solaris 7 prefers the library name -lrt to the obsolescent name -lposix4.
- LIB_NANOSLEEP=
- AC_SUBST([LIB_NANOSLEEP])
+ NANOSLEEP_LIB=
+ AC_SUBST([NANOSLEEP_LIB])
  AC_SEARCH_LIBS([nanosleep], [rt posix4],
                 [test "$ac_cv_search_nanosleep" = "none required" ||
-                 LIB_NANOSLEEP=$ac_cv_search_nanosleep])
+                 NANOSLEEP_LIB=$ac_cv_search_nanosleep])
  if test "x$ac_cv_search_nanosleep" != xno; then
    dnl The system has a nanosleep function.
 
@@ -53,9 +49,6 @@ AC_DEFUN([gl_FUNC_NANOSLEEP],
           #include <errno.h>
           #include <limits.h>
           #include <signal.h>
-          #if HAVE_SYS_TIME_H
-           #include <sys/time.h>
-          #endif
           #include <time.h>
           #include <unistd.h>
           #define TYPE_SIGNED(t) (! ((t) 0 < (t) -1))
@@ -122,19 +115,24 @@ AC_DEFUN([gl_FUNC_NANOSLEEP],
         *)     gl_cv_func_nanosleep=no ;;
         esac],
        [case "$host_os" in
-          linux*) # Guess it halfway works when the kernel is Linux.
+            # Guess it halfway works when the kernel is Linux.
+          linux*)
             gl_cv_func_nanosleep='guessing no (mishandles large arguments)' ;;
-          mingw*) # Guess no on native Windows.
+            # Midipix generally emulates the Linux system calls,
+            # but here it handles large arguments correctly.
+          midipix*)
+            gl_cv_func_nanosleep='guessing yes' ;;
+            # Guess no on native Windows.
+          mingw* | windows*)
             gl_cv_func_nanosleep='guessing no' ;;
-          *)      # If we don't know, obey --enable-cross-guesses.
+            # If we don't know, obey --enable-cross-guesses.
+          *)
             gl_cv_func_nanosleep="$gl_cross_guess_normal" ;;
         esac
        ])
     ])
    case "$gl_cv_func_nanosleep" in
-     *yes)
-       REPLACE_NANOSLEEP=0
-       ;;
+     *yes) ;;
      *)
        REPLACE_NANOSLEEP=1
        case "$gl_cv_func_nanosleep" in
@@ -142,27 +140,34 @@ AC_DEFUN([gl_FUNC_NANOSLEEP],
            AC_DEFINE([HAVE_BUG_BIG_NANOSLEEP], [1],
              [Define to 1 if nanosleep mishandles large arguments.])
            ;;
-         *)
-           # The replacement uses select(). Add $LIBSOCKET to $LIB_NANOSLEEP.
-           for ac_lib in $LIBSOCKET; do
-             case " $LIB_NANOSLEEP " in
-               *" $ac_lib "*) ;;
-               *) LIB_NANOSLEEP="$LIB_NANOSLEEP $ac_lib";;
-             esac
-           done
-           ;;
        esac
        ;;
    esac
  else
+   # Replace the static inline function on mingw which requires linking to
+   # libwinpthreads.
+   AC_CACHE_CHECK([for static inline nanosleep],
+     [gl_cv_static_inline_nanosleep],
+     [AC_COMPILE_IFELSE(
+        [AC_LANG_PROGRAM(
+           [[#include <time.h>]],
+           [[
+              static struct timespec ts1;
+              static struct timespec ts2;
+              return nanosleep (&ts1, &ts2);
+           ]])
+        ],
+     [gl_cv_static_inline_nanosleep=yes],
+     [gl_cv_static_inline_nanosleep=no])
+   ])
+   if test $gl_cv_static_inline_nanosleep = yes; then
+     REPLACE_NANOSLEEP=1
+   fi
    HAVE_NANOSLEEP=0
  fi
- LIBS=$nanosleep_save_libs
-])
+ LIBS=$gl_saved_LIBS
 
-# Prerequisites of lib/nanosleep.c.
-AC_DEFUN([gl_PREREQ_NANOSLEEP],
-[
-  AC_CHECK_HEADERS_ONCE([sys/select.h])
-  gl_PREREQ_SIG_HANDLER_H
+ # For backward compatibility.
+ LIB_NANOSLEEP="$NANOSLEEP_LIB"
+ AC_SUBST([LIB_NANOSLEEP])
 ])

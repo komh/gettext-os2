@@ -1,8 +1,8 @@
-# Copyright (C) 2002-2022 Free Software Foundation, Inc.
+# Copyright (C) 2002-2026 Free Software Foundation, Inc.
 #
 # This file is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 3 of the License, or
+# the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
 # This file is distributed in the hope that it will be useful,
@@ -27,7 +27,9 @@
 
 
 # Specification in the form of a command-line invocation:
-# gnulib-tool --import --local-dir=gnulib-local --local-dir=../gnulib-local \
+# gnulib-tool --import \
+#  --local-dir=gnulib-local \
+#  --local-dir=../gnulib-local \
 #  --lib=libtextstyle \
 #  --source-base=lib \
 #  --m4-base=gnulib-m4 \
@@ -47,6 +49,7 @@
 #  iconv-ostream \
 #  isatty \
 #  largefile \
+#  manywarnings \
 #  memory-ostream \
 #  memory-ostream-tests \
 #  noop-styled-ostream \
@@ -71,6 +74,7 @@ gl_MODULES([
   iconv-ostream
   isatty
   largefile
+  manywarnings
   memory-ostream
   memory-ostream-tests
   noop-styled-ostream

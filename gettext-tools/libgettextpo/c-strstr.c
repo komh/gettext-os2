@@ -1,10 +1,10 @@
 /* c-strstr.c -- substring search in C locale
-   Copyright (C) 2005-2022 Free Software Foundation, Inc.
+   Copyright (C) 2005-2026 Free Software Foundation, Inc.
    Written by Bruno Haible <bruno@clisp.org>, 2005, 2007.
 
    This file is free software: you can redistribute it and/or modify
    it under the terms of the GNU Lesser General Public License as
-   published by the Free Software Foundation; either version 3 of the
+   published by the Free Software Foundation, either version 3 of the
    License, or (at your option) any later version.
 
    This file is distributed in the hope that it will be useful,
@@ -28,5 +28,5 @@ c_strstr (const char *haystack, const char *needle)
 {
   /* POSIX says that strstr() interprets the strings as byte sequences, not
      as character sequences in the current locale.  */
-  return strstr (haystack, needle);
+  return (char *) strstr (haystack, needle);
 }

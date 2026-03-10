@@ -1,9 +1,9 @@
 /* Test of glthread_rwlock_rdlock function.
-   Copyright (C) 2017-2022 Free Software Foundation, Inc.
+   Copyright (C) 2017-2026 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 3 of the License, or
+   the Free Software Foundation, either version 3 of the License, or
    (at your option) any later version.
 
    This program is distributed in the hope that it will be useful,
@@ -73,7 +73,7 @@ static gl_thread_t timer;
 static gl_lock_t baton;
 
 static void *
-timer_func (void *ignored)
+timer_func (_GL_UNUSED void *ignored)
 {
   /* Step 13 (can be before or after step 12):
      The timer thread takes the baton, then waits a moment to make sure
@@ -87,7 +87,7 @@ timer_func (void *ignored)
 }
 
 static void *
-reader2_func (void *ignored)
+reader2_func (_GL_UNUSED void *ignored)
 {
   int err;
 
@@ -113,7 +113,7 @@ reader2_func (void *ignored)
 }
 
 static void *
-writer_func (void *ignored)
+writer_func (_GL_UNUSED void *ignored)
 {
   /* Step 4: Take the baton, so that the second reader thread does not go ahead
      too early.  */

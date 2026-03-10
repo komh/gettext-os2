@@ -2,8 +2,7 @@
 
 #line 1 "term-styled-ostream.oo.h"
 /* Output stream for CSS styled text, producing ANSI escape sequences.
-   Copyright (C) 2006, 2019 Free Software Foundation, Inc.
-   Written by Bruno Haible <bruno@clisp.org>, 2006.
+   Copyright (C) 2006-2026 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -18,14 +17,18 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
+/* Written by Bruno Haible.  */
+
 #ifndef _TERM_STYLED_OSTREAM_H
 #define _TERM_STYLED_OSTREAM_H
+
+#include <stdbool.h>
 
 #include "styled-ostream.h"
 #include "term-ostream.h"
 
 
-#line 29 "term-styled-ostream.h"
+#line 32 "term-styled-ostream.h"
 struct term_styled_ostream_representation;
 /* term_styled_ostream_t is defined as a pointer to struct term_styled_ostream_representation.
    In C++ mode, we use a smart pointer class.
@@ -67,6 +70,8 @@ extern         const char * term_styled_ostream_get_hyperlink_ref (term_styled_o
 extern    const char * term_styled_ostream_get_hyperlink_id (term_styled_ostream_t first_arg);
 extern    void         term_styled_ostream_set_hyperlink (term_styled_ostream_t first_arg,                               const char *ref, const char *id);
 extern              void term_styled_ostream_flush_to_current_style (term_styled_ostream_t first_arg);
+extern       term_ostream_t term_styled_ostream_get_destination (term_styled_ostream_t first_arg);
+extern    const char *   term_styled_ostream_get_css_filename (term_styled_ostream_t first_arg);
 #ifdef __cplusplus
 }
 #endif
@@ -175,6 +180,24 @@ term_styled_ostream_flush_to_current_style (term_styled_ostream_t first_arg)
   vtable->flush_to_current_style (first_arg);
 }
 
+# define term_styled_ostream_get_destination term_styled_ostream_get_destination_inline
+static inline term_ostream_t
+term_styled_ostream_get_destination (term_styled_ostream_t first_arg)
+{
+  const struct term_styled_ostream_implementation *vtable =
+    ((struct term_styled_ostream_representation_header *) (struct term_styled_ostream_representation *) first_arg)->vtable;
+  return vtable->get_destination (first_arg);
+}
+
+# define term_styled_ostream_get_css_filename term_styled_ostream_get_css_filename_inline
+static inline const char *
+term_styled_ostream_get_css_filename (term_styled_ostream_t first_arg)
+{
+  const struct term_styled_ostream_implementation *vtable =
+    ((struct term_styled_ostream_representation_header *) (struct term_styled_ostream_representation *) first_arg)->vtable;
+  return vtable->get_css_filename (first_arg);
+}
+
 #endif
 
 extern const typeinfo_t term_styled_ostream_typeinfo;
@@ -183,7 +206,7 @@ extern const typeinfo_t term_styled_ostream_typeinfo;
 
 extern const struct term_styled_ostream_implementation term_styled_ostream_vtable;
 
-#line 29 "term-styled-ostream.oo.h"
+#line 35 "term-styled-ostream.oo.h"
 
 
 #ifdef __cplusplus
@@ -201,6 +224,10 @@ extern term_styled_ostream_t
        term_styled_ostream_create (int fd, const char *filename,
                                    ttyctl_t tty_control,
                                    const char *css_filename);
+
+
+/* Test whether a given output stream is a term_styled_ostream.  */
+extern bool is_instance_of_term_styled_ostream (ostream_t stream);
 
 
 #ifdef __cplusplus

@@ -1,5 +1,5 @@
 /* Public API of the libtextstyle library.
-   Copyright (C) 2006-2007, 2019-2021 Free Software Foundation, Inc.
+   Copyright (C) 2006-2007, 2019-2026 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -14,15 +14,15 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
-/* Written by Bruno Haible <bruno@clisp.org>, 2006, 2019.  */
+/* Written by Bruno Haible.  */
 
 #ifndef _TEXTSTYLE_H
 #define _TEXTSTYLE_H
 
 #include <stdarg.h>
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
-#include <textstyle/stdbool.h>
 #include <textstyle/woe32dll.h>
 
 /* Meta information.  */
@@ -123,6 +123,19 @@ extern void styled_ostream_flush_to_current_style (styled_ostream_t stream);
 }
 #endif
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
+/* Test whether a given output stream is a styled_ostream.  */
+extern bool is_instance_of_styled_ostream (ostream_t stream);
+
+
+#ifdef __cplusplus
+}
+#endif
+
 /* -------------------------- From file-ostream.h -------------------------- */
 
 /* file_ostream_t is a subtype of ostream_t.  */
@@ -135,6 +148,8 @@ extern "C" {
 extern void file_ostream_write_mem (file_ostream_t first_arg, const void *data, size_t len);
 extern void file_ostream_flush (file_ostream_t first_arg, ostream_flush_scope_t scope);
 extern void file_ostream_free (file_ostream_t first_arg);
+/* Accessors.  */
+extern FILE *file_ostream_get_stdio_stream (file_ostream_t stream);
 #ifdef __cplusplus
 }
 #endif
@@ -147,6 +162,10 @@ extern "C" {
 /* Create an output stream referring to FP.
    Note that the resulting stream must be closed before FP can be closed.  */
 extern file_ostream_t file_ostream_create (FILE *fp);
+
+
+/* Test whether a given output stream is a file_ostream.  */
+extern bool is_instance_of_file_ostream (ostream_t stream);
 
 
 #ifdef __cplusplus
@@ -165,6 +184,10 @@ extern "C" {
 extern void fd_ostream_write_mem (fd_ostream_t first_arg, const void *data, size_t len);
 extern void fd_ostream_flush (fd_ostream_t first_arg, ostream_flush_scope_t scope);
 extern void fd_ostream_free (fd_ostream_t first_arg);
+/* Accessors.  */
+extern int fd_ostream_get_descriptor (fd_ostream_t stream);
+extern const char *fd_ostream_get_filename (fd_ostream_t stream);
+extern bool fd_ostream_is_buffered (fd_ostream_t stream);
 #ifdef __cplusplus
 }
 #endif
@@ -179,6 +202,10 @@ extern "C" {
    Note that the resulting stream must be closed before FD can be closed.  */
 extern fd_ostream_t fd_ostream_create (int fd, const char *filename,
                                        bool buffered);
+
+
+/* Test whether a given output stream is a fd_ostream.  */
+extern bool is_instance_of_fd_ostream (ostream_t stream);
 
 
 #ifdef __cplusplus
@@ -224,6 +251,26 @@ typedef enum
   UNDERLINE_DEFAULT = UNDERLINE_OFF
 } term_underline_t;
 
+/* The amount of control to take over the underlying tty in order to avoid
+   garbled output on the screen, due to interleaved output of escape sequences
+   and output from the kernel (such as when the kernel echoes user's input
+   or when the kernel prints '^C' after the user pressed Ctrl-C).  */
+typedef enum
+{
+  TTYCTL_AUTO = 0,  /* Automatic best-possible choice.  */
+  TTYCTL_NONE,      /* No control.
+                       Result: Garbled output can occur, and the terminal can
+                       be left in any state when the program is interrupted.  */
+  TTYCTL_PARTIAL,   /* Signal handling.
+                       Result: Garbled output can occur, but the terminal will
+                       be left in the default state when the program is
+                       interrupted.  */
+  TTYCTL_FULL       /* Signal handling and disabling echo and flush-upon-signal.
+                       Result: No garbled output, and the the terminal will
+                       be left in the default state when the program is
+                       interrupted.  */
+} ttyctl_t;
+
 /* term_ostream_t is a subtype of ostream_t.  */
 typedef ostream_t term_ostream_t;
 
@@ -256,29 +303,14 @@ extern void term_ostream_set_hyperlink (term_ostream_t first_arg, const char *re
    passed to 'ostream_write_mem', 'ostream_write_str', or
    'ostream_write_printf'.  */
 extern void term_ostream_flush_to_current_style (term_ostream_t first_arg);
+/* Accessors.  */
+extern int term_ostream_get_descriptor (term_ostream_t stream);
+extern const char *term_ostream_get_filename (term_ostream_t stream);
+extern ttyctl_t term_ostream_get_tty_control (term_ostream_t stream);
+extern ttyctl_t term_ostream_get_effective_tty_control (term_ostream_t stream);
 #ifdef __cplusplus
 }
 #endif
-
-/* The amount of control to take over the underlying tty in order to avoid
-   garbled output on the screen, due to interleaved output of escape sequences
-   and output from the kernel (such as when the kernel echoes user's input
-   or when the kernel prints '^C' after the user pressed Ctrl-C).  */
-typedef enum
-{
-  TTYCTL_AUTO = 0,  /* Automatic best-possible choice.  */
-  TTYCTL_NONE,      /* No control.
-                       Result: Garbled output can occur, and the terminal can
-                       be left in any state when the program is interrupted.  */
-  TTYCTL_PARTIAL,   /* Signal handling.
-                       Result: Garbled output can occur, but the terminal will
-                       be left in the default state when the program is
-                       interrupted.  */
-  TTYCTL_FULL       /* Signal handling and disabling echo and flush-upon-signal.
-                       Result: No garbled output, and the the terminal will
-                       be left in the default state when the program is
-                       interrupted.  */
-} ttyctl_t;
 
 #ifdef __cplusplus
 extern "C" {
@@ -292,6 +324,10 @@ extern "C" {
    Note that the resulting stream must be closed before FD can be closed.  */
 extern term_ostream_t
        term_ostream_create (int fd, const char *filename, ttyctl_t tty_control);
+
+
+/* Test whether a given output stream is a term_ostream.  */
+extern bool is_instance_of_term_ostream (ostream_t stream);
 
 
 #ifdef __cplusplus
@@ -324,6 +360,10 @@ extern "C" {
 extern memory_ostream_t memory_ostream_create (void);
 
 
+/* Test whether a given output stream is a memory_ostream.  */
+extern bool is_instance_of_memory_ostream (ostream_t stream);
+
+
 #ifdef __cplusplus
 }
 #endif
@@ -342,6 +382,10 @@ extern "C" {
 extern void iconv_ostream_write_mem (iconv_ostream_t first_arg, const void *data, size_t len);
 extern void iconv_ostream_flush (iconv_ostream_t first_arg, ostream_flush_scope_t scope);
 extern void iconv_ostream_free (iconv_ostream_t first_arg);
+/* Accessors.  */
+extern const char *iconv_ostream_get_from_encoding (iconv_ostream_t stream);
+extern const char *iconv_ostream_get_to_encoding (iconv_ostream_t stream);
+extern ostream_t iconv_ostream_get_destination (iconv_ostream_t stream);
 #ifdef __cplusplus
 }
 #endif
@@ -356,6 +400,10 @@ extern "C" {
 extern iconv_ostream_t iconv_ostream_create (const char *from_encoding,
                                              const char *to_encoding,
                                              ostream_t destination);
+
+
+/* Test whether a given output stream is an iconv_ostream.  */
+extern bool is_instance_of_iconv_ostream (ostream_t stream);
 
 
 #ifdef __cplusplus
@@ -387,6 +435,8 @@ extern void html_ostream_set_hyperlink_ref (html_ostream_t first_arg, const char
    to the underlying stream, and they will be rendered like strings passed
    to 'ostream_write_mem', 'ostream_write_str', or 'ostream_write_printf'.  */
 extern void html_ostream_flush_to_current_style (html_ostream_t stream);
+/* Accessors.  */
+extern ostream_t html_ostream_get_destination (html_ostream_t stream);
 #ifdef __cplusplus
 }
 #endif
@@ -404,6 +454,10 @@ extern "C" {
    Note that the resulting stream must be closed before DESTINATION can be
    closed.  */
 extern html_ostream_t html_ostream_create (ostream_t destination);
+
+
+/* Test whether a given output stream is a html_ostream.  */
+extern bool is_instance_of_html_ostream (ostream_t stream);
 
 
 #ifdef __cplusplus
@@ -428,6 +482,9 @@ extern const char *term_styled_ostream_get_hyperlink_ref (term_styled_ostream_t 
 extern const char *term_styled_ostream_get_hyperlink_id (term_styled_ostream_t first_arg);
 extern void term_styled_ostream_set_hyperlink (term_styled_ostream_t first_arg, const char *ref, const char *id);
 extern void term_styled_ostream_flush_to_current_style (term_styled_ostream_t first_arg);
+/* Accessors.  */
+extern term_ostream_t term_styled_ostream_get_destination (term_styled_ostream_t stream);
+extern const char *term_styled_ostream_get_css_filename (term_styled_ostream_t stream);
 #ifdef __cplusplus
 }
 #endif
@@ -447,6 +504,10 @@ extern term_styled_ostream_t
        term_styled_ostream_create (int fd, const char *filename,
                                    ttyctl_t tty_control,
                                    const char *css_filename);
+
+
+/* Test whether a given output stream is a term_styled_ostream.  */
+extern bool is_instance_of_term_styled_ostream (ostream_t stream);
 
 
 #ifdef __cplusplus
@@ -471,6 +532,10 @@ extern const char *html_styled_ostream_get_hyperlink_ref (html_styled_ostream_t 
 extern const char *html_styled_ostream_get_hyperlink_id (html_styled_ostream_t first_arg);
 extern void html_styled_ostream_set_hyperlink (html_styled_ostream_t first_arg, const char *ref, const char *id);
 extern void html_styled_ostream_flush_to_current_style (html_styled_ostream_t first_arg);
+/* Accessors.  */
+extern ostream_t html_styled_ostream_get_destination (html_styled_ostream_t stream);
+extern html_ostream_t html_styled_ostream_get_html_destination (html_styled_ostream_t stream);
+extern const char *html_styled_ostream_get_css_filename (html_styled_ostream_t stream);
 #ifdef __cplusplus
 }
 #endif
@@ -487,6 +552,10 @@ extern "C" {
 extern html_styled_ostream_t
        html_styled_ostream_create (ostream_t destination,
                                    const char *css_filename);
+
+
+/* Test whether a given output stream is a html_styled_ostream.  */
+extern bool is_instance_of_html_styled_ostream (ostream_t stream);
 
 
 #ifdef __cplusplus
@@ -511,6 +580,9 @@ extern const char *noop_styled_ostream_get_hyperlink_ref (noop_styled_ostream_t 
 extern const char *noop_styled_ostream_get_hyperlink_id (noop_styled_ostream_t first_arg);
 extern void noop_styled_ostream_set_hyperlink (noop_styled_ostream_t first_arg, const char *ref, const char *id);
 extern void noop_styled_ostream_flush_to_current_style (noop_styled_ostream_t first_arg);
+/* Accessors.  */
+extern ostream_t noop_styled_ostream_get_destination (noop_styled_ostream_t stream);
+extern bool noop_styled_ostream_is_owning_destination (noop_styled_ostream_t stream);
 #ifdef __cplusplus
 }
 #endif
@@ -528,6 +600,10 @@ extern "C" {
    before DESTINATION can be closed.  */
 extern noop_styled_ostream_t
        noop_styled_ostream_create (ostream_t destination, bool pass_ownership);
+
+
+/* Test whether a given output stream is a noop_styled_ostream.  */
+extern bool is_instance_of_noop_styled_ostream (ostream_t stream);
 
 
 #ifdef __cplusplus

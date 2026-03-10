@@ -1,10 +1,10 @@
 /* Get permissions of a file.  -*- coding: utf-8 -*-
 
-   Copyright (C) 2002-2003, 2005-2022 Free Software Foundation, Inc.
+   Copyright (C) 2002-2003, 2005-2026 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 3 of the License, or
+   the Free Software Foundation, either version 3 of the License, or
    (at your option) any later version.
 
    This program is distributed in the hope that it will be useful,
@@ -38,9 +38,9 @@ get_permissions (const char *name, int desc, mode_t mode,
 
 #if USE_ACL && HAVE_ACL_GET_FILE
   /* POSIX 1003.1e (draft 17 -- abandoned) specific version.  */
-  /* Linux, FreeBSD, Mac OS X, IRIX, Tru64, Cygwin >= 2.5 */
+  /* Linux, FreeBSD, Mac OS X, Cygwin >= 2.5 */
 # if !HAVE_ACL_TYPE_EXTENDED
-  /* Linux, FreeBSD, IRIX, Tru64, Cygwin >= 2.5 */
+  /* Linux, FreeBSD, Cygwin >= 2.5 */
 
   if (HAVE_ACL_GET_FD && desc != -1)
     ctx->acl = acl_get_fd (desc);

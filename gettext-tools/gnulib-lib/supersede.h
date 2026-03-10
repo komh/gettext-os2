@@ -1,10 +1,10 @@
 /* Open a file, without destroying an old file with the same name.
 
-   Copyright (C) 2020-2022 Free Software Foundation, Inc.
+   Copyright (C) 2020-2026 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 3 of the License, or
+   the Free Software Foundation, either version 3 of the License, or
    (at your option) any later version.
 
    This program is distributed in the hope that it will be useful,
@@ -20,7 +20,6 @@
 #ifndef _GL_SUPERSEDE_H
 #define _GL_SUPERSEDE_H
 
-#include <stdbool.h>
 #include <stdio.h>
 #include <sys/types.h>
 

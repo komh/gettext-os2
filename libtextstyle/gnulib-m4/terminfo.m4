@@ -1,8 +1,10 @@
-# terminfo.m4 serial 4 (gettext-0.21.1)
-dnl Copyright (C) 2000-2002, 2006-2008, 2020 Free Software Foundation, Inc.
+# terminfo.m4
+# serial 8
+dnl Copyright (C) 2000-2026 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
+dnl This file is offered as-is, without any warranty.
 
 dnl From Bruno Haible.
 
@@ -29,8 +31,8 @@ AC_DEFUN([gl_TERMINFO_BODY],
   dnl tputs(), tgoto() in the same library as tgetent(), tgetnum(), tgetstr(),
   dnl tgetflag(), e.g. Linux (in libncurses) or Solaris (in libtermcap =
   dnl libncurses).
-  dnl Some systems have them in a different library, e.g. OSF/1 (in libcurses,
-  dnl not in libtermcap) or HP-UX (in libxcurses, not in libtermcap).
+  dnl Some systems have them in a different library, e.g. AIX, HP-UX (in
+  dnl libxcurses, not in libtermcap).
   dnl Some systems, like NetBSD or BeOS, don't have these functions at all;
   dnl they have only a libtermcap.
   dnl Some systems, like BeOS, use GNU termcap, which has tparam() instead of
@@ -44,6 +46,11 @@ AC_DEFUN([gl_TERMINFO_BODY],
   dnl Prerequisites of AC_LIB_LINKFLAGS_BODY.
   AC_REQUIRE([AC_LIB_PREPARE_PREFIX])
   AC_REQUIRE([AC_LIB_RPATH])
+
+  dnl Avoid disturbing the gl_TERMCAP_BODY macro.
+  gl_saved_LIBTERMCAP="$LIBTERMCAP"
+  gl_saved_LTLIBTERMCAP="$LTLIBTERMCAP"
+  gl_saved_INCTERMCAP="$INCTERMCAP"
 
   if test "$gl_curses_allowed" != no; then
 
@@ -112,10 +119,10 @@ AC_DEFUN([gl_TERMINFO_BODY],
          ]],
          [[return setupterm ("xterm", 0, (int *)0)
                   + tigetnum ("colors")
-                  + tigetflag ("hc") + * tigetstr("oc");]])],
+                  + tigetflag ("hc") + * tigetstr ("oc");]])],
       [gl_cv_terminfo=libc])
     if test "$gl_cv_terminfo" != libc; then
-      gl_save_LIBS="$LIBS"
+      gl_saved_LIBS="$LIBS"
       LIBS="$LIBS $LIBNCURSES"
       AC_LINK_IFELSE(
         [AC_LANG_PROGRAM(
@@ -142,11 +149,11 @@ AC_DEFUN([gl_TERMINFO_BODY],
            ]],
            [[return setupterm ("xterm", 0, (int *)0)
                     + tigetnum ("colors")
-                    + tigetflag ("hc") + * tigetstr("oc");]])],
+                    + tigetflag ("hc") + * tigetstr ("oc");]])],
         [gl_cv_terminfo=libncurses])
-      LIBS="$gl_save_LIBS"
+      LIBS="$gl_saved_LIBS"
       if test "$gl_cv_terminfo" != libncurses; then
-        gl_save_LIBS="$LIBS"
+        gl_saved_LIBS="$LIBS"
         LIBS="$LIBS $LIBTERMCAP"
         AC_LINK_IFELSE(
           [AC_LANG_PROGRAM(
@@ -173,11 +180,11 @@ AC_DEFUN([gl_TERMINFO_BODY],
              ]],
              [[return setupterm ("xterm", 0, (int *)0)
                       + tigetnum ("colors")
-                      + tigetflag ("hc") + * tigetstr("oc");]])],
+                      + tigetflag ("hc") + * tigetstr ("oc");]])],
           [gl_cv_terminfo=libtermcap])
-        LIBS="$gl_save_LIBS"
+        LIBS="$gl_saved_LIBS"
         if test "$gl_cv_terminfo" != libtermcap; then
-          gl_save_LIBS="$LIBS"
+          gl_saved_LIBS="$LIBS"
           LIBS="$LIBS $LIBXCURSES"
           AC_LINK_IFELSE(
             [AC_LANG_PROGRAM(
@@ -204,11 +211,11 @@ AC_DEFUN([gl_TERMINFO_BODY],
                ]],
                [[return setupterm ("xterm", 0, (int *)0)
                         + tigetnum ("colors")
-                        + tigetflag ("hc") + * tigetstr("oc");]])],
+                        + tigetflag ("hc") + * tigetstr ("oc");]])],
             [gl_cv_terminfo=libxcurses])
-          LIBS="$gl_save_LIBS"
+          LIBS="$gl_saved_LIBS"
           if test "$gl_cv_terminfo" != libxcurses; then
-            gl_save_LIBS="$LIBS"
+            gl_saved_LIBS="$LIBS"
             LIBS="$LIBS $LIBCURSES"
             AC_LINK_IFELSE(
               [AC_LANG_PROGRAM(
@@ -235,9 +242,9 @@ AC_DEFUN([gl_TERMINFO_BODY],
                  ]],
                  [[return setupterm ("xterm", 0, (int *)0)
                           + tigetnum ("colors")
-                          + tigetflag ("hc") + * tigetstr("oc");]])],
+                          + tigetflag ("hc") + * tigetstr ("oc");]])],
               [gl_cv_terminfo=libcurses])
-            LIBS="$gl_save_LIBS"
+            LIBS="$gl_saved_LIBS"
           fi
         fi
       fi
@@ -291,7 +298,7 @@ AC_DEFUN([gl_TERMINFO_BODY],
              [[return tgetent ((char *) 0, "xterm");]])],
           [gl_cv_termcap=libc])
         if test "$gl_cv_termcap" != libc; then
-          gl_save_LIBS="$LIBS"
+          gl_saved_LIBS="$LIBS"
           LIBS="$LIBS $LIBNCURSES"
           AC_LINK_IFELSE(
             [AC_LANG_PROGRAM(
@@ -303,9 +310,9 @@ AC_DEFUN([gl_TERMINFO_BODY],
                ]],
                [[return tgetent ((char *) 0, "xterm");]])],
             [gl_cv_termcap=libncurses])
-          LIBS="$gl_save_LIBS"
+          LIBS="$gl_saved_LIBS"
           if test "$gl_cv_termcap" != libncurses; then
-            gl_save_LIBS="$LIBS"
+            gl_saved_LIBS="$LIBS"
             LIBS="$LIBS $LIBTERMCAP"
             AC_LINK_IFELSE(
               [AC_LANG_PROGRAM(
@@ -317,7 +324,7 @@ AC_DEFUN([gl_TERMINFO_BODY],
                  ]],
                  [[return tgetent ((char *) 0, "xterm");]])],
               [gl_cv_termcap=libtermcap])
-            LIBS="$gl_save_LIBS"
+            LIBS="$gl_saved_LIBS"
           fi
         fi
       ])
@@ -354,9 +361,9 @@ AC_DEFUN([gl_TERMINFO_BODY],
   dnl Test against the old GNU termcap, which provides a tparam() function
   dnl instead of the classical tparm() function.
   AC_CACHE_CHECK([for tparam], [gl_cv_terminfo_tparam], [
-    gl_save_LIBS="$LIBS"
+    gl_saved_LIBS="$LIBS"
     LIBS="$LIBS $LIBTERMINFO"
-    gl_save_CPPFLAGS="$CPPFLAGS"
+    gl_saved_CPPFLAGS="$CPPFLAGS"
     CPPFLAGS="$CPPFLAGS $INCTERMINFO"
     AC_LINK_IFELSE(
       [AC_LANG_PROGRAM(
@@ -367,11 +374,11 @@ AC_DEFUN([gl_TERMINFO_BODY],
            char * tparam (const char *, void *, int, ...);
            char buf;
          ]],
-         [[return tparam ("\033\133%dm", &buf, 1, 8);]])],
+         [[return ! tparam ("\033\133%dm", &buf, 1, 8);]])],
       [gl_cv_terminfo_tparam=yes],
       [gl_cv_terminfo_tparam=no])
-    CPPFLAGS="$gl_save_CPPFLAGS"
-    LIBS="$gl_save_LIBS"
+    CPPFLAGS="$gl_saved_CPPFLAGS"
+    LIBS="$gl_saved_LIBS"
   ])
   if test $gl_cv_terminfo_tparam = yes; then
     AC_DEFINE([HAVE_TPARAM], 1,
@@ -380,9 +387,9 @@ AC_DEFUN([gl_TERMINFO_BODY],
     dnl Test whether a tparm() function is provided. It is missing e.g.
     dnl in NetBSD 3.0 libtermcap.
     AC_CACHE_CHECK([for tparm], [gl_cv_terminfo_tparm], [
-      gl_save_LIBS="$LIBS"
+      gl_saved_LIBS="$LIBS"
       LIBS="$LIBS $LIBTERMINFO"
-      gl_save_CPPFLAGS="$CPPFLAGS"
+      gl_saved_CPPFLAGS="$CPPFLAGS"
       CPPFLAGS="$CPPFLAGS $INCTERMINFO"
       AC_LINK_IFELSE(
         [AC_LANG_PROGRAM(
@@ -392,10 +399,15 @@ AC_DEFUN([gl_TERMINFO_BODY],
              #endif
              char * tparm (const char *, ...);
            ]],
-           [[return tparm ("\033\133%dm", 8);]])],
+           [[return ! tparm ("\033\133%dm", 8);]])],
         [gl_cv_terminfo_tparm=yes], [gl_cv_terminfo_tparm=no])
-      CPPFLAGS="$gl_save_CPPFLAGS"
-      LIBS="$gl_save_LIBS"
+      CPPFLAGS="$gl_saved_CPPFLAGS"
+      LIBS="$gl_saved_LIBS"
     ])
   fi
+
+  dnl Avoid disturbing the gl_TERMCAP_BODY macro.
+  LIBTERMCAP="$gl_saved_LIBTERMCAP"
+  LTLIBTERMCAP="$gl_saved_LTLIBTERMCAP"
+  INCTERMCAP="$gl_saved_INCTERMCAP"
 ])

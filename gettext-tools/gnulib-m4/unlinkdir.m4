@@ -1,10 +1,10 @@
-# serial 7
-
-# Copyright (C) 2005-2007, 2009-2022 Free Software Foundation, Inc.
-#
-# This file is free software; the Free Software Foundation
-# gives unlimited permission to copy and/or distribute it,
-# with or without modifications, as long as this notice is preserved.
+# unlinkdir.m4
+# serial 8
+dnl Copyright (C) 2005-2007, 2009-2026 Free Software Foundation, Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+dnl This file is offered as-is, without any warranty.
 
 # Written by Paul Eggert.
 
@@ -25,7 +25,7 @@ AC_DEFUN([gl_UNLINKDIR],
   linux-* | linux | \
   freebsd2.2* | freebsd[[3-9]]* | freebsd[[1-9]][[0-9]]* | \
   cygwin | \
-  mingw*)
+  mingw* | windows*)
     AC_DEFINE([UNLINK_CANNOT_UNLINK_DIR], [1],
       [Define to 1 if unlink (dir) cannot possibly succeed.]);;
   esac

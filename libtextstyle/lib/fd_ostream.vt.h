@@ -4,3 +4,6 @@
 #include "ostream.vt.h"
 
 /* Virtual function table layout of fd_ostream class.  */
+      int          (*get_descriptor) (THIS_ARG);
+   const char * (*get_filename) (THIS_ARG);
+   bool         (*is_buffered) (THIS_ARG);

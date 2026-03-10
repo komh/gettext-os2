@@ -1,22 +1,28 @@
 /* Information about terminal capabilities.
-   Copyright (C) 2006 Free Software Foundation, Inc.
-   Written by Bruno Haible <bruno@clisp.org>, 2006.
+   Copyright (C) 2006-2026 Free Software Foundation, Inc.
 
-   This program is free software: you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 3 of the License, or
-   (at your option) any later version.
+   This file is free software: you can redistribute it and/or modify
+   it under the terms of the GNU Lesser General Public License as
+   published by the Free Software Foundation, either version 3 of the
+   License, or (at your option) any later version.
 
-   This program is distributed in the hope that it will be useful,
+   This file is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
+   GNU Lesser General Public License for more details.
 
-   You should have received a copy of the GNU General Public License
+   You should have received a copy of the GNU Lesser General Public License
    along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
+
+/* Written by Bruno Haible <bruno@clisp.org>, 2006.  */
 
 #ifndef _TERMINFO_H
 #define _TERMINFO_H
+
+/* This file uses HAVE_TERMINFO, HAVE_TERMCAP, HAVE_TPARAM.  */
+#if !_GL_CONFIG_H_INCLUDED
+ #error "Please include config.h first."
+#endif
 
 /* Including <curses.h> or <term.h> is dangerous, because it also declares
    a lot of junk, such as variables PC, UP, and other.  */
@@ -47,6 +53,7 @@ extern const char * tigetstr (const char *id);
 #elif HAVE_TERMCAP
 
 /* Gets the capability information for terminal type TYPE.
+   BP must point to a buffer, at least 2048 bytes large.
    Returns 1 if successful, 0 if TYPE is unknown, -1 on other error.  */
 extern int tgetent (char *bp, const char *type);
 
@@ -78,8 +85,7 @@ extern char * tparam (const char *str, void *buf, int bufsize, ...);
 
 /* API provided by
      - GNU ncurses in <term.h>, <curses.h>, <ncurses.h>,
-     - OSF/1 curses in <term.h>, <curses.h>,
-     - Solaris, AIX, HP-UX, IRIX curses in <term.h>,
+     - Solaris, AIX, HP-UX curses in <term.h>,
      - gnulib's replacement.  */
 
 /* Instantiates a string capability with format strings.

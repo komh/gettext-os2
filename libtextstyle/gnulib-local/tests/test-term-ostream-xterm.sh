@@ -1,7 +1,7 @@
 #!/bin/sh
 
 tmpfiles=""
-trap 'rm -fr $tmpfiles' 1 2 3 15
+trap 'rm -fr $tmpfiles' HUP INT QUIT TERM
 
 tmpfiles="$tmpfiles out1 out"
 # The redirection of stderr into a pipe avoids the output of padding bytes
@@ -33,7 +33,8 @@ LC_ALL=C tr -d '\r' < out1 > out
 || ${DIFF} ${srcdir}/test-term-ostream-xterm-aix51.out          out > /dev/null \
 || ${DIFF} ${srcdir}/test-term-ostream-xterm-osf51.out          out > /dev/null \
 || ${DIFF} ${srcdir}/test-term-ostream-xterm-irix65.out         out > /dev/null \
-|| ${DIFF} ${srcdir}/test-term-ostream-xterm-mingw.out          out > /dev/null
+|| ${DIFF} ${srcdir}/test-term-ostream-xterm-mingw.out          out > /dev/null \
+|| ${DIFF} ${srcdir}/test-term-ostream-xterm-msys2.out          out > /dev/null
 result=$?
 
 rm -fr $tmpfiles

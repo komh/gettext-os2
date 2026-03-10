@@ -1,11 +1,11 @@
 /* argmatch.c -- find a match for a string in an array
 
-   Copyright (C) 1990, 1998-1999, 2001-2007, 2009-2022 Free Software
+   Copyright (C) 1990, 1998-1999, 2001-2007, 2009-2026 Free Software
    Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 3 of the License, or
+   the Free Software Foundation, either version 3 of the License, or
    (at your option) any later version.
 
    This program is distributed in the hope that it will be useful,
@@ -24,16 +24,14 @@
 /* Specification.  */
 #include "argmatch.h"
 
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#define _(msgid) gettext (msgid)
+#define _(msgid) dgettext (GNULIB_TEXT_DOMAIN, msgid)
 
-#include "error.h"
+#include <error.h>
 #include "quotearg.h"
-#include "getprogname.h"
 
 #if USE_UNLOCKED_IO
 # include "unlocked-io.h"
@@ -82,15 +80,13 @@ ptrdiff_t
 argmatch (const char *arg, const char *const *arglist,
           const void *vallist, size_t valsize)
 {
-  size_t i;                     /* Temporary index in ARGLIST.  */
-  size_t arglen;                /* Length of ARG.  */
+  size_t arglen = strlen (arg); /* Length of ARG.  */
+
   ptrdiff_t matchind = -1;      /* Index of first nonexact match.  */
   bool ambiguous = false;       /* If true, multiple nonexact match(es).  */
 
-  arglen = strlen (arg);
-
   /* Test all elements for either exact match or abbreviated matches.  */
-  for (i = 0; arglist[i]; i++)
+  for (size_t i = 0; arglist[i]; i++)
     {
       if (!strncmp (arglist[i], arg, arglen))
         {
@@ -104,7 +100,7 @@ argmatch (const char *arg, const char *const *arglist,
             {
               /* Second nonexact match found.  */
               if (vallist == NULL
-                  || memcmp ((char const *) vallist + valsize * matchind,
+                  || !memeq ((char const *) vallist + valsize * matchind,
                              (char const *) vallist + valsize * i, valsize))
                 {
                   /* There is a real ambiguity, or we could not
@@ -118,6 +114,19 @@ argmatch (const char *arg, const char *const *arglist,
     return -2;
   else
     return matchind;
+}
+
+ptrdiff_t
+argmatch_exact (const char *arg, const char *const *arglist)
+{
+  /* Test elements for exact match.  */
+  for (size_t i = 0; arglist[i]; i++)
+    {
+      if (streq (arglist[i], arg))
+        return i;
+    }
+
+  return -1;
 }
 
 /* Error reporting for argmatch.
@@ -144,15 +153,14 @@ void
 argmatch_valid (const char *const *arglist,
                 const void *vallist, size_t valsize)
 {
-  size_t i;
   const char *last_val = NULL;
 
   /* We try to put synonyms on the same line.  The assumption is that
      synonyms follow each other */
   fputs (_("Valid arguments are:"), stderr);
-  for (i = 0; arglist[i]; i++)
+  for (size_t i = 0; arglist[i]; i++)
     if ((i == 0)
-        || memcmp (last_val, (char const *) vallist + valsize * i, valsize))
+        || !memeq (last_val, (char const *) vallist + valsize * i, valsize))
       {
         fprintf (stderr, "\n  - %s", quote (arglist[i]));
         last_val = (char const *) vallist + valsize * i;
@@ -174,9 +182,15 @@ ptrdiff_t
 __xargmatch_internal (const char *context,
                       const char *arg, const char *const *arglist,
                       const void *vallist, size_t valsize,
-                      argmatch_exit_fn exit_fn)
+                      argmatch_exit_fn exit_fn,
+                      bool allow_abbreviation)
 {
-  ptrdiff_t res = argmatch (arg, arglist, vallist, valsize);
+  ptrdiff_t res;
+  if (allow_abbreviation)
+    res = argmatch (arg, arglist, vallist, valsize);
+  else
+    res = argmatch_exact (arg, arglist);
+
   if (res >= 0)
     /* Success. */
     return res;
@@ -196,10 +210,8 @@ argmatch_to_argument (const void *value,
                       const char *const *arglist,
                       const void *vallist, size_t valsize)
 {
-  size_t i;
-
-  for (i = 0; arglist[i]; i++)
-    if (!memcmp (value, (char const *) vallist + valsize * i, valsize))
+  for (size_t i = 0; arglist[i]; i++)
+    if (memeq (value, (char const *) vallist + valsize * i, valsize))
       return arglist[i];
   return NULL;
 }
@@ -248,18 +260,20 @@ static const enum backup_type backup_vals[] =
 int
 main (int argc, const char *const *argv)
 {
-  const char *cp;
-  enum backup_type backup_type = no_backups;
-
   if (argc > 2)
     {
       fprintf (stderr, "Usage: %s [VERSION_CONTROL]\n", getprogname ());
       exit (1);
     }
 
-  if ((cp = getenv ("VERSION_CONTROL")))
-    backup_type = XARGMATCH ("$VERSION_CONTROL", cp,
-                             backup_args, backup_vals);
+  enum backup_type backup_type = no_backups;
+
+  {
+    const char *cp;
+    if ((cp = getenv ("VERSION_CONTROL")))
+      backup_type = XARGMATCH ("$VERSION_CONTROL", cp,
+                               backup_args, backup_vals);
+  }
 
   if (argc == 2)
     backup_type = XARGMATCH (getprogname (), argv[1],

@@ -5,8 +5,7 @@
 #endif
 #line 1 "file-ostream.oo.c"
 /* Output stream referring to an stdio FILE.
-   Copyright (C) 2006, 2019 Free Software Foundation, Inc.
-   Written by Bruno Haible <bruno@clisp.org>, 2006.
+   Copyright (C) 2006-2026 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -20,6 +19,8 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
+
+/* Written by Bruno Haible.  */
 
 #include <config.h>
 
@@ -35,7 +36,7 @@
 
 #include "xalloc.h"
 
-#line 39 "file-ostream.c"
+#line 40 "file-ostream.c"
 #include "file_ostream.priv.h"
 
 const typeinfo_t file_ostream_typeinfo = { "file_ostream" };
@@ -45,7 +46,7 @@ static const typeinfo_t * const file_ostream_superclasses[] =
 
 #define super ostream_vtable
 
-#line 37 "file-ostream.oo.c"
+#line 38 "file-ostream.oo.c"
 
 #if HAVE_TCDRAIN
 
@@ -112,14 +113,29 @@ file_ostream_t
 file_ostream_create (FILE *fp)
 {
   file_ostream_t stream = XMALLOC (struct file_ostream_representation);
-
   stream->base.vtable = &file_ostream_vtable;
   stream->fp = fp;
 
   return stream;
 }
 
-#line 123 "file-ostream.c"
+/* Accessors.  */
+
+static FILE *
+file_ostream__get_stdio_stream (file_ostream_t stream)
+{
+  return stream->fp;
+}
+
+/* Instanceof test.  */
+
+bool
+is_instance_of_file_ostream (ostream_t stream)
+{
+  return IS_INSTANCE (stream, ostream, file_ostream);
+}
+
+#line 139 "file-ostream.c"
 
 const struct file_ostream_implementation file_ostream_vtable =
 {
@@ -129,6 +145,7 @@ const struct file_ostream_implementation file_ostream_vtable =
   file_ostream__write_mem,
   file_ostream__flush,
   file_ostream__free,
+  file_ostream__get_stdio_stream,
 };
 
 #if !HAVE_INLINE
@@ -157,6 +174,14 @@ file_ostream_free (file_ostream_t first_arg)
   const struct file_ostream_implementation *vtable =
     ((struct file_ostream_representation_header *) (struct file_ostream_representation *) first_arg)->vtable;
   vtable->free (first_arg);
+}
+
+FILE *
+file_ostream_get_stdio_stream (file_ostream_t first_arg)
+{
+  const struct file_ostream_implementation *vtable =
+    ((struct file_ostream_representation_header *) (struct file_ostream_representation *) first_arg)->vtable;
+  return vtable->get_stdio_stream (first_arg);
 }
 
 #endif

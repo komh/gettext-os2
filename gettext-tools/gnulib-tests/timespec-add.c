@@ -1,10 +1,10 @@
 /* Add two struct timespec values.
 
-   Copyright (C) 2011-2022 Free Software Foundation, Inc.
+   Copyright (C) 2011-2026 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 3 of the License, or
+   the Free Software Foundation, either version 3 of the License, or
    (at your option) any later version.
 
    This program is distributed in the hope that it will be useful,
@@ -23,39 +23,28 @@
 #include <config.h>
 #include "timespec.h"
 
+#include <stdckdint.h>
 #include "intprops.h"
 
 struct timespec
 timespec_add (struct timespec a, struct timespec b)
 {
-  time_t rs = a.tv_sec;
-  time_t bs = b.tv_sec;
-  int ns = a.tv_nsec + b.tv_nsec;
-  int nsd = ns - TIMESPEC_HZ;
-  int rns = ns;
-
-  if (0 <= nsd)
+  int nssum = a.tv_nsec + b.tv_nsec;
+  int carry = TIMESPEC_HZ <= nssum;
+  time_t rs;
+  bool v = ckd_add (&rs, a.tv_sec, b.tv_sec);
+  int rns;
+  if (v == ckd_add (&rs, rs, carry))
+    rns = nssum - TIMESPEC_HZ * carry;
+  else
     {
-      rns = nsd;
-      time_t bs1;
-      if (!INT_ADD_WRAPV (bs, 1, &bs1))
-        bs = bs1;
-      else if (rs < 0)
-        rs++;
-      else
-        goto high_overflow;
-    }
-
-  if (INT_ADD_WRAPV (rs, bs, &rs))
-    {
-      if (bs < 0)
+      if ((TYPE_MINIMUM (time_t) + TYPE_MAXIMUM (time_t)) / 2 < rs)
         {
           rs = TYPE_MINIMUM (time_t);
           rns = 0;
         }
       else
         {
-        high_overflow:
           rs = TYPE_MAXIMUM (time_t);
           rns = TIMESPEC_HZ - 1;
         }

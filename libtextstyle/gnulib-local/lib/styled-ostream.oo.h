@@ -1,6 +1,5 @@
 /* Abstract output stream for CSS styled text.
-   Copyright (C) 2006, 2019 Free Software Foundation, Inc.
-   Written by Bruno Haible <bruno@clisp.org>, 2006.
+   Copyright (C) 2006-2026 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -15,8 +14,12 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
+/* Written by Bruno Haible.  */
+
 #ifndef _STYLED_OSTREAM_H
 #define _STYLED_OSTREAM_H
+
+#include <stdbool.h>
 
 #include "ostream.h"
 
@@ -54,5 +57,17 @@ methods:
   void flush_to_current_style (styled_ostream_t stream);
 };
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
+/* Test whether a given output stream is a styled_ostream.  */
+extern bool is_instance_of_styled_ostream (ostream_t stream);
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _STYLED_OSTREAM_H */

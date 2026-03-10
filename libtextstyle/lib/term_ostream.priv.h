@@ -14,6 +14,7 @@ struct term_ostream_representation
   bool volatile is_windows_console;
   #endif
   char *filename;
+  ttyctl_t tty_control;
    
                                           
   int max_colors;                         

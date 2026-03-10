@@ -1,5 +1,5 @@
 /* Create a pipe, with specific opening flags.
-   Copyright (C) 2009-2022 Free Software Foundation, Inc.
+   Copyright (C) 2009-2026 Free Software Foundation, Inc.
 
    This file is free software: you can redistribute it and/or modify
    it under the terms of the GNU Lesser General Public License as
@@ -23,7 +23,6 @@
 #include <fcntl.h>
 
 #include "binary-io.h"
-#include "verify.h"
 
 #if GNULIB_defined_O_NONBLOCK
 # include "nonblocking.h"
@@ -41,7 +40,7 @@ pipe2 (int fd[2], int flags)
 {
   /* Mingw _pipe() corrupts fd on failure; also, if we succeed at
      creating the pipe but later fail at changing fcntl, we want
-     to leave fd unchanged: http://austingroupbugs.net/view.php?id=467  */
+     to leave fd unchanged: https://austingroupbugs.net/view.php?id=467  */
   int tmp[2];
   tmp[0] = fd[0];
   tmp[1] = fd[1];
@@ -95,7 +94,7 @@ pipe2 (int fd[2], int flags)
     }
 # else
   {
-    verify (O_NONBLOCK == 0);
+    static_assert (O_NONBLOCK == 0);
   }
 # endif
 

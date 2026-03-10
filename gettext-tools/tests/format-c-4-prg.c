@@ -1,5 +1,5 @@
 /* Test program, used by the format-c-4 test.
-   Copyright (C) 2002, 2009, 2013, 2018, 2020 Free Software Foundation, Inc.
+   Copyright (C) 2002-2026 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -14,9 +14,9 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+/* Written by Bruno Haible.  */
+
+#include <config.h>
 
 #include <locale.h>
 #include <stdio.h>
@@ -45,8 +45,6 @@
 extern char *setlocale (int category, const char *locale);
 #endif
 
-#define _(string) gettext (string)
-
 /* Fallback definition.  */
 #if !defined PRId8
 # define PRId8 "d"
@@ -70,6 +68,12 @@ main (int argc, char *argv[])
 
   textdomain ("fc4");
   bindtextdomain ("fc4", "fc4-dir");
+
+  if (strcmp (gettext ("the president"), "der Vorsitzende") != 0)
+    {
+      fprintf (stderr, "Simple messages not translated.\n");
+      exit (1);
+    }
 
   s = ngettext ("father of %"PRId8" child", "father of %"PRId8" children", n);
   c1 = "Vater von %"; c2 = " Kindern";

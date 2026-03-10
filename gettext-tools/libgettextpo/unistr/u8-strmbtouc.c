@@ -1,5 +1,5 @@
 /* Look at first character in UTF-8 string.
-   Copyright (C) 1999-2000, 2002, 2006-2007, 2009-2022 Free Software
+   Copyright (C) 1999-2000, 2002, 2006-2007, 2009-2026 Free Software
    Foundation, Inc.
    Written by Bruno Haible <bruno@clisp.org>, 2002.
 
@@ -7,7 +7,7 @@
    It is dual-licensed under "the GNU LGPLv3+ or the GNU GPLv2+".
    You can redistribute it and/or modify it under either
      - the terms of the GNU Lesser General Public License as published
-       by the Free Software Foundation; either version 3, or (at your
+       by the Free Software Foundation, either version 3, or (at your
        option) any later version, or
      - the terms of the GNU General Public License as published by the
        Free Software Foundation; either version 2, or (at your option)
@@ -63,12 +63,12 @@ u8_strmbtouc (ucs4_t *puc, const uint8_t *s)
               return 3;
             }
         }
-      else if (c < 0xf8)
+      else if (c <= 0xf4)
         {
           if ((s[1] ^ 0x80) < 0x40 && (s[2] ^ 0x80) < 0x40
               && (s[3] ^ 0x80) < 0x40
               && (c >= 0xf1 || s[1] >= 0x90)
-              && (c < 0xf4 || (c == 0xf4 && s[1] < 0x90)))
+              && (c < 0xf4 || (/* c == 0xf4 && */ s[1] < 0x90)))
             {
               *puc = ((unsigned int) (c & 0x07) << 18)
                      | ((unsigned int) (s[1] ^ 0x80) << 12)

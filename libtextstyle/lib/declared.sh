@@ -1,10 +1,10 @@
 #! /bin/sh
 #
-# Copyright (C) 2006-2022 Free Software Foundation, Inc.
+# Copyright (C) 2006-2026 Free Software Foundation, Inc.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 3 of the License, or
+# the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
@@ -39,7 +39,7 @@ Options:
       --help           print this help and exit
       --version        print version information and exit
 
-Report bugs to <bruno@clisp.org>."
+Send patches and bug reports to <bug-gnulib@gnu.org>."
 }
 
 # func_version
@@ -47,11 +47,12 @@ Report bugs to <bruno@clisp.org>."
 func_version ()
 {
   echo "declared.sh (GNU gnulib)"
-  echo "Copyright (C) 2022 Free Software Foundation, Inc.
+  echo "Copyright (C) 2026 Free Software Foundation, Inc.
 License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>
 This is free software: you are free to change and redistribute it.
 There is NO WARRANTY, to the extent permitted by law."
-  echo "Written by" "Bruno Haible"
+  echo
+  printf 'Written by %s.\n' "Bruno Haible"
 }
 
 # func_fatal_error message
@@ -75,7 +76,7 @@ while test $# -gt 0; do
     -- )      # Stop option processing
       shift; break ;;
     -* )
-      func_fatal_error "unrecognized option: $option"
+      func_fatal_error "unrecognized option: $1"
       ;;
     * )
       break ;;

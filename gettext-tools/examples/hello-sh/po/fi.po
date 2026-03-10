@@ -8,7 +8,6 @@ msgid ""
 msgstr ""
 "Project-Id-Version: hello-sh 0.19.4.73\n"
 "Report-Msgid-Bugs-To: bug-gettext@gnu.org\n"
-"POT-Creation-Date: 2022-10-10 00:18+0200\n"
 "PO-Revision-Date: 2015-09-01 16:59+0300\n"
 "Last-Translator: Jorma Karvonen <karvonen.jorma@gmail.com>\n"
 "Language-Team: Finnish <translation-team-fi@lists.sourceforge.net>\n"
@@ -20,11 +19,16 @@ msgstr ""
 "X-Generator: Poedit 1.5.4\n"
 
 # Tämä nimenomainen käännös valittu GNU Hellon mukaisesti.
-#: hello.sh:14
+#: hello-1.sh:14 hello-2.sh:12 hello-3.sh:12
 msgid "Hello, world!"
 msgstr "Terve maailma!"
 
-#: hello.sh:17
+#: hello-1.sh:17
 #, sh-format
 msgid "This program is running as process number $pid."
 msgstr "Tämän ohjelman prosessinumero on $pid."
+
+#: hello-2.sh:15 hello-3.sh:15
+#, sh-printf-format
+msgid "This program is running as process number %u."
+msgstr ""

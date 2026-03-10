@@ -1,5 +1,5 @@
 /* Thread-local storage in multithreaded situations.
-   Copyright (C) 2005, 2007-2022 Free Software Foundation, Inc.
+   Copyright (C) 2005, 2007-2026 Free Software Foundation, Inc.
 
    This file is free software: you can redistribute it and/or modify
    it under the terms of the GNU Lesser General Public License as
@@ -43,6 +43,11 @@
 #ifndef _TLS_H
 #define _TLS_H
 
+/* This file uses HAVE_THREADS_H.  */
+#if !_GL_CONFIG_H_INCLUDED
+ #error "Please include config.h first."
+#endif
+
 #include <errno.h>
 #include <stdlib.h>
 
@@ -66,6 +71,10 @@
 
 # include <threads.h>
 
+# ifdef __cplusplus
+extern "C" {
+# endif
+
 /* ------------------------- gl_tls_key_t datatype ------------------------- */
 
 typedef tss_t gl_tls_key_t;
@@ -78,6 +87,10 @@ typedef tss_t gl_tls_key_t;
 # define glthread_tls_key_destroy(KEY) \
     (tss_delete (*(KEY)), 0)
 
+# ifdef __cplusplus
+}
+# endif
+
 #endif
 
 /* ========================================================================= */
@@ -87,6 +100,10 @@ typedef tss_t gl_tls_key_t;
 /* Use the POSIX threads library.  */
 
 # include <pthread.h>
+
+# ifdef __cplusplus
+extern "C" {
+# endif
 
 # if PTHREAD_IN_USE_DETECTION_HARD
 
@@ -146,6 +163,10 @@ typedef union
 # define glthread_tls_key_destroy(KEY) \
     (pthread_in_use () ? pthread_key_delete ((KEY)->key) : 0)
 
+# ifdef __cplusplus
+}
+# endif
+
 #endif
 
 /* ========================================================================= */
@@ -156,6 +177,10 @@ typedef union
 # include <windows.h>
 
 # include "windows-tls.h"
+
+# ifdef __cplusplus
+extern "C" {
+# endif
 
 /* ------------------------- gl_tls_key_t datatype ------------------------- */
 
@@ -169,6 +194,10 @@ typedef glwthread_tls_key_t gl_tls_key_t;
 # define glthread_tls_key_destroy(KEY) \
     glwthread_tls_key_delete (*(KEY))
 
+# ifdef __cplusplus
+}
+# endif
+
 #endif
 
 /* ========================================================================= */
@@ -176,6 +205,10 @@ typedef glwthread_tls_key_t gl_tls_key_t;
 #if !(USE_ISOC_THREADS || USE_POSIX_THREADS || USE_ISOC_AND_POSIX_THREADS || USE_WINDOWS_THREADS)
 
 /* Provide dummy implementation if threads are not supported.  */
+
+# ifdef __cplusplus
+extern "C" {
+# endif
 
 /* ------------------------- gl_tls_key_t datatype ------------------------- */
 
@@ -194,6 +227,10 @@ typedef struct
     ((KEY)->singlethread_value = (POINTER), 0)
 # define glthread_tls_key_destroy(KEY) \
     0
+
+# ifdef __cplusplus
+}
+# endif
 
 #endif
 

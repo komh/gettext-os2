@@ -1,10 +1,10 @@
 /* Terminal control for outputting styled text to a terminal.
-   Copyright (C) 2019-2022 Free Software Foundation, Inc.
+   Copyright (C) 2019-2026 Free Software Foundation, Inc.
    Written by Bruno Haible <bruno@clisp.org>, 2019.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 3 of the License, or
+   the Free Software Foundation, either version 3 of the License, or
    (at your option) any later version.
 
    This program is distributed in the hope that it will be useful,
@@ -18,10 +18,13 @@
 #ifndef _TERM_STYLE_CONTROL_H
 #define _TERM_STYLE_CONTROL_H
 
-#include <stdbool.h>
-
 /* The user of this file will define a macro 'term_style_user_data', such that
    'struct term_style_user_data' is a user-defined struct.  */
+
+/* This file uses _GL_ASYNC_SAFE, HAVE_TCGETATTR.  */
+#if !_GL_CONFIG_H_INCLUDED
+ #error "Please include config.h first."
+#endif
 
 
 /* The amount of control to take over the underlying tty in order to avoid
@@ -39,7 +42,7 @@ typedef enum
                        be left in the default state when the program is
                        interrupted.  */
   TTYCTL_FULL       /* Signal handling and disabling echo and flush-upon-signal.
-                       Result: No garbled output, and the the terminal will
+                       Result: No garbled output, and the terminal will
                        be left in the default state when the program is
                        interrupted.  */
 } ttyctl_t;

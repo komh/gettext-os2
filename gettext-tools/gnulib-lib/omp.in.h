@@ -1,10 +1,10 @@
 /* OpenMP declarations.
 
-   Copyright (C) 2019-2022 Free Software Foundation, Inc.
+   Copyright (C) 2019-2026 Free Software Foundation, Inc.
 
    This file is free software: you can redistribute it and/or modify
    it under the terms of the GNU Lesser General Public License as
-   published by the Free Software Foundation; either version 3 of the
+   published by the Free Software Foundation, either version 3 of the
    License, or (at your option) any later version.
 
    This file is distributed in the hope that it will be useful,
@@ -23,7 +23,9 @@
 #ifndef _@GUARD_PREFIX@_OMP_H
 
 /* The include_next requires a split double-inclusion guard.  */
-#@INCLUDE_NEXT@ @NEXT_OMP_H@
+#ifdef _OPENMP
+# @INCLUDE_NEXT@ @NEXT_OMP_H@
+#endif
 
 #ifndef _@GUARD_PREFIX@_OMP_H
 #define _@GUARD_PREFIX@_OMP_H

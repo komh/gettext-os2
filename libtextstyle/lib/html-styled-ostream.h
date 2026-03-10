@@ -2,8 +2,7 @@
 
 #line 1 "html-styled-ostream.oo.h"
 /* Output stream for CSS styled text, producing HTML output.
-   Copyright (C) 2006 Free Software Foundation, Inc.
-   Written by Bruno Haible <bruno@clisp.org>, 2006.
+   Copyright (C) 2006-2026 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -18,13 +17,18 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
+/* Written by Bruno Haible.  */
+
 #ifndef _HTML_STYLED_OSTREAM_H
 #define _HTML_STYLED_OSTREAM_H
 
+#include <stdbool.h>
+
 #include "styled-ostream.h"
+#include "html-ostream.h"
 
 
-#line 28 "html-styled-ostream.h"
+#line 32 "html-styled-ostream.h"
 struct html_styled_ostream_representation;
 /* html_styled_ostream_t is defined as a pointer to struct html_styled_ostream_representation.
    In C++ mode, we use a smart pointer class.
@@ -66,6 +70,9 @@ extern         const char * html_styled_ostream_get_hyperlink_ref (html_styled_o
 extern    const char * html_styled_ostream_get_hyperlink_id (html_styled_ostream_t first_arg);
 extern    void         html_styled_ostream_set_hyperlink (html_styled_ostream_t first_arg,                               const char *ref, const char *id);
 extern              void html_styled_ostream_flush_to_current_style (html_styled_ostream_t first_arg);
+extern       ostream_t      html_styled_ostream_get_destination (html_styled_ostream_t first_arg);
+extern    html_ostream_t html_styled_ostream_get_html_destination (html_styled_ostream_t first_arg);
+extern    const char *   html_styled_ostream_get_css_filename (html_styled_ostream_t first_arg);
 #ifdef __cplusplus
 }
 #endif
@@ -174,6 +181,33 @@ html_styled_ostream_flush_to_current_style (html_styled_ostream_t first_arg)
   vtable->flush_to_current_style (first_arg);
 }
 
+# define html_styled_ostream_get_destination html_styled_ostream_get_destination_inline
+static inline ostream_t
+html_styled_ostream_get_destination (html_styled_ostream_t first_arg)
+{
+  const struct html_styled_ostream_implementation *vtable =
+    ((struct html_styled_ostream_representation_header *) (struct html_styled_ostream_representation *) first_arg)->vtable;
+  return vtable->get_destination (first_arg);
+}
+
+# define html_styled_ostream_get_html_destination html_styled_ostream_get_html_destination_inline
+static inline html_ostream_t
+html_styled_ostream_get_html_destination (html_styled_ostream_t first_arg)
+{
+  const struct html_styled_ostream_implementation *vtable =
+    ((struct html_styled_ostream_representation_header *) (struct html_styled_ostream_representation *) first_arg)->vtable;
+  return vtable->get_html_destination (first_arg);
+}
+
+# define html_styled_ostream_get_css_filename html_styled_ostream_get_css_filename_inline
+static inline const char *
+html_styled_ostream_get_css_filename (html_styled_ostream_t first_arg)
+{
+  const struct html_styled_ostream_implementation *vtable =
+    ((struct html_styled_ostream_representation_header *) (struct html_styled_ostream_representation *) first_arg)->vtable;
+  return vtable->get_css_filename (first_arg);
+}
+
 #endif
 
 extern const typeinfo_t html_styled_ostream_typeinfo;
@@ -182,7 +216,7 @@ extern const typeinfo_t html_styled_ostream_typeinfo;
 
 extern const struct html_styled_ostream_implementation html_styled_ostream_vtable;
 
-#line 28 "html-styled-ostream.oo.h"
+#line 36 "html-styled-ostream.oo.h"
 
 
 #ifdef __cplusplus
@@ -197,6 +231,10 @@ extern "C" {
 extern html_styled_ostream_t
        html_styled_ostream_create (ostream_t destination,
                                    const char *css_filename);
+
+
+/* Test whether a given output stream is a html_styled_ostream.  */
+extern bool is_instance_of_html_styled_ostream (ostream_t stream);
 
 
 #ifdef __cplusplus

@@ -1,6 +1,5 @@
 /* Output stream for CSS styled text, producing ANSI escape sequences.
-   Copyright (C) 2006, 2019 Free Software Foundation, Inc.
-   Written by Bruno Haible <bruno@clisp.org>, 2006.
+   Copyright (C) 2006-2026 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -15,8 +14,12 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
+/* Written by Bruno Haible.  */
+
 #ifndef _TERM_STYLED_OSTREAM_H
 #define _TERM_STYLED_OSTREAM_H
+
+#include <stdbool.h>
 
 #include "styled-ostream.h"
 #include "term-ostream.h"
@@ -25,6 +28,9 @@
 struct term_styled_ostream : struct styled_ostream
 {
 methods:
+  /* Accessors.  */
+  term_ostream_t get_destination (term_styled_ostream_t stream);
+  const char *   get_css_filename (term_styled_ostream_t stream);
 };
 
 
@@ -43,6 +49,10 @@ extern term_styled_ostream_t
        term_styled_ostream_create (int fd, const char *filename,
                                    ttyctl_t tty_control,
                                    const char *css_filename);
+
+
+/* Test whether a given output stream is a term_styled_ostream.  */
+extern bool is_instance_of_term_styled_ostream (ostream_t stream);
 
 
 #ifdef __cplusplus

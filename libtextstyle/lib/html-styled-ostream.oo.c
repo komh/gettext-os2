@@ -1,6 +1,5 @@
 /* Output stream for CSS styled text, producing HTML output.
-   Copyright (C) 2006-2007, 2019 Free Software Foundation, Inc.
-   Written by Bruno Haible <bruno@clisp.org>, 2006.
+   Copyright (C) 2006-2026 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -14,6 +13,8 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
+
+/* Written by Bruno Haible.  */
 
 #include <config.h>
 
@@ -32,7 +33,7 @@
 # define O_TEXT 0
 #endif
 
-#include "error.h"
+#include <error.h>
 #include "safe-read.h"
 #include "xalloc.h"
 #include "gettext.h"
@@ -45,6 +46,8 @@ struct html_styled_ostream : struct styled_ostream
 fields:
   /* The destination stream.  */
   ostream_t destination;
+  /* The CSS filename.  */
+  char *css_filename;
   /* A HTML aware wrapper around the destination stream.  */
   html_ostream_t html_destination;
   /* The current hyperlink id.  */
@@ -73,6 +76,7 @@ html_styled_ostream::free (html_styled_ostream_t stream)
   ostream_write_str (stream->destination, "</body>\n");
   ostream_write_str (stream->destination, "</html>\n");
   free (stream->hyperlink_id);
+  free (stream->css_filename);
   free (stream);
 }
 
@@ -128,9 +132,9 @@ html_styled_ostream_create (ostream_t destination, const char *css_filename)
 {
   html_styled_ostream_t stream =
     XMALLOC (struct html_styled_ostream_representation);
-
   stream->base.base.vtable = &html_styled_ostream_vtable;
   stream->destination = destination;
+  stream->css_filename = xstrdup (css_filename);
   stream->html_destination = html_ostream_create (destination);
   stream->hyperlink_id = NULL;
 
@@ -156,10 +160,7 @@ html_styled_ostream_create (ostream_t destination, const char *css_filename)
 
       /* Include the contents of CSS_FILENAME literally.  */
       {
-        int fd;
-        char buf[4096];
-
-        fd = open (css_filename, O_RDONLY | O_TEXT);
+        int fd = open (css_filename, O_RDONLY | O_TEXT);
         if (fd < 0)
           error (EXIT_FAILURE, errno,
                  _("error while opening \"%s\" for reading"),
@@ -167,6 +168,7 @@ html_styled_ostream_create (ostream_t destination, const char *css_filename)
 
         for (;;)
           {
+            char buf[4096];
             size_t n_read = safe_read (fd, buf, sizeof (buf));
             if (n_read == SAFE_READ_ERROR)
               error (EXIT_FAILURE, errno, _("error reading \"%s\""),
@@ -189,4 +191,32 @@ html_styled_ostream_create (ostream_t destination, const char *css_filename)
   ostream_write_str (stream->destination, "<body>\n");
 
   return stream;
+}
+
+/* Accessors.  */
+
+static ostream_t
+html_styled_ostream::get_destination (html_styled_ostream_t stream)
+{
+  return stream->destination;
+}
+
+static html_ostream_t
+html_styled_ostream::get_html_destination (html_styled_ostream_t stream)
+{
+  return stream->html_destination;
+}
+
+static const char *
+html_styled_ostream::get_css_filename (html_styled_ostream_t stream)
+{
+  return stream->css_filename;
+}
+
+/* Instanceof test.  */
+
+bool
+is_instance_of_html_styled_ostream (ostream_t stream)
+{
+  return IS_INSTANCE (stream, ostream, html_styled_ostream);
 }

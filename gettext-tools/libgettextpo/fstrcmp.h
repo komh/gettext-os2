@@ -1,12 +1,12 @@
 /* Fuzzy string comparison.
-   Copyright (C) 1995, 2000, 2002-2003, 2006, 2008-2022 Free Software
+   Copyright (C) 1995, 2000, 2002-2003, 2006, 2008-2026 Free Software
    Foundation, Inc.
 
    This file was written by Peter Miller <pmiller@agso.gov.au>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 3 of the License, or
+the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
