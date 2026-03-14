@@ -28,7 +28,7 @@
 
 #if !(SETLOCALE_NULL_ALL_MTSAFE && SETLOCALE_NULL_ONE_MTSAFE)
 
-# if AVOID_ANY_THREADS
+# if AVOID_ANY_THREADS || OMIT_SETLOCALE_LOCK
 
 /* The option '--disable-threads' explicitly requests no locking.  */
 
@@ -64,7 +64,7 @@
 /* Prohibit renaming this symbol.  */
 # undef gl_get_setlocale_null_lock
 
-# if AVOID_ANY_THREADS
+# if AVOID_ANY_THREADS || OMIT_SETLOCALE_LOCK
 
 /* The option '--disable-threads' explicitly requests no locking.  */
 #  define setlocale_null_r_with_lock setlocale_null_r_unlocked
