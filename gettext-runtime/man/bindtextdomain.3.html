@@ -1,154 +1,35 @@
-<!-- Creator     : groff version 1.22.3 -->
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-"http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-<meta name="generator" content="groff -Thtml, see www.gnu.org">
-<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
 <meta name="Content-Style" content="text/css">
-<style type="text/css">
-       p       { margin-top: 0; margin-bottom: 0; vertical-align: top }
-       pre     { margin-top: 0; margin-bottom: 0; vertical-align: top }
-       table   { margin-top: 0; margin-bottom: 0; vertical-align: top }
-       h1      { text-align: center }
-</style>
-<title>BINDTEXTDOMAIN</title>
-
 </head>
 <body>
-
-<h1 align="center">BINDTEXTDOMAIN</h1>
-
 <a href="#NAME">NAME</a><br>
 <a href="#SYNOPSIS">SYNOPSIS</a><br>
+<a href="##include <libintl.h>">#include <libintl.h></a><br>
 <a href="#DESCRIPTION">DESCRIPTION</a><br>
 <a href="#RETURN VALUE">RETURN VALUE</a><br>
 <a href="#ERRORS">ERRORS</a><br>
 <a href="#BUGS">BUGS</a><br>
 <a href="#SEE ALSO">SEE ALSO</a><br>
-
-<hr>
-
-
-<h2>NAME
-<a name="NAME"></a>
-</h2>
-
-
-<p style="margin-left:11%; margin-top: 1em">bindtextdomain
-- set directory containing message catalogs</p>
-
-<h2>SYNOPSIS
-<a name="SYNOPSIS"></a>
-</h2>
-
-
-<p style="margin-left:11%; margin-top: 1em"><b>#include
-&lt;libintl.h&gt;</b></p>
-
-<p style="margin-left:11%; margin-top: 1em"><b>char *
-bindtextdomain (const char *</b> <i>domainname</i><b>, const
-char *</b> <i>dirname</i><b>);</b></p>
-
-<h2>DESCRIPTION
-<a name="DESCRIPTION"></a>
-</h2>
-
-
-<p style="margin-left:11%; margin-top: 1em">The
-<b>bindtextdomain</b> function sets the base directory of
-the hierarchy containing message catalogs for a given
-message domain.</p>
-
-<p style="margin-left:11%; margin-top: 1em">A message
-domain is a set of translatable <i>msgid</i> messages.
-Usually, every software package has its own message domain.
-The need for calling <b>bindtextdomain</b> arises because
-packages are not always installed with the same prefix as
-the &lt;libintl.h&gt; header and the libc/libintl
-libraries.</p>
-
-<p style="margin-left:11%; margin-top: 1em">Message
-catalogs will be expected at the pathnames
-<i>dirname</i>/<i>locale</i>/<i>category</i>/<i>domainname</i>.mo,
-where <i>locale</i> is a locale name and <i>category</i> is
-a locale facet such as <b>LC_MESSAGES</b>.</p>
-
-
-<p style="margin-left:11%; margin-top: 1em"><i>domainname</i>
-must be a non-empty string.</p>
-
-<p style="margin-left:11%; margin-top: 1em">If
-<i>dirname</i> is not NULL, the base directory for message
-catalogs belonging to domain <i>domainname</i> is set to
-<i>dirname</i>. The function makes copies of the argument
-strings as needed. If the program wishes to call the
-<b>chdir</b> function, it is important that <i>dirname</i>
-be an absolute pathname; otherwise it cannot be guaranteed
-that the message catalogs will be found.</p>
-
-<p style="margin-left:11%; margin-top: 1em">If
-<i>dirname</i> is NULL, the function returns the previously
-set base directory for domain <i>domainname</i>.</p>
-
-<h2>RETURN VALUE
-<a name="RETURN VALUE"></a>
-</h2>
-
-
-<p style="margin-left:11%; margin-top: 1em">If successful,
-the <b>bindtextdomain</b> function returns the current base
-directory for domain <i>domainname</i>, after possibly
-changing it. The resulting string is valid until the next
-<b>bindtextdomain</b> call for the same <i>domainname</i>
-and must not be modified or freed. If a memory allocation
-failure occurs, it sets <b>errno</b> to <b>ENOMEM</b> and
-returns NULL.</p>
-
-<h2>ERRORS
-<a name="ERRORS"></a>
-</h2>
-
-
-<p style="margin-left:11%; margin-top: 1em">The following
-error can occur, among others:</p>
-
-<table width="100%" border="0" rules="none" frame="void"
-       cellspacing="0" cellpadding="0">
-<tr valign="top" align="left">
-<td width="11%"></td>
-<td width="9%">
-
-
-<p><b>ENOMEM</b></p></td>
-<td width="2%"></td>
-<td width="43%">
-
-
-<p>Not enough memory available.</p></td>
-<td width="35%">
-</td></tr>
-</table>
-
-<h2>BUGS
-<a name="BUGS"></a>
-</h2>
-
-
-<p style="margin-left:11%; margin-top: 1em">The return type
-ought to be <b>const char *</b>, but is <b>char *</b> to
-avoid warnings in C code predating ANSI C.</p>
-
-<h2>SEE ALSO
-<a name="SEE ALSO"></a>
-</h2>
-
-
-
-<p style="margin-left:11%; margin-top: 1em"><b>gettext</b>(3),
-<b>dgettext</b>(3), <b>dcgettext</b>(3), <b>ngettext</b>(3),
-<b>dngettext</b>(3), <b>dcngettext</b>(3),
-<b>textdomain</b>(3), <b>realpath</b>(3)</p>
-<hr>
+<!-- Creator     : groff version 1.15-j0.99  -->
+ -->
+<!-- Total number of pages: 1 -->
+<!-- Page: 1 -->
+<!-- left  margin: 100 -->
+<!-- right margin: 750 -->
+<a name="NAME"></a><h2>NAME</h2><p><font size=3>bindtextdomain - set directory containing message catalogs</p>
+<a name="SYNOPSIS"></a><h2>SYNOPSIS</h2><a name="#include <libintl.h>"></a><h2>#include <libintl.h></h2><p><font size=3><B>char * bindtextdomain (const char *</B> <font size=3><I>domainname</I><font size=3><B>, const char *</B> <font size=3><I>dirname</I><font size=3><B>);</p>
+</B><a name="DESCRIPTION"></a><h2>DESCRIPTION</h2><p><font size=3>The <font size=3><B>bindtextdomain</B> <font size=3>function sets the base directory of the hierarchy containing message catalogs for a given message domain.</p>
+<p><font size=3>A message domain is a set of translatable <font size=3><I>msgid</I> <font size=3>messages. Usually, every software package has its own message domain. The need for calling <font size=3><B>bindtextdomain</B> <font size=3>arises because packages are not always installed with the same prefix as the &lt;libintl.h&gt; header and the libc/libintl libraries.</p>
+<p><font size=3>Message catalogs will be expected at the pathnames <font size=3><I>dirname</I><font size=3>/<font size=3><I>locale</I><font size=3>/<font size=3><I>category</I><font size=3>/<font size=3><I>domainname</I><font size=3>.mo, where <font size=3><I>locale</I> <font size=3>is a locale name and <font size=3><I>category</I> <font size=3>is a locale facet such as <font size=3><B>LC_MESSAGES</B><font size=3>.</p>
+<p><font size=3><I>domainname</I> <font size=3>must be a non-empty string.</p>
+<p><font size=3>If <font size=3><I>dirname</I> <font size=3>is not NULL, the base directory for message catalogs belonging to domain <font size=3><I>domainname</I> <font size=3>is set to <font size=3><I>dirname</I><font size=3>. The function makes copies of the argument strings as needed. If the program wishes to call the <font size=3><B>chdir</B> <font size=3>function, it is important that <font size=3><I>dirname</I> <font size=3>be an absolute pathname; otherwise it cannot be guaranteed that the mes- sage catalogs will be found.</p>
+<p><font size=3>If <font size=3><I>dirname</I> <font size=3>is NULL, the function returns the previously set base directory for domain <font size=3><I>domainname</I><font size=3>.</p>
+<a name="RETURN VALUE"></a><h2>RETURN VALUE</h2><p><font size=3>If successful, the <font size=3><B>bindtextdomain</B> <font size=3>function returns the current base directory for domain <font size=3><I>domainname</I><font size=3>, after possi- bly changing it. The resulting string is valid until the next <font size=3><B>bindtextdomain</B> <font size=3>call for the same <font size=3><I>domainname</I> <font size=3>and must not be modified or freed. If a memory allocation failure occurs, it sets <font size=3><B>errno</B> <font size=3>to <font size=3><B>ENOMEM</B> <font size=3>and returns NULL.</p>
+<a name="ERRORS"></a><h2>ERRORS</h2><p><font size=3>The following error can occur, among others:</p>
+<p><font size=3><B>ENOMEM</B> <font size=3>Not enough memory available.</p>
+<a name="BUGS"></a><h2>BUGS</h2><p><font size=3>The return type ought to be <font size=3><B>const char *</B><font size=3>, but is <font size=3><B>char *</B> <font size=3>to avoid warnings in C code predating ANSI C.</p>
+<a name="SEE ALSO"></a><h2>SEE ALSO</h2><p><font size=3><B>gettext</B><font size=3>(3), <font size=3><B>dgettext</B><font size=3>(3), <font size=3><B>dcgettext</B><font size=3>(3), <font size=3><B>ngettext</B><font size=3>(3), <font size=3><B>dngettext</B><font size=3>(3), <font size=3><B>dcngettext</B><font size=3>(3), <font size=3><B>textdomain</B><font size=3>(3), <font size=3><B>realpath</B><font size=3>(3)<br>
+</p>
 </body>
 </html>

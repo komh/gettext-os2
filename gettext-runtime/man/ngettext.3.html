@@ -1,138 +1,60 @@
-<!-- Creator     : groff version 1.22.3 -->
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-"http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-<meta name="generator" content="groff -Thtml, see www.gnu.org">
-<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
 <meta name="Content-Style" content="text/css">
-<style type="text/css">
-       p       { margin-top: 0; margin-bottom: 0; vertical-align: top }
-       pre     { margin-top: 0; margin-bottom: 0; vertical-align: top }
-       table   { margin-top: 0; margin-bottom: 0; vertical-align: top }
-       h1      { text-align: center }
-</style>
-<title>NGETTEXT</title>
-
 </head>
 <body>
-
-<h1 align="center">NGETTEXT</h1>
-
 <a href="#NAME">NAME</a><br>
 <a href="#SYNOPSIS">SYNOPSIS</a><br>
+<a href="##include <libintl.h>">#include <libintl.h></a><br>
 <a href="#DESCRIPTION">DESCRIPTION</a><br>
 <a href="#RETURN VALUE">RETURN VALUE</a><br>
 <a href="#ERRORS">ERRORS</a><br>
 <a href="#BUGS">BUGS</a><br>
 <a href="#SEE ALSO">SEE ALSO</a><br>
+<!-- Creator     : groff version 1.15-j0.99  -->
+ -->
+<!-- Total number of pages: 1 -->
+<!-- Page: 1 -->
+<!-- left  margin: 100 -->
+<!-- right margin: 750 -->
+<a name="NAME"></a><h2>NAME</h2><p><font size=3>ngettext, dngettext, dcngettext - translate message and choose plural form</p>
+<a name="SYNOPSIS"></a><h2>SYNOPSIS</h2><a name="#include <libintl.h>"></a><h2>#include <libintl.h></h2><p><font size=3><B>char * ngettext (const char *</B> <font size=3><I>msgid</I><font size=3><B>, const char *</B> <font size=3><I>msgid_plural</I><font size=3><B>,</p>
+</B>
+<table width="100%"  rules="none"  frame="none"  cols="2">
+<tr valign="top" align="left">
+<td valign="top" align="left"  width="49.2308%">
+<p><font size=3><B><span style=" text-indent: 0.5100in;"></span>unsigned long int</B> <font size=3><I>n</I><font size=3><B>);<br>
+char * dngettext (const char *</B> <font size=3><I>domainname</I><font size=3><B>,<br>
+<span style=" text-indent: 0.5400in;"></span>const char *</B> <font size=3><I>msgid</I><font size=3><B>, const char *</B> <font size=3><I>msgid_plural</I><font size=3><B>,<br>
+<span style=" text-indent: 0.5400in;"></span>unsigned long int</B> <font size=3><I>n</I><font size=3><B>);<br>
+char * dcngettext (const char *</B> <font size=3><I>domainname</I><font size=3><B>,</p>
+</B></td>
+<td valign="top" align="left"  width="50.7692%">
+</td>
+</tr>
+</table>
 
-<hr>
-
-
-<h2>NAME
-<a name="NAME"></a>
-</h2>
-
-
-<p style="margin-left:11%; margin-top: 1em">ngettext,
-dngettext, dcngettext - translate message and choose
-plural form</p>
-
-<h2>SYNOPSIS
-<a name="SYNOPSIS"></a>
-</h2>
-
-
-<p style="margin-left:11%; margin-top: 1em"><b>#include
-&lt;libintl.h&gt;</b></p>
-
-<p style="margin-left:11%; margin-top: 1em"><b>char *
-ngettext (const char *</b> <i>msgid</i><b>, const char *</b>
-<i>msgid_plural</i><b>, <br>
-unsigned long int</b> <i>n</i><b>); <br>
-char * dngettext (const char *</b> <i>domainname</i><b>,
+<table width="100%"  rules="none"  frame="none"  cols="3">
+<tr valign="top" align="left">
+<td valign="top" align="left"  width="8.7692%">
+</td>
+<td valign="top" align="left"  width="40.9231%">
+<p><font size=3><B>const char *</B> <font size=3><I>msgid</I><font size=3><B>, const char *</B> <font size=3><I>msgid_plural</I><font size=3><B>,<br>
+unsigned long int</B> <font size=3><I>n</I><font size=3><B>, int</B> <font size=3><I>category</I><font size=3><B>);</p>
+</B></td>
+<td valign="top" align="left"  width="50.3077%">
+</td>
+</tr>
+</table>
 <br>
-const char *</b> <i>msgid</i><b>, const char *</b>
-<i>msgid_plural</i><b>, <br>
-unsigned long int</b> <i>n</i><b>); <br>
-char * dcngettext (const char *</b> <i>domainname</i><b>,
-<br>
-const char *</b> <i>msgid</i><b>, const char *</b>
-<i>msgid_plural</i><b>, <br>
-unsigned long int</b> <i>n</i><b>, int</b>
-<i>category</i><b>);</b></p>
-
-<h2>DESCRIPTION
-<a name="DESCRIPTION"></a>
-</h2>
-
-
-<p style="margin-left:11%; margin-top: 1em">The
-<b>ngettext</b>, <b>dngettext</b> and <b>dcngettext</b>
-functions attempt to translate a text string into the
-user&rsquo;s native language, by looking up the appropriate
-plural form of the translation in a message catalog.</p>
-
-<p style="margin-left:11%; margin-top: 1em">Plural forms
-are grammatical variants depending on the a number. Some
-languages have two forms, called singular and plural. Other
-languages have three forms, called singular, dual and
-plural. There are also languages with four forms.</p>
-
-<p style="margin-left:11%; margin-top: 1em">The
-<b>ngettext</b>, <b>dngettext</b> and <b>dcngettext</b>
-functions work like the <b>gettext</b>, <b>dgettext</b> and
-<b>dcgettext</b> functions, respectively. Additionally, they
-choose the appropriate plural form, which depends on the
-number <i>n</i> and the language of the message catalog
-where the translation was found.</p>
-
-<p style="margin-left:11%; margin-top: 1em">In the
-&quot;C&quot; locale, or if none of the used catalogs
-contain a translation for <i>msgid</i>, the <b>ngettext</b>,
-<b>dngettext</b> and <b>dcngettext</b> functions return
-<i>msgid</i> if <i>n</i> == 1, or <i>msgid_plural</i> if
-<i>n</i> != 1.</p>
-
-<h2>RETURN VALUE
-<a name="RETURN VALUE"></a>
-</h2>
-
-
-<p style="margin-left:11%; margin-top: 1em">If a
-translation was found in one of the specified catalogs, the
-appropriate plural form is converted to the locale&rsquo;s
-codeset and returned. The resulting string is statically
-allocated and must not be modified or freed. Otherwise
-<i>msgid</i> or <i>msgid_plural</i> is returned, as
-described above.</p>
-
-<h2>ERRORS
-<a name="ERRORS"></a>
-</h2>
-
-
-<p style="margin-left:11%; margin-top: 1em"><b>errno</b> is
-not modified.</p>
-
-<h2>BUGS
-<a name="BUGS"></a>
-</h2>
-
-
-<p style="margin-left:11%; margin-top: 1em">The return type
-ought to be <b>const char *</b>, but is <b>char *</b> to
-avoid warnings in C code predating ANSI C.</p>
-
-<h2>SEE ALSO
-<a name="SEE ALSO"></a>
-</h2>
-
-
-
-<p style="margin-left:11%; margin-top: 1em"><b>gettext</b>(3),
-<b>dgettext</b>(3), <b>dcgettext</b>(3)</p>
-<hr>
+<a name="DESCRIPTION"></a><h2>DESCRIPTION</h2><p><font size=3>The <font size=3><B>ngettext</B><font size=3>, <font size=3><B>dngettext</B> <font size=3>and <font size=3><B>dcngettext</B> <font size=3>functions attempt to translate a text string into the user's native language, by looking up the appropriate plural form of the translation in a message catalog.</p>
+<p><font size=3>Plural forms are grammatical variants depending on the a number. Some languages have two forms, called singu- lar and plural. Other languages have three forms, called singular, dual and plural. There are also languages with four forms.</p>
+<p><font size=3>The <font size=3><B>ngettext</B><font size=3>, <font size=3><B>dngettext</B> <font size=3>and <font size=3><B>dcngettext</B> <font size=3>functions work like the <font size=3><B>gettext</B><font size=3>, <font size=3><B>dgettext</B> <font size=3>and <font size=3><B>dcgettext</B> <font size=3>functions, respec- tively. Additionally, they choose the appropriate plural form, which depends on the number <font size=3><I>n</I> <font size=3>and the language of the message catalog where the translation was found.</p>
+<p><font size=3>In the "C" locale, or if none of the used catalogs contain a translation for <font size=3><I>msgid</I><font size=3>, the <font size=3><B>ngettext</B><font size=3>, <font size=3><B>dngettext</B> <font size=3>and <font size=3><B>dcngettext</B> <font size=3>functions return <font size=3><I>msgid</I> <font size=3>if <font size=3><I>n</I> <font size=3>== 1, or <font size=3><I>msgid_plural</I> <font size=3>if <font size=3><I>n</I> <font size=3>!= 1.</p>
+<a name="RETURN VALUE"></a><h2>RETURN VALUE</h2><p><font size=3>If a translation was found in one of the specified catalogs, the appropriate plural form is converted to the locale's codeset and returned. The resulting string is statically allocated and must not be modified or freed. Otherwise <font size=3><I>msgid</I> <font size=3>or <font size=3><I>msgid_plural</I> <font size=3>is returned, as described above.</p>
+<a name="ERRORS"></a><h2>ERRORS</h2><p><font size=3><B>errno</B> <font size=3>is not modified.</p>
+<a name="BUGS"></a><h2>BUGS</h2><p><font size=3>The return type ought to be <font size=3><B>const char *</B><font size=3>, but is <font size=3><B>char *</B> <font size=3>to avoid warnings in C code predating ANSI C.</p>
+<a name="SEE ALSO"></a><h2>SEE ALSO</h2><p><font size=3><B>gettext</B><font size=3>(3), <font size=3><B>dgettext</B><font size=3>(3), <font size=3><B>dcgettext</B><font size=3>(3)<br>
+</p>
 </body>
 </html>

@@ -426,9 +426,10 @@ am__DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/config.h.in \
 	../../build-aux/config.guess ../../build-aux/config.rpath \
 	../../build-aux/config.sub ../../build-aux/depcomp \
 	../../build-aux/install-sh ../../build-aux/ltmain.sh \
-	../../build-aux/missing ../../build-aux/mkinstalldirs \
-	../../build-aux/texinfo.tex ../../build-aux/ylwrap ABOUT-NLS \
-	AUTHORS COPYING.LIB ChangeLog INSTALL NEWS README plural.c
+	../../build-aux/mdate-sh ../../build-aux/missing \
+	../../build-aux/mkinstalldirs ../../build-aux/texinfo.tex \
+	../../build-aux/ylwrap ABOUT-NLS AUTHORS COPYING.LIB ChangeLog \
+	INSTALL NEWS README plural.c
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 distdir = $(PACKAGE)-$(VERSION)
 top_distdir = $(distdir)
@@ -2204,7 +2205,6 @@ pdfdir = @pdfdir@
 prefix = @prefix@
 program_transform_name = @program_transform_name@
 psdir = @psdir@
-runstatedir = @runstatedir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 srcdir = @srcdir@

@@ -2295,7 +2295,6 @@ program_transform_name = @program_transform_name@
 psdir = @psdir@
 reloc_final_prefix_c = @reloc_final_prefix_c@
 reloc_final_prefix_c_make = @reloc_final_prefix_c_make@
-runstatedir = @runstatedir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 srcdir = @srcdir@
